@@ -39,6 +39,10 @@ private:
     bool m_triangulate_pressed = false;
     sf::Vector2i m_mouse;
 
+    // menu
+    bool m_menu_pressed = false;
+    bool m_menu = false;
+
     bool m_triangulate = false;
     std::vector<WVec> m_triangles;
 };
@@ -50,8 +54,9 @@ public:
     virtual std::unique_ptr<BaseEditorSubState> confirm(Island &island) = 0;
     virtual std::unique_ptr<BaseEditorSubState> cancel() = 0;
     virtual std::unique_ptr<BaseEditorSubState> move(Island &island) = 0;
-    virtual std::unique_ptr<BaseEditorSubState> insert_curve(Island &island) = 0;
-    virtual std::unique_ptr<BaseEditorSubState> delete_curve(Island &island) = 0;
+    virtual std::unique_ptr<BaseEditorSubState> insert_item(Island &island) = 0;
+    virtual std::unique_ptr<BaseEditorSubState> delete_item(Island &island) = 0;
+    virtual std::unique_ptr<BaseEditorSubState> menu(Island &island) = 0;
 
     WVec m_mpos;
 };

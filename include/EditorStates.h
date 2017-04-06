@@ -15,8 +15,9 @@ public:
     EditorSubState confirm(Island &island) override;
     EditorSubState cancel() override {return EditorSubState(new IslandIdle);}
     EditorSubState move(Island &island) override {return EditorSubState(new IslandIdle);}
-    EditorSubState insert_curve(Island &island) override {return EditorSubState(new IslandIdle);}
-    EditorSubState delete_curve(Island &island) override {return EditorSubState(new IslandIdle);}
+    EditorSubState insert_item(Island &island) override {return EditorSubState(new IslandIdle);}
+    EditorSubState delete_item(Island &island) override {return EditorSubState(new IslandIdle);}
+    EditorSubState menu(Island &island) override;
 };
 
 class CurveIdle : public BaseEditorSubState {
@@ -25,8 +26,9 @@ public:
     void draw(sf::RenderWindow &window) override;
     EditorSubState cancel() override {return EditorSubState(new IslandIdle);}
     EditorSubState move(Island &island) override {return EditorSubState(new CurveIdle(m_curve));}
-    EditorSubState insert_curve(Island &island) override;
-    EditorSubState delete_curve(Island &island) override {return EditorSubState(new IslandIdle);}
+    EditorSubState insert_item(Island &island) override;
+    EditorSubState delete_item(Island &island) override {return EditorSubState(new IslandIdle);}
+    EditorSubState menu(Island &island) override;
 
     CurveIdle(const BCurve& curve);
     ~CurveIdle() = default;
@@ -41,8 +43,9 @@ public:
     EditorSubState confirm(Island &island) override {return EditorSubState(new PointIdle(m_point));}
     EditorSubState cancel() override {return EditorSubState(new IslandIdle);}
     EditorSubState move(Island &island) override;
-    EditorSubState insert_curve(Island &island) override {return EditorSubState(new IslandIdle);}
-    EditorSubState delete_curve(Island &island) override;
+    EditorSubState insert_item(Island &island) override {return EditorSubState(new IslandIdle);}
+    EditorSubState delete_item(Island &island) override;
+    EditorSubState menu(Island &island) override;
 
     PointIdle(WVec &point);
     ~PointIdle() = default;
@@ -58,8 +61,9 @@ public:
     EditorSubState confirm(Island &island) override {return EditorSubState(new IslandIdle);}
     EditorSubState cancel() override;
     EditorSubState move(Island &island) override {return EditorSubState(new PointIdle(m_point));}
-    EditorSubState insert_curve(Island &island) override {return EditorSubState(new PointIdle(m_point));}
-    EditorSubState delete_curve(Island &island) override {return EditorSubState(new IslandIdle);}
+    EditorSubState insert_item(Island &island) override {return EditorSubState(new PointIdle(m_point));}
+    EditorSubState delete_item(Island &island) override {return EditorSubState(new IslandIdle);}
+    EditorSubState menu(Island &island) override;
 
     PointMove(WVec &point, const WVec &mouse, WVec &c1, WVec &c2);
     PointMove(WVec &point, const WVec &mouse);
@@ -79,9 +83,10 @@ public:
     void update(const WVec& mpos) override;
     EditorSubState confirm(Island &island) override;
     EditorSubState cancel() override {return EditorSubState(new IslandIdle);}
-    EditorSubState delete_curve(Island &island) override {return EditorSubState(new IslandIdle);}
-    EditorSubState insert_curve(Island &island) override {return EditorSubState(new IslandIdle);}
+    EditorSubState delete_item(Island &island) override {return EditorSubState(new IslandIdle);}
+    EditorSubState insert_item(Island &island) override {return EditorSubState(new IslandIdle);}
     EditorSubState move(Island &island) override {return EditorSubState(new CurveInsert(m_curve));}
+    EditorSubState menu(Island &island) override;
 
     CurveInsert(BCurve curve);
     ~CurveInsert() = default;

@@ -15,11 +15,32 @@ find_library(protobuf libprotobuf)
 find_package(Protobuf REQUIRED)
 PROTOBUF_GENERATE_CPP(protosrc protohdr src/map.proto)
 
-set(SOURCE_FILES src/main.cpp src/Engine.cpp include/Engine.h src/Editor.cpp include/Editor.h src/BCurve.cpp include/BCurve.h include/WindDefs.h src/Island.cpp include/Island.h src/WindDefs.cpp src/EditorStates.cpp include/EditorStates.h include/triangulate.h src/triangulate.cpp src/ColShape.cpp include/ColShape.h src/Collision.cpp include/Collision.h src/CollisionTest.cpp include/CollisionTest.h src/ColGrid.cpp include/ColGrid.h)
+set(SOURCE_FILES src/main.cpp
+        src/Engine.cpp include/Engine.h
+        src/Editor.cpp include/Editor.h
+        src/BCurve.cpp include/BCurve.h
+        include/WindDefs.h src/Island.cpp
+        include/Island.h src/WindDefs.cpp
+        src/EditorStates.cpp
+        include/EditorStates.h
+        include/triangulate.h
+        src/triangulate.cpp
+        src/ColShape.cpp
+        include/ColShape.h
+        src/Collision.cpp
+        include/Collision.h
+        src/CollisionTest.cpp
+        include/CollisionTest.h
+        src/ColGrid.cpp
+        include/ColGrid.h
+        external/src/imgui.cpp
+        external/src/imgui_draw.cpp
+        external/src/imgui-SFML.cpp)
 add_executable(singing_wind ${SOURCE_FILES})
 target_link_libraries(singing_wind
         sfml-system
         sfml-window
         sfml-graphics
         triangle
-        protobuf)
+        protobuf
+        GL)

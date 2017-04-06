@@ -1,6 +1,7 @@
 #include "SFML/Graphics.hpp"
-#include "SFML/OpenGL.hpp"
 #include "Engine.h"
+#include <imgui-SFML.h>
+#include <imgui.h>
 
 int main() {
 
@@ -14,10 +15,13 @@ int main() {
     sf::RenderWindow window(sf::VideoMode(1280, 720), "Editor", sf::Style::Close, settings);
     window.setVerticalSyncEnabled(true);
     Engine engine(window);
+    ImGui::SFML::Init(window);
 
+    sf::Clock imgui_clock;
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
+            ImGui::SFML::ProcessEvent(event);
             if (event.type == sf::Event::Closed) {
                 window.close();
             }
@@ -28,8 +32,10 @@ int main() {
                 engine.set_focus(false);
             }
         }
+        ImGui::SFML::Update(window, imgui_clock.restart());
         engine.update();
 
+        ImGui::Render();
         window.display();
     }
 

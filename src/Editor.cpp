@@ -5,6 +5,8 @@
 #include "Editor.h"
 #include "EditorStates.h"
 #include "triangulate.h"
+#include <imgui.h>
+#include <iostream>
 
 void EngineEditorState::draw(sf::RenderWindow &window) {
     if (m_paused) {
@@ -53,18 +55,40 @@ void EngineEditorState::update(Engine &engine) {
     }
     const sf::RenderWindow& window = engine.get_window();
     auto imouse = sf::Mouse::getPosition(window);
-    auto idiff = imouse - m_mouse;
-    m_mouse = imouse;
     auto mouse = window.mapPixelToCoords(imouse);
-    auto diff = WVec(idiff.x, idiff.y);
+
+
+
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right) and not m_menu_pressed) {
+        m_menu = !m_menu;
+        ImGui::SetNextWindowPos(imouse);
+    }
+    m_menu_pressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Right);
+
+    if (m_menu) {
+        auto transition = m_state->menu(m_island);
+        if (transition != nullptr) {
+            m_state = std::move(transition);
+            m_menu = false;
+        }
+        else {
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) and not m_confirm_pressed) {
+                if (!ImGui::IsAnyItemHovered()) {
+                    m_menu = false;
+                }
+            }
+            m_confirm_pressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+            return;
+        }
+    }
 
     m_state->update(mouse);
 
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right) and not m_confirm_pressed) {
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) and not m_confirm_pressed) {
         m_state = m_state->confirm(m_island);
         triangulate_island(m_island, m_triangles);
     }
-    m_confirm_pressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Right);
+    m_confirm_pressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) and not m_cancel_pressed) {
         m_state = m_state->cancel();
@@ -77,13 +101,13 @@ void EngineEditorState::update(Engine &engine) {
     m_move_pressed = sf::Keyboard::isKeyPressed(sf::Keyboard::G);
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::I) and not m_insert_pressed) {
-        m_state = m_state->insert_curve(m_island);
+        m_state = m_state->insert_item(m_island);
         triangulate_island(m_island, m_triangles);
     }
     m_insert_pressed = sf::Keyboard::isKeyPressed(sf::Keyboard::I);
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) and not m_delete_pressed) {
-        m_state = m_state->delete_curve(m_island);
+        m_state = m_state->delete_item(m_island);
         triangulate_island(m_island, m_triangles);
     }
     m_delete_pressed = sf::Keyboard::isKeyPressed(sf::Keyboard::D);
@@ -94,7 +118,10 @@ void EngineEditorState::update(Engine &engine) {
     m_triangulate_pressed = sf::Keyboard::isKeyPressed(sf::Keyboard::F12);
 
 
+    auto idiff = imouse - m_mouse;
+    m_mouse = imouse;
     if (sf::Mouse::isButtonPressed(sf::Mouse::Middle)) {
+        auto diff = WVec(idiff.x, idiff.y);
         auto view = window.getView();
         view.move(-diff);
         engine.set_view(view);

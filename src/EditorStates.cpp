@@ -4,6 +4,7 @@
 
 #include "EditorStates.h"
 #include <iostream>
+#include <imgui.h>
 
 std::unique_ptr<BaseEditorSubState> IslandIdle::confirm(Island &island) {
     // find curve nearest to cursor
@@ -24,6 +25,20 @@ std::unique_ptr<BaseEditorSubState> IslandIdle::confirm(Island &island) {
     auto curve = BCurve{island.m_points[curve_index], island.m_ctrl_points[curve_index*2],
                         island.m_ctrl_points[curve_index*2 +1], island.m_points[(curve_index+1)%size]};
     return std::unique_ptr<CurveIdle>(new CurveIdle(curve));
+}
+
+EditorSubState IslandIdle::menu(Island &island) {
+    ImGui::Begin("island idle");
+    if (ImGui::Button("select curve nearest to cursor")) {
+        ImGui::End();
+        return confirm(island);
+    }
+    if (ImGui::Button("cancel")) {
+        ImGui::End();
+        return cancel();
+    }
+    ImGui::End();
+    return nullptr;
 }
 
 CurveIdle::CurveIdle(const BCurve &curve) : m_curve(curve) {
@@ -67,8 +82,22 @@ EditorSubState CurveIdle::confirm(Island &island) {
     return EditorSubState(new PointIdle(*it));
 }
 
-EditorSubState CurveIdle::insert_curve(Island &island) {
+EditorSubState CurveIdle::insert_item(Island &island) {
     return EditorSubState(new CurveInsert(m_curve));
+}
+
+EditorSubState CurveIdle::menu(Island &island) {
+    ImGui::Begin("curve idle");
+    if (ImGui::Button("add point")) {
+        ImGui::End();
+        return insert_item(island);
+    }
+    if (ImGui::Button("cancel")) {
+        ImGui::End();
+        return cancel();
+    }
+    ImGui::End();
+    return nullptr;
 }
 
 PointIdle::PointIdle(WVec &point) : m_point(point){
@@ -93,7 +122,7 @@ EditorSubState PointIdle::move(Island &island) {
     return EditorSubState(new PointMove(m_point, m_mpos));
 }
 
-EditorSubState PointIdle::delete_curve(Island &island) {
+EditorSubState PointIdle::delete_item(Island &island) {
     auto size = island.m_points.size();
     if (island.m_points.size() == 4) {
         return EditorSubState(new IslandIdle);
@@ -120,6 +149,24 @@ EditorSubState PointIdle::delete_curve(Island &island) {
     return EditorSubState(new IslandIdle);
 }
 
+EditorSubState PointIdle::menu(Island &island) {
+    ImGui::Begin("point idle");
+    if (ImGui::Button("move point")) {
+        ImGui::End();
+        return move(island);
+    }
+    if (ImGui::Button("delete point")) {
+        ImGui::End();
+        return delete_item(island);
+    }
+    if (ImGui::Button("cancel")) {
+        ImGui::End();
+        return cancel();
+    }
+    ImGui::End();
+    return nullptr;
+}
+
 void PointMove::update(const WVec &mpos) {
     auto diff = m_mpos - mpos;
     BaseEditorSubState::update(mpos);
@@ -133,8 +180,10 @@ void PointMove::update(const WVec &mpos) {
 EditorSubState PointMove::cancel() {
     auto diff = m_point - m_orig_point;
     m_point = m_orig_point;
-    m_c1 -= diff;
-    m_c2 -= diff;
+    if (!ctrl) {
+        m_c1 -= diff;
+        m_c2 -= diff;
+    }
     return EditorSubState(new IslandIdle);
 }
 
@@ -155,6 +204,20 @@ PointMove::PointMove(WVec &point, const WVec &mouse) : m_point(point), m_c1(poin
     ctrl = true;
     m_orig_point = m_point;
     m_mpos = mouse;
+}
+
+EditorSubState PointMove::menu(Island &island) {
+    ImGui::Begin("point move");
+    if (ImGui::Button("place point here")) {
+        ImGui::End();
+        return confirm(island);
+    }
+    if (ImGui::Button("cancel")) {
+        ImGui::End();
+        return cancel();
+    }
+    ImGui::End();
+    return nullptr;
 }
 
 void CurveInsert::draw(sf::RenderWindow &window) {
@@ -201,4 +264,18 @@ EditorSubState CurveInsert::confirm(Island &island) {
     island.m_points.insert(it, new_point);
 
     return EditorSubState(new IslandIdle);
+}
+
+EditorSubState CurveInsert::menu(Island &island) {
+    ImGui::Begin("curve insert");
+    if (ImGui::Button("insert curve here")) {
+        ImGui::End();
+        return confirm(island);
+    }
+    if (ImGui::Button("cancel")) {
+        ImGui::End();
+        return cancel();
+    }
+    ImGui::End();
+    return nullptr;
 }
