@@ -86,7 +86,7 @@ void EngineEditorState::update(Engine &engine) {
 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) and not m_confirm_pressed) {
         m_state = m_state->confirm(m_island);
-        triangulate_island(m_island, m_triangles);
+        update_world(engine);
     }
     m_confirm_pressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
 
@@ -102,13 +102,13 @@ void EngineEditorState::update(Engine &engine) {
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::I) and not m_insert_pressed) {
         m_state = m_state->insert_item(m_island);
-        triangulate_island(m_island, m_triangles);
+        update_world(engine);
     }
     m_insert_pressed = sf::Keyboard::isKeyPressed(sf::Keyboard::I);
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) and not m_delete_pressed) {
         m_state = m_state->delete_item(m_island);
-        triangulate_island(m_island, m_triangles);
+        update_world(engine);
     }
     m_delete_pressed = sf::Keyboard::isKeyPressed(sf::Keyboard::D);
 
@@ -127,5 +127,10 @@ void EngineEditorState::update(Engine &engine) {
         engine.set_view(view);
     }
 
+}
+
+void EngineEditorState::update_world(Engine &engine) {
+    triangulate_island(m_island, m_triangles);
+    engine.editor_to_game();
 }
 

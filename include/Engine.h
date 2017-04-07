@@ -32,10 +32,14 @@ public:
     bool get_focus() const {return m_has_focus;}
 
     void set_view(const sf::View &view);
+
+    void editor_to_game();
 private:
     bool m_has_focus = true;
     std::vector<std::unique_ptr<EngineState>> m_states;
     sf::RenderWindow& window;
+    size_t m_game_index = std::numeric_limits<long>::max();
+    size_t m_editor_index = std::numeric_limits<long>::max();
 
     // switch
     bool m_switch_pressed = false;

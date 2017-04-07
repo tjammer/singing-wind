@@ -37,37 +37,20 @@ private:
     BCurve m_curve;
 };
 
-class PointIdle : public BaseEditorSubState {
-public:
-    void draw(sf::RenderWindow &window) override;
-    EditorSubState confirm(Island &island) override {return EditorSubState(new PointIdle(m_point));}
-    EditorSubState cancel() override {return EditorSubState(new IslandIdle);}
-    EditorSubState move(Island &island) override;
-    EditorSubState insert_item(Island &island) override {return EditorSubState(new IslandIdle);}
-    EditorSubState delete_item(Island &island) override;
-    EditorSubState menu(Island &island) override;
-
-    PointIdle(WVec &point);
-    ~PointIdle() = default;
-
-private:
-    WVec& m_point;
-};
-
-class PointMove : public BaseEditorSubState {
+class PointEdit : public BaseEditorSubState {
 public:
     void update(const WVec& mpos) override;
     void draw(sf::RenderWindow &window) override;
     EditorSubState confirm(Island &island) override {return EditorSubState(new IslandIdle);}
     EditorSubState cancel() override;
-    EditorSubState move(Island &island) override {return EditorSubState(new PointIdle(m_point));}
-    EditorSubState insert_item(Island &island) override {return EditorSubState(new PointIdle(m_point));}
-    EditorSubState delete_item(Island &island) override {return EditorSubState(new IslandIdle);}
+    EditorSubState move(Island &island) override {return EditorSubState(new IslandIdle());}
+    EditorSubState insert_item(Island &island) override {return EditorSubState(new IslandIdle());}
+    EditorSubState delete_item(Island &island) override;
     EditorSubState menu(Island &island) override;
 
-    PointMove(WVec &point, const WVec &mouse, WVec &c1, WVec &c2);
-    PointMove(WVec &point, const WVec &mouse);
-    ~PointMove() = default;
+    PointEdit(WVec &point, const WVec &mouse, WVec &c1, WVec &c2);
+    PointEdit(WVec &point, const WVec &mouse);
+    ~PointEdit() = default;
 
 private:
     WVec &m_point;

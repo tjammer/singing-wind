@@ -1,0 +1,16 @@
+syntax = "proto3";
+package scene;
+
+message Point {
+    float x = 1;
+    float y = 2;
+}
+
+message Island {
+    repeated Point points = 1;
+    repeated Point ctrl_points = 2;
+}
+
+message Scene {
+    repeated Island islands = 1;
+}

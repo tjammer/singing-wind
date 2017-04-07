@@ -45,6 +45,8 @@ private:
 
     bool m_triangulate = false;
     std::vector<WVec> m_triangles;
+
+    void update_world(Engine &engine);
 };
 
 class BaseEditorSubState {

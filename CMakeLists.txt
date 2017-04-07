@@ -2,10 +2,8 @@ cmake_minimum_required(VERSION 3.6)
 project(singing_wind)
 
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} -Wall -O0")
-set(CMAKE_CXX_FLAGS_RELEASE   "${CMAKE_CXX_FLAGS_RELEASE} -Wall -O2")
 
-add_definitions(-fno-exceptions)
+add_definitions(-fno-exceptions -Wall)
 
 include_directories ("${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/external/include")
 link_directories("${PROJECT_SOURCE_DIR}/external/lib")
@@ -13,7 +11,7 @@ link_directories("${PROJECT_SOURCE_DIR}/external/lib")
 
 find_library(protobuf libprotobuf)
 find_package(Protobuf REQUIRED)
-PROTOBUF_GENERATE_CPP(protosrc protohdr src/map.proto)
+PROTOBUF_GENERATE_CPP(protosrc protohdr src/Scene.proto)
 
 set(SOURCE_FILES src/main.cpp
         src/Engine.cpp include/Engine.h
@@ -36,7 +34,7 @@ set(SOURCE_FILES src/main.cpp
         external/src/imgui.cpp
         external/src/imgui_draw.cpp
         external/src/imgui-SFML.cpp)
-add_executable(singing_wind ${SOURCE_FILES})
+add_executable(singing_wind ${SOURCE_FILES} ${protosrc} ${protohdr})
 target_link_libraries(singing_wind
         sfml-system
         sfml-window
