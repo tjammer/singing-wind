@@ -13,6 +13,7 @@ public:
     Island(WVec pos, float spread);
     ~Island() {}
 
+    void clear() {m_points.clear(); m_ctrl_points.clear();}
     std::vector<WVec> m_points;
     std::vector<WVec> m_ctrl_points;
 

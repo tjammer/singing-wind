@@ -8,6 +8,7 @@
 #include "SFML/Graphics.hpp"
 #include <vector>
 #include <memory>
+#include "GameWorld.h"
 
 class EngineState;
 
@@ -33,7 +34,7 @@ public:
 
     void set_view(const sf::View &view);
 
-    void editor_to_game();
+    GameWorld &get_world();
 private:
     bool m_has_focus = true;
     std::vector<std::unique_ptr<EngineState>> m_states;

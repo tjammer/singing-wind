@@ -4,14 +4,13 @@
 
 #include "Engine.h"
 #include "Editor.h"
-#include "CollisionTest.h"
+#include "Game.h"
 
 Engine::Engine(sf::RenderWindow &window) : window(window) {
-    m_states.emplace_back(new CollisionTestState);
+    m_states.emplace_back(new Game);
     m_game_index = m_states.size() - 1;
-    m_states.emplace_back(new EngineEditorState);
+    m_states.emplace_back(new EngineEditorState("debug.wscn", get_world()));
     m_editor_index = m_states.size() - 1;
-    editor_to_game();
     // transition to editor
     m_states[m_game_index]->pause();
     auto view = window.getView();
@@ -21,11 +20,8 @@ Engine::Engine(sf::RenderWindow &window) : window(window) {
 
 void Engine::update() {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::F1) and not m_switch_pressed) {
-        m_states[0]->switch_pause();
-        m_states[1]->switch_pause();
-        if (m_states[1]->m_paused) {
-            editor_to_game();
-        }
+        m_states[m_game_index]->switch_pause();
+        m_states[m_editor_index]->switch_pause();
     }
     m_switch_pressed = sf::Keyboard::isKeyPressed(sf::Keyboard::F1);
 
@@ -49,8 +45,6 @@ void Engine::set_view(const sf::View &view) {
     window.setView(view);
 }
 
-void Engine::editor_to_game() {
-    EngineEditorState* ees = dynamic_cast<EngineEditorState*>(m_states[m_editor_index].get());
-    CollisionTestState* cts = dynamic_cast<CollisionTestState*>(m_states[m_game_index].get());
-    cts->receive_tris(ees->get_triangles());
+GameWorld &Engine::get_world() {
+    return (*dynamic_cast<Game*>(m_states[m_game_index].get())).get_world();
 }

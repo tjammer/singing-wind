@@ -5,11 +5,13 @@
 #ifndef SINGING_WIND_WINDDEFS_H
 #define SINGING_WIND_WINDDEFS_H
 
-#include "SFML/Graphics.hpp"
+#include <SFML/Graphics.hpp>
 #include <math.h>
+#include <bitset>
 
 using WVec = sf::Vector2f;
 using WTransform = sf::Transform;
+using bset = std::bitset<12>;
 
 float w_magnitude(const WVec &v);
 

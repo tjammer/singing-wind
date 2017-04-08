@@ -6,7 +6,8 @@
 #define SINGING_WIND_EDITOR_H
 
 #include "Engine.h"
-#include "Island.h"
+#include "GameWorld.h"
+#include <map>
 
 const float point_size = 5;
 const float ctrl_point_size = 4;
@@ -15,6 +16,15 @@ const float line_draw_distance = 10.f;
 
 class BaseEditorSubState;
 
+enum EditorButtons {
+    Confirm,
+    Cancel,
+    Move,
+    Insert,
+    Delete,
+    Menu
+};
+
 class EngineEditorState : public EngineState {
 public:
     void cleanup() override {}
@@ -22,31 +32,24 @@ public:
     void update(Engine &engine) override;
     void draw(sf::RenderWindow &window) override ;
 
-    EngineEditorState();
+    EngineEditorState(const std::string &scene_name, GameWorld& game_world);
     ~EngineEditorState() = default;
 
-    const std::vector<WVec>& get_triangles() const {return m_triangles;}
-
 private:
-    Island m_island;
+    GameWorld &game_world;
+    Island &m_island;
     std::unique_ptr<BaseEditorSubState> m_state;
     // last frame
-    bool m_confirm_pressed = false;
-    bool m_cancel_pressed = false;
-    bool m_move_pressed = false;
-    bool m_insert_pressed = false;
-    bool m_delete_pressed = false;
-    bool m_triangulate_pressed = false;
+    std::map<EditorButtons, bool> m_pressed;
     sf::Vector2i m_mouse;
 
     // menu
-    bool m_menu_pressed = false;
     bool m_menu = false;
+    bool menu();
 
-    bool m_triangulate = false;
-    std::vector<WVec> m_triangles;
-
-    void update_world(Engine &engine);
+    void update_world();
+    bool load_scene(const std::string &name);
+    void save_scene(const std::string &name);
 };
 
 class BaseEditorSubState {

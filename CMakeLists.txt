@@ -5,7 +5,9 @@ set(CMAKE_CXX_STANDARD 11)
 
 add_definitions(-fno-exceptions -Wall)
 
-include_directories ("${PROJECT_SOURCE_DIR}/include" "${PROJECT_SOURCE_DIR}/external/include")
+include_directories (${PROJECT_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}/external/include
+        ${CMAKE_CURRENT_BINARY_DIR})
 link_directories("${PROJECT_SOURCE_DIR}/external/lib")
 
 
@@ -33,7 +35,7 @@ set(SOURCE_FILES src/main.cpp
         include/ColGrid.h
         external/src/imgui.cpp
         external/src/imgui_draw.cpp
-        external/src/imgui-SFML.cpp)
+        external/src/imgui-SFML.cpp src/GameWorld.cpp include/GameWorld.h src/Game.cpp include/Game.h)
 add_executable(singing_wind ${SOURCE_FILES} ${protosrc} ${protohdr})
 target_link_libraries(singing_wind
         sfml-system
