@@ -9,8 +9,6 @@
 #include "Island.h"
 #include "ColGrid.h"
 #include "Components.h"
-#include "CollisionTest.h"
-#include "DebugDrawSystem.h"
 
 // implements the ecs
 class GameWorld {
@@ -30,10 +28,11 @@ public:
         std::vector<PosComponent> m_pos_c;
         std::vector<DebugComponent> m_debug_c;
         std::vector<IdComponent> m_id_c;
+        std::vector<InputComponent> m_input_c;
+        std::vector<MoveComponent> m_move_c;
+        std::vector<StaticColComponent> m_static_col_c;
 
         // systems
-        ColTestSystem m_test_system;
-        DebugDrawSystem m_debug_draw_system;
 
     // communication with editor
     Island &get_island_ref() {return m_island;};
@@ -47,18 +46,8 @@ public:
 private:
 };
 
-enum Components {
-    CPosition,
-    CMovement,
-    CCollision,
-    CAppearance,
-    CInput,
-    CDebugDraw
-};
-
 template<typename bs1, typename bs2>
-bool has_component(bs1 entity, bs2 component_mask)
-{
+bool has_component(bs1 entity, bs2 component_mask) {
     return (entity & component_mask) == component_mask;
 }
 

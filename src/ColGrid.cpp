@@ -8,7 +8,7 @@ const int P1 = 73856093;
 const int P2 = 19349663;
 
 StaticGrid::StaticGrid() {
-    cell_size = static_cast<uint>(line_triangulate_split * 1.5f);
+    cell_size = static_cast<uint>(c_line_triangulate_split * 1.5f);
 }
 
 int StaticGrid::get_id(const WVec &v) const {

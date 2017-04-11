@@ -12,7 +12,7 @@ void triangulate_island(const Island &island, std::vector<WVec> &tri_vector) {
     for (uint i = 0 ; i < island.m_points.size() ; ++i) {
         const auto curve = BCurve{island.m_points[i], island.m_ctrl_points[i*2],
                             island.m_ctrl_points[i*2 +1], island.m_points[(i+1)%island.m_points.size()]};
-        auto points = curve.points_along_curve(line_triangulate_split);
+        auto points = curve.points_along_curve(c_line_triangulate_split);
         for (const auto &point : points) {
             verts.push_back(point);
         }

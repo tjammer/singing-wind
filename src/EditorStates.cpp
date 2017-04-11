@@ -50,12 +50,12 @@ CurveIdle::CurveIdle(const BCurve &curve) : m_curve(curve) {
 void CurveIdle::draw(sf::RenderWindow &window) {
     sf::VertexArray va(sf::Quads);
     sf::VertexArray lines(sf::Lines);
-    for (auto v : m_curve.line_along_curve(line_draw_distance)) {
+    for (auto v : m_curve.line_along_curve(c_line_draw_distance)) {
         va.append(sf::Vertex(v, sf::Color(128, 8, 128)));
     }
 
     for (const auto& point : {m_curve.from, m_curve.ctrl_from, m_curve.ctrl_to, m_curve.to}) {
-        for (const auto& v : make_quad(point, ctrl_point_size)) {
+        for (const auto& v : make_quad(point, c_ctrl_point_size)) {
             va.append(sf::Vertex(v, sf::Color(255, 255, 255)));
         }
     }
@@ -140,7 +140,7 @@ EditorSubState PointEdit::cancel() {
 
 void PointEdit::draw(sf::RenderWindow &window) {
     sf::VertexArray va(sf::Quads);
-    for (const auto &v : make_quad(m_point, point_size)) {
+    for (const auto &v : make_quad(m_point, c_point_size)) {
         va.append(sf::Vertex(v, sf::Color(128, 8, 128)));
     }
     window.draw(va);
@@ -209,11 +209,11 @@ void CurveInsert::draw(sf::RenderWindow &window) {
     float t_high = fmin(m_new_point_t + 0.01f, 1.f);
 
     auto base = m_curve.eval(t_low);
-    va.append(sf::Vertex(base + m_curve.eval_perpendicular(t_low) * line_size, sf::Color(128, 8, 128)));
-    va.append(sf::Vertex(base - m_curve.eval_perpendicular(t_low) * line_size, sf::Color(128, 8, 128)));
+    va.append(sf::Vertex(base + m_curve.eval_perpendicular(t_low) * c_line_size, sf::Color(128, 8, 128)));
+    va.append(sf::Vertex(base - m_curve.eval_perpendicular(t_low) * c_line_size, sf::Color(128, 8, 128)));
     base = m_curve.eval(t_high);
-    va.append(sf::Vertex(base - m_curve.eval_perpendicular(t_high) * line_size, sf::Color(128, 8, 128)));
-    va.append(sf::Vertex(base + m_curve.eval_perpendicular(t_high) * line_size, sf::Color(128, 8, 128)));
+    va.append(sf::Vertex(base - m_curve.eval_perpendicular(t_high) * c_line_size, sf::Color(128, 8, 128)));
+    va.append(sf::Vertex(base + m_curve.eval_perpendicular(t_high) * c_line_size, sf::Color(128, 8, 128)));
     window.draw(va);
 }
 

@@ -9,7 +9,7 @@
 
 struct ColResult {
     bool collides = false;
-    WVec normal;
+    WVec normal = {0, 0};
     float depth = 0.f;
     float e = 0.f;
 };

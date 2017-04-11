@@ -34,12 +34,12 @@ std::vector<WVec> BCurve::line_along_curve(float distance) const {
     for (int i = 0; i < static_cast<int>(frac); ++i) {
         auto t = fmin(static_cast<float>(i) / frac, 1.0f);
         auto base = eval(t);
-        out.push_back(base + eval_perpendicular(t) * line_size);
-        out.push_back(base - eval_perpendicular(t) * line_size);
+        out.push_back(base + eval_perpendicular(t) * c_line_size);
+        out.push_back(base - eval_perpendicular(t) * c_line_size);
         t = fmin(static_cast<float>(i+1) / frac, 1.0f);
         base = eval(t);
-        out.push_back(base - eval_perpendicular(t) * line_size);
-        out.push_back(base + eval_perpendicular(t) * line_size);
+        out.push_back(base - eval_perpendicular(t) * c_line_size);
+        out.push_back(base + eval_perpendicular(t) * c_line_size);
     }
     return out;
 }

@@ -7,8 +7,8 @@
 
 using namespace sf;
 
-const float epsilon = 0.001f;
-const int max_it = 20;
+const float c_epsilon = 0.001f;
+const int c_max_it = 20;
 
 ColResult static_collide(const ColShape &a, const ColShape &b) {
     ColResult result;
@@ -16,7 +16,7 @@ ColResult static_collide(const ColShape &a, const ColShape &b) {
     Simplex s;
     WVec w = a.get_support(-v) - b.get_support(v);
     int it = 0;
-    while ((dot(v, v) - dot(v, w)) > epsilon && it < max_it) {
+    while ((dot(v, v) - dot(v, w)) > c_epsilon && it < c_max_it) {
         s.add(w);
         /*	if (dot(v, w) > 0)
                 break;*/
@@ -30,8 +30,8 @@ ColResult static_collide(const ColShape &a, const ColShape &b) {
     result.collides = dot(v, v) == 0.f;
     if (result.collides) {
         WVec normal;
-        result.e = find_closest_edge(s).distance;
         result.depth = find_normal_epa(a, b, s, normal);
+        result.e = find_closest_edge(s).distance;
         result.normal = normal;
     }
     else
@@ -47,7 +47,7 @@ float find_normal_epa(const ColShape &a, const ColShape &b, Simplex &s, WVec &no
         auto p = a.get_support(e.normal) - b.get_support(-e.normal);
         float d = dot(p, e.normal);
         float test = d - e.distance;
-        if (test < epsilon || test == dist || it > 5) {
+        if (test < c_epsilon || test == dist || it > 5) {
             normal = e.normal;
             return d;
         }
@@ -288,7 +288,7 @@ void Simplex::solve3(const WVec & x) {
 WVec find_directed_overlap(const ColResult &result, const WVec &direction) {
     auto dir = w_normalize(direction);
     auto projection = dot(-dir, result.normal);
-    if (abs(projection) < epsilon) {
+    if (abs(projection) < c_epsilon) {
         return result.normal * result.depth;
     }
     return dir * (result.depth / projection - .01f); // - result.normal * .001f;

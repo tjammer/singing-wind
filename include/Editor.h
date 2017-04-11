@@ -9,10 +9,10 @@
 #include "GameWorld.h"
 #include <map>
 
-const float point_size = 5;
-const float ctrl_point_size = 4;
-const float line_size = 2.5f;
-const float line_draw_distance = 10.f;
+const float c_point_size = 5;
+const float c_ctrl_point_size = 4;
+const float c_line_size = 2.5f;
+const float c_line_draw_distance = 10.f;
 
 class BaseEditorSubState;
 

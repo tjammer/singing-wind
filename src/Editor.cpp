@@ -16,13 +16,13 @@ void EngineEditorState::draw(sf::RenderWindow &window) {
     }
     using namespace sf;
 
-    auto curves = m_island.get_curves(line_draw_distance);
+    auto curves = m_island.get_curves(c_line_draw_distance);
     VertexArray va(Quads);
     for (auto& v : curves) {
         va.append(v);
     }
 
-    auto verts = m_island.get_points(point_size);
+    auto verts = m_island.get_points(c_point_size);
     for (auto& v : verts) {
         va.append(v);
     }
