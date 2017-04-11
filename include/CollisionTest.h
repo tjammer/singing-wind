@@ -5,27 +5,18 @@
 #ifndef SINGING_WIND_COLLISIONTEST_H
 #define SINGING_WIND_COLLISIONTEST_H
 
-#include "Engine.h"
-#include "ColShape.h"
-#include "ColGrid.h"
+#include "WindDefs.h"
 
-class CollisionTestState : public EngineState {
-public:
-    void cleanup() override {};
+class GameWorld;
 
-    void update(Engine& engine) override;
-    void draw(sf::RenderWindow& window);
+unsigned int create_coll_test(GameWorld &world, const WVec &position, unsigned int parent);
 
-    CollisionTestState();
-    ~CollisionTestState() = default;
+struct ColTestSystem {
+    const bset components;
+    void update(GameWorld &world, const WVec &mouse);
 
-    void receive_tris(const std::vector<WVec> triangles);
-
-private:
-    std::shared_ptr<ColShape> m_circle;
-    WTransform m_circle_tf;
-    StaticGrid m_grid;
+    ColTestSystem();
+    ~ColTestSystem() = default;
 };
-
 
 #endif //SINGING_WIND_COLLISIONTEST_H

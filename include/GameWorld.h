@@ -8,6 +8,9 @@
 #include "WindDefs.h"
 #include "Island.h"
 #include "ColGrid.h"
+#include "Components.h"
+#include "CollisionTest.h"
+#include "DebugDrawSystem.h"
 
 // implements the ecs
 class GameWorld {
@@ -18,24 +21,30 @@ public:
     // maybe a timer?
     void step_fixed(const WVec &mouse);
     void pre_draw(float dt);
-    void draw(sf::RenderWindow& window) const;
+    void draw(sf::RenderWindow& window);
 
+    // ecs stuff
     std::vector<bset> m_entities;
 
-    // components
+        // components
+        std::vector<PosComponent> m_pos_c;
+        std::vector<DebugComponent> m_debug_c;
+        std::vector<IdComponent> m_id_c;
 
-    // systems
-
-    void load_scene(std::string &name);
+        // systems
+        ColTestSystem m_test_system;
+        DebugDrawSystem m_debug_draw_system;
 
     // communication with editor
     Island &get_island_ref() {return m_island;};
     void update_triangles();
-private:
-    Island m_island;
+
+    unsigned int create_entity();
+
+    // members
     StaticGrid m_grid;
-    std::shared_ptr<ColShape> m_circle;
-    WTransform m_circle_tf;
+    Island m_island;
+private:
 };
 
 enum Components {
@@ -43,8 +52,15 @@ enum Components {
     CMovement,
     CCollision,
     CAppearance,
-    CInput
+    CInput,
+    CDebugDraw
 };
+
+template<typename bs1, typename bs2>
+bool has_component(bs1 entity, bs2 component_mask)
+{
+    return (entity & component_mask) == component_mask;
+}
 
 
 #endif //SINGING_WIND_GAMEWORLD_H

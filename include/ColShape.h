@@ -8,7 +8,7 @@
 #include "WindDefs.h"
 #include <array>
 
-const float line_triangulate_split = 150.f;
+const float line_triangulate_split = 350.f;
 
 struct ColResult;
 

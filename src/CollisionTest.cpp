@@ -4,86 +4,102 @@
 
 #include "CollisionTest.h"
 #include "Collision.h"
+#include "GameWorld.h"
 
-void CollisionTestState::update(Engine &engine) {
-    if (!engine.get_focus()) {
-        return;
+unsigned int create_coll_test(GameWorld &world, const WVec &position, unsigned int parent) {
+    auto entity = world.create_entity();
+    bset comps;
+    for (auto i : {CPosition, CDebugDraw}) {
+        comps.set(i);
     }
-    const sf::RenderWindow &window = engine.get_window();
-    auto mouse = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-    WVec vel = (mouse - m_circle_tf.transformPoint(0, 0)) * 0.1f;
-    m_circle_tf.translate(vel).rotate(33);
+    world.m_entities[entity] = comps;
+    world.m_pos_c[entity].position = position;
+    world.m_pos_c[entity].parent = parent;
+    WTransform trans;
+    world.m_pos_c[entity].global_transform = trans.combine(world.m_pos_c[parent].global_transform).translate(position);
 
-    for (auto &tri : m_grid.get_objects()) {
-        tri->m_highlight = false;
-    }
-    //circle to world
-    m_circle->transform(m_circle_tf);
-    ColResult result;
+    world.m_debug_c[entity].shape = std::shared_ptr<ColShape>(new ColCapsule(25, 50));
 
-    auto colliders = m_grid.find_colliders(m_circle);
-    for (const auto &tri : colliders) {
-        auto cr = m_circle->collides(*tri);
-        if (cr.collides) {
-            tri->m_highlight = true;
-            if (cr.e > result.e) {
-                result = cr;
-            }
+    world.m_id_c[entity] = "CollisionTest";
+
+    return entity;
+}
+
+void ColTestSystem::update(GameWorld &world, const WVec &mouse) {
+    for (unsigned int entity = 0; entity < world.m_entities.size(); ++entity) {
+        if (!has_component(world.m_entities[entity], components)) {
+            continue;
         }
-    }
-    // in this example it's okay to reset the transformation here.
-    // this deals only with the environmental collision.
-    // (what to do about moving platforms)
-    m_circle->transform(m_circle_tf.getInverse());
-    m_circle_tf.rotate(-33);
-    if (result.collides) {
-        auto move_back = find_directed_overlap(result, vel);
-        m_circle_tf.translate(move_back);
+        auto &transform = world.m_pos_c[entity].global_transform;
+        auto &pos = world.m_pos_c[entity].position;
+        auto &rot = world.m_pos_c[entity].rotation;
+        auto &shape = world.m_debug_c[entity].shape;
+        auto parent = world.m_pos_c[entity].parent;
 
-        // slide movement and collide again
-        vel = slide(-move_back, result.normal);
-        m_circle_tf.translate(vel).rotate(33);
+        WVec vel = (mouse - transform.transformPoint(0, 0)) * 0.1f;
+        pos += vel;
+
+        for (auto &tri : world.m_grid.get_objects()) {
+            tri->m_highlight = false;
+        }
+
         //circle to world
-        m_circle->transform(m_circle_tf);
+        transform = WTransform::Identity;
+        transform.combine(world.m_pos_c[parent].global_transform).translate(pos).rotate(rot);
+        shape->transform(transform);
 
-        result = ColResult();
+        ColResult result;
+
+        auto colliders = world.m_grid.find_colliders(shape);
         for (const auto &tri : colliders) {
-            auto cr = m_circle->collides(*tri);
+            auto cr = shape->collides(*tri);
             if (cr.collides) {
                 tri->m_highlight = true;
-                if (cr.e> result.e) {
+                if (cr.e > result.e) {
                     result = cr;
                 }
             }
         }
-        m_circle->transform(m_circle_tf.getInverse());
-        m_circle_tf.rotate(-33);
+        // in this example it's okay to reset the transformation here.
+        // this deals only with the environmental collision.
+        // (what to do about moving platforms)
+        shape->transform(transform.getInverse());
+
         if (result.collides) {
-            move_back = find_directed_overlap(result, vel);
-            m_circle_tf.translate(move_back);
+            auto move_back = find_directed_overlap(result, vel);
+            pos += move_back;
+
+            // slide movement and collide again
+            vel = slide(-move_back, result.normal);
+            pos += vel;
+            //circle to world
+            transform = WTransform::Identity;
+            transform.combine(world.m_pos_c[parent].global_transform).translate(pos).rotate(rot);
+            shape->transform(transform);
+
+            result = ColResult();
+
+            for (const auto &tri : colliders) {
+                auto cr = shape->collides(*tri);
+                if (cr.collides) {
+                    tri->m_highlight = true;
+                    if (cr.e> result.e) {
+                        result = cr;
+                    }
+                }
+            }
+            shape->transform(transform.getInverse());
+
+            if (result.collides) {
+                move_back = find_directed_overlap(result, vel);
+                pos += move_back;
+
+                transform = WTransform::Identity;
+                transform.combine(world.m_pos_c[parent].global_transform).translate(pos).rotate(rot);
+            }
         }
     }
 }
 
-CollisionTestState::CollisionTestState() {
-    m_circle = std::shared_ptr<ColShape>(new ColCapsule(25, 50));
+ColTestSystem::ColTestSystem() : components({ (1 << CPosition) | (1 << CDebugDraw) }){
 }
-
-void CollisionTestState::draw(sf::RenderWindow &window) {
-    sf::VertexArray lines_va(sf::Lines);
-    WTransform zero_tf;
-    for (const auto &tri : m_grid.get_objects()) {
-        tri->add_gfx_lines(lines_va, zero_tf);
-    }
-    m_circle->add_gfx_lines(lines_va, m_circle_tf.rotate(33));
-    m_circle_tf.rotate(-33);
-    window.draw(lines_va);
-}
-
-void CollisionTestState::receive_tris(const std::vector<WVec> triangles) {
-    m_grid.clear();
-    for (uint i = 0 ; i < triangles.size() / 3 ; ++i) {
-        m_grid.add_object(std::shared_ptr<ColShape>(new ColTriangle(triangles[i*3], triangles[i*3+1], triangles[i*3+2])));
-    }
-}
-
