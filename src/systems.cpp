@@ -4,6 +4,7 @@
 
 #include "systems.h"
 #include "GameWorld.h"
+#include <iostream>
 
 void col_test_update(GameWorld &world, const WVec &mouse) {
     for (unsigned int entity = 0; entity < world.m_entities.size(); ++entity) {
@@ -35,7 +36,7 @@ void col_test_update(GameWorld &world, const WVec &mouse) {
             auto cr = shape->collides(*tri);
             if (cr.collides) {
                 tri->m_highlight = true;
-                if (cr.e > result.e) {
+                if (cr.depth > result.depth) {
                     result = cr;
                 }
             }
@@ -63,7 +64,7 @@ void col_test_update(GameWorld &world, const WVec &mouse) {
                 auto cr = shape->collides(*tri);
                 if (cr.collides) {
                     tri->m_highlight = true;
-                    if (cr.e> result.e) {
+                    if (cr.depth> result.depth) {
                         result = cr;
                     }
                 }
@@ -103,7 +104,7 @@ void debug_draw_update(GameWorld &world, sf::RenderWindow &window) {
 void static_col_update(GameWorld &world) {
 
     for (unsigned int entity = 0; entity < world.m_entities.size(); ++entity) {
-        if (!has_component(world.m_entities[entity], c_col_test_components)) {
+        if (!has_component(world.m_entities[entity], c_static_col_components)) {
             continue;
         }
         // position
@@ -131,7 +132,7 @@ void static_col_update(GameWorld &world) {
         for (const auto &tri : colliders) {
             auto cr = shape->collides(*tri);
             if (cr.collides) {
-                if (cr.e > result.e) {
+                if (cr.depth > result.depth) {
                     result = cr;
                 }
             }
@@ -142,12 +143,21 @@ void static_col_update(GameWorld &world) {
         shape->transform(transform.getInverse());
 
         if (result.collides) {
-            auto move_back = find_directed_overlap(result, vel);
+            auto move_back = result.normal * -result.depth;
             pos += move_back;
 
+            WVec correction;
+            if (dot(WVec(0, 1), result.normal) > c_max_floor_angle) {
+                correction = slide(WVec(move_back.x, 0), result.normal);
+                correction *= move_back.x / correction.x;
+            }
+            else {
+                correction = slide(WVec(0, move_back.y), result.normal);
+                correction *= move_back.y / correction.y;
+            }
+
             // slide movement and collide again
-            vel = slide(-move_back, result.normal);
-            pos += vel;
+            pos -= correction;
             //circle to world
             transform = WTransform::Identity;
             transform.combine(world.m_pos_c[parent].global_transform).translate(pos).rotate(rot);
@@ -158,8 +168,7 @@ void static_col_update(GameWorld &world) {
             for (const auto &tri : colliders) {
                 auto cr = shape->collides(*tri);
                 if (cr.collides) {
-                    tri->m_highlight = true;
-                    if (cr.e> second_result.e) {
+                    if (cr.depth> second_result.depth) {
                         second_result = cr;
                     }
                 }
@@ -167,7 +176,7 @@ void static_col_update(GameWorld &world) {
             shape->transform(transform.getInverse());
 
             if (second_result.collides) {
-                move_back = find_directed_overlap(second_result, vel);
+                move_back = result.normal * -result.depth;
                 pos += move_back;
 
                 transform = WTransform::Identity;
@@ -178,4 +187,41 @@ void static_col_update(GameWorld &world) {
             world.m_static_col_c[entity].on_static_col_cb(result, world, entity);
         }
     }
+}
+
+void input_update(GameWorld &world, const WVec &mouse) {
+    for (unsigned int entity = 0; entity < world.m_entities.size(); ++entity) {
+        if (!has_component(world.m_entities[entity], c_input_components)) {
+            continue;
+        }
+        auto &ic = world.m_input_c[entity];
+        world.m_input_c[entity].input_func(ic, mouse);
+    }
+}
+
+void move_update(GameWorld &world, float dt) {
+    for (unsigned int entity = 0; entity < world.m_entities.size(); ++entity) {
+        if (!has_component(world.m_entities[entity], c_move_components)) {
+            continue;
+        }
+
+        auto &mc = world.m_move_c[entity];
+        auto &ic = world.m_input_c[entity];
+
+        auto old_accel = mc.accel;
+
+        mc.accel = WVec(0, c_gravity);
+        mc.accel += mc.additional_accel;
+
+        mc.velocity += old_accel * dt;
+
+        mc.accel_func(ic, mc);
+
+        mc.velocity += dt * (mc.accel - old_accel) / 2.0f;
+        auto motion = dt * (mc.velocity + mc.accel * dt / 2.0f);
+        world.m_pos_c[entity].position += motion;
+
+        mc.air_time += dt;
+    }
+
 }

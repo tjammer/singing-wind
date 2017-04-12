@@ -10,6 +10,11 @@
 #include "ColGrid.h"
 #include "Components.h"
 
+// physics constants
+const float c_drag = 0.0046;
+const float c_max_floor_angle = 0.7;
+const float c_gravity = 1800;
+
 // implements the ecs
 class GameWorld {
 public:
@@ -17,7 +22,7 @@ public:
     ~GameWorld() = default;
 
     // maybe a timer?
-    void step_fixed(const WVec &mouse);
+    void step_fixed(float dt, const WVec &mouse);
     void pre_draw(float dt);
     void draw(sf::RenderWindow& window);
 

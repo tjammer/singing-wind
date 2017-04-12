@@ -11,8 +11,11 @@ struct ColResult {
     bool collides = false;
     WVec normal = {0, 0};
     float depth = 0.f;
-    float e = 0.f;
+    int gjk_it = 0;
+    int epa_it = 0;
 };
+
+std::ostream& operator <<(std::ostream& os, const ColResult &result);
 
 struct Edge {
     float distance;
@@ -47,7 +50,7 @@ private:
 
 ColResult static_collide(const ColShape &a, const ColShape &b);
 
-float find_normal_epa(const ColShape &a, const ColShape &b, Simplex &s, WVec &normal);
+float find_normal_epa(const ColShape &a, const ColShape &b, Simplex &s, WVec &normal, int&);
 
 Edge find_closest_edge(const Simplex &s);
 

@@ -19,5 +19,10 @@ void debug_draw_update(GameWorld &world, sf::RenderWindow &window);
 const bset c_static_col_components{(1 << CPosition) | (1 << CStaticCol) | (1 << CMove)};
 void static_col_update(GameWorld &world);
 
+const bset c_input_components{(1 << CInput)};
+void input_update(GameWorld &world, const WVec &mouse);
+
+const bset c_move_components{(1 << CPosition) | (1 << CMove)};
+void move_update(GameWorld &world, float dt);
 
 #endif //SINGING_WIND_SYSTEMS_H

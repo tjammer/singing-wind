@@ -9,6 +9,7 @@
 #include "ColShape.h"
 #include <memory>
 #include "Collision.h"
+#include <deque>
 
 class GameWorld;
 
@@ -38,11 +39,11 @@ using IdComponent = std::string;
 const int c_input_buffer_length = 15;
 
 struct InputComponent {
-    std::vector<int> direction = std::vector<int>(c_input_buffer_length);
+    std::deque<int> direction = std::deque<int>(c_input_buffer_length);
     int last_dir;
-    std::vector<bool> jump = std::vector<bool>(c_input_buffer_length);
-    std::vector<WVec> mouse = std::vector<WVec>(c_input_buffer_length);
-    std::function<void()> handle_inputs;
+    std::deque<bool> jump = std::deque<bool>(c_input_buffer_length);
+    std::deque<WVec> mouse = std::deque<WVec>(c_input_buffer_length);
+    std::function<void(InputComponent&, const WVec&)> input_func;
 };
 
 enum MoveState {

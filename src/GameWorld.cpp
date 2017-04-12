@@ -6,6 +6,7 @@
 #include "triangulate.h"
 #include "entities.h"
 #include "systems.h"
+#include "Protagonist.h"
 
 void GameWorld::update_triangles() {
     std::vector<WVec> triangles;
@@ -23,15 +24,19 @@ void GameWorld::update_triangles() {
 GameWorld::GameWorld() {
     // create root
     auto root = create_root(*this, {0, 0}, 0);
-    create_coll_test(*this, {0, 0}, root);
+    //create_coll_test(*this, {0, 0}, root);
+    create_player(*this, {0, 0}, root);
 }
 
 void GameWorld::draw(sf::RenderWindow &window) {
     debug_draw_update(*this, window);
 }
 
-void GameWorld::step_fixed(const WVec &mouse) {
-    col_test_update(*this, mouse);
+void GameWorld::step_fixed(float dt, const WVec &mouse) {
+    //col_test_update(*this, mouse);
+    input_update(*this, mouse);
+    move_update(*this, dt);
+    static_col_update(*this);
 }
 
 unsigned int GameWorld::create_entity() {

@@ -4,10 +4,11 @@
 
 #include "Collision.h"
 #include <assert.h>
+#include <iostream>
 
 using namespace sf;
 
-const float c_epsilon = 0.001f;
+const float c_epsilon = 0.01f;
 const int c_max_it = 20;
 
 ColResult static_collide(const ColShape &a, const ColShape &b) {
@@ -30,16 +31,19 @@ ColResult static_collide(const ColShape &a, const ColShape &b) {
     result.collides = dot(v, v) == 0.f;
     if (result.collides) {
         WVec normal;
-        result.depth = find_normal_epa(a, b, s, normal);
-        result.e = find_closest_edge(s).distance;
+        int epa_it = 0;
+        result.depth = find_normal_epa(a, b, s, normal, epa_it);
+        //result.e = find_closest_edge(s).distance;
         result.normal = normal;
+        result.gjk_it = it;
+        result.epa_it = epa_it;
     }
     else
         result.depth = sqrtf(dot(v, v));
     return result;
 }
 
-float find_normal_epa(const ColShape &a, const ColShape &b, Simplex &s, WVec &normal) {
+float find_normal_epa(const ColShape &a, const ColShape &b, Simplex &s, WVec &normal, int &epa_it) {
     float dist = std::numeric_limits<float>::max();
     int it = 0;
     while (true) {
@@ -47,8 +51,9 @@ float find_normal_epa(const ColShape &a, const ColShape &b, Simplex &s, WVec &no
         auto p = a.get_support(e.normal) - b.get_support(-e.normal);
         float d = dot(p, e.normal);
         float test = d - e.distance;
-        if (test < c_epsilon || test == dist || it > 5) {
+        if (test < c_epsilon || test == dist || it > c_max_it) {
             normal = e.normal;
+            epa_it = it;
             return d;
         }
         s.add(p, e.index);
@@ -288,8 +293,13 @@ void Simplex::solve3(const WVec & x) {
 WVec find_directed_overlap(const ColResult &result, const WVec &direction) {
     auto dir = w_normalize(direction);
     auto projection = dot(-dir, result.normal);
-    if (abs(projection) < c_epsilon) {
+    std::cout << projection << std::endl;
+    if (abs(projection) < c_epsilon * 0.1f) {
         return result.normal * result.depth;
     }
-    return dir * (result.depth / projection - .01f); // - result.normal * .001f;
+    return dir * (result.depth / projection - .1f); // - result.normal * .001f;
+}
+
+std::ostream &operator<<(std::ostream &os, const ColResult &result) {
+        return os << "collides: " << result.collides << ", normal: x: " << result.normal.x << " y: " << result.normal.y << ", depth: " << result.depth << ", gjk it: " << result.gjk_it << ", epa it: " << result.epa_it;
 }

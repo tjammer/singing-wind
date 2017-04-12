@@ -14,7 +14,7 @@ void Game::update(Engine &engine) {
     }
     const sf::RenderWindow &window = engine.get_window();
     auto mouse = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-    game_world.step_fixed(mouse);
+    game_world.step_fixed(1.f / 60.f, mouse);
 }
 
 void Game::draw(sf::RenderWindow &window) {
