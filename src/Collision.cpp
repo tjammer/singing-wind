@@ -293,10 +293,9 @@ void Simplex::solve3(const WVec & x) {
 WVec find_directed_overlap(const ColResult &result, const WVec &direction) {
     auto dir = w_normalize(direction);
     auto projection = dot(-dir, result.normal);
-    std::cout << projection << std::endl;
-    if (abs(projection) < c_epsilon * 0.1f) {
+    /*if (abs(projection) < c_epsilon * 0.1f) {
         return result.normal * result.depth;
-    }
+    }*/
     return dir * (result.depth / projection - .1f); // - result.normal * .001f;
 }
 

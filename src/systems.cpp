@@ -117,9 +117,6 @@ void static_col_update(GameWorld &world) {
         auto &result = world.m_static_col_c[entity].col_result;
         auto &shape = world.m_static_col_c[entity].shape;
 
-        // movement
-        auto &vel = world.m_move_c[entity].velocity;
-
         //circle to world
         transform = WTransform::Identity;
         transform.combine(world.m_pos_c[parent].global_transform).translate(pos).rotate(rot);
@@ -146,18 +143,14 @@ void static_col_update(GameWorld &world) {
             auto move_back = result.normal * -result.depth;
             pos += move_back;
 
-            WVec correction;
+            // player can stand on slopes
             if (dot(WVec(0, 1), result.normal) > c_max_floor_angle) {
-                correction = slide(WVec(move_back.x, 0), result.normal);
+                WVec correction = slide(WVec(move_back.x, 0), result.normal);
                 correction *= move_back.x / correction.x;
-            }
-            else {
-                correction = slide(WVec(0, move_back.y), result.normal);
-                correction *= move_back.y / correction.y;
+                pos -= correction;
             }
 
             // slide movement and collide again
-            pos -= correction;
             //circle to world
             transform = WTransform::Identity;
             transform.combine(world.m_pos_c[parent].global_transform).translate(pos).rotate(rot);
@@ -176,8 +169,8 @@ void static_col_update(GameWorld &world) {
             shape->transform(transform.getInverse());
 
             if (second_result.collides) {
-                move_back = result.normal * -result.depth;
-                pos += move_back;
+                WVec correction = find_directed_overlap(second_result, WVec(-move_back.y, move_back.x));
+                pos += correction;
 
                 transform = WTransform::Identity;
                 transform.combine(world.m_pos_c[parent].global_transform).translate(pos).rotate(rot);
