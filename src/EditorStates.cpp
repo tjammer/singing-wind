@@ -6,14 +6,14 @@
 #include <iostream>
 #include <imgui.h>
 
-std::unique_ptr<BaseEditorSubState> IslandIdle::confirm(Island &island) {
+std::unique_ptr<BaseEditorSubState> IslandIdle::confirm(GameWorld &world) {
     // find curve nearest to cursor
     auto dist = std::numeric_limits<float>::max();
-    auto size = island.m_points.size();
+    auto size = m_island.m_points.size();
     uint curve_index = 0;
     for (uint i = 0; i < size; ++i) {
-        BCurve curve = BCurve{island.m_points[i], island.m_ctrl_points[i*2],
-                              island.m_ctrl_points[i*2 +1], island.m_points[(i+1)%size]};
+        BCurve curve = BCurve{m_island.m_points[i], m_island.m_ctrl_points[i*2],
+                              m_island.m_ctrl_points[i*2 +1], m_island.m_points[(i+1)%size]};
         auto vecs = curve.points_along_curve(1.0f);
         for (auto v : vecs) {
             if (w_magnitude(v - m_mpos) < dist) {
@@ -23,18 +23,27 @@ std::unique_ptr<BaseEditorSubState> IslandIdle::confirm(Island &island) {
         }
     }
     if (dist > 50) {
-        return std::unique_ptr<IslandIdle>(new IslandIdle);
+        return std::unique_ptr<IslandIdle>(new IslandIdle(m_island));
     }
-    auto curve = BCurve{island.m_points[curve_index], island.m_ctrl_points[curve_index*2],
-                        island.m_ctrl_points[curve_index*2 +1], island.m_points[(curve_index+1)%size]};
-    return std::unique_ptr<CurveIdle>(new CurveIdle(curve));
+    auto curve = BCurve{m_island.m_points[curve_index], m_island.m_ctrl_points[curve_index*2],
+                        m_island.m_ctrl_points[curve_index*2 +1], m_island.m_points[(curve_index+1)%size]};
+    return std::unique_ptr<CurveIdle>(new CurveIdle(curve, m_island));
 }
 
-EditorSubState IslandIdle::menu(Island &island) {
+EditorSubState IslandIdle::menu(GameWorld &world) {
     ImGui::Begin("island idle");
     if (ImGui::Button("select curve nearest to cursor")) {
         ImGui::End();
-        return confirm(island);
+        return confirm(world);
+    }
+
+    if (ImGui::Button("move island")) {
+        ImGui::End();
+        return move(world);
+    }
+    if (ImGui::Button("delete island")) {
+        ImGui::End();
+        return delete_island(world);
     }
     if (ImGui::Button("cancel")) {
         ImGui::End();
@@ -44,11 +53,30 @@ EditorSubState IslandIdle::menu(Island &island) {
     return nullptr;
 }
 
-CurveIdle::CurveIdle(const BCurve &curve) : m_curve(curve) {
+EditorSubState IslandIdle::cancel() {
+    return EditorSubState(new EditorIdle);
 }
 
-void CurveIdle::draw(sf::RenderWindow &window) {
-    sf::VertexArray va(sf::Quads);
+void IslandIdle::draw(GameWorld &world, sf::RenderWindow &window) {
+    auto va = get_island_vertex_array(m_island);
+    window.draw(va);
+}
+
+EditorSubState IslandIdle::delete_island(GameWorld &world) {
+    auto &islands = world.get_islands_ref();
+    islands.erase(std::remove( islands.begin(), islands.end(), m_island), islands.end());
+    return EditorSubState(new EditorIdle);
+}
+
+EditorSubState IslandIdle::move(GameWorld &world) {
+    return EditorSubState(new IslandMove(m_island, m_mpos));
+}
+
+CurveIdle::CurveIdle(const BCurve &curve, Island &active) : m_curve(curve), m_island(active) {
+}
+
+void CurveIdle::draw(GameWorld &world, sf::RenderWindow &window) {
+    auto va = get_island_vertex_array(m_island);
     sf::VertexArray lines(sf::Lines);
     for (auto v : m_curve.line_along_curve(c_line_draw_distance)) {
         va.append(sf::Vertex(v, sf::Color(128, 8, 128)));
@@ -69,7 +97,7 @@ void CurveIdle::draw(sf::RenderWindow &window) {
     window.draw(va);
 }
 
-EditorSubState CurveIdle::confirm(Island &island) {
+EditorSubState CurveIdle::confirm(GameWorld &world) {
     auto dist = std::numeric_limits<float>::max();
     uint point_index = 0;
     for (uint i = 0 ; i < 4 ; ++i) {
@@ -80,33 +108,33 @@ EditorSubState CurveIdle::confirm(Island &island) {
     }
 
     if (dist > 70) {
-        return std::unique_ptr<IslandIdle>(new IslandIdle);
+        return std::unique_ptr<IslandIdle>(new IslandIdle(m_island));
     }
 
-    auto it = std::find(island.m_points.begin(), island.m_points.end(), m_curve[point_index]);
-    if (it == island.m_points.end()) {
-        it = std::find(island.m_ctrl_points.begin(), island.m_ctrl_points.end(), m_curve[point_index]);
+    auto it = std::find(m_island.m_points.begin(), m_island.m_points.end(), m_curve[point_index]);
+    if (it == m_island.m_points.end()) {
+        it = std::find(m_island.m_ctrl_points.begin(), m_island.m_ctrl_points.end(), m_curve[point_index]);
     }
 
-    auto at = std::find(island.m_points.begin(), island.m_points.end(), *it);
-    if (at != island.m_points.end()) {
-        auto i = at - island.m_points.begin();
-        auto& c1 = island.m_ctrl_points[i*2];
-        auto& c2 = island.m_ctrl_points[(i*2-1)%island.m_ctrl_points.size()];
-        return EditorSubState(new PointEdit(*it, m_mpos, c1, c2));
+    auto at = std::find(m_island.m_points.begin(), m_island.m_points.end(), *it);
+    if (at != m_island.m_points.end()) {
+        auto i = it - m_island.m_points.begin();
+        auto& c1 = m_island.m_ctrl_points[i*2];
+        auto& c2 = m_island.m_ctrl_points[(i*2-1 + m_island.m_ctrl_points.size())%m_island.m_ctrl_points.size()];
+        return EditorSubState(new PointEdit(*it, m_mpos, c1, c2, m_island));
     }
-    return EditorSubState(new PointEdit(*it, m_mpos));
+    return EditorSubState(new PointEdit(*it, m_mpos, m_island));
 }
 
-EditorSubState CurveIdle::insert_item(Island &island) {
-    return EditorSubState(new CurveInsert(m_curve));
+EditorSubState CurveIdle::insert_item(GameWorld &world) {
+    return EditorSubState(new CurveInsert(m_curve, m_island));
 }
 
-EditorSubState CurveIdle::menu(Island &island) {
+EditorSubState CurveIdle::menu(GameWorld &world) {
     ImGui::Begin("curve idle");
     if (ImGui::Button("add point")) {
         ImGui::End();
-        return insert_item(island);
+        return insert_item(world);
     }
     if (ImGui::Button("cancel")) {
         ImGui::End();
@@ -122,7 +150,7 @@ void PointEdit::update(const WVec &mpos) {
     auto diff = m_mpos - mpos;
     BaseEditorSubState::update(mpos);
     m_point -= diff;
-    if (!ctrl) {
+    if (!m_ctrl) {
         m_c1 -= diff;
         m_c2 -= diff;
     }
@@ -131,41 +159,44 @@ void PointEdit::update(const WVec &mpos) {
 EditorSubState PointEdit::cancel() {
     auto diff = m_point - m_orig_point;
     m_point = m_orig_point;
-    if (!ctrl) {
+    if (!m_ctrl) {
         m_c1 -= diff;
         m_c2 -= diff;
     }
-    return EditorSubState(new IslandIdle);
+    return EditorSubState(new IslandIdle(m_island));
 }
 
-void PointEdit::draw(sf::RenderWindow &window) {
-    sf::VertexArray va(sf::Quads);
+void PointEdit::draw(GameWorld &world, sf::RenderWindow &window) {
+    auto va = get_island_vertex_array(m_island);
+    window.draw(va);
     for (const auto &v : make_quad(m_point, c_point_size)) {
         va.append(sf::Vertex(v, sf::Color(128, 8, 128)));
     }
     window.draw(va);
 }
 
-PointEdit::PointEdit(WVec &point, const WVec &mouse, WVec &c1, WVec &c2) : m_point(point), m_c1(c1), m_c2(c2) {
+PointEdit::PointEdit(WVec &point, const WVec &mouse, WVec &c1, WVec &c2, Island &active) :
+        m_point(point), m_c1(c1), m_c2(c2), m_island(active) {
     m_orig_point = m_point;
     m_mpos = mouse;
 }
 
-PointEdit::PointEdit(WVec &point, const WVec &mouse) : m_point(point), m_c1(point), m_c2(point){
-    ctrl = true;
+PointEdit::PointEdit(WVec &point, const WVec &mouse, Island &active) :
+        m_point(point), m_c1(point), m_c2(point), m_island(active) {
+    m_ctrl = true;
     m_orig_point = m_point;
     m_mpos = mouse;
 }
 
-EditorSubState PointEdit::menu(Island &island) {
+EditorSubState PointEdit::menu(GameWorld &world) {
     ImGui::Begin("point move");
     if (ImGui::Button("place point here")) {
         ImGui::End();
-        return confirm(island);
+        return confirm(world);
     }
     if (ImGui::Button("delete point")) {
         ImGui::End();
-        return delete_item(island);
+        return delete_item(world);
     }
     if (ImGui::Button("cancel")) {
         ImGui::End();
@@ -175,35 +206,36 @@ EditorSubState PointEdit::menu(Island &island) {
     return nullptr;
 }
 
-EditorSubState PointEdit::delete_item(Island &island) {
-    auto size = island.m_points.size();
-    if (island.m_points.size() == 4) {
-        return EditorSubState(new IslandIdle);
+EditorSubState PointEdit::delete_item(GameWorld &world) {
+    auto size = m_island.m_points.size();
+    if (m_island.m_points.size() == 4) {
+        return EditorSubState(new IslandIdle(m_island));
     }
-    auto i = static_cast<size_t>(std::find(island.m_points.begin(), island.m_points.end(), m_point) - island.m_points.begin());
+    auto i = static_cast<size_t>(std::find(m_island.m_points.begin(), m_island.m_points.end(), m_point) - m_island.m_points.begin());
     // check if this is a control point
     if (i == size) {
-        auto it = std::find(island.m_ctrl_points.begin(), island.m_ctrl_points.end(), m_point);
-        if (it != island.m_ctrl_points.end()) {
-            return EditorSubState(new IslandIdle);
+        auto it = std::find(m_island.m_ctrl_points.begin(), m_island.m_ctrl_points.end(), m_point);
+        if (it != m_island.m_ctrl_points.end()) {
+            return EditorSubState(new IslandIdle(m_island));
         }
     }
 
-    auto curve = BCurve{island.m_points[(i-1)%size],
-                        island.m_ctrl_points[((i-1)%size)*2],
-                        island.m_ctrl_points[((i-1)%size)*2 +1],
-                        island.m_points[i]};
-    auto it = std::find(island.m_points.begin() + 1, island.m_points.end(), curve.to);
-    island.m_points.erase(it);
+    auto curve = BCurve{m_island.m_points[(i-1)%size],
+                        m_island.m_ctrl_points[((i-1)%size)*2],
+                        m_island.m_ctrl_points[((i-1)%size)*2 +1],
+                        m_island.m_points[i]};
+    auto it = std::find(m_island.m_points.begin() + 1, m_island.m_points.end(), curve.to);
+    m_island.m_points.erase(it);
 
-    it = std::find(island.m_ctrl_points.begin(), island.m_ctrl_points.end(), curve.ctrl_to);
-    island.m_ctrl_points.erase(it, it+2);
+    it = std::find(m_island.m_ctrl_points.begin(), m_island.m_ctrl_points.end(), curve.ctrl_to);
+    m_island.m_ctrl_points.erase(it, it+2);
 
-    return EditorSubState(new IslandIdle);
+    return EditorSubState(new IslandIdle(m_island));
 }
 
-void CurveInsert::draw(sf::RenderWindow &window) {
-    sf::VertexArray va(sf::Quads);
+void CurveInsert::draw(GameWorld &world, sf::RenderWindow &window) {
+    auto va = get_island_vertex_array(m_island);
+    window.draw(va);
 
     float t_low = fmax(m_new_point_t - 0.01f, 0.f);
     float t_high = fmin(m_new_point_t + 0.01f, 1.f);
@@ -217,7 +249,7 @@ void CurveInsert::draw(sf::RenderWindow &window) {
     window.draw(va);
 }
 
-CurveInsert::CurveInsert(BCurve curve) : m_curve(curve) {
+CurveInsert::CurveInsert(BCurve curve, Island &active) : m_curve(curve), m_island(active) {
 }
 
 void CurveInsert::update(const WVec &mpos) {
@@ -233,26 +265,26 @@ void CurveInsert::update(const WVec &mpos) {
     }
 }
 
-EditorSubState CurveInsert::confirm(Island &island) {
+EditorSubState CurveInsert::confirm(GameWorld &world) {
     auto new_point = m_curve.eval(m_new_point_t);
 
-    auto it = std::find(island.m_ctrl_points.begin(), island.m_ctrl_points.end(), m_curve.ctrl_to);
-    it = island.m_ctrl_points.insert(it, new_point + (m_curve.from - new_point) / 4.f);
-    island.m_ctrl_points.insert(it + 1, new_point - (new_point - m_curve.to) / 4.f);
+    auto it = std::find(m_island.m_ctrl_points.begin(), m_island.m_ctrl_points.end(), m_curve.ctrl_to);
+    it = m_island.m_ctrl_points.insert(it, new_point + (m_curve.from - new_point) / 4.f);
+    m_island.m_ctrl_points.insert(it + 1, new_point - (new_point - m_curve.to) / 4.f);
     *(it + 2) = new_point - (new_point - m_curve.to) * 0.75f;
     *(it - 1) = new_point + (m_curve.from - new_point) * 0.75f;
 
-    it = std::find(island.m_points.begin() + 1, island.m_points.end(), m_curve.to);
-    island.m_points.insert(it, new_point);
+    it = std::find(m_island.m_points.begin() + 1, m_island.m_points.end(), m_curve.to);
+    m_island.m_points.insert(it, new_point);
 
-    return EditorSubState(new IslandIdle);
+    return EditorSubState(new IslandIdle(m_island));
 }
 
-EditorSubState CurveInsert::menu(Island &island) {
+EditorSubState CurveInsert::menu(GameWorld &world) {
     ImGui::Begin("curve insert");
     if (ImGui::Button("insert curve here")) {
         ImGui::End();
-        return confirm(island);
+        return confirm(world);
     }
     if (ImGui::Button("cancel")) {
         ImGui::End();
@@ -260,4 +292,121 @@ EditorSubState CurveInsert::menu(Island &island) {
     }
     ImGui::End();
     return nullptr;
+}
+
+EditorSubState EditorIdle::confirm(GameWorld &world) {
+    auto &islands = world.get_islands_ref();
+
+    // find island point closest to cursor
+    float dist = std::numeric_limits<float>::max();
+    int index = -1;
+    for (uint i = 0 ; i < islands.size() ; ++i) {
+        const auto &island = islands[i];
+        for (uint j = 0 ; j < island.m_points.size() ; ++j) {
+            float dist_to_point = w_magnitude(m_mpos - island.m_points[j]);
+            if (dist_to_point < dist) {
+                dist = dist_to_point;
+                index = i;
+            }
+        }
+    }
+    if (index == -1) {
+        return EditorSubState(new EditorIdle);
+    }
+    return EditorSubState(new IslandIdle(islands[index]));
+}
+
+void EditorIdle::draw(GameWorld &world, sf::RenderWindow &window) {
+}
+
+EditorSubState EditorIdle::insert_item(GameWorld &world) {
+    auto &islands = world.get_islands_ref();
+    auto index = static_cast<unsigned int>(islands.size());
+
+    islands.push_back(Island(m_mpos, 50));
+    return EditorSubState(new IslandMove(islands[index], m_mpos));
+}
+
+EditorSubState EditorIdle::menu(GameWorld &world) {
+    ImGui::Begin("editor idle");
+    if (ImGui::Button("insert island here")) {
+        ImGui::End();
+        return insert_item(world);
+    }
+    if (ImGui::Button("cancel")) {
+        ImGui::End();
+        return cancel();
+    }
+    ImGui::End();
+    return nullptr;
+}
+
+sf::VertexArray get_island_vertex_array(const Island& island) {
+
+    using namespace sf;
+    VertexArray va(Quads);
+
+    auto curves = const_cast<Island&>(island).get_curves(c_line_draw_distance);
+    for (auto& v : curves) {
+        va.append(v);
+    }
+
+    auto verts = island.get_points(c_point_size);
+    for (auto& v : verts) {
+        va.append(v);
+    }
+    return va;
+}
+
+
+void IslandMove::draw(GameWorld &world, sf::RenderWindow &window) {
+    auto va = get_island_vertex_array(m_island);
+    window.draw(va);
+    for (const auto &point : m_island.m_points) {
+        for (const auto &v : make_quad(point, c_point_size)) {
+            va.append(sf::Vertex(v, sf::Color(128, 8, 128)));
+        }
+    }
+    window.draw(va);
+
+}
+
+void IslandMove::update(const WVec &mpos) {
+    auto diff = m_mpos - mpos;
+    m_diff += diff;
+    BaseEditorSubState::update(mpos);
+    for (auto &point : m_island.m_points) {
+        point -= diff;
+    }
+    for (auto &point : m_island.m_ctrl_points) {
+        point -= diff;
+    }
+}
+
+EditorSubState IslandMove::cancel() {
+    for (auto &point : m_island.m_points) {
+        point += m_diff;
+    }
+    for (auto &point : m_island.m_ctrl_points) {
+        point += m_diff;
+    }
+    return EditorSubState(new IslandIdle(m_island));
+}
+
+EditorSubState IslandMove::menu(GameWorld &world) {
+    ImGui::Begin("island move");
+    if (ImGui::Button("confirm island position")) {
+        ImGui::End();
+        return confirm(world);
+    }
+    if (ImGui::Button("cancel")) {
+        ImGui::End();
+        return cancel();
+    }
+    ImGui::End();
+    return nullptr;
+}
+
+IslandMove::IslandMove(Island &active, const WVec &mouse) : m_island(active) {
+    m_mpos = mouse;
 }

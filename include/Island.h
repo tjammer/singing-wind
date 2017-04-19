@@ -22,5 +22,17 @@ public:
     std::vector<sf::Vertex> get_curves(float distance);
 };
 
+inline bool operator==(const Island& lhs, const Island& rhs) {
+    if (lhs.m_points.size() != rhs.m_points.size()) {
+        return false;
+    }
+    for (uint i = 0 ; i < lhs.m_points.size() ; ++i) {
+        if (lhs.m_points[i] != rhs.m_points[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 std::vector<WVec> make_quad(const WVec& pos, float spread);
 #endif //SINGING_WIND_ISLAND_H

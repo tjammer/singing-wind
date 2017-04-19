@@ -37,7 +37,6 @@ public:
 
 private:
     GameWorld &game_world;
-    Island &m_island;
     std::unique_ptr<BaseEditorSubState> m_state;
     // last frame
     std::map<EditorButtons, bool> m_pressed;
@@ -55,13 +54,13 @@ private:
 class BaseEditorSubState {
 public:
     virtual void update(const WVec& mpos) {m_mpos = mpos;};
-    virtual void draw(sf::RenderWindow &window) {};
-    virtual std::unique_ptr<BaseEditorSubState> confirm(Island &island) = 0;
+    virtual void draw(GameWorld &world, sf::RenderWindow &window) = 0;
+    virtual std::unique_ptr<BaseEditorSubState> confirm(GameWorld &world) = 0;
     virtual std::unique_ptr<BaseEditorSubState> cancel() = 0;
-    virtual std::unique_ptr<BaseEditorSubState> move(Island &island) = 0;
-    virtual std::unique_ptr<BaseEditorSubState> insert_item(Island &island) = 0;
-    virtual std::unique_ptr<BaseEditorSubState> delete_item(Island &island) = 0;
-    virtual std::unique_ptr<BaseEditorSubState> menu(Island &island) = 0;
+    virtual std::unique_ptr<BaseEditorSubState> move(GameWorld &world) = 0;
+    virtual std::unique_ptr<BaseEditorSubState> insert_item(GameWorld &world) = 0;
+    virtual std::unique_ptr<BaseEditorSubState> delete_item(GameWorld &world) = 0;
+    virtual std::unique_ptr<BaseEditorSubState> menu(GameWorld &world) = 0;
 
     WVec m_mpos;
 };

@@ -37,17 +37,15 @@ public:
         std::vector<MoveComponent> m_move_c;
         std::vector<StaticColComponent> m_static_col_c;
 
-        // systems
-
     // communication with editor
-    Island &get_island_ref() {return m_island;};
+    std::vector<Island> &get_islands_ref() {return m_islands;};
     void update_triangles();
 
     unsigned int create_entity();
 
     // members
     StaticGrid m_grid;
-    Island m_island;
+    std::vector<Island> m_islands;
 private:
 };
 
