@@ -7,6 +7,7 @@
 
 #include "Engine.h"
 #include "GameWorld.h"
+#include "Camera.h"
 
 // the game state of the engine FSM
 class Game : public EngineState {
@@ -21,10 +22,11 @@ public:
 
     bool m_paused = false;
 
-    GameWorld &get_world() {return game_world;};
+    GameWorld &get_world() {return m_game_world;};
 
 private:
-    GameWorld game_world;
+    GameWorld m_game_world;
+    Camera m_camera;
 };
 
 
