@@ -31,6 +31,11 @@ int main() {
             else if (event.type == sf::Event::LostFocus) {
                 engine.set_focus(false);
             }
+            else if (event.type == sf::Event::MouseWheelScrolled) {
+                if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel) {
+                    engine.update_mouse_wheel(event.mouseWheelScroll.delta);
+                }
+            }
         }
         ImGui::SFML::Update(window, imgui_clock.restart());
         engine.update();

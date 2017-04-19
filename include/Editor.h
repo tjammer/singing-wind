@@ -22,7 +22,8 @@ enum EditorButtons {
     Move,
     Insert,
     Delete,
-    Menu
+    Menu,
+    ResetZoom
 };
 
 class EngineEditorState : public EngineState {
@@ -32,7 +33,7 @@ public:
     void update(Engine &engine) override;
     void draw(sf::RenderWindow &window) override ;
 
-    EngineEditorState(const std::string &scene_name, GameWorld& game_world);
+    EngineEditorState(const std::string &scene_name, GameWorld &game_world);
     ~EngineEditorState() = default;
 
 private:
@@ -41,6 +42,7 @@ private:
     // last frame
     std::map<EditorButtons, bool> m_pressed;
     sf::Vector2i m_mouse;
+    float m_mouse_wheel;
 
     // menu
     bool m_menu = false;
@@ -49,6 +51,10 @@ private:
     void update_world();
     bool load_scene(const std::string &name);
     void save_scene(const std::string &name);
+
+    // zoom
+    float m_zoom = 1.f;
+    bool m_update_view = false;
 };
 
 class BaseEditorSubState {

@@ -10,6 +10,8 @@
 #include <fstream>
 #include <Scene.pb.h>
 
+const float zoom_constant = 0.05f;
+
 void EngineEditorState::draw(sf::RenderWindow &window) {
     if (m_paused) {
         return;
@@ -18,7 +20,8 @@ void EngineEditorState::draw(sf::RenderWindow &window) {
     m_state->draw(game_world, window);
 }
 
-EngineEditorState::EngineEditorState(const std::string &scene_name, GameWorld& game_world) :
+EngineEditorState::EngineEditorState(const std::string &scene_name, GameWorld &game_world)
+        :
         game_world(game_world) {
     m_state = std::unique_ptr<BaseEditorSubState>(new EditorIdle);
     load_scene(scene_name);
@@ -95,7 +98,29 @@ void EngineEditorState::update(Engine &engine) {
     if (sf::Mouse::isButtonPressed(sf::Mouse::Middle)) {
         auto diff = WVec(idiff.x, idiff.y);
         auto view = window.getView();
-        view.move(-diff);
+        view.move(-diff * m_zoom);
+        engine.set_view(view);
+    }
+
+    if (engine.get_mouse_wheel() != m_mouse_wheel) {
+        m_zoom -= zoom_constant * (engine.get_mouse_wheel() - m_mouse_wheel);
+        m_mouse_wheel = engine.get_mouse_wheel();
+        m_update_view = true;
+    }
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Home) and not m_pressed[ResetZoom]) {
+        m_zoom = 1.0f;
+        m_mouse_wheel = engine.get_mouse_wheel();
+        m_update_view = true;
+    }
+    m_pressed[ResetZoom] = sf::Keyboard::isKeyPressed(sf::Keyboard::Home);
+
+    if (m_update_view) {
+        m_update_view = false;
+
+        auto view = window.getView();
+        auto default_size = window.getDefaultView().getSize();
+        view.setSize(default_size.x * m_zoom, default_size.y * m_zoom);
         engine.set_view(view);
     }
 
@@ -130,6 +155,8 @@ bool EngineEditorState::load_scene(const std::string &name) {
         }
         islands.push_back(island);
     }
+    m_zoom = pb_scene.zoom();
+    m_update_view = true;
 
     update_world();
     return true;
@@ -153,6 +180,7 @@ void EngineEditorState::save_scene(const std::string &name) {
             pb_point->set_y(point.y);
         }
     }
+    pb_scene.set_zoom(m_zoom);
 
     fstream  scene_file(name, ios::out | ios::trunc | ios::binary);
     if (!pb_scene.SerializeToOstream(&scene_file)) {

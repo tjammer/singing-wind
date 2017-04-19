@@ -13,4 +13,5 @@ message Island {
 
 message Scene {
     repeated Island islands = 1;
+    float zoom = 2;
 }
