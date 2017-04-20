@@ -46,25 +46,30 @@ struct InputComponent {
     std::function<void(InputComponent&, const WVec&)> input_func;
 };
 
-enum MoveState {
+enum class MoveStateName {
     OnGround,
     Jumping,
     Falling,
     Flying
 };
 
+// the actual state
+struct BaseMovementState;
+using MoveState = std::unique_ptr<BaseMovementState>;
+
 struct MoveComponent {
     WVec velocity = {0, 0};
     WVec accel = {0, 0};
     WVec additional_accel = {0, 0};
     float air_time = 0;
-    MoveState move_state = OnGround;
-    // different function depending on player state
-    std::function<void(InputComponent &ic, MoveComponent &mc)> accel_func = nullptr;
+    std::unique_ptr<BaseMovementState> move_state = nullptr;
 };
 
-using MovementFct = std::function<void(InputComponent &ic, MoveComponent &mc)>;
-
+struct BaseMovementState {
+    MoveStateName m_move_state = MoveStateName::OnGround;
+    virtual void accel(InputComponent &ic, MoveComponent &mc) = 0;
+    virtual MoveStateName get_state() const {return m_move_state;}
+};
 
 struct StaticColComponent {
     ColResult col_result;

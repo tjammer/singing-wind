@@ -5,7 +5,6 @@
 #include "FrameTimer.h"
 
 void FrameTimer::reset() {
-    m_fixed_counter = 0;
     m_elapsed = m_timer.restart();
 }
 

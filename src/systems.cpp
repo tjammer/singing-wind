@@ -208,7 +208,7 @@ void move_update(GameWorld &world, float dt) {
 
         mc.velocity += old_accel * dt;
 
-        mc.accel_func(ic, mc);
+        mc.move_state->accel(ic, mc);
 
         mc.velocity += dt * (mc.accel - old_accel) / 2.0f;
         auto motion = dt * (mc.velocity + mc.accel * dt / 2.0f);

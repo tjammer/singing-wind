@@ -12,72 +12,13 @@ void drag(MoveComponent &mc) {
     mc.accel.y -= copysignf(mc.velocity.y * mc.velocity.y * c_drag, mc.velocity.y);
 }
 
-void on_ground(InputComponent &ic, MoveComponent &mc) {
-    if (ic.direction[0] and ic.direction[0] != ic.last_dir) {
-        ic.last_dir = ic.direction[0];
-    }
-
-    if (mc.air_time > c_jump_tolerance) {
-        enter_falling(ic, mc);
-    }
-
-    float mod = 1;
-    if (ic.direction[0] * mc.velocity.x < 0) {
-        mod *= c_turn_mod;
-    }
-    mc.accel.x += ic.direction[0] * mod * c_walk_accel;
-
-    if (ic.direction[0] == 0) {
-        mc.accel.x -= c_stop_friction * mc.velocity.x;
-    }
-
-    drag(mc);
-
-    // jumping
-    if (ic.jump[0] and std::find(ic.jump.begin(), ic.jump.end(), false) != ic.jump.end()
-            && mc.air_time < c_jump_tolerance) {
-        // transistion to jump
-        mc.accel_func = enter_jump(ic, mc);
-
-    }
-}
-float jumping;
-
-MovementFct enter_jump(InputComponent &ic, MoveComponent &mc) {
-    jumping = 0.016;
-    clear_arr(ic.jump, true);
-    mc.move_state = Jumping;
-    mc.velocity.y = -c_jump_speed;
-    return jump;
-}
-
-MovementFct enter_falling(InputComponent &ic, MoveComponent &mc) {
-    mc.move_state = Falling;
-    return falling;
-}
-
-void jump(InputComponent &ic, MoveComponent &mc) {
-    if (mc.velocity.y < 0) {
-        mc.accel_func = enter_falling(ic, mc);
-    }
-
-    float mod = 1;
-    if (ic.direction[0] * mc.velocity.x < 0) {
-        mod *= c_turn_mod;
-    }
-    mc.accel.x += ic.direction[0] * mod * c_walk_accel;
-
-    drag(mc);
-}
-
 void on_static_collision(const ColResult &result, GameWorld &world, unsigned int entity) {
     auto &mc = world.m_move_c[entity];
-    auto &ic = world.m_input_c[entity];
 
     if (dot(WVec(0, 1), result.normal) > c_max_floor_angle) {
         mc.air_time = 0;
-        if (!mc.move_state == OnGround) {
-            mc.accel_func = enter_ground(ic, mc);
+        if (!(mc.move_state->get_state() == MoveStateName::OnGround)) {
+            mc.move_state = MoveState(new OnGround);
         }
         mc.velocity.y = slide(mc.velocity, result.normal).y * 0.5f;
     }
@@ -87,19 +28,7 @@ void on_static_collision(const ColResult &result, GameWorld &world, unsigned int
 
 }
 
-MovementFct enter_ground(InputComponent &ic, MoveComponent &mc) {
-    mc.move_state = OnGround;
-    return on_ground;
-}
-
 void falling(InputComponent &ic, MoveComponent &mc) {
-    float mod = 1;
-    if (ic.direction[0] * mc.velocity.x < 0) {
-        mod *= c_turn_mod;
-    }
-    mc.accel.x += ic.direction[0] * mod * c_walk_accel;
-
-    drag(mc);
 }
 
 void handle_inputs(InputComponent &ic, const WVec &mouse) {
@@ -132,7 +61,7 @@ unsigned int create_player(GameWorld &world, const WVec &pos, unsigned int paren
     auto shape = std::shared_ptr<ColShape>(new ColCapsule(25, 50));
     world.m_debug_c[player].shape = shape;
 
-    world.m_move_c[player].accel_func = on_ground;
+    world.m_move_c[player].move_state = MoveState(new InFalling);
 
     world.m_input_c[player].input_func = handle_inputs;
 
@@ -140,4 +69,65 @@ unsigned int create_player(GameWorld &world, const WVec &pos, unsigned int paren
     world.m_static_col_c[player].on_static_col_cb = on_static_collision;
 
     return player;
+}
+
+void OnGround::accel(InputComponent &ic, MoveComponent &mc) {
+    if (ic.direction[0] and ic.direction[0] != ic.last_dir) {
+        ic.last_dir = ic.direction[0];
+    }
+
+    if (mc.air_time > c_jump_tolerance) {
+        mc.move_state = MoveState(new InFalling);
+    }
+
+    float mod = 1;
+    if (ic.direction[0] * mc.velocity.x < 0) {
+        mod *= c_turn_mod;
+    }
+    mc.accel.x += ic.direction[0] * mod * c_walk_accel;
+
+    if (ic.direction[0] == 0) {
+        mc.accel.x -= c_stop_friction * mc.velocity.x;
+    }
+
+    drag(mc);
+
+    // jumping
+    if (ic.jump[0] and std::find(ic.jump.begin(), ic.jump.end(), false) != ic.jump.end()
+        && mc.air_time < c_jump_tolerance) {
+        // transistion to jump
+        mc.move_state = MoveState(new InJump(ic, mc));
+
+    }
+}
+
+void InJump::accel(InputComponent &ic, MoveComponent &mc) {
+    if (mc.velocity.y < 0) {
+        mc.move_state = MoveState(new InFalling);
+    }
+
+    float mod = 1;
+    if (ic.direction[0] * mc.velocity.x < 0) {
+        mod *= c_turn_mod;
+    }
+    mc.accel.x += ic.direction[0] * mod * c_walk_accel;
+
+    drag(mc);
+}
+
+InJump::InJump(InputComponent &ic, MoveComponent &mc) {
+    clear_arr(ic.jump, true);
+    m_move_state = MoveStateName ::Jumping;
+    mc.velocity.y = -c_jump_speed;
+
+}
+
+void InFalling::accel(InputComponent &ic, MoveComponent &mc) {
+    float mod = 1;
+    if (ic.direction[0] * mc.velocity.x < 0) {
+        mod *= c_turn_mod;
+    }
+    mc.accel.x += ic.direction[0] * mod * c_walk_accel;
+
+    drag(mc);
 }

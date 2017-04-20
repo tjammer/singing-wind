@@ -17,12 +17,23 @@ const float c_stop_friction = 8;
 const float c_turn_mod = 4;
 const float c_jump_speed = 800;
 
-MovementFct enter_ground(InputComponent &ic, MoveComponent &mc);
-void on_ground(InputComponent &ic, MoveComponent &mc);
-MovementFct enter_jump(InputComponent &ic, MoveComponent &mc);
-void jump(InputComponent &ic, MoveComponent &mc);
-MovementFct enter_falling(InputComponent &ic, MoveComponent &mc);
-void falling(InputComponent &ic, MoveComponent &mc);
+struct OnGround : BaseMovementState {
+    void accel(InputComponent &ic, MoveComponent &mc) override;
+
+    OnGround() {m_move_state = MoveStateName ::OnGround;}
+};
+
+struct InJump : BaseMovementState {
+    void accel(InputComponent &ic, MoveComponent &mc) override;
+
+    InJump(InputComponent &ic, MoveComponent &mc);
+};
+
+struct InFalling : BaseMovementState {
+    void accel(InputComponent &ic, MoveComponent &mc) override;
+
+    InFalling() {m_move_state = MoveStateName::Falling;}
+};
 
 void on_static_collision(const ColResult &result, GameWorld &world, unsigned int entity);
 
