@@ -42,7 +42,7 @@ private:
     // last frame
     std::map<EditorButtons, bool> m_pressed;
     sf::Vector2i m_mouse;
-    float m_mouse_wheel;
+    float m_mouse_wheel = 0;
 
     // menu
     bool m_menu = false;
