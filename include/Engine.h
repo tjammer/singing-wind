@@ -59,7 +59,7 @@ public:
 
     virtual void pause() { m_paused = true;}
     virtual void unpause() {m_paused = false;}
-    virtual void switch_pause() {m_paused = !m_paused;}
+    virtual void switch_pause() {if (m_paused) {unpause(); return;} pause();}
 
     virtual void update(Engine& engine) = 0;
     virtual void draw(sf::RenderWindow& window) = 0;

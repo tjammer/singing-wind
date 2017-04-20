@@ -33,7 +33,7 @@ set(SOURCE_FILES src/main.cpp
         include/ColGrid.h
         external/src/imgui.cpp
         external/src/imgui_draw.cpp
-        external/src/imgui-SFML.cpp src/GameWorld.cpp include/GameWorld.h src/Game.cpp include/Game.h src/Components.cpp include/Components.h include/entities.h src/entities.cpp src/Protagonist.cpp include/Protagonist.h src/systems.cpp include/systems.h src/Camera.cpp include/Camera.h)
+        external/src/imgui-SFML.cpp src/GameWorld.cpp include/GameWorld.h src/Game.cpp include/Game.h src/Components.cpp include/Components.h include/entities.h src/entities.cpp src/Protagonist.cpp include/Protagonist.h src/systems.cpp include/systems.h src/Camera.cpp include/Camera.h src/FrameTimer.cpp include/FrameTimer.h)
 add_executable(singing_wind ${SOURCE_FILES} ${protosrc} ${protohdr})
 target_link_libraries(singing_wind
         sfml-system

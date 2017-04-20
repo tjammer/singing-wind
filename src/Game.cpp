@@ -20,10 +20,19 @@ void Game::update(Engine &engine) {
     }
     const sf::RenderWindow &window = engine.get_window();
     auto mouse = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-    m_game_world.step_fixed(1.f / 60.f, mouse);
+
+    m_timer.update();
+    while (m_timer.pop_fixed()) {
+        m_game_world.step_fixed(c_fixed_timestep, mouse);
+    }
     m_camera.update(m_game_world, engine);
 }
 
 void Game::draw(sf::RenderWindow &window) {
     m_game_world.draw(window);
+}
+
+void Game::unpause() {
+    EngineState::unpause();
+    m_timer.reset();
 }
