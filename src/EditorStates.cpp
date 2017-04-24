@@ -4,6 +4,7 @@
 
 #include "EditorStates.h"
 #include <iostream>
+#include <iomanip>
 #include <imgui.h>
 
 std::unique_ptr<BaseEditorSubState> IslandIdle::confirm(GameWorld &world) {
@@ -136,6 +137,11 @@ EditorSubState CurveIdle::menu(GameWorld &world) {
         ImGui::End();
         return insert_item(world);
     }
+    if (ImGui::Button("print bezier curve")) {
+        ImGui::End();
+        print_formatted_bezier();
+        return nullptr;
+    }
     if (ImGui::Button("cancel")) {
         ImGui::End();
         return cancel();
@@ -144,6 +150,38 @@ EditorSubState CurveIdle::menu(GameWorld &world) {
     return nullptr;
 }
 
+void CurveIdle::print_formatted_bezier() {
+    using namespace std;
+    // y flipped in sfml
+    float high_y = std::numeric_limits<float>::max();
+    float low_y = -std::numeric_limits<float>::max();
+    float high_x = -std::numeric_limits<float>::max();
+    float low_x = std::numeric_limits<float>::max();
+    for (const auto &p : m_curve.points_along_curve(0.01f)) {
+        if (p.y < high_y) {
+            high_y = p.y;
+        }
+        if (p.y > low_y) {
+            low_y = p.y;
+        }
+        if (p.x > high_x) {
+            high_x = p.x;
+        }
+        if (p.x < low_x) {
+            low_x = p.x;
+        }
+    }
+    float df_y = 1.f / (high_y - low_y);
+    float df_x = 1.f / (high_x - low_x);
+    cout << fixed << setprecision(3) << "WVec from =       {" << (m_curve.to.x - low_x) * df_x << ", "
+              << (m_curve.to.y - low_y) * df_y << "};" << endl;
+    cout << fixed << setprecision(3) << "WVec ctrl_from =  {" << (m_curve.ctrl_to.x - low_x) * df_x << ", "
+              << (m_curve.ctrl_to.y - low_y) * df_y << "};" << endl;
+    cout << fixed << setprecision(3) << "WVec ctrl_to =    {" << (m_curve.ctrl_from.x - low_x) * df_x << ", "
+              << (m_curve.ctrl_from.y - low_y) * df_y << "};" << endl;
+    cout << fixed << setprecision(3) << "WVec to =         {" << (m_curve.from.x - low_x) * df_x << ", "
+              << (m_curve.from.y - low_y) * df_y<< "};" << endl;
+}
 
 
 void PointEdit::update(const WVec &mpos) {

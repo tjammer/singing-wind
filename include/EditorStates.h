@@ -59,6 +59,7 @@ public:
     EditorSubState insert_item(GameWorld &world) override;
     EditorSubState delete_item(GameWorld &world) override {return EditorSubState(new IslandIdle(m_island));}
     EditorSubState menu(GameWorld &world) override;
+    void print_formatted_bezier();
 
     CurveIdle(const BCurve &curve, Island &active);
     ~CurveIdle() = default;
