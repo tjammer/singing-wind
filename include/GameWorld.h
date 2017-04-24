@@ -11,9 +11,10 @@
 #include "Components.h"
 
 // physics constants
-const float c_drag = 0.0046;
+const float c_drag = 0.0026;
+const float c_friction = 0.0026;
 const float c_max_floor_angle = 0.7;
-const float c_gravity = 1800;
+const float c_gravity = 900;
 
 // implements the ecs
 class GameWorld {

@@ -36,7 +36,7 @@ WVec ColTriangle::get_support(const WVec &dir) const {
     WVec out(0, 0);
 
     for (const auto &vert : m_vertices) {
-        auto d = dot(vert, dir);
+        auto d = w_dot(vert, dir);
         if (d > max_dot) {
             max_dot = d;
             out = vert;
@@ -95,7 +95,7 @@ WVec ColCapsule::get_support(const WVec &dir) const {
     WVec out(-150, -150);
 
     for (const auto &v : {m_a, m_b}) {
-        auto d = dot(v, dir);
+        auto d = w_dot(v, dir);
         if (d > max_dot) {
             max_dot = d;
             out = v;

@@ -67,7 +67,7 @@ struct MoveComponent {
 
 struct BaseMovementState {
     MoveStateName m_move_state = MoveStateName::OnGround;
-    virtual void accel(InputComponent &ic, MoveComponent &mc) = 0;
+    virtual void accel(GameWorld &world, unsigned int entity) = 0;
     virtual MoveStateName get_state() const {return m_move_state;}
 };
 

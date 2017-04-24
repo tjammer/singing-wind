@@ -13,16 +13,54 @@ using WVec = sf::Vector2f;
 using WTransform = sf::Transform;
 using bset = std::bitset<12>;
 
-float w_magnitude(const WVec &v);
+inline std::ostream& operator <<(std::ostream& os, const WVec &v) {
+    os << "(" <<v.x << ", " << v.y << ")";
+    return os;
+}
 
-WVec w_normalize(WVec v);
+inline float w_magnitude(const WVec &v) {
+    return sqrtf(v.x * v.x + v.y * v.y);
+}
 
-float dot(const WVec &a, const WVec &b);
+inline WVec w_normalize(const WVec &v) {
+    if ((v.x * v.x + v.y * v.y) != 0) {
+        return v / w_magnitude(v);
+    }
+    return v;
+}
 
-float cross(const WVec &a, const WVec &b);
+inline float w_dot(const WVec &a, const WVec &b) {
+    return a.x * b.x + a.y * b.y;
+}
 
-WVec triple_prod(const WVec &a, const WVec &b, const WVec &c);
+inline float w_cross(const WVec &a, const WVec &b) {
+    return a.x * b.y - a.y * b.x;
+}
 
-WVec slide(const WVec &vec, const WVec &normal);
+inline WVec w_triple_prod(const WVec &a, const WVec &b, const WVec &c) {
+    return b * w_dot(a, c) - c * w_dot(a, b);
+}
+
+inline WVec w_slide(const WVec &vec, const WVec &normal) {
+    return vec - normal * w_dot(vec, normal);
+}
+
+inline float w_angle_to_point(const WVec &p, const WVec &to) {
+    return atan2(p.x - to.x, p.y - to.y);
+}
+
+inline float w_angle_to_vec(const WVec &v, const WVec &to) {
+    return atan2(w_cross(v, to), w_dot(v, to));
+}
+
+inline WVec w_rotated_deg(const WVec &v, float angle) {
+    float rad_angle = static_cast<float>(angle * M_PI / 180.f);
+    float v_angle = atan2(v.y, v.x);
+    return WVec(cos(v_angle + rad_angle), sin(v_angle + rad_angle)) * w_magnitude(v);
+}
+
+inline WVec w_tangent(const WVec &v) {
+    return WVec(v.y, -v.x);
+}
 
 #endif //SINGING_WIND_WINDDEFS_H

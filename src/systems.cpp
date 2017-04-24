@@ -51,7 +51,7 @@ void col_test_update(GameWorld &world, const WVec &mouse) {
             pos += move_back;
 
             // slide movement and collide again
-            vel = slide(-move_back, result.normal);
+            vel = w_slide(-move_back, result.normal);
             pos += vel;
             //circle to world
             transform = WTransform::Identity;
@@ -139,14 +139,16 @@ void static_col_update(GameWorld &world) {
         // (what to do about moving platforms)
         shape->transform(transform.getInverse());
 
-        if (result.collides) {
+        if (result.collides && result.epa_it < 21) {
             auto move_back = result.normal * -result.depth;
             pos += move_back;
 
             // player can stand on slopes
-            if (dot(WVec(0, 1), result.normal) > c_max_floor_angle) {
-                WVec correction = slide(WVec(move_back.x, 0), result.normal);
-                correction *= move_back.x / correction.x;
+            if (w_dot(WVec(0, 1), result.normal) > c_max_floor_angle) {
+                WVec correction = w_slide(WVec(move_back.x, 0), result.normal);
+                if (correction.x != 0) {
+                    correction *= move_back.x / correction.x;
+                }
                 pos -= correction;
             }
 
@@ -199,7 +201,6 @@ void move_update(GameWorld &world, float dt) {
         }
 
         auto &mc = world.m_move_c[entity];
-        auto &ic = world.m_input_c[entity];
 
         auto old_accel = mc.accel;
 
@@ -208,13 +209,14 @@ void move_update(GameWorld &world, float dt) {
 
         mc.velocity += old_accel * dt;
 
-        mc.move_state->accel(ic, mc);
+        mc.move_state->accel(world, entity);
 
         mc.velocity += dt * (mc.accel - old_accel) / 2.0f;
         auto motion = dt * (mc.velocity + mc.accel * dt / 2.0f);
         world.m_pos_c[entity].position += motion;
 
         mc.air_time += dt;
+        std::cout << mc.velocity.x << std::endl;
     }
 
 }

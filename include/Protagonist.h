@@ -11,28 +11,38 @@
 
 class GameWorld;
 
-const float c_walk_accel = 1500;
+const float c_walk_accel = 1000;
+const float c_air_accel_mod = 0.5;
 const float c_jump_tolerance = 0.1;
 const float c_stop_friction = 8;
 const float c_turn_mod = 4;
-const float c_jump_speed = 800;
+const float c_jump_speed = 700;
+const float c_lift = 0.0035;
+const float c_stall_angle = 0.26;
+const float c_max_change_angle = 5;
 
-struct OnGround : BaseMovementState {
-    void accel(InputComponent &ic, MoveComponent &mc) override;
+struct MOnGround : BaseMovementState {
+    void accel(GameWorld &world, unsigned int entity) override;
 
-    OnGround() {m_move_state = MoveStateName ::OnGround;}
+    MOnGround() {m_move_state = MoveStateName ::OnGround;}
 };
 
-struct InJump : BaseMovementState {
-    void accel(InputComponent &ic, MoveComponent &mc) override;
+struct MJumping : BaseMovementState {
+    void accel(GameWorld &world, unsigned int entity) override;
 
-    InJump(InputComponent &ic, MoveComponent &mc);
+    MJumping(InputComponent &ic, MoveComponent &mc);
 };
 
-struct InFalling : BaseMovementState {
-    void accel(InputComponent &ic, MoveComponent &mc) override;
+struct MFalling : BaseMovementState {
+    void accel(GameWorld &world, unsigned int entity) override;
 
-    InFalling() {m_move_state = MoveStateName::Falling;}
+    MFalling() {m_move_state = MoveStateName::Falling;}
+};
+
+struct MFlying : BaseMovementState {
+    void accel(GameWorld &world, unsigned int entity) override;
+
+    MFlying(GameWorld &world, unsigned int entity);
 };
 
 void on_static_collision(const ColResult &result, GameWorld &world, unsigned int entity);

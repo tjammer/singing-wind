@@ -20,7 +20,7 @@ set(SOURCE_FILES src/main.cpp
         src/Editor.cpp include/Editor.h
         src/BCurve.cpp include/BCurve.h
         include/WindDefs.h src/Island.cpp
-        include/Island.h src/WindDefs.cpp
+        include/Island.h
         src/EditorStates.cpp
         include/EditorStates.h
         include/triangulate.h
