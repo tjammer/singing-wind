@@ -4,7 +4,6 @@
 
 #include "Collision.h"
 #include <assert.h>
-#include <iostream>
 
 using namespace sf;
 
@@ -17,29 +16,28 @@ ColResult static_collide(const ColShape &a, const ColShape &b) {
     Simplex s;
     WVec w = a.get_support(-v) - b.get_support(v);
     int it = 0;
-    while ((dot(v, v) - dot(v, w)) > c_epsilon && it < c_max_it) {
+    while ((w_dot(v, v) - w_dot(v, w)) > c_epsilon && it < c_max_it) {
         s.add(w);
         /*	if (dot(v, w) > 0)
                 break;*/
         s.solve(WVec(0, 0));
         v = s.get_closest();
-        if (dot(v, v) == 0.f)
+        if (w_dot(v, v) == 0.f)
             break;
         w = a.get_support(-v) - b.get_support(v);
         ++it;
     }
-    result.collides = dot(v, v) == 0.f;
+    result.collides = w_dot(v, v) == 0.f;
     if (result.collides) {
         WVec normal;
         int epa_it = 0;
         result.depth = find_normal_epa(a, b, s, normal, epa_it);
-        //result.e = find_closest_edge(s).distance;
         result.normal = normal;
         result.gjk_it = it;
         result.epa_it = epa_it;
     }
     else
-        result.depth = sqrtf(dot(v, v));
+        result.depth = sqrtf(w_dot(v, v));
     return result;
 }
 
@@ -49,7 +47,7 @@ float find_normal_epa(const ColShape &a, const ColShape &b, Simplex &s, WVec &no
     while (true) {
         auto e = find_closest_edge(s);
         auto p = a.get_support(e.normal) - b.get_support(-e.normal);
-        float d = dot(p, e.normal);
+        float d = w_dot(p, e.normal);
         float test = d - e.distance;
         if (test < c_epsilon || test == dist || it > c_max_it) {
             normal = e.normal;
@@ -72,12 +70,12 @@ Edge find_closest_edge(const Simplex &s) {
         auto b = s.verts[j];
 
         auto e = b - a;
-        auto n = triple_prod(e, a, e);
+        auto n = w_triple_prod(e, a, e);
         //normalize
         //n /= sqrt(dot(n, n));
         n /= sqrtf(pow(n.x, 2.f) + powf(n.y, 2.f));
 
-        auto d = dot(n, a);
+        auto d = w_dot(n, a);
         if (d < edge.distance) {
             edge.distance = d;
             edge.normal = n;
@@ -164,8 +162,8 @@ WVec Simplex::get_closest() const {
 void Simplex::solve2(const WVec & x) {
 
     // Compute barycentric coordinates (pre-division).
-    float u = dot(x - verts[1], verts[0] - verts[1]);
-    float v = dot(x - verts[0], verts[1] - verts[0]);
+    float u = w_dot(x - verts[1], verts[0] - verts[1]);
+    float v = w_dot(x - verts[0], verts[1] - verts[0]);
 
     // Region A
     if (v <= 0.0f) {
@@ -193,20 +191,20 @@ void Simplex::solve2(const WVec & x) {
     barys[0] = u;
     barys[1] = v;
     auto e = verts[1] - verts[0];
-    denom = dot(e, e);
+    denom = w_dot(e, e);
     count = 2;
 }
 
 void Simplex::solve3(const WVec & x) {
     // Compute edge barycentric coordinates (pre-division).
-    float uAB = dot(x - verts[1], verts[0] - verts[1]);
-    float vAB = dot(x - verts[0], verts[1] - verts[0]);
+    float uAB = w_dot(x - verts[1], verts[0] - verts[1]);
+    float vAB = w_dot(x - verts[0], verts[1] - verts[0]);
 
-    float uBC = dot(x - verts[2], verts[1] - verts[2]);
-    float vBC = dot(x - verts[1], verts[2] - verts[1]);
+    float uBC = w_dot(x - verts[2], verts[1] - verts[2]);
+    float vBC = w_dot(x - verts[1], verts[2] - verts[1]);
 
-    float uCA = dot(x - verts[0], verts[2] - verts[0]);
-    float vCA = dot(x - verts[2], verts[0] - verts[2]);
+    float uCA = w_dot(x - verts[0], verts[2] - verts[0]);
+    float vCA = w_dot(x - verts[2], verts[0] - verts[2]);
 
     // Region A
     if (vAB <= 0.0f && uCA <= 0.0f) {
@@ -235,19 +233,19 @@ void Simplex::solve3(const WVec & x) {
     }
 
     // Compute signed triangle area.
-    float area = cross(verts[1] - verts[0], verts[2] - verts[0]);
+    float area = w_cross(verts[1] - verts[0], verts[2] - verts[0]);
 
     // Compute triangle barycentric coordinates (pre-division).
-    float uABC = cross(verts[1] - x, verts[2] - x);
-    float vABC = cross(verts[2] - x, verts[0] - x);
-    float wABC = cross(verts[0] - x, verts[1] - x);
+    float uABC = w_cross(verts[1] - x, verts[2] - x);
+    float vABC = w_cross(verts[2] - x, verts[0] - x);
+    float wABC = w_cross(verts[0] - x, verts[1] - x);
 
     // Region AB
     if (uAB > 0.0f && vAB > 0.0f && wABC * area <= 0.0f) {
         barys[0] = uAB;
         barys[1] = vAB;
         auto e = verts[1] - verts[0];
-        denom = dot(e, e);
+        denom = w_dot(e, e);
         count = 2;
         return;
     }
@@ -261,7 +259,7 @@ void Simplex::solve3(const WVec & x) {
         barys[1] = vBC;
         //auto e = verts[2] - verts[1];
         auto e = verts[1] - verts[0];
-        denom = dot(e, e);
+        denom = w_dot(e, e);
         count = 2;
         return;
     }
@@ -275,7 +273,7 @@ void Simplex::solve3(const WVec & x) {
         barys[1] = vCA;
         //auto e = verts[0] - verts[2];
         auto e = verts[1] - verts[0];
-        denom = dot(e, e);
+        denom = w_dot(e, e);
         count = 2;
         return;
     }
@@ -292,7 +290,7 @@ void Simplex::solve3(const WVec & x) {
 
 WVec find_directed_overlap(const ColResult &result, const WVec &direction) {
     auto dir = w_normalize(direction);
-    auto projection = dot(-dir, result.normal);
+    auto projection = w_dot(-dir, result.normal);
     /*if (abs(projection) < c_epsilon * 0.1f) {
         return result.normal * result.depth;
     }*/

@@ -216,7 +216,6 @@ void move_update(GameWorld &world, float dt) {
         world.m_pos_c[entity].position += motion;
 
         mc.air_time += dt;
-        std::cout << mc.velocity.x << std::endl;
     }
 
 }
