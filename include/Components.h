@@ -50,7 +50,8 @@ enum class MoveStateName {
     OnGround,
     Jumping,
     Falling,
-    Flying
+    Flying,
+    FlyingAccel
 };
 
 // the actual state

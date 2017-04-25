@@ -4,7 +4,6 @@
 
 #include "systems.h"
 #include "GameWorld.h"
-#include <iostream>
 
 void col_test_update(GameWorld &world, const WVec &mouse) {
     for (unsigned int entity = 0; entity < world.m_entities.size(); ++entity) {

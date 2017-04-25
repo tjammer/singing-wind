@@ -4,8 +4,9 @@
 
 #include "Protagonist.h"
 #include "GameWorld.h"
+#include "BCurve.h"
+#include "FrameTimer.h"
 #include <assert.h>
-#include <iostream>
 
 const float c_half_pi = (float)M_PI / 2.f;
 
@@ -26,25 +27,46 @@ inline void walk(InputComponent &ic, MoveComponent &mc) {
     mc.accel.x += ic.direction[0] * mod * c_walk_accel;
 }
 
-inline float calc_drag(float angle) {
-    return c_drag * expf(-powf(angle - c_half_pi, 2.f) * 1.5f);
+const float c_velocity_scaling = 1200;
+
+inline float calc_drag(float angle, float vel_mag) {
+    auto drag_coeff = c_drag * exp(vel_mag / c_velocity_scaling);
+    return drag_coeff * expf(-powf(angle - c_half_pi, 2.f) * 1.5f);
 }
 
-inline float calc_lift(float angle) {
+inline float calc_lift(float angle, float vel_mag) {
+    auto lift_coeff = c_lift * exp(-vel_mag / c_velocity_scaling / 10);
     if (angle < 0) {
-        return -calc_lift(-angle);
+        return -calc_lift(-angle, vel_mag);
     }
-    assert(angle > 0);
+    assert(angle >= 0);
     if (angle < c_stall_angle || abs(fmod(angle + (float)M_PI, (float)M_PI)) < c_stall_angle) {
-        return c_lift * sin(angle * c_half_pi / c_stall_angle);
+        return lift_coeff * sin(angle * c_half_pi / c_stall_angle);
     }
-    return c_lift * cos((angle - c_stall_angle) * c_half_pi / (c_half_pi - c_stall_angle));
+    return lift_coeff * cos((angle - c_stall_angle) * c_half_pi / (c_half_pi - c_stall_angle));
 }
 
 // get angle from mouse to player in degrees (for smfl), zero is up
 inline float angle_up_from_local_mouse_deg(const WVec &mouse) {
     return atan2f(mouse.x, -mouse.y) * 180.f / (float)M_PI;
 };
+
+inline void fly(InputComponent &ic, MoveComponent &mc, PosComponent &pc) {
+    auto mouse = pc.global_transform.getInverse().transformPoint(ic.mouse[0]);
+    float mouse_angle = angle_up_from_local_mouse_deg(mouse);
+    pc.rotation += copysignf(fmin(c_max_change_angle, abs(mouse_angle)), mouse_angle);
+    pc.rotation = std::remainder(pc.rotation, 360.f);
+
+    auto air_dir = w_normalize(mc.velocity);
+    auto glide_dir = w_rotated_deg(WVec(0, -1), pc.rotation);
+    auto angle = w_angle_to_vec(air_dir, glide_dir);
+
+    float vel_mag = w_magnitude(mc.velocity);
+    float vel_squared = powf(vel_mag, 2);
+
+    mc.accel -= air_dir * vel_squared * calc_drag(abs(angle), vel_mag);
+    mc.accel -= w_tangent(air_dir) * vel_squared * calc_lift(angle, vel_mag);
+}
 
 void on_static_collision(const ColResult &result, GameWorld &world, unsigned int entity) {
     auto &mc = world.m_move_c[entity];
@@ -143,7 +165,7 @@ void MJumping::accel(GameWorld &world, unsigned int entity) {
 
     // to fly
     if (ic.jump[0] and std::find(ic.jump.begin(), ic.jump.end(), false) != ic.jump.end()) {
-        mc.move_state = MoveState(new MFlying(world, entity));
+        mc.move_state = MoveState(new MFlying(world, entity, true));
     }
 
     mc.accel.x += ic.direction[0] * c_air_accel_mod * c_walk_accel;
@@ -164,7 +186,7 @@ void MFalling::accel(GameWorld &world, unsigned int entity) {
 
     // to fly
     if (ic.jump[0] and std::find(ic.jump.begin(), ic.jump.end(), false) != ic.jump.end()) {
-        mc.move_state = MoveState(new MFlying(world, entity));
+        mc.move_state = MoveState(new MFlying(world, entity, true));
     }
 
     mc.accel.x += ic.direction[0] * c_air_accel_mod * c_walk_accel;
@@ -177,26 +199,17 @@ void MFlying::accel(GameWorld &world, unsigned int entity) {
     auto &ic = world.m_input_c[entity];
     auto &mc = world.m_move_c[entity];
 
-    auto mouse = pc.global_transform.getInverse().transformPoint(ic.mouse[0]);
-    float mouse_angle = angle_up_from_local_mouse_deg(mouse);
-    pc.rotation += copysignf(fmin(c_max_change_angle, abs(mouse_angle)), mouse_angle);
-
-    auto air_dir = w_normalize(mc.velocity);
-    auto glide_dir = w_rotated_deg(WVec(0, -1), pc.rotation);
-    auto angle = w_angle_to_vec(air_dir, glide_dir);
-
-    mc.accel -= air_dir * powf(w_magnitude(mc.velocity), 2) * calc_drag(abs(angle));
-    mc.accel -= w_tangent(air_dir) * powf(w_magnitude(mc.velocity), 2) * calc_lift(angle);
+    fly(ic, mc, pc);
 
     // to falling
     if (ic.jump[0] and std::find(ic.jump.begin(), ic.jump.end(), false) != ic.jump.end()) {
         clear_arr(ic.jump, true);
-        mc.move_state = MoveState(new MFalling);
-        pc.rotation = 0;
+        mc.move_state = MoveState(new MFlyingAccel);
+        //pc.rotation = 0;
     }
 }
 
-MFlying::MFlying(GameWorld &world, unsigned int entity) {
+MFlying::MFlying(GameWorld &world, unsigned int entity, bool set_rotation) {
     auto &ic = world.m_input_c[entity];
     auto &mc = world.m_move_c[entity];
     auto &pc = world.m_pos_c[entity];
@@ -204,5 +217,29 @@ MFlying::MFlying(GameWorld &world, unsigned int entity) {
     m_move_state = MoveStateName ::Flying;
     clear_arr(ic.jump, true);
     // rotate player in direction of movement
-    pc.rotation = w_angle_to_vec(WVec(0, -1), mc.velocity) * 180.f / (float)M_PI;
+    if (set_rotation) {
+        pc.rotation = w_angle_to_vec(WVec(0, -1), mc.velocity) * 180.f / (float)M_PI;
+    }
+}
+
+void MFlyingAccel::accel(GameWorld &world, unsigned int entity) {
+    auto &pc = world.m_pos_c[entity];
+    auto &ic = world.m_input_c[entity];
+    auto &mc = world.m_move_c[entity];
+
+    if (!ic.jump[0]) {
+        mc.move_state = MoveState(new MFlying(world, entity, false));
+    }
+
+    fly(ic, mc, pc);
+
+    BCurve curve = {from, ctrl_from, ctrl_to, to};
+    auto glide_dir = w_rotated_deg(WVec(0, -1), pc.rotation);
+    auto accel_dir = (4.f * copysignf(1, pc.rotation) * w_tangent(glide_dir) + glide_dir) / 5.f;
+    mc.accel += accel_dir * c_fly_accel_force * curve.eval(m_timer / c_fly_accel_time).y;
+
+    m_timer += c_fixed_timestep;
+    if (m_timer >= c_fly_accel_time) {
+        mc.move_state = MoveState(new MFlying(world, entity, false));
+    }
 }
