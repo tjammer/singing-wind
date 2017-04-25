@@ -51,10 +51,10 @@ inline float angle_up_from_local_mouse_deg(const WVec &mouse) {
     return atan2f(mouse.x, -mouse.y) * 180.f / (float)M_PI;
 };
 
-inline void fly(InputComponent &ic, MoveComponent &mc, PosComponent &pc) {
+inline void fly(InputComponent &ic, MoveComponent &mc, PosComponent &pc, float change_angle) {
     auto mouse = pc.global_transform.getInverse().transformPoint(ic.mouse[0]);
     float mouse_angle = angle_up_from_local_mouse_deg(mouse);
-    pc.rotation += copysignf(fmin(c_max_change_angle, abs(mouse_angle)), mouse_angle);
+    pc.rotation += copysignf(fmin(change_angle, abs(mouse_angle)), mouse_angle);
     pc.rotation = std::remainder(pc.rotation, 360.f);
 
     auto air_dir = w_normalize(mc.velocity);
@@ -97,6 +97,9 @@ void handle_inputs(InputComponent &ic, const WVec &mouse) {
 
     ic.mouse.pop_back();
     ic.mouse.push_front(mouse);
+
+    ic.wings.pop_back();
+    ic.wings.push_front(Mouse::isButtonPressed(Mouse::Button::Right));
 }
 
 unsigned int create_player(GameWorld &world, const WVec &pos, unsigned int parent) {
@@ -199,13 +202,17 @@ void MFlying::accel(GameWorld &world, unsigned int entity) {
     auto &ic = world.m_input_c[entity];
     auto &mc = world.m_move_c[entity];
 
-    fly(ic, mc, pc);
+    fly(ic, mc, pc, c_max_change_angle);
 
     // to falling
     if (ic.jump[0] and std::find(ic.jump.begin(), ic.jump.end(), false) != ic.jump.end()) {
         clear_arr(ic.jump, true);
+        mc.move_state = MoveState(new MFalling);
+        pc.rotation = 0;
+    }
+    // to wings
+    if (ic.wings[0] and std::find(ic.wings.begin(), ic.wings.end(), false) != ic.wings.end()) {
         mc.move_state = MoveState(new MFlyingAccel);
-        //pc.rotation = 0;
     }
 }
 
@@ -227,15 +234,24 @@ void MFlyingAccel::accel(GameWorld &world, unsigned int entity) {
     auto &ic = world.m_input_c[entity];
     auto &mc = world.m_move_c[entity];
 
-    if (!ic.jump[0]) {
+    if (!ic.wings[0]) {
         mc.move_state = MoveState(new MFlying(world, entity, false));
     }
 
-    fly(ic, mc, pc);
+    fly(ic, mc, pc, c_max_change_angle * 0.1f);
+
+
+    auto glide_dir = w_rotated_deg(WVec(0, -1), pc.rotation);
+    auto tangent_dir = copysignf(1, pc.rotation) * w_tangent(glide_dir);
+    if (ic.direction[0] < 0) {
+        tangent_dir = w_tangent(glide_dir);
+    }
+    else if (ic.direction[0] > 0) {
+        tangent_dir = -w_tangent(glide_dir);
+    }
+    auto accel_dir = (10.f * tangent_dir + glide_dir) / 11.f;
 
     BCurve curve = {from, ctrl_from, ctrl_to, to};
-    auto glide_dir = w_rotated_deg(WVec(0, -1), pc.rotation);
-    auto accel_dir = (4.f * copysignf(1, pc.rotation) * w_tangent(glide_dir) + glide_dir) / 5.f;
     mc.accel += accel_dir * c_fly_accel_force * curve.eval(m_timer / c_fly_accel_time).y;
 
     m_timer += c_fixed_timestep;

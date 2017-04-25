@@ -43,6 +43,7 @@ struct InputComponent {
     int last_dir;
     std::deque<bool> jump = std::deque<bool>(c_input_buffer_length);
     std::deque<WVec> mouse = std::deque<WVec>(c_input_buffer_length);
+    std::deque<bool> wings = std::deque<bool>(c_input_buffer_length);
     std::function<void(InputComponent&, const WVec&)> input_func;
 };
 
