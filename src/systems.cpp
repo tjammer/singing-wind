@@ -24,8 +24,7 @@ void col_test_update(GameWorld &world, const WVec &mouse) {
         }
 
         //circle to world
-        transform = WTransform::Identity;
-        transform.combine(world.m_pos_c[parent].global_transform).translate(pos).rotate(rot);
+        transform = WTransform().combine(world.m_pos_c[parent].global_transform).translate(pos).rotate(rot);
         shape->transform(transform);
 
         ColResult result;
@@ -53,8 +52,7 @@ void col_test_update(GameWorld &world, const WVec &mouse) {
             vel = w_slide(-move_back, result.normal);
             pos += vel;
             //circle to world
-            transform = WTransform::Identity;
-            transform.combine(world.m_pos_c[parent].global_transform).translate(pos).rotate(rot);
+            transform = WTransform().combine(world.m_pos_c[parent].global_transform).translate(pos).rotate(rot);
             shape->transform(transform);
 
             result = ColResult();
@@ -73,9 +71,8 @@ void col_test_update(GameWorld &world, const WVec &mouse) {
             if (result.collides) {
                 move_back = find_directed_overlap(result, vel);
                 pos += move_back;
-
-                transform = WTransform::Identity;
-                transform.combine(world.m_pos_c[parent].global_transform).translate(pos).rotate(rot);
+;
+                transform = WTransform().combine(world.m_pos_c[parent].global_transform).translate(pos).rotate(rot);
             }
         }
     }
@@ -117,8 +114,7 @@ void static_col_update(GameWorld &world) {
         auto &shape = world.m_static_col_c[entity].shape;
 
         //circle to world
-        transform = WTransform::Identity;
-        transform.combine(world.m_pos_c[parent].global_transform).translate(pos).rotate(rot);
+        transform = WTransform().combine(world.m_pos_c[parent].global_transform).translate(pos).rotate(rot);
         shape->transform(transform);
 
         // overwrite result
@@ -153,8 +149,7 @@ void static_col_update(GameWorld &world) {
 
             // slide movement and collide again
             //circle to world
-            transform = WTransform::Identity;
-            transform.combine(world.m_pos_c[parent].global_transform).translate(pos).rotate(rot);
+            transform = WTransform().combine(world.m_pos_c[parent].global_transform).translate(pos).rotate(rot);
             shape->transform(transform);
 
             ColResult second_result;
@@ -173,7 +168,6 @@ void static_col_update(GameWorld &world) {
                 WVec correction = find_directed_overlap(second_result, WVec(-move_back.y, move_back.x));
                 pos += correction;
 
-                transform = WTransform::Identity;
                 transform.combine(world.m_pos_c[parent].global_transform).translate(pos).rotate(rot);
             }
 
@@ -200,6 +194,7 @@ void move_update(GameWorld &world, float dt) {
         }
 
         auto &mc = world.m_move_c[entity];
+        auto &pc = world.m_pos_c[entity];
 
         auto old_accel = mc.accel;
 
@@ -212,7 +207,9 @@ void move_update(GameWorld &world, float dt) {
 
         mc.velocity += dt * (mc.accel - old_accel) / 2.0f;
         auto motion = dt * (mc.velocity + mc.accel * dt / 2.0f);
-        world.m_pos_c[entity].position += motion;
+        pc.position += motion;
+
+        pc.global_transform = WTransform().combine(world.m_pos_c[pc.parent].global_transform).translate(pc.position).rotate(pc.rotation);
 
         mc.air_time += dt;
     }
