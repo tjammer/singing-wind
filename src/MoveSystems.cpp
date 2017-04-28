@@ -135,7 +135,6 @@ void protagonist::on_ground(GameWorld &world, unsigned int entity) {
         // transistion to jump
         to_jumping(world, entity);
     }
-
 }
 
 void ::protagonist::to_flying(GameWorld &world, unsigned int entity) {
@@ -181,7 +180,6 @@ void ::protagonist::to_jumping(GameWorld &world, unsigned int entity) {
     clear_arr(ic.jump, true);
     mc.movestate = MoveState::Jumping;
     mc.velocity.y = -jc.c_jump_speed;
-
 }
 
 void ::protagonist::to_ground(GameWorld &world, unsigned int entity) {
@@ -207,7 +205,6 @@ void ::protagonist::flying(GameWorld &world, unsigned int entity) {
             return;
         }
 
-
         auto glide_dir = w_rotated_deg(WVec(0, -1), pc.rotation);
         auto tangent_dir = copysignf(1, pc.rotation) * w_tangent(glide_dir);
         if (ic.direction[0] < 0) {
@@ -219,8 +216,6 @@ void ::protagonist::flying(GameWorld &world, unsigned int entity) {
 
         BCurve curve = {fc.from, fc.ctrl_from, fc.ctrl_to, fc.to};
         mc.accel += accel_dir * fc.c_fly_accel_force * curve.eval(fc.timer / fc.c_fly_accel_time).y;
-
-
     }
 
     if (mc.movestate == MoveState::Flying) {
@@ -235,7 +230,6 @@ void ::protagonist::flying(GameWorld &world, unsigned int entity) {
             to_flying_accel(world, entity);
         }
     }
-
 }
 
 void ::protagonist::to_flying_accel(GameWorld &world, unsigned int entity) {
@@ -244,5 +238,4 @@ void ::protagonist::to_flying_accel(GameWorld &world, unsigned int entity) {
 
     mc.movestate = MoveState::FlyingAccel;
     fc.timer = 0;
-
 }
