@@ -34,6 +34,7 @@ void EngineEditorState::update(Engine &engine) {
     const sf::RenderWindow& window = engine.get_window();
     auto imouse = sf::Mouse::getPosition(window);
     auto mouse = window.mapPixelToCoords(imouse);
+    main_menu();
 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right) and not m_pressed[Menu]) {
         m_menu = !m_menu;
@@ -55,9 +56,6 @@ void EngineEditorState::update(Engine &engine) {
                 }
             }
             m_pressed[Confirm] = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
-        }
-        if (menu()) {
-            m_menu = false;
         }
         return;
     }
@@ -189,12 +187,12 @@ void EngineEditorState::save_scene(const std::string &name) {
     cout << "wrote to file " << name << endl;
 }
 
-bool EngineEditorState::menu() {
+bool EngineEditorState::main_menu() {
     bool rtn = false;
     ImGui::BeginMainMenuBar();
     if (ImGui::BeginMenu("scene")) {
         if (ImGui::MenuItem("save scene")) {
-            save_scene("debug.wscn");
+            save_scene("scenes/debug.wscn");
             rtn = true;
         }
         ImGui::EndMenu();

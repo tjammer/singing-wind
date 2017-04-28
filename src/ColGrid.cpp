@@ -32,7 +32,7 @@ std::set<int> StaticGrid::get_ids_for_object(const std::shared_ptr<ColShape> &sh
 }
 
 void StaticGrid::clear() {
-    m_buckets = std::map<int, std::vector<size_t>>();
+    m_buckets = std::unordered_map<int, std::vector<size_t>>();
     m_objects.clear();
 }
 

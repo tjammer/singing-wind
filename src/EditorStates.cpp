@@ -3,6 +3,7 @@
 //
 
 #include "EditorStates.h"
+#include "EntityEditor.h"
 #include <iostream>
 #include <iomanip>
 #include <imgui.h>
@@ -336,22 +337,48 @@ EditorSubState EditorIdle::confirm(GameWorld &world) {
     auto &islands = world.get_islands_ref();
 
     // find island point closest to cursor
+    bool is_island = false;
     float dist = std::numeric_limits<float>::max();
     int index = -1;
+
     for (uint i = 0 ; i < islands.size() ; ++i) {
         const auto &island = islands[i];
-        for (uint j = 0 ; j < island.m_points.size() ; ++j) {
-            float dist_to_point = w_magnitude(m_mpos - island.m_points[j]);
-            if (dist_to_point < dist) {
-                dist = dist_to_point;
-                index = i;
+        auto size = island.m_points.size();
+        for (uint j = 0 ; j < size ; ++j) {
+            BCurve curve = BCurve{island.m_points[j], island.m_ctrl_points[j*2],
+                                  island.m_ctrl_points[j*2 +1], island.m_points[(j+1)%size]};
+            auto vecs = curve.points_along_curve(1.0f);
+            for (const auto &v : vecs) {
+                float dist_to_point = w_magnitude(m_mpos - v);
+                if (dist_to_point < dist) {
+                    dist = dist_to_point;
+                    index = i;
+                    is_island = true;
+                }
             }
         }
     }
+
+    for (unsigned int i = 0 ; i < world.m_entities.size() ; ++i) {
+        bset pos_set{ (1 << CPosition) | (1 << CDebugDraw) };
+        if (has_component(world.m_entities[i], pos_set)) {
+            float dist_to_point = w_magnitude(m_mpos - world.m_pos_c[i].global_transform.transformPoint(0, 0));
+            if (dist_to_point < dist) {
+                dist = dist_to_point;
+                index = i;
+                is_island = false;
+            }
+        }
+    }
+
+
     if (index == -1) {
         return EditorSubState(new EditorIdle);
     }
-    return EditorSubState(new IslandIdle(islands[index]));
+    if (is_island) {
+        return EditorSubState(new IslandIdle(islands[index]));
+    }
+    return EditorSubState(new EntityIdle(world, static_cast<unsigned int>(index)));
 }
 
 void EditorIdle::draw(GameWorld &world, sf::RenderWindow &window) {

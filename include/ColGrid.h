@@ -7,7 +7,7 @@
 
 #include "WindDefs.h"
 #include "ColShape.h"
-#include <map>
+#include <unordered_map>
 #include <set>
 #include <memory>
 
@@ -22,9 +22,9 @@ public:
     ~StaticGrid() = default;
 
 private:
-    uint cell_size;
+    unsigned int cell_size;
     std::vector<std::shared_ptr<ColShape>> m_objects;
-    std::map<int, std::vector<size_t>> m_buckets;
+    std::unordered_map<int, std::vector<size_t>> m_buckets;
     int get_id(const WVec &v) const;
     std::set<int> get_ids_for_object(const std::shared_ptr<ColShape> &shape) const;
 };

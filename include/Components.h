@@ -10,6 +10,7 @@
 #include <memory>
 #include "Collision.h"
 #include <deque>
+#include <unordered_map>
 
 class GameWorld;
 
@@ -19,7 +20,22 @@ enum Components : int {
     CStaticCol,
     CAppearance,
     CInput,
-    CDebugDraw
+    CDebugDraw,
+    CGroundMove,
+    CJump,
+    CFly
+};
+
+const std::unordered_map<Components, std::string> component_names = {
+    {CPosition, "Position"},
+    {CMove, "Move"},
+    {CStaticCol, "StaticCollision"},
+    {CAppearance, "Appearance"},
+    {CInput, "Input"},
+    {CDebugDraw, "DebugDraw"},
+    {CGroundMove, "GroundMove"},
+    {CJump, "Jump"},
+    {CFly, "Fly"}
 };
 
 struct PosComponent {
@@ -29,8 +45,13 @@ struct PosComponent {
     unsigned int parent = 0;
 };
 
+enum class SpecificShape : int {
+    ProtagonistCapsule
+};
+
 struct DebugComponent {
     std::shared_ptr<ColShape> shape;
+    SpecificShape shape_type;
 };
 
 // for serializing and identification
@@ -47,36 +68,86 @@ struct InputComponent {
     std::function<void(InputComponent&, const WVec&)> input_func;
 };
 
-enum class MoveStateName {
+enum class MoveState : int {
     OnGround,
     Jumping,
     Falling,
     Flying,
-    FlyingAccel
+    FlyingAccel,
 };
 
-// the actual state
-struct BaseMovementState;
-using MoveState = std::unique_ptr<BaseMovementState>;
+enum class MoveTransition : int {
+    ToGround
+};
+
+const std::unordered_map<MoveState, std::string> movestate_names {
+        {MoveState::OnGround, "OnGround"},
+        {MoveState::Jumping, "Jumping"},
+        {MoveState::Falling, "Falling"},
+        {MoveState::Flying, "Flying"},
+        {MoveState::FlyingAccel, "FlyingAccel"}
+};
+
+enum class MoveSet : int {
+    Protagonist
+};
+
+
+const std::unordered_map<MoveSet, std::string> moveset_names {
+        {MoveSet::Protagonist, "Protagonist"}
+};
+
 
 struct MoveComponent {
     WVec velocity = {0, 0};
     WVec accel = {0, 0};
     WVec additional_accel = {0, 0};
-    float air_time = 0;
-    std::unique_ptr<BaseMovementState> move_state = nullptr;
+    MoveState movestate;
+    MoveSet moveset;
 };
 
-struct BaseMovementState {
-    MoveStateName m_move_state = MoveStateName::OnGround;
-    virtual void accel(GameWorld &world, unsigned int entity) = 0;
-    virtual MoveStateName get_state() const {return m_move_state;}
+enum class StaticColResponse : int {
+    Actor
+};
+
+const std::unordered_map<StaticColResponse , std::string> static_col_response_names {
+        {StaticColResponse::Actor, "Actor"}
 };
 
 struct StaticColComponent {
     ColResult col_result;
     std::shared_ptr<ColShape> shape;
-    std::function<void(const ColResult &, GameWorld &, unsigned int)> on_static_col_cb = nullptr;
+    StaticColResponse col_response;
+    SpecificShape shape_type;
+};
+
+struct GroundMoveComponent {
+    float c_accel = 800;
+    float c_stop_friction = 8;
+    float c_turn_mod = 4;
+    float air_time = 0;
+};
+
+struct JumpComponent {
+    float c_accel = 400;
+    float c_jump_tolerance = 0.1;
+    float c_turn_mod = 4;
+    float c_jump_speed = 800;
+};
+
+struct FlyComponent {
+    float c_lift = 0.0055;
+    float c_stall_angle = 0.26;
+    float c_max_change_angle = 6;
+    float c_fly_accel_force = 3000;
+    float c_fly_accel_time = 0.5f;
+
+    WVec from = {0.000, 0.000};
+    WVec ctrl_from = {0.249, 2.071};
+    WVec ctrl_to = {0.729, 0.323};
+    WVec to = {1.000, 0.074};
+
+    float timer = 0;
 };
 
 

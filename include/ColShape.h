@@ -12,6 +12,13 @@ const float c_line_triangulate_split = 250.f;
 
 struct ColResult;
 
+enum class ColShapeName {
+    ColNone,
+    ColTriangle,
+    ColCircle,
+    ColCapsule
+};
+
 class ColShape {
 public:
     virtual WVec get_support(const WVec &dir) const = 0;
@@ -23,6 +30,8 @@ public:
     // in local space
     WVec m_center;
     bool m_highlight = false;
+
+    ColShapeName m_type = ColShapeName ::ColNone;
 };
 
 class ColTriangle : public ColShape {

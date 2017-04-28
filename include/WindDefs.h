@@ -8,6 +8,7 @@
 #include <SFML/Graphics.hpp>
 #include <math.h>
 #include <bitset>
+#include <deque>
 
 using WVec = sf::Vector2f;
 using WTransform = sf::Transform;
@@ -45,10 +46,6 @@ inline WVec w_slide(const WVec &vec, const WVec &normal) {
     return vec - normal * w_dot(vec, normal);
 }
 
-inline float w_angle_to_point(const WVec &p, const WVec &to) {
-    return atan2(p.x - to.x, p.y - to.y);
-}
-
 inline float w_angle_to_vec(const WVec &v, const WVec &to) {
     return atan2(w_cross(v, to), w_dot(v, to));
 }
@@ -61,6 +58,13 @@ inline WVec w_rotated_deg(const WVec &v, float angle) {
 
 inline WVec w_tangent(const WVec &v) {
     return WVec(v.y, -v.x);
+}
+
+template<typename T>
+void clear_arr(std::deque<T> &arr, const T &val) {
+    for (uint i = 0; i < arr.size(); ++i) {
+        arr[i] = val;
+    }
 }
 
 #endif //SINGING_WIND_WINDDEFS_H

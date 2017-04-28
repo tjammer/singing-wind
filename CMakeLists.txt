@@ -33,12 +33,12 @@ set(SOURCE_FILES src/main.cpp
         include/ColGrid.h
         external/src/imgui.cpp
         external/src/imgui_draw.cpp
-        external/src/imgui-SFML.cpp src/GameWorld.cpp include/GameWorld.h src/Game.cpp include/Game.h src/Components.cpp include/Components.h include/entities.h src/entities.cpp src/Protagonist.cpp include/Protagonist.h src/systems.cpp include/systems.h src/Camera.cpp include/Camera.h src/FrameTimer.cpp include/FrameTimer.h)
+        external/src/imgui-SFML.cpp src/GameWorld.cpp include/GameWorld.h src/Game.cpp include/Game.h src/Components.cpp include/Components.h include/entities.h src/entities.cpp src/Protagonist.cpp include/Protagonist.h src/systems.cpp include/systems.h src/Camera.cpp include/Camera.h src/FrameTimer.cpp include/FrameTimer.h src/EntityEditor.cpp include/EntityEditor.h src/MoveSystems.cpp include/MoveSystems.h)
+
 add_executable(singing_wind ${SOURCE_FILES} ${protosrc} ${protohdr})
-target_link_libraries(singing_wind
-        sfml-system
-        sfml-window
-        sfml-graphics
-        triangle
-        protobuf
-        GL)
+target_link_libraries(singing_wind sfml-system sfml-window sfml-graphics triangle protobuf GL)
+
+# at compile time
+add_custom_command(TARGET singing_wind POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/scenes ${CMAKE_CURRENT_BINARY_DIR}/scenes)

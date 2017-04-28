@@ -5,19 +5,27 @@
 #ifndef SINGING_WIND_ENTITIES_H
 #define SINGING_WIND_ENTITIES_H
 
-#include <map>
+#include <unordered_map>
 #include "GameWorld.h"
 #include <functional>
 #include "Protagonist.h"
+#include "ColShape.h"
 
 unsigned int create_root(GameWorld &game_world, const WVec &position, unsigned int parent);
 unsigned int create_coll_test(GameWorld &world, const WVec &position, unsigned int parent);
 
-const std::map<std::string, std::function<unsigned int(GameWorld&, const WVec&, unsigned int)>> all_entities = {
+const std::unordered_map<std::string, std::function<unsigned int(GameWorld&, const WVec&, unsigned int)>> all_entities = {
         {"root", create_root},
         {"CollisionTest", create_coll_test},
-        {"player", create_player}
+        {"player", Protagonist::create_player}
 };
 
+const std::unordered_map<SpecificShape, std::shared_ptr<ColShape>> specific_shapes = {
+        {SpecificShape::ProtagonistCapsule, std::shared_ptr<ColShape>(new ColCapsule(15, 30))}
+};
+
+const std::unordered_map<StaticColResponse, std::function<void(const ColResult &, GameWorld &, unsigned int)>> static_col_responses = {
+        {StaticColResponse::Actor, Protagonist::on_static_collision}
+};
 
 #endif //SINGING_WIND_ENTITIES_H

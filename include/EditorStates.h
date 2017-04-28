@@ -8,8 +8,6 @@
 #include "Editor.h"
 #include "BCurve.h"
 
-using EditorSubState = std::unique_ptr<BaseEditorSubState>;
-
 
 class IslandIdle : public BaseEditorSubState {
 public:

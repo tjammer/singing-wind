@@ -27,7 +27,7 @@ GameWorld::GameWorld() {
     // create root
     auto root = create_root(*this, {0, 0}, 0);
     //create_coll_test(*this, {0, 0}, root);
-    create_player(*this, {0, 0}, root);
+    Protagonist::create_player(*this, {0, 0}, root);
 }
 
 void GameWorld::draw(sf::RenderWindow &window) {
@@ -35,10 +35,13 @@ void GameWorld::draw(sf::RenderWindow &window) {
 }
 
 void GameWorld::step_fixed(float dt, const WVec &mouse) {
-    //col_test_update(*this, mouse);
     input_update(*this, mouse);
     move_update(*this, dt);
     static_col_update(*this);
+
+    // house keeping systems
+    ground_move_update(*this, dt);
+    fly_update(*this, dt);
 }
 
 unsigned int GameWorld::create_entity() {
@@ -58,6 +61,9 @@ unsigned int GameWorld::create_entity() {
     m_input_c.push_back(InputComponent());
     m_move_c.push_back(MoveComponent());
     m_static_col_c.push_back(StaticColComponent());
+    m_ground_move_c.push_back(GroundMoveComponent());
+    m_jump_c.push_back(JumpComponent());
+    m_fly_c.push_back(FlyComponent());
 
     return entity;
 }

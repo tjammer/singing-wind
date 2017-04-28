@@ -7,7 +7,7 @@
 
 #include "Engine.h"
 #include "GameWorld.h"
-#include <map>
+#include <unordered_map>
 
 const float c_point_size = 5;
 const float c_ctrl_point_size = 4;
@@ -40,13 +40,13 @@ private:
     GameWorld &game_world;
     std::unique_ptr<BaseEditorSubState> m_state;
     // last frame
-    std::map<EditorButtons, bool> m_pressed;
+    std::unordered_map<EditorButtons, bool> m_pressed;
     sf::Vector2i m_mouse;
     float m_mouse_wheel = 0;
 
     // menu
     bool m_menu = false;
-    bool menu();
+    bool main_menu();
 
     void update_world();
     bool load_scene(const std::string &name);
@@ -70,5 +70,8 @@ public:
 
     WVec m_mpos;
 };
+
+
+using EditorSubState = std::unique_ptr<BaseEditorSubState>;
 
 #endif //SINGING_WIND_EDITOR_H

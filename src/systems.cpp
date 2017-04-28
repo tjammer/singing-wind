@@ -4,79 +4,8 @@
 
 #include "systems.h"
 #include "GameWorld.h"
-
-void col_test_update(GameWorld &world, const WVec &mouse) {
-    for (unsigned int entity = 0; entity < world.m_entities.size(); ++entity) {
-        if (!has_component(world.m_entities[entity], c_col_test_components)) {
-            continue;
-        }
-        auto &transform = world.m_pos_c[entity].global_transform;
-        auto &pos = world.m_pos_c[entity].position;
-        auto &rot = world.m_pos_c[entity].rotation;
-        auto &shape = world.m_debug_c[entity].shape;
-        auto parent = world.m_pos_c[entity].parent;
-
-        WVec vel = (mouse - transform.transformPoint(0, 0)) * 0.1f;
-        pos += vel;
-
-        for (auto &tri : world.m_grid.get_objects()) {
-            tri->m_highlight = false;
-        }
-
-        //circle to world
-        transform = WTransform().combine(world.m_pos_c[parent].global_transform).translate(pos).rotate(rot);
-        shape->transform(transform);
-
-        ColResult result;
-
-        auto colliders = world.m_grid.find_colliders(shape);
-        for (const auto &tri : colliders) {
-            auto cr = shape->collides(*tri);
-            if (cr.collides) {
-                tri->m_highlight = true;
-                if (cr.depth > result.depth) {
-                    result = cr;
-                }
-            }
-        }
-        // in this example it's okay to reset the transformation here.
-        // this deals only with the environmental collision.
-        // (what to do about moving platforms)
-        shape->transform(transform.getInverse());
-
-        if (result.collides) {
-            auto move_back = find_directed_overlap(result, vel);
-            pos += move_back;
-
-            // slide movement and collide again
-            vel = w_slide(-move_back, result.normal);
-            pos += vel;
-            //circle to world
-            transform = WTransform().combine(world.m_pos_c[parent].global_transform).translate(pos).rotate(rot);
-            shape->transform(transform);
-
-            result = ColResult();
-
-            for (const auto &tri : colliders) {
-                auto cr = shape->collides(*tri);
-                if (cr.collides) {
-                    tri->m_highlight = true;
-                    if (cr.depth> result.depth) {
-                        result = cr;
-                    }
-                }
-            }
-            shape->transform(transform.getInverse());
-
-            if (result.collides) {
-                move_back = find_directed_overlap(result, vel);
-                pos += move_back;
-;
-                transform = WTransform().combine(world.m_pos_c[parent].global_transform).translate(pos).rotate(rot);
-            }
-        }
-    }
-}
+#include "MoveSystems.h"
+#include "entities.h"
 
 void debug_draw_update(GameWorld &world, sf::RenderWindow &window) {
     sf::VertexArray lines_va(sf::Lines);
@@ -172,7 +101,7 @@ void static_col_update(GameWorld &world) {
             }
 
             // call back
-            world.m_static_col_c[entity].on_static_col_cb(result, world, entity);
+            static_col_responses.at(world.m_static_col_c[entity].col_response)(result, world, entity);
         }
     }
 }
@@ -203,15 +132,39 @@ void move_update(GameWorld &world, float dt) {
 
         mc.velocity += old_accel * dt;
 
-        mc.move_state->accel(world, entity);
+        get_accel_func(mc.movestate, MoveSet::Protagonist)(world, entity);
 
         mc.velocity += dt * (mc.accel - old_accel) / 2.0f;
         auto motion = dt * (mc.velocity + mc.accel * dt / 2.0f);
         pc.position += motion;
 
         pc.global_transform = WTransform().combine(world.m_pos_c[pc.parent].global_transform).translate(pc.position).rotate(pc.rotation);
-
-        mc.air_time += dt;
     }
 
+}
+
+
+void ground_move_update(GameWorld &world, float dt) {
+    for (unsigned int entity = 0; entity < world.m_entities.size(); ++entity) {
+        if (!has_component(world.m_entities[entity], c_ground_move_components)) {
+            continue;
+        }
+
+        auto &gc = world.m_ground_move_c[entity];
+        gc.air_time += dt;
+    }
+}
+
+void fly_update(GameWorld &world, float dt) {
+    for (unsigned int entity = 0; entity < world.m_entities.size(); ++entity) {
+        if (!has_component(world.m_entities[entity], c_fly_components)) {
+            continue;
+        }
+
+        auto &fc = world.m_fly_c[entity];
+        fc.timer += dt;
+        if (fc.timer > fc.c_fly_accel_time) {
+            fc.timer = fc.c_fly_accel_time;
+        }
+    }
 }

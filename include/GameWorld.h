@@ -15,6 +15,7 @@ const float c_drag = 0.0026;
 const float c_friction = 0.0026;
 const float c_max_floor_angle = 0.7;
 const float c_gravity = 900;
+const float c_jump_tolerance = 0.1f;
 
 // implements the ecs
 class GameWorld {
@@ -37,6 +38,9 @@ public:
         std::vector<InputComponent> m_input_c;
         std::vector<MoveComponent> m_move_c;
         std::vector<StaticColComponent> m_static_col_c;
+        std::vector<GroundMoveComponent> m_ground_move_c;
+        std::vector<JumpComponent> m_jump_c;
+        std::vector<FlyComponent> m_fly_c;
 
     // communication with editor
     std::vector<Island> &get_islands_ref() {return m_islands;};

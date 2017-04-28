@@ -21,6 +21,7 @@ ColTriangle::ColTriangle(const WVec &p1, const WVec &p2, const WVec &p3) {
     }
     m_radius = radius;
 
+    m_type = ColShapeName ::ColTriangle;
 }
 
 void ColTriangle::add_gfx_lines(sf::VertexArray &lines_va, const WTransform &tf) {
@@ -53,18 +54,20 @@ void ColTriangle::transform(const WTransform &transform) {
 }
 
 void ColCircle::add_gfx_lines(sf::VertexArray &lines_va, const WTransform &tf) {
+    sf::Color col = m_highlight ? sf::Color::Green : sf::Color::White;
     WVec center = tf.transformPoint(0, 0);
     float angle = 4 * acos(0.f) / 32.f;
     for (uint i = 0 ; i < 32 ; ++i) {
         lines_va.append(sf::Vertex(WVec(center.x + sin(i*angle) * m_radius,
-                                        center.y + cos(i*angle) * m_radius), sf::Color::White));
+                                        center.y + cos(i*angle) * m_radius), col));
         lines_va.append(sf::Vertex(WVec(center.x + sin((i+1)*angle) * m_radius,
-                                        center.y + cos((i+1)*angle) * m_radius), sf::Color::White));
+                                        center.y + cos((i+1)*angle) * m_radius), col));
     }
 }
 
 ColCircle::ColCircle(float radius) : m_radius(radius) {
     m_center = WVec(0, 0);
+    m_type = ColShapeName ::ColCircle;
 }
 
 WVec ColCircle::get_support(const WVec &dir) const {
@@ -87,6 +90,7 @@ ColCapsule::ColCapsule(float radius, float length) : m_capsule_radius(radius) {
     m_a = WVec(m_center.x, m_center.y + length / 2.f);
     m_b = WVec(m_center.x, m_center.y - length / 2.f);
     m_radius = length / 2.f + radius;
+    m_type = ColShapeName ::ColCapsule;
 }
 
 WVec ColCapsule::get_support(const WVec &dir) const {
