@@ -5,8 +5,6 @@
 #ifndef SINGING_WIND_COMPONENTS_H
 #define SINGING_WIND_COMPONENTS_H
 
-#include <WindDefs.h>
-#include "ColShape.h"
 #include <memory>
 #include "Collision.h"
 #include <deque>

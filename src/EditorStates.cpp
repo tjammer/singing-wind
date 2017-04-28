@@ -361,7 +361,7 @@ EditorSubState EditorIdle::confirm(GameWorld &world) {
 
     for (unsigned int i = 0 ; i < world.m_entities.size() ; ++i) {
         bset pos_set{ (1 << CPosition) | (1 << CDebugDraw) };
-        if (has_component(world.m_entities[i], pos_set)) {
+        if (for_gameworld::has_component(world.m_entities[i], pos_set)) {
             float dist_to_point = w_magnitude(m_mpos - world.m_pos_c[i].global_transform.transformPoint(0, 0));
             if (dist_to_point < dist) {
                 dist = dist_to_point;

@@ -4,9 +4,7 @@
 
 #include "EntityEditor.h"
 #include "EditorStates.h"
-#include <assert.h>
 #include "imgui.h"
-#include <iostream>
 
 EditorSubState EntityIdle::cancel() {
     return EditorSubState(new EditorIdle);
@@ -31,7 +29,7 @@ EditorSubState EntityIdle::menu(GameWorld &world) {
 void EntityIdle::draw(GameWorld &world, sf::RenderWindow &window) {
     bset debug_draw; debug_draw.set(CPosition); debug_draw.set(CDebugDraw);
 
-    if (!has_component(world.m_entities[m_entity], debug_draw))  {
+    if (!for_gameworld::has_component(world.m_entities[m_entity], debug_draw))  {
         return;
     }
     const auto &shape = world.m_debug_c[m_entity].shape;

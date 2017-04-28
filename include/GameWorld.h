@@ -5,7 +5,6 @@
 #ifndef SINGING_WIND_GAMEWORLD_H
 #define SINGING_WIND_GAMEWORLD_H
 
-#include "WindDefs.h"
 #include "Island.h"
 #include "ColGrid.h"
 #include "Components.h"
@@ -32,15 +31,15 @@ public:
     std::vector<bset> m_entities;
 
         // components
-        std::vector<PosComponent> m_pos_c;
-        std::vector<DebugComponent> m_debug_c;
-        std::vector<IdComponent> m_id_c;
-        std::vector<InputComponent> m_input_c;
-        std::vector<MoveComponent> m_move_c;
-        std::vector<StaticColComponent> m_static_col_c;
-        std::vector<GroundMoveComponent> m_ground_move_c;
-        std::vector<JumpComponent> m_jump_c;
-        std::vector<FlyComponent> m_fly_c;
+        std::unordered_map<unsigned int, PosComponent> m_pos_c;
+        std::unordered_map<unsigned int, DebugComponent> m_debug_c;
+        std::unordered_map<unsigned int, IdComponent> m_id_c;
+        std::unordered_map<unsigned int, InputComponent> m_input_c;
+        std::unordered_map<unsigned int, MoveComponent> m_move_c;
+        std::unordered_map<unsigned int, StaticColComponent> m_static_col_c;
+        std::unordered_map<unsigned int, GroundMoveComponent> m_ground_move_c;
+        std::unordered_map<unsigned int, JumpComponent> m_jump_c;
+        std::unordered_map<unsigned int, FlyComponent> m_fly_c;
 
     // communication with editor
     std::vector<Island> &get_islands_ref() {return m_islands;};
@@ -52,11 +51,21 @@ public:
     StaticGrid m_grid;
     std::vector<Island> m_islands;
 private:
+    std::vector<unsigned int> m_input_ents;
+    std::vector<unsigned int> m_move_ents;
+    std::vector<unsigned int> m_debug_draw_ents;
+    std::vector<unsigned int> m_ground_move_ents;
+    std::vector<unsigned int> m_fly_ents;
+    std::vector<unsigned int> m_static_col_ents;
+
+    void find_entities_fixed();
+    void find_entities_draw();
 };
 
-template<typename bs1, typename bs2>
-bool has_component(bs1 entity, bs2 component_mask) {
-    return (entity & component_mask) == component_mask;
+namespace for_gameworld {
+    inline bool has_component(bset entity, bset component_mask) {
+        return (entity & component_mask) == component_mask;
+    }
 }
 
 

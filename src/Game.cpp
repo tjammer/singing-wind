@@ -3,12 +3,10 @@
 //
 
 #include "Game.h"
-#include <iostream>
 
 Game::Game() {
     for (unsigned int i = 0 ; i < m_game_world.m_id_c.size() ; ++i) {
         if (m_game_world.m_id_c[i] == "player") {
-            std::cout << "player found" << std::endl;
             m_camera.entity_to_follow = i;
         }
     }

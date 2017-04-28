@@ -7,17 +7,14 @@
 #include "MoveSystems.h"
 #include "entities.h"
 
-void debug_draw_update(GameWorld &world, sf::RenderWindow &window) {
+void debug_draw_update(GameWorld &world, sf::RenderWindow &window, const std::vector<unsigned int> &entities) {
     sf::VertexArray lines_va(sf::Lines);
     WTransform zero_tf;
     for (const auto &tri : world.m_grid.get_objects()) {
         tri->add_gfx_lines(lines_va, zero_tf);
     }
 
-    for (unsigned int entity = 0; entity < world.m_entities.size(); ++entity) {
-        if (!has_component(world.m_entities[entity], c_debug_draw_components)) {
-            continue;
-        }
+    for (const auto entity : entities) {
         auto &shape = world.m_debug_c[entity].shape;
         auto &transform = world.m_pos_c[entity].global_transform;
         shape->add_gfx_lines(lines_va, transform);
@@ -26,12 +23,9 @@ void debug_draw_update(GameWorld &world, sf::RenderWindow &window) {
     window.draw(lines_va);
 }
 
-void static_col_update(GameWorld &world) {
+void static_col_update(GameWorld &world, const std::vector<unsigned int> &entities) {
 
-    for (unsigned int entity = 0; entity < world.m_entities.size(); ++entity) {
-        if (!has_component(world.m_entities[entity], c_static_col_components)) {
-            continue;
-        }
+    for (const auto entity : entities) {
         // position
         auto &transform = world.m_pos_c[entity].global_transform;
         auto &pos = world.m_pos_c[entity].position;
@@ -106,21 +100,15 @@ void static_col_update(GameWorld &world) {
     }
 }
 
-void input_update(GameWorld &world, const WVec &mouse) {
-    for (unsigned int entity = 0; entity < world.m_entities.size(); ++entity) {
-        if (!has_component(world.m_entities[entity], c_input_components)) {
-            continue;
-        }
+void input_update(GameWorld &world, const WVec &mouse, const std::vector<unsigned int> &entities) {
+    for (const auto entity : entities) {
         auto &ic = world.m_input_c[entity];
         world.m_input_c[entity].input_func(ic, mouse);
     }
 }
 
-void move_update(GameWorld &world, float dt) {
-    for (unsigned int entity = 0; entity < world.m_entities.size(); ++entity) {
-        if (!has_component(world.m_entities[entity], c_move_components)) {
-            continue;
-        }
+void move_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities) {
+    for (const auto entity : entities) {
 
         auto &mc = world.m_move_c[entity];
         auto &pc = world.m_pos_c[entity];
@@ -144,22 +132,16 @@ void move_update(GameWorld &world, float dt) {
 }
 
 
-void ground_move_update(GameWorld &world, float dt) {
-    for (unsigned int entity = 0; entity < world.m_entities.size(); ++entity) {
-        if (!has_component(world.m_entities[entity], c_ground_move_components)) {
-            continue;
-        }
+void ground_move_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities) {
+    for (const auto entity : entities) {
 
         auto &gc = world.m_ground_move_c[entity];
         gc.air_time += dt;
     }
 }
 
-void fly_update(GameWorld &world, float dt) {
-    for (unsigned int entity = 0; entity < world.m_entities.size(); ++entity) {
-        if (!has_component(world.m_entities[entity], c_fly_components)) {
-            continue;
-        }
+void fly_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities) {
+    for (const auto entity : entities) {
 
         auto &fc = world.m_fly_c[entity];
         fc.timer += dt;

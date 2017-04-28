@@ -6,7 +6,6 @@
 #include "triangulate.h"
 #include "entities.h"
 #include "systems.h"
-#include "Protagonist.h"
 
 void GameWorld::update_triangles() {
     std::vector<WVec> triangles;
@@ -31,17 +30,21 @@ GameWorld::GameWorld() {
 }
 
 void GameWorld::draw(sf::RenderWindow &window) {
-    debug_draw_update(*this, window);
+    find_entities_draw();
+
+    debug_draw_update(*this, window, m_debug_draw_ents);
 }
 
 void GameWorld::step_fixed(float dt, const WVec &mouse) {
-    input_update(*this, mouse);
-    move_update(*this, dt);
-    static_col_update(*this);
+    find_entities_fixed();
+
+    input_update(*this, mouse, m_input_ents);
+    move_update(*this, dt, m_move_ents);
+    static_col_update(*this, m_static_col_ents);
 
     // house keeping systems
-    ground_move_update(*this, dt);
-    fly_update(*this, dt);
+    ground_move_update(*this, dt, m_ground_move_ents);
+    fly_update(*this, dt, m_fly_ents);
 }
 
 unsigned int GameWorld::create_entity() {
@@ -55,15 +58,51 @@ unsigned int GameWorld::create_entity() {
 
     // each component needs to be resized
     m_entities.push_back(0);
-    m_pos_c.push_back(PosComponent());
-    m_debug_c.push_back(DebugComponent());
-    m_id_c.push_back("");
-    m_input_c.push_back(InputComponent());
-    m_move_c.push_back(MoveComponent());
-    m_static_col_c.push_back(StaticColComponent());
-    m_ground_move_c.push_back(GroundMoveComponent());
-    m_jump_c.push_back(JumpComponent());
-    m_fly_c.push_back(FlyComponent());
 
     return entity;
+}
+
+void GameWorld::find_entities_fixed() {
+    using namespace for_gameworld;
+
+    m_input_ents.clear();
+    m_move_ents.clear();
+    m_ground_move_ents.clear();
+    m_fly_ents.clear();
+    m_static_col_ents.clear();
+
+    for (unsigned int i = 0 ; i < m_entities.size() ; ++i) {
+        auto ent = m_entities[i];
+
+        if (has_component(ent, c_input_components)) {
+            m_input_ents.push_back(i);
+        }
+
+        if (has_component(ent, c_move_components)) {
+            m_move_ents.push_back(i);
+        }
+
+        if (has_component(ent, c_ground_move_components)) {
+            m_ground_move_ents.push_back(i);
+        }
+
+        if (has_component(ent, c_fly_components)) {
+            m_fly_ents.push_back(i);
+        }
+
+        if (has_component(ent, c_static_col_components)) {
+            m_static_col_ents.push_back(i);
+        }
+    }
+}
+
+void GameWorld::find_entities_draw() {
+    using namespace for_gameworld;
+    m_debug_draw_ents.clear();
+
+    for (unsigned int i = 0 ; i < m_entities.size() ; ++i) {
+        if (has_component(m_entities[i], c_debug_draw_components)) {
+            m_debug_draw_ents.push_back(i);
+        }
+    }
 }
