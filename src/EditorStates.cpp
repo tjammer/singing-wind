@@ -8,7 +8,7 @@
 #include <iomanip>
 #include <imgui.h>
 
-std::unique_ptr<BaseEditorSubState> IslandIdle::confirm(GameWorld &world) {
+std::unique_ptr<BaseEditorSubState> IslandIdle::confirm(GameWorld &) {
     // find curve nearest to cursor
     auto dist = std::numeric_limits<float>::max();
     auto size = m_island.m_points.size();
@@ -59,7 +59,7 @@ EditorSubState IslandIdle::cancel() {
     return EditorSubState(new EditorIdle);
 }
 
-void IslandIdle::draw(GameWorld &world, sf::RenderWindow &window) {
+void IslandIdle::draw(GameWorld &, sf::RenderWindow &window) {
     auto va = get_island_vertex_array(m_island);
     window.draw(va);
 }
@@ -70,14 +70,14 @@ EditorSubState IslandIdle::delete_island(GameWorld &world) {
     return EditorSubState(new EditorIdle);
 }
 
-EditorSubState IslandIdle::move(GameWorld &world) {
+EditorSubState IslandIdle::move(GameWorld &) {
     return EditorSubState(new IslandMove(m_island, m_mpos));
 }
 
 CurveIdle::CurveIdle(const BCurve &curve, Island &active) : m_curve(curve), m_island(active) {
 }
 
-void CurveIdle::draw(GameWorld &world, sf::RenderWindow &window) {
+void CurveIdle::draw(GameWorld &, sf::RenderWindow &window) {
     auto va = get_island_vertex_array(m_island);
     sf::VertexArray lines(sf::Lines);
     for (auto v : m_curve.line_along_curve(c_line_draw_distance)) {
@@ -99,7 +99,7 @@ void CurveIdle::draw(GameWorld &world, sf::RenderWindow &window) {
     window.draw(va);
 }
 
-EditorSubState CurveIdle::confirm(GameWorld &world) {
+EditorSubState CurveIdle::confirm(GameWorld &) {
     auto dist = std::numeric_limits<float>::max();
     uint point_index = 0;
     for (uint i = 0 ; i < 4 ; ++i) {
@@ -128,7 +128,7 @@ EditorSubState CurveIdle::confirm(GameWorld &world) {
     return EditorSubState(new PointEdit(*it, m_mpos, m_island));
 }
 
-EditorSubState CurveIdle::insert_item(GameWorld &world) {
+EditorSubState CurveIdle::insert_item(GameWorld &) {
     return EditorSubState(new CurveInsert(m_curve, m_island));
 }
 
@@ -205,7 +205,7 @@ EditorSubState PointEdit::cancel() {
     return EditorSubState(new IslandIdle(m_island));
 }
 
-void PointEdit::draw(GameWorld &world, sf::RenderWindow &window) {
+void PointEdit::draw(GameWorld &, sf::RenderWindow &window) {
     auto va = get_island_vertex_array(m_island);
     window.draw(va);
     for (const auto &v : make_quad(m_point, c_point_size)) {
@@ -245,7 +245,7 @@ EditorSubState PointEdit::menu(GameWorld &world) {
     return nullptr;
 }
 
-EditorSubState PointEdit::delete_item(GameWorld &world) {
+EditorSubState PointEdit::delete_item(GameWorld &) {
     auto size = m_island.m_points.size();
     if (m_island.m_points.size() == 4) {
         return EditorSubState(new IslandIdle(m_island));
@@ -272,7 +272,7 @@ EditorSubState PointEdit::delete_item(GameWorld &world) {
     return EditorSubState(new IslandIdle(m_island));
 }
 
-void CurveInsert::draw(GameWorld &world, sf::RenderWindow &window) {
+void CurveInsert::draw(GameWorld &, sf::RenderWindow &window) {
     auto va = get_island_vertex_array(m_island);
     window.draw(va);
 
@@ -304,7 +304,7 @@ void CurveInsert::update(const WVec &mpos) {
     }
 }
 
-EditorSubState CurveInsert::confirm(GameWorld &world) {
+EditorSubState CurveInsert::confirm(GameWorld &) {
     auto new_point = m_curve.eval(m_new_point_t);
 
     auto it = std::find(m_island.m_ctrl_points.begin(), m_island.m_ctrl_points.end(), m_curve.ctrl_to);
@@ -381,7 +381,7 @@ EditorSubState EditorIdle::confirm(GameWorld &world) {
     return EditorSubState(new EntityIdle(world, static_cast<unsigned int>(index)));
 }
 
-void EditorIdle::draw(GameWorld &world, sf::RenderWindow &window) {
+void EditorIdle::draw(GameWorld &, sf::RenderWindow &) {
 }
 
 EditorSubState EditorIdle::insert_item(GameWorld &world) {
@@ -424,7 +424,7 @@ sf::VertexArray get_island_vertex_array(const Island& island) {
 }
 
 
-void IslandMove::draw(GameWorld &world, sf::RenderWindow &window) {
+void IslandMove::draw(GameWorld &, sf::RenderWindow &window) {
     auto va = get_island_vertex_array(m_island);
     window.draw(va);
     for (const auto &point : m_island.m_points) {
