@@ -23,22 +23,3 @@ unsigned int create_root(GameWorld &game_world, const WVec &position, unsigned i
 
     return root;
 }
-
-unsigned int create_coll_test(GameWorld &world, const WVec &position, unsigned int parent) {
-    auto entity = world.create_entity();
-    bset comps;
-    for (auto i : {CPosition, CDebugDraw}) {
-        comps.set(i);
-    }
-    world.m_entities[entity] = comps;
-    world.m_pos_c[entity].position = position;
-    world.m_pos_c[entity].parent = parent;
-    WTransform trans;
-    world.m_pos_c[entity].global_transform = trans.combine(world.m_pos_c[parent].global_transform).translate(position);
-
-    world.m_debug_c[entity].shape = std::shared_ptr<ColShape>(new ColCapsule(25, 50));
-
-    world.m_id_c[entity] = "CollisionTest";
-
-    return entity;
-}

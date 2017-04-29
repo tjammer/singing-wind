@@ -12,13 +12,6 @@
 #include "ColShape.h"
 
 unsigned int create_root(GameWorld &game_world, const WVec &position, unsigned int parent);
-unsigned int create_coll_test(GameWorld &world, const WVec &position, unsigned int parent);
-
-const std::unordered_map<std::string, std::function<unsigned int(GameWorld&, const WVec&, unsigned int)>> all_entities = {
-        {"root", create_root},
-        {"CollisionTest", create_coll_test},
-        {"player", Protagonist::create_player}
-};
 
 const std::unordered_map<SpecificShape, std::shared_ptr<ColShape>> specific_shapes = {
         {SpecificShape::ProtagonistCapsule, std::shared_ptr<ColShape>(new ColCapsule(15, 30))}
