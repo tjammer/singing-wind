@@ -130,7 +130,7 @@ void protagonist::on_ground(GameWorld &world, unsigned int entity) {
     friction(mc);
 
     // jumping
-    if (bset.test(CJump) and ic.jump[0] and std::find(ic.jump.begin(), ic.jump.end(), false) != ic.jump.end()
+    if (ic.jump[0] and std::find(ic.jump.begin(), ic.jump.end(), false) != ic.jump.end()
         && gc.air_time < c_jump_tolerance) {
         // transistion to jump
         to_jumping(world, entity);
@@ -138,6 +138,9 @@ void protagonist::on_ground(GameWorld &world, unsigned int entity) {
 }
 
 void ::protagonist::to_flying(GameWorld &world, unsigned int entity) {
+    if (!world.m_entities[entity].test(CFly)) {
+        return;
+    }
     auto &ic = world.m_input_c[entity];
     auto &mc = world.m_move_c[entity];
     auto &pc = world.m_pos_c[entity];
@@ -156,14 +159,13 @@ void ::protagonist::jumping(GameWorld &world, unsigned int entity) {
     auto &ic = world.m_input_c[entity];
     auto &mc = world.m_move_c[entity];
     auto &jc = world.m_jump_c[entity];
-    auto &bset = world.m_entities[entity];
 
     if (mc.movestate == MoveState::Jumping and mc.velocity.y < 0) {
         to_falling(mc);
     }
 
     // to fly
-    if (bset.test(CFly) and ic.jump[0] and std::find(ic.jump.begin(), ic.jump.end(), false) != ic.jump.end()) {
+    if (ic.jump[0] and std::find(ic.jump.begin(), ic.jump.end(), false) != ic.jump.end()) {
         to_flying(world, entity);
     }
 
@@ -173,6 +175,9 @@ void ::protagonist::jumping(GameWorld &world, unsigned int entity) {
 }
 
 void ::protagonist::to_jumping(GameWorld &world, unsigned int entity) {
+    if (!world.m_entities[entity].test(CJump)) {
+        return;
+    }
     auto &mc = world.m_move_c[entity];
     auto &ic = world.m_input_c[entity];
     auto &jc = world.m_jump_c[entity];
@@ -183,6 +188,9 @@ void ::protagonist::to_jumping(GameWorld &world, unsigned int entity) {
 }
 
 void ::protagonist::to_ground(GameWorld &world, unsigned int entity) {
+    if (!world.m_entities[entity].test(CGroundMove)) {
+        return;
+    }
     auto &mc = world.m_move_c[entity];
     auto &pc = world.m_pos_c[entity];
 
@@ -195,7 +203,6 @@ void ::protagonist::flying(GameWorld &world, unsigned int entity) {
     auto &ic = world.m_input_c[entity];
     auto &mc = world.m_move_c[entity];
     auto &fc = world.m_fly_c[entity];
-    auto &bset = world.m_entities[entity];
 
     fly(world, entity);
 
@@ -220,7 +227,7 @@ void ::protagonist::flying(GameWorld &world, unsigned int entity) {
 
     if (mc.movestate == MoveState::Flying) {
         // to falling
-        if (bset.test(CJump) and ic.jump[0] and std::find(ic.jump.begin(), ic.jump.end(), false) != ic.jump.end()) {
+        if (ic.jump[0] and std::find(ic.jump.begin(), ic.jump.end(), false) != ic.jump.end()) {
             clear_arr(ic.jump, true);
             to_falling(mc);
             pc.rotation = 0;
@@ -233,6 +240,9 @@ void ::protagonist::flying(GameWorld &world, unsigned int entity) {
 }
 
 void ::protagonist::to_flying_accel(GameWorld &world, unsigned int entity) {
+    if (!world.m_entities[entity].test(CFly)) {
+        return;
+    }
     auto &mc = world.m_move_c[entity];
     auto &fc = world.m_fly_c[entity];
 

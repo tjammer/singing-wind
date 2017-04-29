@@ -74,6 +74,9 @@ void EntityIdle::update(const WVec &mpos) {
         CheckboxFlags(component_names.at(CStaticCol).c_str(), &flags, 1 << CStaticCol);
         CheckboxFlags(component_names.at(CInput).c_str(), &flags, 1 << CInput);
         CheckboxFlags(component_names.at(CDebugDraw).c_str(), &flags, 1 << CDebugDraw);
+        CheckboxFlags(component_names.at(CGroundMove).c_str(), &flags, 1 << CGroundMove);
+        CheckboxFlags(component_names.at(CJump).c_str(), &flags, 1 << CJump);
+        CheckboxFlags(component_names.at(CFly).c_str(), &flags, 1 << CFly);
         comps = {flags};
         Text(comps.to_string().c_str());
     }
