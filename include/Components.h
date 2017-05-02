@@ -8,7 +8,6 @@
 #include <memory>
 #include "Collision.h"
 #include <deque>
-#include <unordered_map>
 
 class GameWorld;
 
@@ -24,18 +23,6 @@ enum Components : int {
     CFly
 };
 
-const std::unordered_map<Components, std::string> component_names = {
-    {CPosition, "Position"},
-    {CMove, "Move"},
-    {CStaticCol, "StaticCollision"},
-    {CAppearance, "Appearance"},
-    {CInput, "Input"},
-    {CDebugDraw, "DebugDraw"},
-    {CGroundMove, "GroundMove"},
-    {CJump, "Jump"},
-    {CFly, "Fly"}
-};
-
 struct PosComponent {
     WVec position = {0, 0};
     float rotation = 0.f;
@@ -43,13 +30,8 @@ struct PosComponent {
     unsigned int parent = 0;
 };
 
-enum class SpecificShape : int {
-    ProtagonistCapsule
-};
-
 struct DebugComponent {
     std::shared_ptr<ColShape> shape;
-    SpecificShape shape_type;
 };
 
 // for serializing and identification
@@ -78,23 +60,9 @@ enum class MoveTransition : int {
     ToGround
 };
 
-const std::unordered_map<MoveState, std::string> movestate_names {
-        {MoveState::OnGround, "OnGround"},
-        {MoveState::Jumping, "Jumping"},
-        {MoveState::Falling, "Falling"},
-        {MoveState::Flying, "Flying"},
-        {MoveState::FlyingAccel, "FlyingAccel"}
-};
-
 enum class MoveSet : int {
     Protagonist
 };
-
-
-const std::unordered_map<MoveSet, std::string> moveset_names {
-        {MoveSet::Protagonist, "Protagonist"}
-};
-
 
 struct MoveComponent {
     WVec velocity = {0, 0};
@@ -108,15 +76,10 @@ enum class StaticColResponse : int {
     Actor
 };
 
-const std::unordered_map<StaticColResponse , std::string> static_col_response_names {
-        {StaticColResponse::Actor, "Actor"}
-};
-
 struct StaticColComponent {
     ColResult col_result;
     std::shared_ptr<ColShape> shape;
     StaticColResponse col_response;
-    SpecificShape shape_type;
 };
 
 struct GroundMoveComponent {
@@ -128,7 +91,6 @@ struct GroundMoveComponent {
 
 struct JumpComponent {
     float c_accel = 400;
-    float c_jump_tolerance = 0.1;
     float c_turn_mod = 4;
     float c_jump_speed = 800;
 };
@@ -137,14 +99,8 @@ struct FlyComponent {
     float c_lift = 0.0055;
     float c_stall_angle = 0.26;
     float c_max_change_angle = 6;
-    float c_fly_accel_force = 3000;
-    float c_fly_accel_time = 0.5f;
-
-    WVec from = {0.000, 0.000};
-    WVec ctrl_from = {0.249, 2.071};
-    WVec ctrl_to = {0.729, 0.323};
-    WVec to = {1.000, 0.074};
-
+    float c_accel_force = 3000;
+    float c_accel_time = 0.5f;
     float timer = 0;
 };
 

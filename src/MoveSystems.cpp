@@ -198,6 +198,12 @@ void ::protagonist::to_ground(GameWorld &world, unsigned int entity) {
     pc.rotation = 0;
 }
 
+// bcurve for acceling
+const WVec from = {0.000, 0.000};
+const WVec ctrl_from = {0.249, 2.071};
+const WVec ctrl_to = {0.729, 0.323};
+const WVec to = {1.000, 0.074};
+
 void ::protagonist::flying(GameWorld &world, unsigned int entity) {
     auto &pc = world.m_pos_c[entity];
     auto &ic = world.m_input_c[entity];
@@ -221,8 +227,8 @@ void ::protagonist::flying(GameWorld &world, unsigned int entity) {
         }
         auto accel_dir = (10.f * tangent_dir + glide_dir) / 11.f;
 
-        BCurve curve = {fc.from, fc.ctrl_from, fc.ctrl_to, fc.to};
-        mc.accel += accel_dir * fc.c_fly_accel_force * curve.eval(fc.timer / fc.c_fly_accel_time).y;
+        BCurve curve = {from, ctrl_from, ctrl_to, to};
+        mc.accel += accel_dir * fc.c_accel_force * curve.eval(fc.timer / fc.c_accel_time).y;
     }
 
     if (mc.movestate == MoveState::Flying) {

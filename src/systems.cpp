@@ -120,7 +120,7 @@ void move_update(GameWorld &world, float dt, const std::vector<unsigned int> &en
 
         mc.velocity += old_accel * dt;
 
-        get_accel_func(mc.movestate, MoveSet::Protagonist)(world, entity);
+        get_accel_func(mc.movestate, mc.moveset)(world, entity);
 
         mc.velocity += dt * (mc.accel - old_accel) / 2.0f;
         auto motion = dt * (mc.velocity + mc.accel * dt / 2.0f);
@@ -145,8 +145,8 @@ void fly_update(GameWorld &world, float dt, const std::vector<unsigned int> &ent
 
         auto &fc = world.m_fly_c[entity];
         fc.timer += dt;
-        if (fc.timer > fc.c_fly_accel_time) {
-            fc.timer = fc.c_fly_accel_time;
+        if (fc.timer > fc.c_accel_time) {
+            fc.timer = fc.c_accel_time;
         }
     }
 }

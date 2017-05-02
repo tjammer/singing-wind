@@ -57,17 +57,15 @@ unsigned int Protagonist::create_player(GameWorld &world, const WVec &pos, unsig
     world.m_pos_c[player].global_transform = trans.translate(pos).rotate(world.m_pos_c[player].rotation);
 
     //auto shape = std::shared_ptr<ColShape>(new ColCapsule(15, 30));
-    world.m_debug_c[player].shape = specific_shapes.at(SpecificShape::ProtagonistCapsule);
-    world.m_debug_c[player].shape_type = SpecificShape::ProtagonistCapsule;
+    world.m_debug_c[player].shape = std::shared_ptr<ColShape>(new ColCapsule(15, 30));
 
     world.m_move_c[player].movestate = MoveState::OnGround;
     world.m_move_c[player].moveset = MoveSet ::Protagonist;
 
     world.m_input_c[player].input_func = Protagonist::handle_inputs;
 
-    world.m_static_col_c[player].shape = specific_shapes.at(SpecificShape::ProtagonistCapsule);
+    world.m_static_col_c[player].shape = world.m_debug_c[player].shape;
     world.m_static_col_c[player].col_response = StaticColResponse::Actor;
-    world.m_static_col_c[player].shape_type = SpecificShape::ProtagonistCapsule;
 
     return player;
 }
