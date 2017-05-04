@@ -4,6 +4,7 @@
 
 #include "MoveSystems.h"
 #include "BCurve.h"
+#include <iostream>
 
 using namespace std;
 using accel_func = std::function<void(GameWorld &world, unsigned int entity)>;
@@ -13,7 +14,7 @@ const unordered_map<MoveState, accel_func> protagonist_ms = {
         {MoveState::Falling, protagonist::jumping},
         {MoveState::Jumping, protagonist::jumping},
         {MoveState::Flying, protagonist::flying},
-        {MoveState::FlyingAccel, protagonist::flying}
+        {MoveState::FlyingAccel, protagonist::flying_accel}
 };
 
 const unordered_map<MoveTransition, accel_func> protagonist_trans = {
@@ -82,18 +83,9 @@ inline float angle_up_from_local_mouse_deg(const WVec &mouse) {
 inline void fly(GameWorld & world, unsigned int entity) {
     auto &pc = world.m_pos_c[entity];
     auto &mc = world.m_move_c[entity];
-    auto &ic = world.m_input_c[entity];
     auto &fc = world.m_fly_c[entity];
 
-    float change_angle = fc.c_max_change_angle;
-    if (mc.movestate == MoveState::FlyingAccel) {
-        change_angle *= 0.1f;
-    }
-
-    auto mouse = pc.global_transform.getInverse().transformPoint(ic.mouse[0]);
-    float mouse_angle = angle_up_from_local_mouse_deg(mouse);
-    pc.rotation += copysignf(fmin(change_angle, abs(mouse_angle)), mouse_angle);
-    pc.rotation = std::remainder(pc.rotation, 360.f);
+    mc.accel.y -= c_gravity * 0.25f;
 
     auto air_dir = w_normalize(mc.velocity);
     auto glide_dir = w_rotated_deg(WVec(0, -1), pc.rotation);
@@ -198,50 +190,28 @@ void ::protagonist::to_ground(GameWorld &world, unsigned int entity) {
     pc.rotation = 0;
 }
 
-// bcurve for acceling
-const WVec from = {0.000, 0.000};
-const WVec ctrl_from = {0.249, 2.071};
-const WVec ctrl_to = {0.729, 0.323};
-const WVec to = {1.000, 0.074};
-
 void ::protagonist::flying(GameWorld &world, unsigned int entity) {
     auto &pc = world.m_pos_c[entity];
     auto &ic = world.m_input_c[entity];
     auto &mc = world.m_move_c[entity];
     auto &fc = world.m_fly_c[entity];
 
+    auto mouse = pc.global_transform.getInverse().transformPoint(ic.mouse[0]);
+    float mouse_angle = angle_up_from_local_mouse_deg(mouse);
+    pc.rotation += copysignf(fmin(fc.c_max_change_angle, abs(mouse_angle)), mouse_angle);
+    pc.rotation = std::remainder(pc.rotation, 360.f);
+
     fly(world, entity);
 
-    if (mc.movestate == MoveState::FlyingAccel) {
-        if (!ic.wings[0]) {
-            mc.movestate = MoveState ::Flying;
-            return;
-        }
-
-        auto glide_dir = w_rotated_deg(WVec(0, -1), pc.rotation);
-        auto tangent_dir = copysignf(1, pc.rotation) * w_tangent(glide_dir);
-        if (ic.direction[0] < 0) {
-            tangent_dir = w_tangent(glide_dir);
-        } else if (ic.direction[0] > 0) {
-            tangent_dir = -w_tangent(glide_dir);
-        }
-        auto accel_dir = (10.f * tangent_dir + glide_dir) / 11.f;
-
-        BCurve curve = {from, ctrl_from, ctrl_to, to};
-        mc.accel += accel_dir * fc.c_accel_force * curve.eval(fc.timer / fc.c_accel_time).y;
+    // to falling
+    if (ic.jump[0] and std::find(ic.jump.begin(), ic.jump.end(), false) != ic.jump.end()) {
+        clear_arr(ic.jump, true);
+        to_falling(mc);
+        pc.rotation = 0;
     }
-
-    if (mc.movestate == MoveState::Flying) {
-        // to falling
-        if (ic.jump[0] and std::find(ic.jump.begin(), ic.jump.end(), false) != ic.jump.end()) {
-            clear_arr(ic.jump, true);
-            to_falling(mc);
-            pc.rotation = 0;
-        }
-        // to wings
-        if (ic.wings[0] and std::find(ic.wings.begin(), ic.wings.end(), false) != ic.wings.end()) {
-            to_flying_accel(world, entity);
-        }
+    // to wings
+    if (ic.wings[0] and std::find(ic.wings.begin(), ic.wings.end(), false) != ic.wings.end()) {
+        to_flying_accel(world, entity);
     }
 }
 
@@ -254,4 +224,29 @@ void ::protagonist::to_flying_accel(GameWorld &world, unsigned int entity) {
 
     mc.movestate = MoveState::FlyingAccel;
     fc.timer = 0;
+}
+
+void ::protagonist::flying_accel(GameWorld &world, unsigned int entity) {
+    auto &pc = world.m_pos_c[entity];
+    auto &ic = world.m_input_c[entity];
+    auto &mc = world.m_move_c[entity];
+    auto &fc = world.m_fly_c[entity];
+
+    if (!ic.wings[0] or fc.timer >= fc.c_accel_time) {
+        mc.movestate = MoveState ::Flying;
+        return;
+    }
+    BCurve curve = {fc.from, fc.ctrl_from, fc.ctrl_to, fc.to};
+    float time_frac = curve.eval(fc.timer / fc.c_accel_time).y;
+
+    auto mouse = pc.global_transform.getInverse().transformPoint(ic.mouse[0]);
+    float mouse_angle = angle_up_from_local_mouse_deg(mouse);
+    pc.rotation += copysignf(fmin(fc.c_max_change_angle * time_frac, abs(mouse_angle)), mouse_angle);
+    pc.rotation = std::remainder(pc.rotation, 360.f);
+
+    fly(world, entity);
+
+    auto glide_dir = w_rotated_deg(WVec(0, -1), pc.rotation);
+
+    mc.accel += glide_dir * fc.c_accel_force * time_frac;
 }

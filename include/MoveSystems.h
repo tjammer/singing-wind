@@ -19,7 +19,8 @@ namespace protagonist {
     void jumping(GameWorld &world, unsigned int entity);
     void to_falling(MoveComponent &mc);
     void to_flying(GameWorld &world, unsigned int entity);
-    void to_flying_accel(GameWorld &world, unsigned int entity);
     void flying(GameWorld &world, unsigned int entity);
+    void to_flying_accel(GameWorld &world, unsigned int entity);
+    void flying_accel(GameWorld &world, unsigned int entity);
 }
 #endif //SINGING_WIND_MOVESYSTEMS_H

@@ -98,10 +98,16 @@ struct JumpComponent {
 struct FlyComponent {
     float c_lift = 0.0055;
     float c_stall_angle = 0.26;
-    float c_max_change_angle = 6;
-    float c_accel_force = 3000;
-    float c_accel_time = 0.5f;
+    float c_max_change_angle = 4;
+    float c_accel_force = 1300;
+    float c_accel_time = 0.7f;
     float timer = 0;
+
+    // bcurve for acceling
+    WVec from = {0.000, 0.000};
+    WVec ctrl_from = {0.819312513, -0.31962499};
+    WVec ctrl_to = {-0.0288125277, 1.40112495};
+    WVec to = {1.000, 0.870875001};
 };
 
 
