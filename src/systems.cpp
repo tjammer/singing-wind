@@ -6,6 +6,7 @@
 #include "GameWorld.h"
 #include "MoveSystems.h"
 #include "entities.h"
+#include <iostream>
 
 void debug_draw_update(GameWorld &world, sf::RenderWindow &window, const std::vector<unsigned int> &entities) {
     sf::VertexArray lines_va(sf::Lines);
@@ -13,10 +14,12 @@ void debug_draw_update(GameWorld &world, sf::RenderWindow &window, const std::ve
     for (const auto &tri : world.m_grid.get_objects()) {
         tri->add_gfx_lines(lines_va, zero_tf);
     }
+    std::cout << entities.size() << std::endl;
 
     for (const auto entity : entities) {
         auto &shape = world.m_debug_c[entity].shape;
-        auto &transform = world.m_pos_c[entity].global_transform;
+        const auto &transform = world.m_pos_c[entity].global_transform;
+        std::cout << "system: " << world.m_pos_c[entity].position << std::endl;
         shape->add_gfx_lines(lines_va, transform);
     }
 
@@ -91,7 +94,7 @@ void static_col_update(GameWorld &world, const std::vector<unsigned int> &entiti
                 WVec correction = find_directed_overlap(second_result, WVec(-move_back.y, move_back.x));
                 pos += correction;
 
-                transform.combine(world.m_pos_c[parent].global_transform).translate(pos).rotate(rot);
+                transform = WTransform().combine(world.m_pos_c[parent].global_transform).translate(pos).rotate(rot);
             }
 
             // call back
