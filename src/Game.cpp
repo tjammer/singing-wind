@@ -5,11 +5,7 @@
 #include "Game.h"
 
 Game::Game() {
-    for (unsigned int i = 0 ; i < m_game_world.m_id_c.size() ; ++i) {
-        if (m_game_world.m_id_c[i] == "player") {
-            m_camera.entity_to_follow = i;
-        }
-    }
+    update_camera_follow();
 }
 
 void Game::update(Engine &engine) {
@@ -33,4 +29,14 @@ void Game::draw(sf::RenderWindow &window) {
 void Game::unpause() {
     EngineState::unpause();
     m_timer.reset();
+    update_camera_follow();
+
+}
+
+void Game::update_camera_follow() {
+    for (unsigned int i = 0 ; i < m_game_world.m_id_c.size() ; ++i) {
+        if (m_game_world.m_id_c[i] == "player") {
+            m_camera.m_entity_to_follow = i;
+        }
+    }
 }

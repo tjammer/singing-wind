@@ -7,6 +7,7 @@
 
 #include "Engine.h"
 #include "GameWorld.h"
+#include "../target/release/Scene.pb.h"
 #include <unordered_map>
 
 const float c_point_size = 5;
@@ -71,10 +72,11 @@ public:
     WVec m_mpos;
 };
 
-
 using EditorSubState = std::unique_ptr<BaseEditorSubState>;
 
 bool load_entity_from_filename(const std::string &name, GameWorld &game_world, unsigned int entity);
-void save_entity(const GameWorld &game_world, unsigned int entity);
+scene::Entity * get_pb_entity(const GameWorld &game_world, unsigned int entity);
+bool save_entity_standalone(const GameWorld &game_world, unsigned int entity);
+void entity_to_world(const scene::Entity& entity, GameWorld &game_world, unsigned int);
 
 #endif //SINGING_WIND_EDITOR_H

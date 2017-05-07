@@ -30,6 +30,8 @@ private:
     GameWorld m_game_world;
     Camera m_camera;
     FrameTimer m_timer;
+
+    void update_camera_follow();
 };
 
 

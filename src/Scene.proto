@@ -5,6 +5,7 @@ package scene;
 message Scene {
     repeated Island islands = 1;
     float zoom = 2;
+    repeated Entity entities = 3;
 }
 
 message Point {

@@ -21,8 +21,7 @@ void EngineEditorState::draw(sf::RenderWindow &window) {
 }
 
 EngineEditorState::EngineEditorState(const std::string &scene_name, GameWorld &game_world)
-        :
-        m_game_world(game_world) {
+        : m_game_world(game_world) {
     m_state = std::unique_ptr<BaseEditorSubState>(new EditorIdle);
     load_scene(scene_name);
 }
@@ -136,14 +135,13 @@ bool EngineEditorState::load_scene(const std::string &name) {
 
     fstream scene_file(name, ios::in | ios::binary);
     scene::Scene pb_scene;
-
     if (!scene_file) {
         cout << "File not found." << endl;
         return false;
     }
     pb_scene.ParseFromIstream(&scene_file);
     islands.clear();
-    for (auto &pb_island : pb_scene.islands()) {
+    for (auto pb_island : pb_scene.islands()) {
         Island island;
         for (int i = 0 ; i < pb_island.points_size() ; ++i) {
             auto pb_point = pb_island.points(i);
@@ -155,6 +153,11 @@ bool EngineEditorState::load_scene(const std::string &name) {
         }
         islands.push_back(island);
     }
+    m_game_world.reset();
+    for (auto pb_entity : pb_scene.entities()) {
+        entity_to_world(pb_entity, m_game_world, m_game_world.create_entity());
+    }
+
     m_zoom = pb_scene.zoom();
     m_update_view = true;
 
@@ -164,7 +167,8 @@ bool EngineEditorState::load_scene(const std::string &name) {
 
 void EngineEditorState::save_scene(const std::string &name) const {
     using namespace std;
-    auto &islands = m_game_world.get_islands_ref();
+    const auto &islands = m_game_world.get_islands_ref();
+    const auto &entities = m_game_world.m_entities;
 
     scene::Scene pb_scene;
     for (const auto &island : islands) {
@@ -182,26 +186,36 @@ void EngineEditorState::save_scene(const std::string &name) const {
     }
     pb_scene.set_zoom(m_zoom);
 
-    fstream  scene_file(name, ios::out | ios::trunc | ios::binary);
+    for (unsigned int i = 0 ; i < entities.size() ; ++i) {
+        auto pb_ent = pb_scene.add_entities();
+        scene::Entity *standalone_ent = get_pb_entity(m_game_world, i);
+        memcpy(pb_ent, standalone_ent, sizeof(*standalone_ent));
+    }
+
+    string filename = "scenes/" + name + ".wscn";
+    fstream  scene_file(filename, ios::out | ios::trunc | ios::binary);
     if (!pb_scene.SerializeToOstream(&scene_file)) {
         cout << "Failed to write scene." << endl;
     }
-    cout << "wrote to file " << name << endl;
+    cout << "wrote to file " << filename << endl;
 }
 
 bool EngineEditorState::main_menu() {
     bool rtn = false;
     bool load = false;
+    bool save = false;
     static std::string ent_name = "";
 
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("scene")) {
             rtn = true;
             if (ImGui::MenuItem("save scene")) {
-                save_scene("scenes/debug.wscn");
+                save = true;
+                rtn = true;
             }
             if (ImGui::MenuItem("load entity")) {
                 load = true;
+                rtn = true;
             }
             ImGui::EndMenu();
         }
@@ -219,146 +233,154 @@ bool EngineEditorState::main_menu() {
         ent_name = std::string(&entity_name[0]);
         if (ImGui::Button("load entity")) {
             m_game_world.load_entity(ent_name);
+            ImGui::CloseCurrentPopup();
         }
         ImGui::EndPopup();
+        rtn = true;
+    }
+
+    if (save) {
+        ImGui::OpenPopup("save scene");
+    }
+    if (ImGui::BeginPopup("save scene")) {
+        std::vector<char> scene_name(ent_name.begin(), ent_name.end());
+        scene_name.push_back('\0');
+        scene_name.resize(128);
+        ImGui::InputText("scene name", &scene_name[0], scene_name.size());
+        ent_name = std::string(&scene_name[0]);
+        if (ImGui::Button("save scene")) {
+            save_scene(ent_name);
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+        rtn = true;
     }
 
     return rtn;
 }
 
-void save_entity(const GameWorld &game_world, unsigned int entity) {
+scene::Entity * get_pb_entity(const GameWorld &game_world, unsigned int entity) {
     using namespace std;
 
-    scene::Entity pb_entity;
+    scene::Entity *pb_entity = new scene::Entity;
 
     // bitset
-    scene::Bitset bset;
-    bset.set_bitset(game_world.m_entities.at(entity).to_ulong());
-    std::cout << bset.bitset() << std::endl;
-    pb_entity.set_allocated_bitset(&bset);
+    auto bset = new scene::Bitset;
+    bset->set_bitset(game_world.m_entities.at(entity).to_ulong());
+    pb_entity->set_allocated_bitset(bset);
 
     // pos_c
-    scene::PosComponent pos_c;
-    scene::Point pos;
     if (game_world.m_entities.at(entity).test(CPosition)) {
-        pos.set_x(game_world.m_pos_c.at(entity).position.x);
-        pos.set_y(game_world.m_pos_c.at(entity).position.y);
-        pos_c.set_allocated_position(&pos);
-        pos_c.set_parent(game_world.m_pos_c.at(entity).parent);
-        pos_c.set_rotation(game_world.m_pos_c.at(entity).rotation);
-        pb_entity.set_allocated_pos_c(&pos_c);
+        auto pos_c = new scene::PosComponent;
+        auto pos = new scene::Point;
+        pos->set_x(game_world.m_pos_c.at(entity).position.x);
+        pos->set_y(game_world.m_pos_c.at(entity).position.y);
+        pos_c->set_allocated_position(pos);
+        pos_c->set_parent(game_world.m_pos_c.at(entity).parent);
+        pos_c->set_rotation(game_world.m_pos_c.at(entity).rotation);
+        pb_entity->set_allocated_pos_c(pos_c);
     }
 
     // input_c
-    scene::InputComponent input_c;
     if (game_world.m_entities.at(entity).test(CInput)) {
-        input_c.set_func(static_cast<int>(game_world.m_input_c.at(entity).input_func));
-        pb_entity.set_allocated_input_c(&input_c);
+        auto input_c = new scene::InputComponent;
+        input_c->set_func(static_cast<int>(game_world.m_input_c.at(entity).input_func));
+        pb_entity->set_allocated_input_c(input_c);
     }
 
     // move_c
-    scene::MoveComponent move_c;
     if (game_world.m_entities.at(entity).test(CMove)) {
-        move_c.set_moveset(static_cast<int>(game_world.m_move_c.at(entity).moveset));
-        move_c.set_movestate(static_cast<int>(game_world.m_move_c.at(entity).movestate));
-        pb_entity.set_allocated_move_c(&move_c);
+        auto move_c = new scene::MoveComponent;
+        move_c->set_moveset(static_cast<int>(game_world.m_move_c.at(entity).moveset));
+        move_c->set_movestate(static_cast<int>(game_world.m_move_c.at(entity).movestate));
+        pb_entity->set_allocated_move_c(move_c);
     }
 
     // static_col_comp
-    scene::StaticColComponent static_c;
     if (game_world.m_entities.at(entity).test(CStaticCol)) {
+        auto static_c = new scene::StaticColComponent;
         auto capsule = dynamic_cast<ColCapsule *>(game_world.m_static_col_c.at(entity).shape.get());
-        static_c.set_col_response(static_cast<int>(game_world.m_static_col_c.at(entity).col_response));
-        static_c.set_shape(static_cast<int>(capsule->m_type));
-        static_c.set_length(capsule->m_length);
-        static_c.set_radius(capsule->get_capsule_radius());
-        pb_entity.set_allocated_static_col_c(&static_c);
+        static_c->set_col_response(static_cast<int>(game_world.m_static_col_c.at(entity).col_response));
+        static_c->set_shape(static_cast<int>(capsule->m_type));
+        static_c->set_length(capsule->m_length);
+        static_c->set_radius(capsule->get_capsule_radius());
+        pb_entity->set_allocated_static_col_c(static_c);
     }
 
     // name
-    pb_entity.set_name(game_world.m_id_c[entity]);
+    pb_entity->set_name(game_world.m_id_c[entity]);
 
     // ground move
-    scene::GroundMoveComponent ground_c;
     if (game_world.m_entities.at(entity).test(CGroundMove)) {
-        ground_c.set_accel(game_world.m_ground_move_c.at(entity).c_accel);
-        ground_c.set_stop_friction(game_world.m_ground_move_c.at(entity).c_stop_friction);
-        ground_c.set_turn_mod(game_world.m_ground_move_c.at(entity).c_turn_mod);
-        pb_entity.set_allocated_ground_move_c(&ground_c);
+        auto ground_c = new scene::GroundMoveComponent;
+        ground_c->set_accel(game_world.m_ground_move_c.at(entity).c_accel);
+        ground_c->set_stop_friction(game_world.m_ground_move_c.at(entity).c_stop_friction);
+        ground_c->set_turn_mod(game_world.m_ground_move_c.at(entity).c_turn_mod);
+        pb_entity->set_allocated_ground_move_c(ground_c);
     }
 
     // jump
-    scene::JumpComponent jump_c;
     if (game_world.m_entities.at(entity).test(CJump)) {
-        jump_c.set_turn_mod(game_world.m_jump_c.at(entity).c_turn_mod);
-        jump_c.set_accel(game_world.m_jump_c.at(entity).c_accel);
-        jump_c.set_jump_speed(game_world.m_jump_c.at(entity).c_jump_speed);
-        pb_entity.set_allocated_jump_c(&jump_c);
+        scene::JumpComponent *jump_c = new scene::JumpComponent;
+        jump_c->set_turn_mod(game_world.m_jump_c.at(entity).c_turn_mod);
+        jump_c->set_accel(game_world.m_jump_c.at(entity).c_accel);
+        jump_c->set_jump_speed(game_world.m_jump_c.at(entity).c_jump_speed);
+        pb_entity->set_allocated_jump_c(jump_c);
     }
 
     // fly
-    scene::FlyComponent fly_c;
-    scene::Point from;
-    scene::Point ctrl_from;
-    scene::Point ctrl_to;
-    scene::Point to;
     if (game_world.m_entities.at(entity).test(CFly)) {
-        fly_c.set_accel_force(game_world.m_fly_c.at(entity).c_accel_force);
-        fly_c.set_accel_time(game_world.m_fly_c.at(entity).c_accel_time);
-        fly_c.set_lift(game_world.m_fly_c.at(entity).c_lift);
-        fly_c.set_max_change_angle(game_world.m_fly_c.at(entity).c_max_change_angle);
-        fly_c.set_stall_angle(game_world.m_fly_c.at(entity).c_stall_angle);
-        from.set_x(game_world.m_fly_c.at(entity).from.x);
-        from.set_y(game_world.m_fly_c.at(entity).from.y);
-        ctrl_from.set_x(game_world.m_fly_c.at(entity).ctrl_from.x);
-        ctrl_from.set_y(game_world.m_fly_c.at(entity).ctrl_from.y);
-        ctrl_to.set_x(game_world.m_fly_c.at(entity).ctrl_to.x);
-        ctrl_to.set_y(game_world.m_fly_c.at(entity).ctrl_to.y);
-        to.set_x(game_world.m_fly_c.at(entity).to.x);
-        to.set_y(game_world.m_fly_c.at(entity).to.y);
-        fly_c.set_allocated_from(&from);
-        fly_c.set_allocated_ctrl_from(&ctrl_from);
-        fly_c.set_allocated_ctrl_to(&ctrl_to);
-        fly_c.set_allocated_to(&to);
-        pb_entity.set_allocated_fly_c(&fly_c);
+        auto fly_c = new scene::FlyComponent;
+        auto from = new scene::Point;
+        auto ctrl_from = new scene::Point;
+        scene::Point *ctrl_to = new scene::Point;
+        scene::Point *to = new scene::Point;
+        fly_c->set_accel_force(game_world.m_fly_c.at(entity).c_accel_force);
+        fly_c->set_accel_time(game_world.m_fly_c.at(entity).c_accel_time);
+        fly_c->set_lift(game_world.m_fly_c.at(entity).c_lift);
+        fly_c->set_max_change_angle(game_world.m_fly_c.at(entity).c_max_change_angle);
+        fly_c->set_stall_angle(game_world.m_fly_c.at(entity).c_stall_angle);
+        from->set_x(game_world.m_fly_c.at(entity).from.x);
+        from->set_y(game_world.m_fly_c.at(entity).from.y);
+        ctrl_from->set_x(game_world.m_fly_c.at(entity).ctrl_from.x);
+        ctrl_from->set_y(game_world.m_fly_c.at(entity).ctrl_from.y);
+        ctrl_to->set_x(game_world.m_fly_c.at(entity).ctrl_to.x);
+        ctrl_to->set_y(game_world.m_fly_c.at(entity).ctrl_to.y);
+        to->set_x(game_world.m_fly_c.at(entity).to.x);
+        to->set_y(game_world.m_fly_c.at(entity).to.y);
+        fly_c->set_allocated_from(from);
+        fly_c->set_allocated_ctrl_from(ctrl_from);
+        fly_c->set_allocated_ctrl_to(ctrl_to);
+        fly_c->set_allocated_to(to);
+        pb_entity->set_allocated_fly_c(fly_c);
     }
+
+    return std::move(pb_entity);
+}
+
+bool save_entity_standalone(const GameWorld &game_world, unsigned int entity) {
+    using namespace std;
+
+    auto pb_entity = get_pb_entity(game_world, entity);
+    pb_entity->mutable_pos_c()->mutable_position()->set_x(0);
+    pb_entity->mutable_pos_c()->mutable_position()->set_x(0);
+    pb_entity->mutable_pos_c()->set_parent(0);
 
     string entity_name = game_world.m_id_c[entity];
     string filename = "scenes/" + entity_name + ".went";
     fstream  scene_file(filename, ios::out | ios::trunc | ios::binary);
-    if (!pb_entity.SerializeToOstream(&scene_file)) {
+    if (!pb_entity->SerializeToOstream(&scene_file)) {
         cout << "Failed to write scene." << endl;
-    }
-    cout << "wrote to file " << filename << endl;
-
-    pb_entity.release_bitset();
-    pb_entity.release_pos_c();
-    pos_c.release_position();
-    pb_entity.release_input_c();
-    pb_entity.release_move_c();
-    pb_entity.release_static_col_c();
-    pb_entity.release_ground_move_c();
-    pb_entity.release_jump_c();
-    pb_entity.release_fly_c();
-    fly_c.release_ctrl_from();
-    fly_c.release_from();
-    fly_c.release_ctrl_to();
-    fly_c.release_to();
-}
-
-bool load_entity_from_filename(const std::string &name, GameWorld &game_world, unsigned int entity) {
-    using namespace std;
-
-    fstream scene_file(name, ios::in | ios::binary);
-    scene::Entity pb_entity;
-
-    if (!scene_file) {
-        cout << "File not found." << endl;
+        delete pb_entity;
         return false;
     }
-    pb_entity.ParseFromIstream(&scene_file);
+    cout << "wrote to file " << filename << endl;
+    delete pb_entity;
+    return true;
+}
 
-    // bitset
+void entity_to_world(const scene::Entity &pb_entity, GameWorld &game_world, unsigned int entity) {
+// bitset
     auto bitset = pb_entity.bitset();
     game_world.m_entities[entity] = bset(bitset.bitset());
 
@@ -368,7 +390,8 @@ bool load_entity_from_filename(const std::string &name, GameWorld &game_world, u
         game_world.m_pos_c[entity].rotation = pos_c.rotation();
         game_world.m_pos_c[entity].position = WVec(pos_c.position().x(), pos_c.position().y());
         game_world.m_pos_c[entity].parent = pos_c.parent();
-        game_world.m_pos_c[entity].global_transform = WTransform().combine(game_world.m_pos_c[pos_c.parent()].global_transform).translate(game_world.m_pos_c[entity].position).rotate(pos_c.rotation());
+        game_world.m_pos_c[entity].global_transform = WTransform().combine(game_world.m_pos_c[pos_c.parent()].
+                global_transform).translate(game_world.m_pos_c[entity].position).rotate(pos_c.rotation());
     }
 
     // input_c
@@ -431,6 +454,21 @@ bool load_entity_from_filename(const std::string &name, GameWorld &game_world, u
         game_world.m_fly_c[entity].ctrl_to = WVec(fly_c.ctrl_to().x(), fly_c.ctrl_to().y());
         game_world.m_fly_c[entity].to = WVec(fly_c.to().x(), fly_c.to().y());
     }
+}
+
+bool load_entity_from_filename(const std::string &name, GameWorld &game_world, unsigned int entity) {
+    using namespace std;
+
+    fstream scene_file(name, ios::in | ios::binary);
+    scene::Entity pb_entity;
+
+    if (!scene_file) {
+        cout << "File not found." << endl;
+        return false;
+    }
+    pb_entity.ParseFromIstream(&scene_file);
+
+    entity_to_world(pb_entity, game_world, entity);
 
     return true;
 }

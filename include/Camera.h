@@ -8,9 +8,8 @@
 #include "GameWorld.h"
 #include "Engine.h"
 
-
 struct Camera {
-    unsigned int entity_to_follow;
+    unsigned int m_entity_to_follow;
     void update(GameWorld &game_world, Engine &engine);
 };
 

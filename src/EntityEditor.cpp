@@ -208,8 +208,7 @@ void EntityIdle::update(const WVec &mpos) {
         }
     }
     if (Button("save entity")) {
-        save_entity(m_world, m_entity);
-
+        save_entity_standalone(m_world, m_entity);
     }
     End();
 }

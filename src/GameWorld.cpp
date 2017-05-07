@@ -25,12 +25,12 @@ void GameWorld::update_triangles() {
 }
 
 GameWorld::GameWorld() {
-    // create root
+    /*// create root
     auto root = create_root(*this, {0, 0}, 0);
     //create_coll_test(*this, {0, 0}, root);
     //Protagonist::create_player(*this, {0, 0}, root);
     assert(load_entity("player"));
-    assert(m_entities.size() == 2);
+    assert(m_entities.size() == 2);*/
 }
 
 void GameWorld::draw(sf::RenderWindow &window) {
@@ -117,4 +117,19 @@ bool GameWorld::load_entity(const std::string &name) {
     unsigned int ent = create_entity();
 
     return load_entity_from_filename(filename, *this, ent);
+}
+
+void GameWorld::reset() {
+    m_entities.clear();
+
+    // components
+    m_pos_c.clear();
+    m_debug_c.clear();
+    m_input_c.clear();
+    m_move_c.clear();
+    m_static_col_c.clear();
+    m_ground_move_c.clear();
+    m_jump_c.clear();
+    m_fly_c.clear();
+    m_id_c.clear();
 }

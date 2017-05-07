@@ -41,6 +41,8 @@ public:
         std::unordered_map<unsigned int, FlyComponent> m_fly_c;
         std::vector<IdComponent> m_id_c;
 
+    void reset();
+
     // communication with editor
     std::vector<Island> &get_islands_ref() {return m_islands;};
     void update_triangles();
