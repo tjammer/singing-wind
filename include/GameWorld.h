@@ -41,7 +41,8 @@ public:
         std::unordered_map<unsigned int, FlyComponent> m_fly_c;
         std::vector<IdComponent> m_id_c;
 
-    void reset();
+    void reset_entities();
+    void reset_islands() {m_islands.clear();}
 
     // communication with editor
     std::vector<Island> &get_islands_ref() {return m_islands;};
@@ -49,6 +50,7 @@ public:
 
     unsigned int create_entity();
     bool load_entity(const std::string &name);
+    void create_root();
 
     // members
     StaticGrid m_grid;

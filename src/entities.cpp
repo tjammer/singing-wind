@@ -2,10 +2,10 @@
 // Created by jammer on 11/04/17.
 //
 
-#include <GameWorld.h>
+#include "entities.h"
 #include <assert.h>
 
-unsigned int create_root(GameWorld &game_world, const WVec &position, unsigned int parent) {
+unsigned int Entities::create_root(GameWorld &game_world, const WVec &position, unsigned int parent) {
     // create root
     auto root = game_world.create_entity();
     assert(root == 0);

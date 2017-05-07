@@ -7,7 +7,6 @@
 #include "entities.h"
 #include "systems.h"
 #include "Editor.h"
-#include "assert.h"
 
 void GameWorld::update_triangles() {
     std::vector<WVec> triangles;
@@ -25,12 +24,6 @@ void GameWorld::update_triangles() {
 }
 
 GameWorld::GameWorld() {
-    /*// create root
-    auto root = create_root(*this, {0, 0}, 0);
-    //create_coll_test(*this, {0, 0}, root);
-    //Protagonist::create_player(*this, {0, 0}, root);
-    assert(load_entity("player"));
-    assert(m_entities.size() == 2);*/
 }
 
 void GameWorld::draw(sf::RenderWindow &window) {
@@ -119,7 +112,7 @@ bool GameWorld::load_entity(const std::string &name) {
     return load_entity_from_filename(filename, *this, ent);
 }
 
-void GameWorld::reset() {
+void GameWorld::reset_entities() {
     m_entities.clear();
 
     // components
@@ -132,4 +125,8 @@ void GameWorld::reset() {
     m_jump_c.clear();
     m_fly_c.clear();
     m_id_c.clear();
+}
+
+void GameWorld::create_root() {
+    Entities::create_root(*this, {0, 0}, 0);
 }

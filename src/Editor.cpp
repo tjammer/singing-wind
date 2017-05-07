@@ -153,7 +153,7 @@ bool EngineEditorState::load_scene(const std::string &name) {
         }
         islands.push_back(island);
     }
-    m_game_world.reset();
+    m_game_world.reset_entities();
     for (auto pb_entity : pb_scene.entities()) {
         entity_to_world(pb_entity, m_game_world, m_game_world.create_entity());
     }
@@ -200,6 +200,12 @@ void EngineEditorState::save_scene(const std::string &name) const {
     cout << "wrote to file " << filename << endl;
 }
 
+inline void new_scene(GameWorld& world) {
+    world.reset_entities();
+    world.reset_islands();
+    world.create_root();
+}
+
 bool EngineEditorState::main_menu() {
     bool rtn = false;
     bool load = false;
@@ -209,6 +215,10 @@ bool EngineEditorState::main_menu() {
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("scene")) {
             rtn = true;
+            if (ImGui::MenuItem("new scene")) {
+                new_scene(m_game_world);
+                rtn = true;
+            }
             if (ImGui::MenuItem("save scene")) {
                 save = true;
                 rtn = true;
