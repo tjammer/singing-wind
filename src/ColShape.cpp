@@ -4,7 +4,6 @@
 
 #include "ColShape.h"
 #include "Collision.h"
-#include <assert.h>
 
 ColTriangle::ColTriangle(const WVec &p1, const WVec &p2, const WVec &p3) {
     m_vertices[0] = p1;
@@ -86,7 +85,7 @@ ColResult ColShape::collides(const ColShape &other) const {
     return static_collide(*this, other);
 }
 
-ColCapsule::ColCapsule(float radius, float length) : m_capsule_radius(radius), m_length(length) {
+ColCapsule::ColCapsule(float radius, float length) : m_length(length), m_capsule_radius(radius) {
     m_a = WVec(m_center.x, m_center.y + length / 2.f);
     m_b = WVec(m_center.x, m_center.y - length / 2.f);
     m_radius = length / 2.f + radius;

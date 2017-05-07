@@ -34,7 +34,9 @@ void EngineEditorState::update(Engine &engine) {
     const sf::RenderWindow& window = engine.get_window();
     auto imouse = sf::Mouse::getPosition(window);
     auto mouse = window.mapPixelToCoords(imouse);
-    main_menu();
+    if (main_menu()) {
+        return;
+    }
 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right) and not m_pressed[Menu]) {
         m_menu = !m_menu;
@@ -189,15 +191,38 @@ void EngineEditorState::save_scene(const std::string &name) const {
 
 bool EngineEditorState::main_menu() {
     bool rtn = false;
-    ImGui::BeginMainMenuBar();
-    if (ImGui::BeginMenu("scene")) {
-        if (ImGui::MenuItem("save scene")) {
-            save_scene("scenes/debug.wscn");
+    bool load = false;
+    static std::string ent_name = "";
+
+    if (ImGui::BeginMainMenuBar()) {
+        if (ImGui::BeginMenu("scene")) {
             rtn = true;
+            if (ImGui::MenuItem("save scene")) {
+                save_scene("scenes/debug.wscn");
+            }
+            if (ImGui::MenuItem("load entity")) {
+                load = true;
+            }
+            ImGui::EndMenu();
         }
-        ImGui::EndMenu();
+        ImGui::EndMainMenuBar();
     }
-    ImGui::EndMainMenuBar();
+
+    if (load) {
+        ImGui::OpenPopup("load entity");
+    }
+    if (ImGui::BeginPopup("load entity")) {
+        std::vector<char> entity_name(ent_name.begin(), ent_name.end());
+        entity_name.push_back('\0');
+        entity_name.resize(128);
+        ImGui::InputText("entity name", &entity_name[0], entity_name.size());
+        ent_name = std::string(&entity_name[0]);
+        if (ImGui::Button("load entity")) {
+            m_game_world.load_entity(ent_name);
+        }
+        ImGui::EndPopup();
+    }
+
     return rtn;
 }
 
