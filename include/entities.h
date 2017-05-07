@@ -17,4 +17,8 @@ const std::unordered_map<StaticColResponse, std::function<void(const ColResult &
         {StaticColResponse::Actor, Protagonist::on_static_collision}
 };
 
+const std::unordered_map<InputFunc, std::function<void(InputComponent&, const WVec&)>> input_funcs = {
+        {InputFunc::Protagonist, Protagonist::handle_inputs}
+};
+
 #endif //SINGING_WIND_ENTITIES_H

@@ -26,7 +26,7 @@ inline bool operator==(const Island& lhs, const Island& rhs) {
     if (lhs.m_points.size() != rhs.m_points.size()) {
         return false;
     }
-    for (uint i = 0 ; i < lhs.m_points.size() ; ++i) {
+    for (unsigned int i = 0 ; i < lhs.m_points.size() ; ++i) {
         if (lhs.m_points[i] != rhs.m_points[i]) {
             return false;
         }

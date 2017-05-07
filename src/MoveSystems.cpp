@@ -85,7 +85,7 @@ inline void fly(GameWorld & world, unsigned int entity) {
     auto &mc = world.m_move_c[entity];
     auto &fc = world.m_fly_c[entity];
 
-    mc.accel.y -= c_gravity * 0.25f;
+    mc.accel.y -= c_gravity * 0.6f;
 
     auto air_dir = w_normalize(mc.velocity);
     auto glide_dir = w_rotated_deg(WVec(0, -1), pc.rotation);
@@ -138,6 +138,7 @@ void ::protagonist::to_flying(GameWorld &world, unsigned int entity) {
     auto &pc = world.m_pos_c[entity];
 
     mc.movestate = MoveState::Flying;
+    clear_arr(ic.wings, true);
     clear_arr(ic.jump, true);
     // rotate player in direction of movement
     pc.rotation = w_angle_to_vec(WVec(0, -1), mc.velocity) * 180.f / (float)M_PI;
@@ -152,12 +153,19 @@ void ::protagonist::jumping(GameWorld &world, unsigned int entity) {
     auto &mc = world.m_move_c[entity];
     auto &jc = world.m_jump_c[entity];
 
-    if (mc.movestate == MoveState::Jumping and mc.velocity.y < 0) {
-        to_falling(mc);
+    if (mc.movestate == MoveState::Jumping) {
+        //mc.accel.y -= c_gravity * 0.5f;
+        if (mc.velocity.y > 0) {
+            to_falling(mc);
+        }
+        if (!ic.jump[0]) {
+            mc.velocity.y *= 0.3f;
+            to_falling(mc);
+        }
     }
 
     // to fly
-    if (ic.jump[0] and std::find(ic.jump.begin(), ic.jump.end(), false) != ic.jump.end()) {
+    if (ic.wings[0] and std::find(ic.wings.begin(), ic.wings.end(), false) != ic.wings.end()) {
         to_flying(world, entity);
     }
 

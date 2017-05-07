@@ -62,15 +62,11 @@ unsigned int Protagonist::create_player(GameWorld &world, const WVec &pos, unsig
     world.m_move_c[player].movestate = MoveState::OnGround;
     world.m_move_c[player].moveset = MoveSet ::Protagonist;
 
-    world.m_input_c[player].input_func = Protagonist::handle_inputs;
+    world.m_input_c[player].input_func = InputFunc::Protagonist;
 
     world.m_static_col_c[player].shape = world.m_debug_c[player].shape;
     world.m_static_col_c[player].col_response = StaticColResponse::Actor;
 
     return player;
-}
-
-std::shared_ptr<ColShape> Protagonist::get_shape() {
-    return std::shared_ptr<ColShape>(new ColCapsule(15, 30));
 }
 

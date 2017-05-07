@@ -9,7 +9,7 @@
 void triangulate_island(const Island &island, std::vector<WVec> &tri_vector) {
     // build vertex vector
     std::vector<WVec> verts;
-    for (uint i = 0 ; i < island.m_points.size() ; ++i) {
+    for (unsigned int i = 0 ; i < island.m_points.size() ; ++i) {
         const auto curve = BCurve{island.m_points[i], island.m_ctrl_points[i*2],
                             island.m_ctrl_points[i*2 +1], island.m_points[(i+1)%island.m_points.size()]};
         auto points = curve.points_along_curve(c_line_triangulate_split);
@@ -22,7 +22,7 @@ void triangulate_island(const Island &island, std::vector<WVec> &tri_vector) {
 
     std::vector<float> points(size * 2);
     std::vector<int> segments(size * 2);
-    for (uint i = 0 ; i < size ; ++i) {
+    for (unsigned int i = 0 ; i < size ; ++i) {
         points[i*2] = verts[i].x;
         points[i*2 + 1] = verts[i].y;
         segments[i*2] = i;

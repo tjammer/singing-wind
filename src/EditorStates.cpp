@@ -12,8 +12,8 @@ std::unique_ptr<BaseEditorSubState> IslandIdle::confirm(GameWorld &) {
     // find curve nearest to cursor
     auto dist = std::numeric_limits<float>::max();
     auto size = m_island.m_points.size();
-    uint curve_index = 0;
-    for (uint i = 0; i < size; ++i) {
+    unsigned int curve_index = 0;
+    for (unsigned int i = 0; i < size; ++i) {
         BCurve curve = BCurve{m_island.m_points[i], m_island.m_ctrl_points[i*2],
                               m_island.m_ctrl_points[i*2 +1], m_island.m_points[(i+1)%size]};
         auto vecs = curve.points_along_curve(1.0f);
@@ -101,8 +101,8 @@ void CurveIdle::draw(GameWorld &, sf::RenderWindow &window) {
 
 EditorSubState CurveIdle::confirm(GameWorld &) {
     auto dist = std::numeric_limits<float>::max();
-    uint point_index = 0;
-    for (uint i = 0 ; i < 4 ; ++i) {
+    unsigned int point_index = 0;
+    for (unsigned int i = 0 ; i < 4 ; ++i) {
         if (w_magnitude(m_curve[i] - m_mpos) < dist) {
             dist = w_magnitude(m_curve[i] - m_mpos);
             point_index = i;
@@ -341,10 +341,10 @@ EditorSubState EditorIdle::confirm(GameWorld &world) {
     float dist = std::numeric_limits<float>::max();
     int index = -1;
 
-    for (uint i = 0 ; i < islands.size() ; ++i) {
+    for (unsigned int i = 0 ; i < islands.size() ; ++i) {
         const auto &island = islands[i];
         auto size = island.m_points.size();
-        for (uint j = 0 ; j < size ; ++j) {
+        for (unsigned int j = 0 ; j < size ; ++j) {
             BCurve curve = BCurve{island.m_points[j], island.m_ctrl_points[j*2],
                                   island.m_ctrl_points[j*2 +1], island.m_points[(j+1)%size]};
             auto vecs = curve.points_along_curve(1.0f);

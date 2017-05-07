@@ -13,7 +13,7 @@
 const float c_drag = 0.0026;
 const float c_friction = 0.0026;
 const float c_max_floor_angle = 0.7;
-const float c_gravity = 900;
+const float c_gravity = 1900;
 const float c_jump_tolerance = 0.1f;
 
 // implements the ecs
@@ -33,19 +33,20 @@ public:
         // components
         std::unordered_map<unsigned int, PosComponent> m_pos_c;
         std::unordered_map<unsigned int, DebugComponent> m_debug_c;
-        std::unordered_map<unsigned int, IdComponent> m_id_c;
         std::unordered_map<unsigned int, InputComponent> m_input_c;
         std::unordered_map<unsigned int, MoveComponent> m_move_c;
         std::unordered_map<unsigned int, StaticColComponent> m_static_col_c;
         std::unordered_map<unsigned int, GroundMoveComponent> m_ground_move_c;
         std::unordered_map<unsigned int, JumpComponent> m_jump_c;
         std::unordered_map<unsigned int, FlyComponent> m_fly_c;
+        std::vector<IdComponent> m_id_c;
 
     // communication with editor
     std::vector<Island> &get_islands_ref() {return m_islands;};
     void update_triangles();
 
     unsigned int create_entity();
+    bool load_entity(const std::string &name);
 
     // members
     StaticGrid m_grid;

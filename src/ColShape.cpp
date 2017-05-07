@@ -26,7 +26,7 @@ ColTriangle::ColTriangle(const WVec &p1, const WVec &p2, const WVec &p3) {
 
 void ColTriangle::add_gfx_lines(sf::VertexArray &lines_va, const WTransform &tf) {
     sf::Color col = m_highlight ? sf::Color::Red : sf::Color::White;
-    for (uint i = 0 ; i < m_vertices.size() ; ++i) {
+    for (unsigned int i = 0 ; i < m_vertices.size() ; ++i) {
         lines_va.append(sf::Vertex(tf.transformPoint(m_vertices[i]), col));
         lines_va.append(sf::Vertex(tf.transformPoint(m_vertices[(i+1)%m_vertices.size()]), col));
     }
@@ -57,7 +57,7 @@ void ColCircle::add_gfx_lines(sf::VertexArray &lines_va, const WTransform &tf) {
     sf::Color col = m_highlight ? sf::Color::Green : sf::Color::White;
     WVec center = tf.transformPoint(0, 0);
     float angle = 4 * acos(0.f) / 32.f;
-    for (uint i = 0 ; i < 32 ; ++i) {
+    for (unsigned int i = 0 ; i < 32 ; ++i) {
         lines_va.append(sf::Vertex(WVec(center.x + sin(i*angle) * m_radius,
                                         center.y + cos(i*angle) * m_radius), col));
         lines_va.append(sf::Vertex(WVec(center.x + sin((i+1)*angle) * m_radius,
@@ -86,7 +86,7 @@ ColResult ColShape::collides(const ColShape &other) const {
     return static_collide(*this, other);
 }
 
-ColCapsule::ColCapsule(float radius, float length) : m_capsule_radius(radius) {
+ColCapsule::ColCapsule(float radius, float length) : m_capsule_radius(radius), m_length(length) {
     m_a = WVec(m_center.x, m_center.y + length / 2.f);
     m_b = WVec(m_center.x, m_center.y - length / 2.f);
     m_radius = length / 2.f + radius;
@@ -120,9 +120,21 @@ void ColCapsule::transform(const WTransform &transform) {
 void ColCapsule::add_gfx_lines(sf::VertexArray &lines_va, const WTransform &tf) {
     this->transform(tf);
     float angle = 4 * acos(0.f) / 32.f;
-    for (uint i = 0 ; i < 32 ; ++i) {
+    for (unsigned int i = 0 ; i < 32 ; ++i) {
         lines_va.append(sf::Vertex(this->get_support( WVec(sin((i)*angle), cos((i)*angle))), sf::Color::White));
         lines_va.append(sf::Vertex(this->get_support( WVec(sin((i+1)*angle), cos((i+1)*angle))), sf::Color::White));
     }
     this->transform(tf.getInverse());
+}
+
+void ColCapsule::set_length(float length) {
+    m_length = length;
+    m_a = WVec(m_center.x, m_center.y + length / 2.f);
+    m_b = WVec(m_center.x, m_center.y - length / 2.f);
+    m_radius = length / 2.f + m_capsule_radius;
+}
+
+void ColCapsule::set_capsule_radius(float radius) {
+    m_capsule_radius = radius;
+    m_radius = m_length / 2.f + m_capsule_radius;
 }

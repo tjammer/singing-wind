@@ -5,6 +5,7 @@
 #include "EntityEditor.h"
 #include "EditorStates.h"
 #include "imgui.h"
+#include "imgui-bezier.h"
 
 const char* const moveset_names = {"Protagonist\0\0"};
 const char* const movestate_names = {"OnGround\0Jumping\0Falling\0Flying\0FlyingAccel\0\0"};
@@ -72,13 +73,12 @@ void EntityIdle::update(const WVec &mpos) {
     SameLine(100);
     Text(to_string(m_entity).c_str());
 
-    Text("name:");
-    SameLine(100);
     string &_name = m_world.m_id_c[m_entity];
     vector<char> entity_name(_name.begin(), _name.end());
     entity_name.push_back('\0');
-    InputText("", &entity_name[0], entity_name.size());
-    _name = string(entity_name.begin(), entity_name.end());
+    entity_name.resize(128);
+    InputText("name", &entity_name[0], entity_name.size());
+    _name = string(&entity_name[0]);
 
     // bitset
     if (CollapsingHeader("components bitset")) {
@@ -93,7 +93,7 @@ void EntityIdle::update(const WVec &mpos) {
         CheckboxFlags(component_names.at(CGroundMove).c_str(), &flags, 1 << CGroundMove);
         CheckboxFlags(component_names.at(CJump).c_str(), &flags, 1 << CJump);
         CheckboxFlags(component_names.at(CFly).c_str(), &flags, 1 << CFly);
-        comps = {flags};
+        comps = bset(flags);
         Text(comps.to_string().c_str());
     }
 
@@ -158,17 +158,13 @@ void EntityIdle::update(const WVec &mpos) {
         switch (sc.shape->m_type) {
             case ColShapeName::ColCapsule: {
                 auto shape = dynamic_cast<ColCapsule*>(sc.shape.get());
-                float radius = shape->m_capsule_radius;
+                float radius = shape->get_capsule_radius();
                 if (DragFloat("radius", &radius)) {
-                    shape->m_capsule_radius = radius;
+                    shape->set_capsule_radius(radius);
                 }
-                float data[2] = {shape->m_a.x, shape->m_a.y};
-                if (DragFloat2("a", data)) {
-                    shape->m_a = {data[0], data[1]};
-                }
-                data[0] = shape->m_b.x; data[1] = shape->m_b.y;
-                if (DragFloat2("b", data)) {
-                    shape->m_b = {data[0], data[1]};
+                float length = shape->m_length;
+                if (DragFloat("length", &length)) {
+                    shape->set_length(length);
                 }
                 break;
             }
@@ -197,12 +193,23 @@ void EntityIdle::update(const WVec &mpos) {
     }
     // fly
     if (m_world.m_entities[m_entity].test(CFly) and CollapsingHeader("flying")) {
-        auto &gc = m_world.m_fly_c[m_entity];
-        if (DragFloat("lift", &gc.c_lift)) {}
-        if (DragFloat("stall angle", &gc.c_stall_angle)) {}
-        if (DragFloat("max angle change", &gc.c_max_change_angle)) {}
-        if (DragFloat("accel force", &gc.c_accel_force)) {}
-        if (DragFloat("accel time", &gc.c_accel_time)) {}
+        auto &fc = m_world.m_fly_c[m_entity];
+        if (DragFloat("lift", &fc.c_lift)) {}
+        if (DragFloat("stall angle", &fc.c_stall_angle)) {}
+        if (DragFloat("max angle change", &fc.c_max_change_angle)) {}
+        if (DragFloat("accel force", &fc.c_accel_force)) {}
+        if (DragFloat("accel time", &fc.c_accel_time)) {}
+        ImVec2 points[4] = {fc.from, fc.ctrl_from, fc.ctrl_to, fc.to};
+        if (Bezier("accel curve", points)) {
+            fc.from = {points[0].x, points[0].y};
+            fc.ctrl_from = {points[1].x, points[1].y};
+            fc.ctrl_to = {points[2].x, points[2].y};
+            fc.to = {points[3].x, points[3].y};
+        }
+    }
+    if (Button("save entity")) {
+        save_entity(m_world, m_entity);
+
     }
     End();
 }

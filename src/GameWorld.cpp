@@ -6,13 +6,15 @@
 #include "triangulate.h"
 #include "entities.h"
 #include "systems.h"
+#include "Editor.h"
+#include "assert.h"
 
 void GameWorld::update_triangles() {
     std::vector<WVec> triangles;
     m_grid.clear();
     for (const auto &island : m_islands) {
         triangulate_island(island, triangles);
-        for (uint i = 0 ; i < triangles.size() / 3 ; ++i) {
+        for (unsigned int i = 0 ; i < triangles.size() / 3 ; ++i) {
             auto p1 = m_pos_c[0].global_transform.transformPoint(triangles[i*3]);
             auto p2 = m_pos_c[0].global_transform.transformPoint(triangles[i*3+1]);
             auto p3 = m_pos_c[0].global_transform.transformPoint(triangles[i*3+2]);
@@ -26,7 +28,9 @@ GameWorld::GameWorld() {
     // create root
     auto root = create_root(*this, {0, 0}, 0);
     //create_coll_test(*this, {0, 0}, root);
-    Protagonist::create_player(*this, {0, 0}, root);
+    //Protagonist::create_player(*this, {0, 0}, root);
+    assert(load_entity("player"));
+    assert(m_entities.size() == 2);
 }
 
 void GameWorld::draw(sf::RenderWindow &window) {
@@ -58,6 +62,7 @@ unsigned int GameWorld::create_entity() {
 
     // each component needs to be resized
     m_entities.push_back(0);
+    m_id_c.push_back(IdComponent());
 
     return entity;
 }
@@ -105,4 +110,11 @@ void GameWorld::find_entities_draw() {
             m_debug_draw_ents.push_back(i);
         }
     }
+}
+
+bool GameWorld::load_entity(const std::string &name) {
+    std::string filename = "scenes/" + name + ".went";
+    unsigned int ent = create_entity();
+
+    return load_entity_from_filename(filename, *this, ent);
 }

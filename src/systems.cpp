@@ -103,7 +103,8 @@ void static_col_update(GameWorld &world, const std::vector<unsigned int> &entiti
 void input_update(GameWorld &world, const WVec &mouse, const std::vector<unsigned int> &entities) {
     for (const auto entity : entities) {
         auto &ic = world.m_input_c[entity];
-        world.m_input_c[entity].input_func(ic, mouse);
+        input_funcs.at(ic.input_func)(ic, mouse);
+
     }
 }
 

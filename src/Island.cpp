@@ -11,7 +11,7 @@ Island::Island(WVec pos, float spread) {
     m_points.push_back(pos + WVec( spread, -spread));
     m_points.push_back(pos + WVec(-spread, -spread));
 
-    for (uint i = 0; i < m_points.size(); ++i) {
+    for (unsigned int i = 0; i < m_points.size(); ++i) {
         auto& from = m_points[i];
         auto& to = m_points[(i+1)%m_points.size()];
 
@@ -54,7 +54,7 @@ std::vector<sf::Vertex> Island::get_ctrl_points(float spread) const {
 std::vector<sf::Vertex> Island::get_curves(float distance) {
     std::vector<sf::Vertex> out;
     auto size = m_points.size();
-    for (uint i = 0; i < size; ++i) {
+    for (unsigned int i = 0; i < size; ++i) {
         BCurve curve = BCurve{m_points[i], m_ctrl_points[i*2], m_ctrl_points[i*2 +1], m_points[(i+1)%size]};
         auto vecs = curve.line_along_curve(distance);
         for (auto v : vecs) {

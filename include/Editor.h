@@ -37,7 +37,7 @@ public:
     ~EngineEditorState() = default;
 
 private:
-    GameWorld &game_world;
+    GameWorld &m_game_world;
     std::unique_ptr<BaseEditorSubState> m_state;
     // last frame
     std::unordered_map<EditorButtons, bool> m_pressed;
@@ -50,7 +50,7 @@ private:
 
     void update_world();
     bool load_scene(const std::string &name);
-    void save_scene(const std::string &name);
+    void save_scene(const std::string &name) const;
 
     // zoom
     float m_zoom = 1.f;
@@ -73,5 +73,8 @@ public:
 
 
 using EditorSubState = std::unique_ptr<BaseEditorSubState>;
+
+bool load_entity_from_filename(const std::string &name, GameWorld &game_world, unsigned int entity);
+void save_entity(const GameWorld &game_world, unsigned int entity);
 
 #endif //SINGING_WIND_EDITOR_H

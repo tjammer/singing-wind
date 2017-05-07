@@ -19,14 +19,16 @@ message Island {
 
 // dont save pos for single entity export
 message Entity {
-    uint32 index = 1;
     Bitset bitset = 2;
     PosComponent pos_c = 3;
-    DebugComponent debug_c = 4;
     InputComponent input_c = 5;
     MoveComponent move_c = 6;
     StaticColComponent static_col_c = 7;
     string name = 8;
+    GroundMoveComponent ground_move_c = 9;
+    JumpComponent jump_c = 10;
+    FlyComponent fly_c = 11;
+
 }
 
 message Bitset {
@@ -37,10 +39,6 @@ message PosComponent {
     Point position = 1;
     float rotation = 2;
     uint32 parent = 3;
-}
-
-message DebugComponent {
-    int32 shape = 1;
 }
 
 message InputComponent {
@@ -55,4 +53,33 @@ message MoveComponent {
 message StaticColComponent {
     int32 shape = 1;
     int32 col_response = 2;
+    //capsule
+    float length = 3;
+    float radius = 4;
 }
+
+message GroundMoveComponent {
+    float accel = 1;
+    float stop_friction = 2;
+    float turn_mod = 3;
+}
+
+message JumpComponent {
+    float accel = 1;
+    float turn_mod = 2;
+    float jump_speed = 3;
+}
+
+message FlyComponent {
+    float lift = 1;
+    float stall_angle = 2;
+    float max_change_angle = 3;
+    float accel_force = 4;
+    float accel_time = 5;
+
+    // bcurve for acceling
+    Point from = 6;
+    Point ctrl_from = 7;
+    Point ctrl_to = 8;
+    Point to = 9;
+};

@@ -72,8 +72,14 @@ public:
     ColCapsule(float radius, float length);
     ~ColCapsule() = default;
 
-    float m_capsule_radius;
+    float get_capsule_radius() const {return m_capsule_radius;}
+    void set_length(float length);
+    void set_capsule_radius(float radius);
+
     float m_radius;
+    float m_length;
+private:
+    float m_capsule_radius;
     WVec m_a;
     WVec m_b;
 };

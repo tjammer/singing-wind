@@ -62,7 +62,7 @@ inline WVec w_tangent(const WVec &v) {
 
 template<typename T>
 void clear_arr(std::deque<T> &arr, const T &val) {
-    for (uint i = 0; i < arr.size(); ++i) {
+    for (unsigned int i = 0; i < arr.size(); ++i) {
         arr[i] = val;
     }
 }
