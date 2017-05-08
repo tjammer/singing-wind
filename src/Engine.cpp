@@ -9,7 +9,7 @@
 Engine::Engine(sf::RenderWindow &window) : window(window) {
     m_states.emplace_back(new Game);
     m_game_index = m_states.size() - 1;
-    m_states.emplace_back(new EngineEditorState("scenes/debug.wscn", get_world()));
+    m_states.emplace_back(new EngineEditorState("debug", get_world()));
     m_editor_index = m_states.size() - 1;
     // transition to editor
     m_states[m_game_index]->pause();

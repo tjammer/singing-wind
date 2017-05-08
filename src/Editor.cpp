@@ -133,10 +133,11 @@ bool EngineEditorState::load_scene(const std::string &name) {
     using namespace std;
     auto &islands = m_game_world.get_islands_ref();
 
-    fstream scene_file(name, ios::in | ios::binary);
+    string filename = "scenes/" + name + ".wscn";
+    fstream scene_file(filename, ios::in | ios::binary);
     scene::Scene pb_scene;
     if (!scene_file) {
-        cout << "File not found." << endl;
+        cout << "File not found." << filename << endl;
         return false;
     }
     pb_scene.ParseFromIstream(&scene_file);
@@ -208,7 +209,8 @@ inline void new_scene(GameWorld& world) {
 
 bool EngineEditorState::main_menu() {
     bool rtn = false;
-    bool load = false;
+    bool load_ent = false;
+    bool load_scn = false;
     bool save = false;
     static std::string ent_name = "";
 
@@ -224,7 +226,11 @@ bool EngineEditorState::main_menu() {
                 rtn = true;
             }
             if (ImGui::MenuItem("load entity")) {
-                load = true;
+                load_ent = true;
+                rtn = true;
+            }
+            if (ImGui::MenuItem("load scene")) {
+                load_scn = true;
                 rtn = true;
             }
             ImGui::EndMenu();
@@ -232,7 +238,7 @@ bool EngineEditorState::main_menu() {
         ImGui::EndMainMenuBar();
     }
 
-    if (load) {
+    if (load_ent) {
         ImGui::OpenPopup("load entity");
     }
     if (ImGui::BeginPopup("load entity")) {
@@ -260,6 +266,23 @@ bool EngineEditorState::main_menu() {
         ent_name = std::string(&scene_name[0]);
         if (ImGui::Button("save scene")) {
             save_scene(ent_name);
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+        rtn = true;
+    }
+
+    if (load_scn) {
+        ImGui::OpenPopup("load scene");
+    }
+    if (ImGui::BeginPopup("load scene")) {
+        std::vector<char> scene_name(ent_name.begin(), ent_name.end());
+        scene_name.push_back('\0');
+        scene_name.resize(128);
+        ImGui::InputText("scene name", &scene_name[0], scene_name.size());
+        ent_name = std::string(&scene_name[0]);
+        if (ImGui::Button("load scene")) {
+            load_scene(ent_name);
             ImGui::CloseCurrentPopup();
         }
         ImGui::EndPopup();
