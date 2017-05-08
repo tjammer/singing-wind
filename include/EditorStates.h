@@ -14,8 +14,6 @@ public:
     EditorSubState confirm(GameWorld &world) override;
     EditorSubState cancel() override;
     EditorSubState move(GameWorld &world) override;
-    EditorSubState insert_item(GameWorld &) override {return EditorSubState(new IslandIdle(m_island));}
-    EditorSubState delete_item(GameWorld &) override {return EditorSubState(new IslandIdle(m_island));}
     // extra fct so only do this per mouse in the menu
     EditorSubState delete_island(GameWorld &world);
     EditorSubState menu(GameWorld &world) override;
@@ -33,9 +31,6 @@ public:
     EditorSubState update(const WVec &mpos) override;
     EditorSubState confirm(GameWorld &) override {return EditorSubState(new IslandIdle(m_island));}
     EditorSubState cancel() override;
-    EditorSubState move(GameWorld &) override {return EditorSubState(new IslandMove(m_island, m_mpos));}
-    EditorSubState insert_item(GameWorld &) override {return cancel();}
-    EditorSubState delete_item(GameWorld &) override {return cancel();}
     EditorSubState menu(GameWorld &world) override;
     void draw(GameWorld &world, sf::RenderWindow &window) override;
 
@@ -44,7 +39,7 @@ public:
 
 private:
     Island &m_island;
-    WVec m_diff = {0, 0};
+    WVec m_diff;
 
 };
 
@@ -55,7 +50,6 @@ public:
     EditorSubState cancel() override {return EditorSubState(new IslandIdle(m_island));}
     EditorSubState move(GameWorld &) override {return EditorSubState(new CurveIdle(m_curve, m_island));}
     EditorSubState insert_item(GameWorld &world) override;
-    EditorSubState delete_item(GameWorld &) override {return EditorSubState(new IslandIdle(m_island));}
     EditorSubState menu(GameWorld &world) override;
     void print_formatted_bezier();
 
@@ -73,8 +67,6 @@ public:
     void draw(GameWorld &world, sf::RenderWindow &window) override;
     EditorSubState confirm(GameWorld &) override {return EditorSubState(new IslandIdle(m_island));}
     EditorSubState cancel() override;
-    EditorSubState move(GameWorld &) override {return EditorSubState(new IslandIdle(m_island));}
-    EditorSubState insert_item(GameWorld &) override {return EditorSubState(new IslandIdle(m_island));}
     EditorSubState delete_item(GameWorld &world) override;
     EditorSubState menu(GameWorld &world) override;
 
@@ -97,9 +89,6 @@ public:
     EditorSubState update(const WVec &mpos) override;
     EditorSubState confirm(GameWorld &world) override;
     EditorSubState cancel() override {return EditorSubState(new IslandIdle(m_island));}
-    EditorSubState delete_item(GameWorld &) override {return EditorSubState(new IslandIdle(m_island));}
-    EditorSubState insert_item(GameWorld &) override {return EditorSubState(new IslandIdle(m_island));}
-    EditorSubState move(GameWorld &) override {return EditorSubState(new CurveInsert(m_curve, m_island));}
     EditorSubState menu(GameWorld &world) override;
 
     CurveInsert(BCurve curve, Island &active);
@@ -115,10 +104,7 @@ class EditorIdle : public BaseEditorSubState {
 public:
     void draw(GameWorld &world, sf::RenderWindow &window) override;
     EditorSubState confirm(GameWorld &world) override;
-    EditorSubState cancel() override {return EditorSubState(new EditorIdle);}
-    EditorSubState delete_item(GameWorld &) override {return EditorSubState(new EditorIdle);}
     EditorSubState insert_item(GameWorld &world) override;
-    EditorSubState move(GameWorld &) override {return EditorSubState(new EditorIdle);}
     EditorSubState menu(GameWorld &world) override;
 };
 

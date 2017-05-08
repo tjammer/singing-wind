@@ -23,26 +23,6 @@ const std::unordered_map<Components, std::string> component_names = {
 const char* const colshape_names = {"Triangle\0Circle\0Capsule\0\0"};
 const char* const col_responses = {"Actor\0\0"};
 
-EditorSubState EntityIdle::cancel() {
-    return EditorSubState(new EditorIdle);
-}
-
-EditorSubState EntityIdle::move(GameWorld &world) {
-    return EditorSubState(new EntityIdle(world, m_entity));
-}
-
-EditorSubState EntityIdle::insert_item(GameWorld &world) {
-    return EditorSubState(new EntityIdle(world, m_entity));
-}
-
-EditorSubState EntityIdle::delete_item(GameWorld &world) {
-    return EditorSubState(new EntityIdle(world, m_entity));
-}
-
-EditorSubState EntityIdle::menu(GameWorld &world) {
-    return EditorSubState(new EntityIdle(world, m_entity));
-}
-
 void EntityIdle::draw(GameWorld &world, sf::RenderWindow &window) {
     bset debug_draw; debug_draw.set(CPosition); debug_draw.set(CDebugDraw);
 
@@ -55,10 +35,6 @@ void EntityIdle::draw(GameWorld &world, sf::RenderWindow &window) {
     auto va = sf::VertexArray(sf::Lines);
     circle.add_gfx_lines(va, world.m_pos_c[m_entity].global_transform);
     window.draw(va);
-}
-
-EditorSubState EntityIdle::confirm(GameWorld &world) {
-    return EditorSubState(new EntityIdle(world, m_entity));
 }
 
 EditorSubState EntityIdle::update(const WVec &mpos) {

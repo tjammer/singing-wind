@@ -435,7 +435,6 @@ void IslandMove::draw(GameWorld &, sf::RenderWindow &window) {
         }
     }
     window.draw(va);
-
 }
 
 EditorSubState IslandMove::update(const WVec &mpos) {
