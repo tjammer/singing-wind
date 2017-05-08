@@ -25,5 +25,20 @@ private:
     unsigned int m_entity;
 };
 
+class EntityMove : public BaseEditorSubState {
+public:
+    EditorSubState confirm(GameWorld &world) override;
+    EditorSubState update(const WVec &mpos) override;
+    EditorSubState cancel() override;
+    void draw(GameWorld &world, sf::RenderWindow &window) override;
+
+    EntityMove(GameWorld &world, unsigned int entity, const WVec &mouse);
+
+private:
+    GameWorld &m_world;
+    unsigned int m_entity;
+    WVec m_diff = {0, 0};
+};
+
 
 #endif //SINGING_WIND_ENTITYEDITOR_H

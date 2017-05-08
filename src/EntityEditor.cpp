@@ -211,11 +211,62 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
     if (Button("save entity")) {
         save_entity_standalone(m_world, m_entity);
     }
-    SameLine(150);
+    SameLine();
     if (Button("delete entity")) {
         delete_entity_from_scene(m_world, m_entity);
         transition = EditorSubState(new EditorIdle);
     }
+    SameLine();
+    if (Button("move entity")) {
+        transition = EditorSubState(new EntityMove(m_world, m_entity, m_mpos));
+    }
     End();
     return transition;
+}
+
+void EntityMove::draw(GameWorld &world, sf::RenderWindow &window) {
+    bset debug_draw; debug_draw.set(CPosition); debug_draw.set(CDebugDraw);
+
+    if (!for_gameworld::has_component(world.m_entities[m_entity], debug_draw))  {
+        return;
+    }
+    const auto &shape = world.m_debug_c[m_entity].shape;
+    auto circle = ColCircle(shape->get_radius());
+    circle.m_highlight = true;
+    auto va = sf::VertexArray(sf::Lines);
+    circle.add_gfx_lines(va, world.m_pos_c[m_entity].global_transform);
+    window.draw(va);
+}
+
+EditorSubState EntityMove::cancel() {
+    auto &pc = m_world.m_pos_c[m_entity];
+
+    pc.position += m_diff;
+    pc.global_transform = WTransform().combine(m_world.m_pos_c[pc.parent].global_transform).translate(pc.position).rotate(pc.rotation);
+
+    return EditorSubState(new EntityIdle(m_world, m_entity));
+}
+
+EntityMove::EntityMove(GameWorld &world, unsigned int entity, const WVec &mouse)
+    : m_world(world), m_entity(entity) {
+    m_diff = m_world.m_pos_c[m_entity].position - mouse;
+    m_mpos = mouse;
+    m_world.m_pos_c[m_entity].position = mouse;
+}
+
+EditorSubState EntityMove::update(const WVec &mpos) {
+    auto &pc = m_world.m_pos_c[m_entity];
+
+    auto diff = m_mpos - mpos;
+    m_diff += diff;
+    BaseEditorSubState::update(mpos);
+
+    pc.position -= diff;
+    pc.global_transform = WTransform().combine(m_world.m_pos_c[pc.parent].global_transform).translate(pc.position).rotate(pc.rotation);
+
+    return nullptr;
+}
+
+EditorSubState EntityMove::confirm(GameWorld &) {
+    return EditorSubState(new EntityIdle(m_world, m_entity));
 }

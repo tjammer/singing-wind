@@ -64,12 +64,12 @@ class BaseEditorSubState {
 public:
     virtual EditorSubState update(const WVec &mpos) { m_mpos = mpos; return nullptr;}
     virtual void draw(GameWorld &world, sf::RenderWindow &window) = 0;
-    virtual EditorSubState confirm(GameWorld &world) = 0;
-    virtual EditorSubState cancel() = 0;
-    virtual EditorSubState move(GameWorld &world) = 0;
-    virtual EditorSubState insert_item(GameWorld &world) = 0;
-    virtual EditorSubState delete_item(GameWorld &world) = 0;
-    virtual EditorSubState menu(GameWorld &world) = 0;
+    virtual EditorSubState confirm(GameWorld &) {return nullptr;}
+    virtual EditorSubState cancel() {return nullptr;}
+    virtual EditorSubState move(GameWorld &) {return nullptr;}
+    virtual EditorSubState insert_item(GameWorld &) {return nullptr;}
+    virtual EditorSubState delete_item(GameWorld &) {return nullptr;}
+    virtual EditorSubState menu(GameWorld &) {return nullptr;}
 
     WVec m_mpos;
 };

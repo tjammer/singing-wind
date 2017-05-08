@@ -68,30 +68,47 @@ void EngineEditorState::update(Engine &engine) {
     }
 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) and not m_pressed[Confirm]) {
-        m_state = m_state->confirm(m_game_world);
-        update_world();
+        transition = m_state->confirm(m_game_world);
+        if (transition != nullptr) {
+            m_state = std::move(transition);
+            update_world();
+        }
     }
     m_pressed[Confirm] = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) and not m_pressed[Cancel]) {
-        m_state = m_state->cancel();
+        transition = m_state->cancel();
+        if (transition != nullptr) {
+            m_state = std::move(transition);
+            update_world();
+        }
     }
     m_pressed[Cancel] = sf::Keyboard::isKeyPressed(sf::Keyboard::Escape);
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::G) and not m_pressed[Move]) {
-        m_state = m_state->move(m_game_world);
+        transition = m_state->move(m_game_world);
+        if (transition != nullptr) {
+            m_state = std::move(transition);
+            update_world();
+        }
     }
     m_pressed[Move] = sf::Keyboard::isKeyPressed(sf::Keyboard::G);
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::I) and not m_pressed[Insert]) {
-        m_state = m_state->insert_item(m_game_world);
-        update_world();
+        transition = m_state->insert_item(m_game_world);
+        if (transition != nullptr) {
+            m_state = std::move(transition);
+            update_world();
+        }
     }
     m_pressed[Insert] = sf::Keyboard::isKeyPressed(sf::Keyboard::I);
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) and not m_pressed[Delete]) {
-        m_state = m_state->delete_item(m_game_world);
-        update_world();
+        transition = m_state->delete_item(m_game_world);
+        if (transition != nullptr) {
+            m_state = std::move(transition);
+            update_world();
+        }
     }
     m_pressed[Delete] = sf::Keyboard::isKeyPressed(sf::Keyboard::D);
 
