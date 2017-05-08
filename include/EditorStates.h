@@ -30,7 +30,7 @@ private:
 
 class IslandMove : public BaseEditorSubState {
 public:
-    void update(const WVec& mpos) override;
+    EditorSubState update(const WVec &mpos) override;
     EditorSubState confirm(GameWorld &) override {return EditorSubState(new IslandIdle(m_island));}
     EditorSubState cancel() override;
     EditorSubState move(GameWorld &) override {return EditorSubState(new IslandMove(m_island, m_mpos));}
@@ -69,7 +69,7 @@ private:
 
 class PointEdit : public BaseEditorSubState {
 public:
-    void update(const WVec& mpos) override;
+    EditorSubState update(const WVec &mpos) override;
     void draw(GameWorld &world, sf::RenderWindow &window) override;
     EditorSubState confirm(GameWorld &) override {return EditorSubState(new IslandIdle(m_island));}
     EditorSubState cancel() override;
@@ -94,7 +94,7 @@ private:
 class CurveInsert : public BaseEditorSubState {
 public:
     void draw(GameWorld &world, sf::RenderWindow &window) override;
-    void update(const WVec& mpos) override;
+    EditorSubState update(const WVec &mpos) override;
     EditorSubState confirm(GameWorld &world) override;
     EditorSubState cancel() override {return EditorSubState(new IslandIdle(m_island));}
     EditorSubState delete_item(GameWorld &) override {return EditorSubState(new IslandIdle(m_island));}

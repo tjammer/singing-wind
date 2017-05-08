@@ -9,7 +9,7 @@
 
 class EntityIdle : public BaseEditorSubState {
 public:
-    void update(const WVec& mpos) override;
+    EditorSubState update(const WVec &mpos) override;
     EditorSubState confirm(GameWorld &world) override;
     EditorSubState cancel() override;
     EditorSubState move(GameWorld &world) override;

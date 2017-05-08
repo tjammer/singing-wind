@@ -185,7 +185,7 @@ void CurveIdle::print_formatted_bezier() {
 }
 
 
-void PointEdit::update(const WVec &mpos) {
+EditorSubState PointEdit::update(const WVec &mpos) {
     auto diff = m_mpos - mpos;
     BaseEditorSubState::update(mpos);
     m_point -= diff;
@@ -193,6 +193,7 @@ void PointEdit::update(const WVec &mpos) {
         m_c1 -= diff;
         m_c2 -= diff;
     }
+    return nullptr;
 }
 
 EditorSubState PointEdit::cancel() {
@@ -291,7 +292,7 @@ void CurveInsert::draw(GameWorld &, sf::RenderWindow &window) {
 CurveInsert::CurveInsert(BCurve curve, Island &active) : m_curve(curve), m_island(active) {
 }
 
-void CurveInsert::update(const WVec &mpos) {
+EditorSubState CurveInsert::update(const WVec &mpos) {
     BaseEditorSubState::update(mpos);
     auto to = (m_mpos - m_curve.to);
     auto from = (m_mpos - m_curve.from);
@@ -302,6 +303,7 @@ void CurveInsert::update(const WVec &mpos) {
     else {
         m_new_point_t = 1.f - w_magnitude(to) / (w_magnitude(from) + w_magnitude(to));
     }
+    return nullptr;
 }
 
 EditorSubState CurveInsert::confirm(GameWorld &) {
@@ -436,7 +438,7 @@ void IslandMove::draw(GameWorld &, sf::RenderWindow &window) {
 
 }
 
-void IslandMove::update(const WVec &mpos) {
+EditorSubState IslandMove::update(const WVec &mpos) {
     auto diff = m_mpos - mpos;
     m_diff += diff;
     BaseEditorSubState::update(mpos);
@@ -446,6 +448,7 @@ void IslandMove::update(const WVec &mpos) {
     for (auto &point : m_island.m_ctrl_points) {
         point -= diff;
     }
+    return nullptr;
 }
 
 EditorSubState IslandMove::cancel() {

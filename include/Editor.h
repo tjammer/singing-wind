@@ -58,25 +58,27 @@ private:
     bool m_update_view = false;
 };
 
+using EditorSubState = std::unique_ptr<BaseEditorSubState>;
+
 class BaseEditorSubState {
 public:
-    virtual void update(const WVec& mpos) {m_mpos = mpos;};
+    virtual EditorSubState update(const WVec &mpos) { m_mpos = mpos; return nullptr;}
     virtual void draw(GameWorld &world, sf::RenderWindow &window) = 0;
-    virtual std::unique_ptr<BaseEditorSubState> confirm(GameWorld &world) = 0;
-    virtual std::unique_ptr<BaseEditorSubState> cancel() = 0;
-    virtual std::unique_ptr<BaseEditorSubState> move(GameWorld &world) = 0;
-    virtual std::unique_ptr<BaseEditorSubState> insert_item(GameWorld &world) = 0;
-    virtual std::unique_ptr<BaseEditorSubState> delete_item(GameWorld &world) = 0;
-    virtual std::unique_ptr<BaseEditorSubState> menu(GameWorld &world) = 0;
+    virtual EditorSubState confirm(GameWorld &world) = 0;
+    virtual EditorSubState cancel() = 0;
+    virtual EditorSubState move(GameWorld &world) = 0;
+    virtual EditorSubState insert_item(GameWorld &world) = 0;
+    virtual EditorSubState delete_item(GameWorld &world) = 0;
+    virtual EditorSubState menu(GameWorld &world) = 0;
 
     WVec m_mpos;
 };
 
-using EditorSubState = std::unique_ptr<BaseEditorSubState>;
 
 bool load_entity_from_filename(const std::string &name, GameWorld &game_world, unsigned int entity);
 scene::Entity * get_pb_entity(const GameWorld &game_world, unsigned int entity);
 bool save_entity_standalone(const GameWorld &game_world, unsigned int entity);
+void delete_entity_from_scene(GameWorld &game_world, unsigned int entity);
 void entity_to_world(const scene::Entity& entity, GameWorld &game_world, unsigned int);
 
 #endif //SINGING_WIND_EDITOR_H

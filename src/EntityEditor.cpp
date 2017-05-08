@@ -61,11 +61,12 @@ EditorSubState EntityIdle::confirm(GameWorld &world) {
     return EditorSubState(new EntityIdle(world, m_entity));
 }
 
-void EntityIdle::update(const WVec &mpos) {
+EditorSubState EntityIdle::update(const WVec &mpos) {
     using namespace std;
     using namespace ImGui;
     BaseEditorSubState::update(mpos);
 
+    EditorSubState transition = nullptr;
 
     Begin("Entity Editor");
     // base information
@@ -210,5 +211,11 @@ void EntityIdle::update(const WVec &mpos) {
     if (Button("save entity")) {
         save_entity_standalone(m_world, m_entity);
     }
+    SameLine(150);
+    if (Button("delete entity")) {
+        delete_entity_from_scene(m_world, m_entity);
+        transition = EditorSubState(new EditorIdle);
+    }
     End();
+    return transition;
 }

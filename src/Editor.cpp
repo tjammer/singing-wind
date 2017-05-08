@@ -61,7 +61,11 @@ void EngineEditorState::update(Engine &engine) {
         return;
     }
 
-    m_state->update(mouse);
+    auto transition = m_state->update(mouse);
+    if (transition != nullptr) {
+        m_state = std::move(transition);
+        update_world();
+    }
 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) and not m_pressed[Confirm]) {
         m_state = m_state->confirm(m_game_world);
@@ -504,5 +508,9 @@ bool load_entity_from_filename(const std::string &name, GameWorld &game_world, u
     entity_to_world(pb_entity, game_world, entity);
 
     return true;
+}
+
+void delete_entity_from_scene(GameWorld &game_world, unsigned int entity) {
+    game_world.delete_entity_raw(entity);
 }
 

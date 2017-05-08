@@ -51,6 +51,7 @@ public:
     unsigned int create_entity();
     bool load_entity(const std::string &name);
     void create_root();
+    void delete_entity_raw(unsigned int entity);
 
     // members
     StaticGrid m_grid;
