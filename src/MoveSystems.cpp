@@ -85,7 +85,7 @@ inline void fly(GameWorld & world, unsigned int entity) {
     auto &mc = world.m_move_c[entity];
     auto &fc = world.m_fly_c[entity];
 
-    mc.accel.y -= c_gravity * 0.6f;
+    mc.accel.y -= c_gravity * 0.5f;
 
     auto air_dir = w_normalize(mc.velocity);
     auto glide_dir = w_rotated_deg(WVec(0, -1), pc.rotation);
@@ -154,12 +154,12 @@ void ::protagonist::jumping(GameWorld &world, unsigned int entity) {
     auto &jc = world.m_jump_c[entity];
 
     if (mc.movestate == MoveState::Jumping) {
-        //mc.accel.y -= c_gravity * 0.5f;
+        mc.accel.y -= c_gravity * 0.1f;
         if (mc.velocity.y > 0) {
             to_falling(mc);
         }
         if (!ic.jump[0]) {
-            mc.velocity.y *= 0.3f;
+            mc.velocity.y *= 0;
             to_falling(mc);
         }
     }
