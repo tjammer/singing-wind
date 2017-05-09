@@ -200,6 +200,14 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
     return transition;
 }
 
+EditorSubState EntityIdle::cancel() {
+    return EditorSubState(new EditorIdle);
+}
+
+EditorSubState EntityIdle::move(GameWorld &) {
+    return EditorSubState(new EntityMove(m_world, m_entity, m_mpos));
+}
+
 void EntityMove::draw(GameWorld &world, sf::RenderWindow &window) {
     bset debug_draw; debug_draw.set(CPosition); debug_draw.set(CDebugDraw);
 

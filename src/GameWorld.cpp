@@ -140,6 +140,6 @@ void GameWorld::delete_entity_raw(unsigned int entity) {
     m_ground_move_c.erase(entity);
     m_jump_c.erase(entity);
     m_fly_c.erase(entity);
-    m_id_c.erase(std::remove(m_id_c.begin(), m_id_c.end(), m_id_c[entity]), m_id_c.end());
-    m_entities.erase(std::remove(m_entities.begin(), m_entities.end(), m_entities[entity]), m_entities.end());
+    m_entities[entity].reset();
+    assert(m_entities[entity].none());
 }

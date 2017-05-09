@@ -11,6 +11,8 @@ class EntityIdle : public BaseEditorSubState {
 public:
     EditorSubState update(const WVec &mpos) override;
     void draw(GameWorld &world, sf::RenderWindow &window) override;
+    EditorSubState move(GameWorld &) override;
+    EditorSubState cancel() override;
 
     EntityIdle(GameWorld &world, unsigned int entity) : m_world(world), m_entity(entity) {}
 
