@@ -60,7 +60,7 @@ const float c_velocity_scaling = 1200;
 
 inline float calc_drag(float angle, float vel_mag) {
     auto drag_coeff = c_drag * exp(vel_mag / c_velocity_scaling);
-    return drag_coeff * expf(-powf(angle - c_half_pi, 2.f) * 1.5f);
+    return drag_coeff * expf(-powf(angle - c_half_pi, 2.f) * 1.4f);
 }
 
 inline float calc_lift(float angle, float vel_mag, FlyComponent &fc) {
