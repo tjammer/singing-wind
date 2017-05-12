@@ -3,10 +3,6 @@ project(singing_wind)
 
 set(CMAKE_CXX_STANDARD 11)
 
-# add_definitions(-fno-exceptions -Wall)
-
-#set(CMAKE_CXX_FLAGS   "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -fno-exceptions -s")
-
 set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} -std=c++11 -fno-exceptions -W -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -std=c++11 -fno-exceptions -W -Wall -s")
 

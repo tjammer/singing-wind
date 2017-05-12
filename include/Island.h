@@ -6,6 +6,7 @@
 #define SINGING_WIND_ISLAND_H
 
 #include "WindDefs.h"
+#include <SFML/Graphics.hpp>
 
 class Island {
 public:

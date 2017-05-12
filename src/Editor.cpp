@@ -9,6 +9,7 @@
 #include <iostream>
 #include <fstream>
 #include <Scene.pb.h>
+#include <glm/gtx/matrix_transform_2d.hpp>
 
 const float zoom_constant = 0.05f;
 
@@ -61,7 +62,7 @@ void EngineEditorState::update(Engine &engine) {
         return;
     }
 
-    auto transition = m_state->update(mouse);
+    auto transition = m_state->update({mouse.x, mouse.y});
     if (transition != nullptr) {
         m_state = std::move(transition);
         update_world();
@@ -118,7 +119,7 @@ void EngineEditorState::update(Engine &engine) {
     if (sf::Mouse::isButtonPressed(sf::Mouse::Middle)) {
         auto diff = WVec(idiff.x, idiff.y);
         auto view = window.getView();
-        view.move(-diff * m_zoom);
+        view.move({-diff.x * m_zoom, -diff.y * m_zoom});
         engine.set_view(view);
     }
 
@@ -444,8 +445,8 @@ void entity_to_world(const scene::Entity &pb_entity, GameWorld &game_world, unsi
         game_world.m_pos_c[entity].rotation = pos_c.rotation();
         game_world.m_pos_c[entity].position = WVec(pos_c.position().x(), pos_c.position().y());
         game_world.m_pos_c[entity].parent = pos_c.parent();
-        game_world.m_pos_c[entity].global_transform = WTransform().combine(game_world.m_pos_c[pos_c.parent()].
-                global_transform).translate(game_world.m_pos_c[entity].position).rotate(pos_c.rotation());
+        game_world.m_pos_c[entity].global_transform = glm::rotate(glm::translate(game_world.m_pos_c[pos_c.parent()].
+                global_transform, game_world.m_pos_c[entity].position), pos_c.rotation());
     }
 
     // input_c

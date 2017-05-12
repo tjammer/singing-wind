@@ -81,19 +81,19 @@ void CurveIdle::draw(GameWorld &, sf::RenderWindow &window) {
     auto va = get_island_vertex_array(m_island);
     sf::VertexArray lines(sf::Lines);
     for (auto v : m_curve.line_along_curve(c_line_draw_distance)) {
-        va.append(sf::Vertex(v, sf::Color(128, 8, 128)));
+        va.append(sf::Vertex({v.x, v.y}, sf::Color(128, 8, 128)));
     }
 
     for (const auto& point : {m_curve.from, m_curve.ctrl_from, m_curve.ctrl_to, m_curve.to}) {
         for (const auto& v : make_quad(point, c_ctrl_point_size)) {
-            va.append(sf::Vertex(v, sf::Color(255, 255, 255)));
+            va.append(sf::Vertex({v.x, v.y}, sf::Color(255, 255, 255)));
         }
     }
 
-    lines.append(sf::Vertex(m_curve.from, sf::Color(255, 255, 255)));
-    lines.append(sf::Vertex(m_curve.ctrl_from, sf::Color(255, 255, 255)));
-    lines.append(sf::Vertex(m_curve.ctrl_to, sf::Color(255, 255, 255)));
-    lines.append(sf::Vertex(m_curve.to, sf::Color(255, 255, 255)));
+    lines.append(sf::Vertex({m_curve.from.x, m_curve.from.y}, sf::Color(255, 255, 255)));
+    lines.append(sf::Vertex({m_curve.ctrl_from.x, m_curve.ctrl_from.y}, sf::Color(255, 255, 255)));
+    lines.append(sf::Vertex({m_curve.ctrl_to.x, m_curve.ctrl_to.y}, sf::Color(255, 255, 255)));
+    lines.append(sf::Vertex({m_curve.to.x, m_curve.to.y}, sf::Color(255, 255, 255)));
 
     window.draw(lines);
     window.draw(va);
@@ -210,7 +210,7 @@ void PointEdit::draw(GameWorld &, sf::RenderWindow &window) {
     auto va = get_island_vertex_array(m_island);
     window.draw(va);
     for (const auto &v : make_quad(m_point, c_point_size)) {
-        va.append(sf::Vertex(v, sf::Color(128, 8, 128)));
+        va.append(sf::Vertex({v.x, v.y}, sf::Color(128, 8, 128)));
     }
     window.draw(va);
 }
@@ -281,11 +281,11 @@ void CurveInsert::draw(GameWorld &, sf::RenderWindow &window) {
     float t_high = fmin(m_new_point_t + 0.01f, 1.f);
 
     auto base = m_curve.eval(t_low);
-    va.append(sf::Vertex(base + m_curve.eval_perpendicular(t_low) * c_line_size, sf::Color(128, 8, 128)));
-    va.append(sf::Vertex(base - m_curve.eval_perpendicular(t_low) * c_line_size, sf::Color(128, 8, 128)));
+    va.append(sf::Vertex({(base + m_curve.eval_perpendicular(t_low) * c_line_size).x, (base + m_curve.eval_perpendicular(t_low) * c_line_size).y}, sf::Color(128, 8, 128)));
+    va.append(sf::Vertex({(base - m_curve.eval_perpendicular(t_low) * c_line_size).x, (base - m_curve.eval_perpendicular(t_low) * c_line_size).y}, sf::Color(128, 8, 128)));
     base = m_curve.eval(t_high);
-    va.append(sf::Vertex(base - m_curve.eval_perpendicular(t_high) * c_line_size, sf::Color(128, 8, 128)));
-    va.append(sf::Vertex(base + m_curve.eval_perpendicular(t_high) * c_line_size, sf::Color(128, 8, 128)));
+    va.append(sf::Vertex({(base - m_curve.eval_perpendicular(t_high) * c_line_size).x, (base - m_curve.eval_perpendicular(t_high) * c_line_size).y}, sf::Color(128, 8, 128)));
+    va.append(sf::Vertex({(base + m_curve.eval_perpendicular(t_high) * c_line_size).x, (base + m_curve.eval_perpendicular(t_high) * c_line_size).y}, sf::Color(128, 8, 128)));
     window.draw(va);
 }
 
@@ -364,7 +364,7 @@ EditorSubState EditorIdle::confirm(GameWorld &world) {
     for (unsigned int i = 0 ; i < world.m_entities.size() ; ++i) {
         bset pos_set{ (1 << CPosition) | (1 << CDebugDraw) };
         if (for_gameworld::has_component(world.m_entities[i], pos_set)) {
-            float dist_to_point = w_magnitude(m_mpos - world.m_pos_c[i].global_transform.transformPoint(0, 0));
+            float dist_to_point = w_magnitude(m_mpos - WVec(world.m_pos_c[i].global_transform * WVec3(0, 0, 1)));
             if (dist_to_point < dist) {
                 dist = dist_to_point;
                 index = i;
@@ -431,7 +431,7 @@ void IslandMove::draw(GameWorld &, sf::RenderWindow &window) {
     window.draw(va);
     for (const auto &point : m_island.m_points) {
         for (const auto &v : make_quad(point, c_point_size)) {
-            va.append(sf::Vertex(v, sf::Color(128, 8, 128)));
+            va.append(sf::Vertex({v.x, v.y}, sf::Color(128, 8, 128)));
         }
     }
     window.draw(va);

@@ -4,6 +4,7 @@
 
 #include "entities.h"
 #include <assert.h>
+#include <glm/gtx/matrix_transform_2d.hpp>
 
 unsigned int Entities::create_root(GameWorld &game_world, const WVec &position, unsigned int parent) {
     // create root
@@ -18,8 +19,7 @@ unsigned int Entities::create_root(GameWorld &game_world, const WVec &position, 
     game_world.m_id_c[root] = "root";
     game_world.m_pos_c[root].position = position;
     game_world.m_pos_c[root].parent = parent;
-    WTransform trans;
-    game_world.m_pos_c[root].global_transform = trans.translate(position);
+    game_world.m_pos_c[root].global_transform = glm::translate(WTransform(), position);
 
     return root;
 }

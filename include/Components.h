@@ -26,7 +26,7 @@ enum Components : int {
 struct PosComponent {
     WVec position = {0, 0};
     float rotation = 0.f;
-    WTransform global_transform = WTransform::Identity;
+    WTransform global_transform = WTransform();
     unsigned int parent = 0;
 };
 

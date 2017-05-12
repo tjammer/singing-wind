@@ -5,7 +5,8 @@
 #ifndef SINGING_WIND_BCURVE_H
 #define SINGING_WIND_BCURVE_H
 
-#include "WindDefs.h"
+#include <WindDefs.h>
+#include <vector>
 
 struct BCurve {
     const WVec& from;

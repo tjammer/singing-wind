@@ -17,7 +17,7 @@ void Game::update(Engine &engine) {
 
     m_timer.update();
     while (m_timer.pop_fixed()) {
-        m_game_world.step_fixed(c_fixed_timestep, mouse);
+        m_game_world.step_fixed(c_fixed_timestep, {mouse.x, mouse.y});
     }
     m_camera.update(m_game_world, engine);
 }

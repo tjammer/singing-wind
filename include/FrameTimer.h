@@ -6,6 +6,7 @@
 #define SINGING_WIND_FRAMETIMER_H
 
 #include "WindDefs.h"
+#include <SFML/System.hpp>
 
 const float c_fixed_timestep = 1.f / 60.f;
 

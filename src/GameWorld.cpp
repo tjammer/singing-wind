@@ -14,9 +14,9 @@ void GameWorld::update_triangles() {
     for (const auto &island : m_islands) {
         triangulate_island(island, triangles);
         for (unsigned int i = 0 ; i < triangles.size() / 3 ; ++i) {
-            auto p1 = m_pos_c[0].global_transform.transformPoint(triangles[i*3]);
-            auto p2 = m_pos_c[0].global_transform.transformPoint(triangles[i*3+1]);
-            auto p3 = m_pos_c[0].global_transform.transformPoint(triangles[i*3+2]);
+            auto p1 = WVec(m_pos_c[0].global_transform * WVec3(triangles[i*3], 1));
+            auto p2 = WVec(m_pos_c[0].global_transform * WVec3(triangles[i*3+1], 1));
+            auto p3 = WVec(m_pos_c[0].global_transform * WVec3(triangles[i*3+2], 1));
             m_grid.add_object(std::shared_ptr<ColShape>(new ColTriangle(p1, p2, p3)));
         }
     }

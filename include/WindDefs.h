@@ -5,17 +5,19 @@
 #ifndef SINGING_WIND_WINDDEFS_H
 #define SINGING_WIND_WINDDEFS_H
 
-#include <SFML/Graphics.hpp>
+#include <glm/glm.hpp>
+#include <ostream>
 #include <math.h>
 #include <bitset>
 #include <deque>
 
-using WVec = sf::Vector2f;
-using WTransform = sf::Transform;
+using WVec = glm::tvec2<float>;
+using WVec3 = glm::tvec3<float>;
+using WTransform = glm::mat3;
 using bset = std::bitset<12>;
 
 inline std::ostream& operator <<(std::ostream& os, const WVec &v) {
-    os << "(" <<v.x << ", " << v.y << ")";
+    os << "(" << v.x << ", " << v.y << ")";
     return os;
 }
 
@@ -51,7 +53,7 @@ inline float w_angle_to_vec(const WVec &v, const WVec &to) {
 }
 
 inline WVec w_rotated_deg(const WVec &v, float angle) {
-    float rad_angle = static_cast<float>(angle * M_PI / 180.f);
+    float rad_angle = static_cast<float>(angle);
     float v_angle = atan2(v.y, v.x);
     return WVec(cos(v_angle + rad_angle), sin(v_angle + rad_angle)) * w_magnitude(v);
 }

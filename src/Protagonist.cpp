@@ -6,6 +6,7 @@
 #include "GameWorld.h"
 #include "MoveSystems.h"
 #include "entities.h"
+#include <glm/gtx/matrix_transform_2d.hpp>
 
 using namespace Protagonist;
 
@@ -53,10 +54,9 @@ unsigned int Protagonist::create_player(GameWorld &world, const WVec &pos, unsig
     world.m_id_c[player] = "player";
     world.m_pos_c[player].position = pos;
     world.m_pos_c[player].parent = parent;
-    WTransform trans;
-    world.m_pos_c[player].global_transform = trans.translate(pos).rotate(world.m_pos_c[player].rotation);
+    world.m_pos_c[player].global_transform = glm::rotate(glm::translate(WTransform(), pos),world.m_pos_c[player].rotation);
 
-    //auto shape = std::shared_ptr<ColShape>(new ColCapsule(15, 30));
+            //auto shape = std::shared_ptr<ColShape>(new ColCapsule(15, 30));
     world.m_debug_c[player].shape = std::shared_ptr<ColShape>(new ColCapsule(15, 30));
 
     world.m_move_c[player].movestate = MoveState::OnGround;

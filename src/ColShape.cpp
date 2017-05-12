@@ -26,8 +26,8 @@ ColTriangle::ColTriangle(const WVec &p1, const WVec &p2, const WVec &p3) {
 void ColTriangle::add_gfx_lines(sf::VertexArray &lines_va, const WTransform &tf) {
     sf::Color col = m_highlight ? sf::Color::Red : sf::Color::White;
     for (unsigned int i = 0 ; i < m_vertices.size() ; ++i) {
-        lines_va.append(sf::Vertex(tf.transformPoint(m_vertices[i]), col));
-        lines_va.append(sf::Vertex(tf.transformPoint(m_vertices[(i+1)%m_vertices.size()]), col));
+        lines_va.append(sf::Vertex({(tf *  WVec3(m_vertices[i], 1)).x, (tf * WVec3(m_vertices[i], 1)).y}, col));
+        lines_va.append(sf::Vertex({(tf * WVec3(m_vertices[(i+1)%m_vertices.size()], 1)).x, (tf * WVec3(m_vertices[(i+1)%m_vertices.size()], 1)).y}, col));
     }
 }
 
@@ -46,22 +46,25 @@ WVec ColTriangle::get_support(const WVec &dir) const {
 }
 
 void ColTriangle::transform(const WTransform &transform) {
-    m_center = transform.transformPoint(m_center);
+    m_center = WVec(transform * WVec3(m_center, 1));
     for (auto &vert : m_vertices) {
-        vert = transform.transformPoint(vert);
+        vert = WVec(transform * WVec3(vert, 1));
     }
 }
 
 void ColCircle::add_gfx_lines(sf::VertexArray &lines_va, const WTransform &tf) {
     sf::Color col = m_highlight ? sf::Color::Green : sf::Color::White;
-    WVec center = tf.transformPoint(0, 0);
+    WVec center = WVec(tf * WVec3(0.f, 0.f, 1.f));
     float angle = 4 * acos(0.f) / 32.f;
     for (unsigned int i = 0 ; i < 32 ; ++i) {
-        lines_va.append(sf::Vertex(WVec(center.x + sin(i*angle) * m_radius,
-                                        center.y + cos(i*angle) * m_radius), col));
-        lines_va.append(sf::Vertex(WVec(center.x + sin((i+1)*angle) * m_radius,
-                                        center.y + cos((i+1)*angle) * m_radius), col));
+        lines_va.append(sf::Vertex({WVec(center.x + sin(i*angle) * m_radius,
+                                        center.y + cos(i*angle) * m_radius).x, WVec(center.x + sin(i*angle) * m_radius,
+                                                                                    center.y + cos(i*angle) * m_radius).y}, col));
+        lines_va.append(sf::Vertex({WVec(center.x + sin((i+1)*angle) * m_radius,
+                                        center.y + cos((i+1)*angle) * m_radius).x, WVec(center.x + sin((i+1)*angle) * m_radius,
+                                                                                        center.y + cos((i+1)*angle) * m_radius).y}, col));
     }
+    this->transform(glm::inverse(tf));
 }
 
 ColCircle::ColCircle(float radius) : m_radius(radius) {
@@ -78,7 +81,7 @@ WVec ColCircle::get_support(const WVec &dir) const {
 }
 
 void ColCircle::transform(const WTransform &transform) {
-    m_center = transform.transformPoint(m_center);
+    m_center = WVec(transform * WVec3(m_center, 1.f));
 }
 
 ColResult ColShape::collides(const ColShape &other) const {
@@ -111,19 +114,21 @@ WVec ColCapsule::get_support(const WVec &dir) const {
 }
 
 void ColCapsule::transform(const WTransform &transform) {
-    m_center = transform.transformPoint(m_center);
-    m_a = transform.transformPoint(m_a);
-    m_b = transform.transformPoint(m_b);
+    m_center = WVec(transform * WVec3(m_center, 1));
+    m_a = WVec(transform * WVec3(m_a, 1));
+    m_b = WVec(transform * WVec3(m_b, 1));
 }
 
 void ColCapsule::add_gfx_lines(sf::VertexArray &lines_va, const WTransform &tf) {
     this->transform(tf);
     float angle = 4 * acos(0.f) / 32.f;
     for (unsigned int i = 0 ; i < 32 ; ++i) {
-        lines_va.append(sf::Vertex(this->get_support( WVec(sin((i)*angle), cos((i)*angle))), sf::Color::White));
-        lines_va.append(sf::Vertex(this->get_support( WVec(sin((i+1)*angle), cos((i+1)*angle))), sf::Color::White));
+        WVec s1 = this->get_support( WVec(sin((i)*angle), cos((i)*angle)));
+        WVec s2 = this->get_support( WVec(sin((i+1)*angle), cos((i+1)*angle)));
+        lines_va.append(sf::Vertex({s1.x, s1.y}, sf::Color::White));
+        lines_va.append(sf::Vertex({s2.x, s2.y}, sf::Color::White));
     }
-    this->transform(tf.getInverse());
+    this->transform(glm::inverse(tf));
 }
 
 void ColCapsule::set_length(float length) {

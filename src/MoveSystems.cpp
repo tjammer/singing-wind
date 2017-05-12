@@ -77,7 +77,7 @@ inline float calc_lift(float angle, float vel_mag, FlyComponent &fc) {
 
 // get angle from mouse to player in degrees (for smfl), zero is up
 inline float angle_up_from_local_mouse_deg(const WVec &mouse) {
-    return atan2f(mouse.x, -mouse.y) * 180.f / (float)M_PI;
+    return atan2f(mouse.x, -mouse.y);
 };
 
 inline void fly(GameWorld & world, unsigned int entity) {
@@ -141,7 +141,7 @@ void ::protagonist::to_flying(GameWorld &world, unsigned int entity) {
     clear_arr(ic.wings, true);
     clear_arr(ic.jump, true);
     // rotate player in direction of movement
-    pc.rotation = w_angle_to_vec(WVec(0, -1), mc.velocity) * 180.f / (float)M_PI;
+    pc.rotation = w_angle_to_vec(WVec(0, -1), mc.velocity);
 }
 
 void ::protagonist::to_falling(MoveComponent &mc) {
@@ -204,10 +204,10 @@ void ::protagonist::flying(GameWorld &world, unsigned int entity) {
     auto &mc = world.m_move_c[entity];
     auto &fc = world.m_fly_c[entity];
 
-    auto mouse = pc.global_transform.getInverse().transformPoint(ic.mouse[0]);
+    auto mouse = WVec(glm::inverse(pc.global_transform) * WVec3(ic.mouse[0], 1));
     float mouse_angle = angle_up_from_local_mouse_deg(mouse);
     pc.rotation += copysignf(fmin(fc.c_max_change_angle, abs(mouse_angle)), mouse_angle);
-    pc.rotation = std::remainder(pc.rotation, 360.f);
+    pc.rotation = std::remainder(pc.rotation, (float)M_PI * 2.f);
 
     fly(world, entity);
 
@@ -247,10 +247,10 @@ void ::protagonist::flying_accel(GameWorld &world, unsigned int entity) {
     BCurve curve = {fc.from, fc.ctrl_from, fc.ctrl_to, fc.to};
     float time_frac = curve.eval(fc.timer / fc.c_accel_time).y;
 
-    auto mouse = pc.global_transform.getInverse().transformPoint(ic.mouse[0]);
+    auto mouse = WVec(glm::inverse(pc.global_transform) * WVec3(ic.mouse[0], 1));
     float mouse_angle = angle_up_from_local_mouse_deg(mouse);
     pc.rotation += copysignf(fmin(fc.c_max_change_angle * time_frac, abs(mouse_angle)), mouse_angle);
-    pc.rotation = std::remainder(pc.rotation, 360.f);
+    pc.rotation = std::remainder(pc.rotation, (float)M_PI * 2.f);
 
     fly(world, entity);
 

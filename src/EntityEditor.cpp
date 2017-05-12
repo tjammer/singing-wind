@@ -6,6 +6,7 @@
 #include "EditorStates.h"
 #include "imgui.h"
 #include "imgui-bezier.h"
+#include <glm/gtx/matrix_transform_2d.hpp>
 
 const char* const moveset_names = {"Protagonist\0\0"};
 const char* const movestate_names = {"OnGround\0Jumping\0Falling\0Flying\0FlyingAccel\0\0"};
@@ -80,19 +81,15 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
         float data[2] = {pc.position.x, pc.position.y};
         if (DragFloat2("position", data)) {
             pc.position.x = data[0];
-            pc.position.y = data[1];
-            pc.global_transform = WTransform().combine(m_world.m_pos_c[pc.parent].global_transform).translate(
-                    pc.position).rotate(pc.rotation);
+            pc.position.y = data[1];pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * m_world.m_pos_c[pc.parent].global_transform;
         }
         if (DragFloat("rotation", &pc.rotation)) {
-            pc.global_transform = WTransform().combine(m_world.m_pos_c[pc.parent].global_transform).translate(
-                    pc.position).rotate(pc.rotation);
+            pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * m_world.m_pos_c[pc.parent].global_transform;
         }
         int parent = pc.parent;
         if (InputInt("parent", &parent)) {
             pc.parent = (unsigned int) parent;
-            pc.global_transform = WTransform().combine(m_world.m_pos_c[pc.parent].global_transform).translate(
-                    pc.position).rotate(pc.rotation);
+            pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * m_world.m_pos_c[pc.parent].global_transform;
         }
     }
 
@@ -176,7 +173,7 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
         if (DragFloat("max angle change", &fc.c_max_change_angle)) {}
         if (DragFloat("accel force", &fc.c_accel_force)) {}
         if (DragFloat("accel time", &fc.c_accel_time)) {}
-        ImVec2 points[4] = {fc.from, fc.ctrl_from, fc.ctrl_to, fc.to};
+        ImVec2 points[4] = {{fc.from.x, fc.from.y}, {fc.ctrl_from.x, fc.ctrl_from.y}, {fc.ctrl_to.x, fc.ctrl_to.y}, {fc.to.x, fc.to.y}};
         if (Bezier("accel curve", points)) {
             fc.from = {points[0].x, points[0].y};
             fc.ctrl_from = {points[1].x, points[1].y};
@@ -226,7 +223,7 @@ EditorSubState EntityMove::cancel() {
     auto &pc = m_world.m_pos_c[m_entity];
 
     pc.position += m_diff;
-    pc.global_transform = WTransform().combine(m_world.m_pos_c[pc.parent].global_transform).translate(pc.position).rotate(pc.rotation);
+    pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * m_world.m_pos_c[pc.parent].global_transform;
 
     return EditorSubState(new EntityIdle(m_world, m_entity));
 }
@@ -246,7 +243,7 @@ EditorSubState EntityMove::update(const WVec &mpos) {
     BaseEditorSubState::update(mpos);
 
     pc.position -= diff;
-    pc.global_transform = WTransform().combine(m_world.m_pos_c[pc.parent].global_transform).translate(pc.position).rotate(pc.rotation);
+    pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * m_world.m_pos_c[pc.parent].global_transform;
 
     return nullptr;
 }

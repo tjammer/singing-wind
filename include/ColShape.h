@@ -6,6 +6,7 @@
 #define SINGING_WIND_COLSHAPE_H
 
 #include "WindDefs.h"
+#include <SFML/Graphics.hpp>
 #include <array>
 
 const float c_line_triangulate_split = 250.f;

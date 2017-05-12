@@ -6,6 +6,7 @@
 #include "GameWorld.h"
 #include "MoveSystems.h"
 #include "entities.h"
+#include <glm/gtx/matrix_transform_2d.hpp>
 
 void debug_draw_update(GameWorld &world, sf::RenderWindow &window, const std::vector<unsigned int> &entities) {
     sf::VertexArray lines_va(sf::Lines);
@@ -37,7 +38,7 @@ void static_col_update(GameWorld &world, const std::vector<unsigned int> &entiti
         auto &shape = world.m_static_col_c[entity].shape;
 
         //circle to world
-        transform = WTransform().combine(world.m_pos_c[parent].global_transform).translate(pos).rotate(rot);
+        transform = glm::rotate(glm::translate(WTransform(), pos), rot) * world.m_pos_c[parent].global_transform;
         shape->transform(transform);
 
         // overwrite result
@@ -55,7 +56,7 @@ void static_col_update(GameWorld &world, const std::vector<unsigned int> &entiti
         // in this example it's okay to reset the transformation here.
         // this deals only with the environmental collision.
         // (what to do about moving platforms)
-        shape->transform(transform.getInverse());
+        shape->transform(glm::inverse(transform));
 
         if (result.collides && result.epa_it < 21) {
             auto move_back = result.normal * -result.depth;
@@ -72,7 +73,7 @@ void static_col_update(GameWorld &world, const std::vector<unsigned int> &entiti
 
             // slide movement and collide again
             //circle to world
-            transform = WTransform().combine(world.m_pos_c[parent].global_transform).translate(pos).rotate(rot);
+            transform = glm::rotate(glm::translate(WTransform(), pos), rot) * world.m_pos_c[parent].global_transform;
             shape->transform(transform);
 
             ColResult second_result;
@@ -85,13 +86,13 @@ void static_col_update(GameWorld &world, const std::vector<unsigned int> &entiti
                     }
                 }
             }
-            shape->transform(transform.getInverse());
+            shape->transform(glm::inverse(transform));
 
             if (second_result.collides) {
                 WVec correction = find_directed_overlap(second_result, WVec(-move_back.y, move_back.x));
                 pos += correction;
 
-                transform = WTransform().combine(world.m_pos_c[parent].global_transform).translate(pos).rotate(rot);
+                transform = glm::rotate(glm::translate(WTransform(), pos), rot) * world.m_pos_c[parent].global_transform;
             }
 
             // call back
@@ -127,7 +128,7 @@ void move_update(GameWorld &world, float dt, const std::vector<unsigned int> &en
         auto motion = dt * (mc.velocity + mc.accel * dt / 2.0f);
         pc.position += motion;
 
-        pc.global_transform = WTransform().combine(world.m_pos_c[pc.parent].global_transform).translate(pc.position).rotate(pc.rotation);
+        pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * world.m_pos_c[pc.parent].global_transform;
     }
 
 }

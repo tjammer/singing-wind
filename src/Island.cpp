@@ -33,7 +33,7 @@ std::vector<sf::Vertex> Island::get_points(float spread) const {
     std::vector<sf::Vertex> out;
     for (const auto& point : m_points) {
         for (auto v : make_quad(point, spread)) {
-            out.push_back(sf::Vertex(v, sf::Color::White));
+            out.push_back(sf::Vertex({v.x, v.y}, sf::Color::White));
 
         }
     }
@@ -44,7 +44,7 @@ std::vector<sf::Vertex> Island::get_ctrl_points(float spread) const {
     std::vector<sf::Vertex> out;
     for (const auto& point : m_ctrl_points) {
         for (auto v : make_quad(point, spread)) {
-            out.push_back(sf::Vertex(v, sf::Color::White));
+            out.push_back(sf::Vertex({v.x, v.y}, sf::Color::White));
 
         }
     }
@@ -58,7 +58,7 @@ std::vector<sf::Vertex> Island::get_curves(float distance) {
         BCurve curve = BCurve{m_points[i], m_ctrl_points[i*2], m_ctrl_points[i*2 +1], m_points[(i+1)%size]};
         auto vecs = curve.line_along_curve(distance);
         for (auto v : vecs) {
-            out.push_back(sf::Vertex(v, sf::Color(128, 128, 128)));
+            out.push_back(sf::Vertex({v.x, v.y}, sf::Color(128, 128, 128)));
         }
     }
     return out;
