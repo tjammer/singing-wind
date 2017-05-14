@@ -43,6 +43,5 @@ int main() {
         ImGui::Render();
         window.display();
     }
-
     return 0;
 }

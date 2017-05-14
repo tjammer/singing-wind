@@ -29,6 +29,7 @@ void ColTriangle::add_gfx_lines(sf::VertexArray &lines_va, const WTransform &tf)
         lines_va.append(sf::Vertex(tf.transformPoint(m_vertices[i]), col));
         lines_va.append(sf::Vertex(tf.transformPoint(m_vertices[(i+1)%m_vertices.size()]), col));
     }
+    this->transform(tf.getInverse());
 }
 
 WVec ColTriangle::get_support(const WVec &dir) const {
@@ -62,6 +63,7 @@ void ColCircle::add_gfx_lines(sf::VertexArray &lines_va, const WTransform &tf) {
         lines_va.append(sf::Vertex(WVec(center.x + sin((i+1)*angle) * m_radius,
                                         center.y + cos((i+1)*angle) * m_radius), col));
     }
+    this->transform(tf.getInverse());
 }
 
 ColCircle::ColCircle(float radius) : m_radius(radius) {
