@@ -5,26 +5,27 @@
 #include "Engine.h"
 #include "Editor.h"
 #include "Game.h"
+#include "WRenderer.h"
 
-Engine::Engine(sf::RenderWindow &window) : window(window) {
+Engine::Engine(GLFWwindow &window) : window(window) {
+    WRenderer::init(&window);
+
     m_states.emplace_back(new Game);
     m_game_index = m_states.size() - 1;
     m_states.emplace_back(new EngineEditorState("debug", get_world()));
     m_editor_index = m_states.size() - 1;
     // transition to editor
     m_states[m_game_index]->pause();
-    auto view = window.getView();
-    view.setCenter(0, 0);
-    window.setView(view);
 }
 
 void Engine::update() {
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::F1) and not m_switch_pressed) {
+    if (glfwGetKey(&window, GLFW_KEY_F1) == GLFW_PRESS and not m_switch_pressed) {
         m_states[m_game_index]->switch_pause();
         m_states[m_editor_index]->switch_pause();
     }
-    m_switch_pressed = sf::Keyboard::isKeyPressed(sf::Keyboard::F1);
+    m_switch_pressed = glfwGetKey(&window, GLFW_KEY_F1) == GLFW_PRESS;
 
+    WRenderer::reset();
 
     for (auto& state : m_states) {
         if (!state->m_paused) {
@@ -35,16 +36,18 @@ void Engine::update() {
 }
 
 void Engine::draw() {
-    window.clear(sf::Color(43, 48, 59));
+    glClearColor(0.16f, 0.19f, 0.23f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
     for (auto& state: m_states) {
-        state->draw(window);
+        state->draw();
     }
-}
-
-void Engine::set_view(const sf::View &view) {
-    window.setView(view);
+    WRenderer::render_array();
 }
 
 GameWorld &Engine::get_world() {
     return (*dynamic_cast<Game*>(m_states[m_game_index].get())).get_world();
+}
+
+Engine::~Engine() {
+    WRenderer::shutdown();
 }

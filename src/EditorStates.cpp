@@ -4,9 +4,14 @@
 
 #include "EditorStates.h"
 #include "EntityEditor.h"
+#include "Island.h"
+#include "GameWorld.h"
+#include "WRenderer.h"
 #include <iostream>
 #include <iomanip>
 #include <imgui.h>
+#include <algorithm>
+#include <WVecMath.h>
 
 std::unique_ptr<BaseEditorSubState> IslandIdle::confirm(GameWorld &) {
     // find curve nearest to cursor
@@ -59,9 +64,8 @@ EditorSubState IslandIdle::cancel() {
     return EditorSubState(new EditorIdle);
 }
 
-void IslandIdle::draw(GameWorld &, sf::RenderWindow &window) {
-    auto va = get_island_vertex_array(m_island);
-    window.draw(va);
+void IslandIdle::draw(GameWorld &) {
+    get_island_vertex_array(m_island);
 }
 
 EditorSubState IslandIdle::delete_island(GameWorld &world) {
@@ -77,26 +81,24 @@ EditorSubState IslandIdle::move(GameWorld &) {
 CurveIdle::CurveIdle(const BCurve &curve, Island &active) : m_curve(curve), m_island(active) {
 }
 
-void CurveIdle::draw(GameWorld &, sf::RenderWindow &window) {
-    auto va = get_island_vertex_array(m_island);
-    sf::VertexArray lines(sf::Lines);
+void CurveIdle::draw(GameWorld &) {
+    get_island_vertex_array(m_island);
+    WRenderer::set_mode(GL_QUADS);
     for (auto v : m_curve.line_along_curve(c_line_draw_distance)) {
-        va.append(sf::Vertex({v.x, v.y}, sf::Color(128, 8, 128)));
+        WRenderer::add_primitive_vertex({{v.x, v.y}, {0.5, 0.05, 0.5}});
     }
 
     for (const auto& point : {m_curve.from, m_curve.ctrl_from, m_curve.ctrl_to, m_curve.to}) {
         for (const auto& v : make_quad(point, c_ctrl_point_size)) {
-            va.append(sf::Vertex({v.x, v.y}, sf::Color(255, 255, 255)));
+            WRenderer::add_primitive_vertex({{v.x, v.y}, {1, 1, 1}});
         }
     }
 
-    lines.append(sf::Vertex({m_curve.from.x, m_curve.from.y}, sf::Color(255, 255, 255)));
-    lines.append(sf::Vertex({m_curve.ctrl_from.x, m_curve.ctrl_from.y}, sf::Color(255, 255, 255)));
-    lines.append(sf::Vertex({m_curve.ctrl_to.x, m_curve.ctrl_to.y}, sf::Color(255, 255, 255)));
-    lines.append(sf::Vertex({m_curve.to.x, m_curve.to.y}, sf::Color(255, 255, 255)));
-
-    window.draw(lines);
-    window.draw(va);
+    WRenderer::set_mode(GL_LINES);
+    WRenderer::add_primitive_vertex({{m_curve.from.x, m_curve.from.y}, {1, 1, 1}});
+    WRenderer::add_primitive_vertex({{m_curve.ctrl_from.x, m_curve.ctrl_from.y}, {1, 1, 1}});
+    WRenderer::add_primitive_vertex({{m_curve.ctrl_to.x, m_curve.ctrl_to.y}, {1, 1, 1}});
+    WRenderer::add_primitive_vertex({{m_curve.to.x, m_curve.to.y}, {1, 1, 1}});
 }
 
 EditorSubState CurveIdle::confirm(GameWorld &) {
@@ -206,13 +208,12 @@ EditorSubState PointEdit::cancel() {
     return EditorSubState(new IslandIdle(m_island));
 }
 
-void PointEdit::draw(GameWorld &, sf::RenderWindow &window) {
-    auto va = get_island_vertex_array(m_island);
-    window.draw(va);
+void PointEdit::draw(GameWorld &) {
+    get_island_vertex_array(m_island);
+    WRenderer::set_mode(GL_QUADS);
     for (const auto &v : make_quad(m_point, c_point_size)) {
-        va.append(sf::Vertex({v.x, v.y}, sf::Color(128, 8, 128)));
+        WRenderer::add_primitive_vertex({{v.x, v.y}, {0.5, 0.05, 0.5}});
     }
-    window.draw(va);
 }
 
 PointEdit::PointEdit(WVec &point, const WVec &mouse, WVec &c1, WVec &c2, Island &active) :
@@ -273,8 +274,8 @@ EditorSubState PointEdit::delete_item(GameWorld &) {
     return EditorSubState(new IslandIdle(m_island));
 }
 
-void CurveInsert::draw(GameWorld &, sf::RenderWindow &window) {
-    auto va = get_island_vertex_array(m_island);
+void CurveInsert::draw(GameWorld &) {
+    /*auto va = get_island_vertex_array(m_island);
     window.draw(va);
 
     float t_low = fmax(m_new_point_t - 0.01f, 0.f);
@@ -286,7 +287,7 @@ void CurveInsert::draw(GameWorld &, sf::RenderWindow &window) {
     base = m_curve.eval(t_high);
     va.append(sf::Vertex({(base - m_curve.eval_perpendicular(t_high) * c_line_size).x, (base - m_curve.eval_perpendicular(t_high) * c_line_size).y}, sf::Color(128, 8, 128)));
     va.append(sf::Vertex({(base + m_curve.eval_perpendicular(t_high) * c_line_size).x, (base + m_curve.eval_perpendicular(t_high) * c_line_size).y}, sf::Color(128, 8, 128)));
-    window.draw(va);
+    window.draw(va);*/
 }
 
 CurveInsert::CurveInsert(BCurve curve, Island &active) : m_curve(curve), m_island(active) {
@@ -383,7 +384,7 @@ EditorSubState EditorIdle::confirm(GameWorld &world) {
     return EditorSubState(new EntityIdle(world, static_cast<unsigned int>(index)));
 }
 
-void EditorIdle::draw(GameWorld &, sf::RenderWindow &) {
+void EditorIdle::draw(GameWorld &) {
 }
 
 EditorSubState EditorIdle::insert_item(GameWorld &world) {
@@ -408,33 +409,28 @@ EditorSubState EditorIdle::menu(GameWorld &world) {
     return nullptr;
 }
 
-sf::VertexArray get_island_vertex_array(const Island& island) {
-
-    using namespace sf;
-    VertexArray va(Quads);
-
+void get_island_vertex_array(const Island& island) {
+    WRenderer::set_mode(GL_QUADS);
     auto curves = const_cast<Island&>(island).get_curves(c_line_draw_distance);
     for (auto& v : curves) {
-        va.append(v);
+        WRenderer::add_primitive_vertex(v);
     }
 
     auto verts = island.get_points(c_point_size);
     for (auto& v : verts) {
-        va.append(v);
+        WRenderer::add_primitive_vertex(v);
     }
-    return va;
 }
 
 
-void IslandMove::draw(GameWorld &, sf::RenderWindow &window) {
-    auto va = get_island_vertex_array(m_island);
-    window.draw(va);
+void IslandMove::draw(GameWorld &) {
+    get_island_vertex_array(m_island);
+    WRenderer::set_mode(GL_QUADS);
     for (const auto &point : m_island.m_points) {
         for (const auto &v : make_quad(point, c_point_size)) {
-            va.append(sf::Vertex({v.x, v.y}, sf::Color(128, 8, 128)));
+            WRenderer::add_primitive_vertex({{v.x, v.y}, {0.5, 0.05, 0.5}});
         }
     }
-    window.draw(va);
 }
 
 EditorSubState IslandMove::update(const WVec &mpos) {

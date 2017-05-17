@@ -9,6 +9,8 @@
 #include "ColGrid.h"
 #include "Components.h"
 
+class GLFWwindow;
+
 // physics constants
 const float c_drag = 0.0026;
 const float c_friction = 0.0026;
@@ -25,7 +27,7 @@ public:
     // maybe a timer?
     void step_fixed(float dt, const WVec &mouse);
     void pre_draw(float dt);
-    void draw(sf::RenderWindow& window);
+    void draw();
 
     // ecs stuff
     std::vector<bset> m_entities;

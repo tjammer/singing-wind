@@ -3,27 +3,33 @@
 //
 
 #include "Game.h"
+#include "glad/glad.h"
+#include "GLFW/glfw3.h"
 
 Game::Game() {
     update_camera_follow();
+    m_camera.update(m_game_world);
 }
 
 void Game::update(Engine &engine) {
     if (!engine.get_focus()) {
         return;
     }
-    const sf::RenderWindow &window = engine.get_window();
-    auto mouse = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+    GLFWwindow &window = engine.get_window();
+    double mpos[2];
+    glfwGetCursorPos(&window, &mpos[0], &mpos[1]);
+
+    auto mouse = m_camera.unproject_mouse(mpos);
 
     m_timer.update();
     while (m_timer.pop_fixed()) {
         m_game_world.step_fixed(c_fixed_timestep, {mouse.x, mouse.y});
     }
-    m_camera.update(m_game_world, engine);
+    m_camera.update(m_game_world);
 }
 
-void Game::draw(sf::RenderWindow &window) {
-    m_game_world.draw(window);
+void Game::draw() {
+    m_game_world.draw();
 }
 
 void Game::unpause() {

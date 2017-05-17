@@ -6,7 +6,9 @@
 #define SINGING_WIND_ISLAND_H
 
 #include "WindDefs.h"
-#include <SFML/Graphics.hpp>
+#include <vector>
+
+class PrimitiveVertex;
 
 class Island {
 public:
@@ -18,9 +20,9 @@ public:
     std::vector<WVec> m_points;
     std::vector<WVec> m_ctrl_points;
 
-    std::vector<sf::Vertex> get_points(float spread) const;
-    std::vector<sf::Vertex> get_ctrl_points(float spread) const;
-    std::vector<sf::Vertex> get_curves(float distance);
+    std::vector<PrimitiveVertex> get_points(float spread) const;
+    std::vector<PrimitiveVertex> get_ctrl_points(float spread) const;
+    std::vector<PrimitiveVertex> get_curves(float distance);
 };
 
 inline bool operator==(const Island& lhs, const Island& rhs) {

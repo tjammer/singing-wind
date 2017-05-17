@@ -8,6 +8,7 @@
 #include "Editor.h"
 #include "BCurve.h"
 
+class Island;
 
 class IslandIdle : public BaseEditorSubState {
 public:
@@ -17,7 +18,7 @@ public:
     // extra fct so only do this per mouse in the menu
     EditorSubState delete_island(GameWorld &world);
     EditorSubState menu(GameWorld &world) override;
-    void draw(GameWorld &world, sf::RenderWindow &window) override;
+    void draw(GameWorld &world) override;
 
     IslandIdle(Island &active) : m_island(active) {}
     ~IslandIdle() = default;
@@ -32,7 +33,7 @@ public:
     EditorSubState confirm(GameWorld &) override {return EditorSubState(new IslandIdle(m_island));}
     EditorSubState cancel() override;
     EditorSubState menu(GameWorld &world) override;
-    void draw(GameWorld &world, sf::RenderWindow &window) override;
+    void draw(GameWorld &world) override;
 
     IslandMove(Island &active, const WVec &mouse);
     ~IslandMove() = default;
@@ -46,7 +47,7 @@ private:
 class CurveIdle : public BaseEditorSubState {
 public:
     EditorSubState confirm(GameWorld &world) override;
-    void draw(GameWorld &world, sf::RenderWindow &window) override;
+    void draw(GameWorld &world) override;
     EditorSubState cancel() override {return EditorSubState(new IslandIdle(m_island));}
     EditorSubState move(GameWorld &) override {return EditorSubState(new CurveIdle(m_curve, m_island));}
     EditorSubState insert_item(GameWorld &world) override;
@@ -64,7 +65,7 @@ private:
 class PointEdit : public BaseEditorSubState {
 public:
     EditorSubState update(const WVec &mpos) override;
-    void draw(GameWorld &world, sf::RenderWindow &window) override;
+    void draw(GameWorld &world) override;
     EditorSubState confirm(GameWorld &) override {return EditorSubState(new IslandIdle(m_island));}
     EditorSubState cancel() override;
     EditorSubState delete_item(GameWorld &world) override;
@@ -85,7 +86,7 @@ private:
 
 class CurveInsert : public BaseEditorSubState {
 public:
-    void draw(GameWorld &world, sf::RenderWindow &window) override;
+    void draw(GameWorld &world) override;
     EditorSubState update(const WVec &mpos) override;
     EditorSubState confirm(GameWorld &world) override;
     EditorSubState cancel() override {return EditorSubState(new IslandIdle(m_island));}
@@ -102,11 +103,11 @@ private:
 
 class EditorIdle : public BaseEditorSubState {
 public:
-    void draw(GameWorld &world, sf::RenderWindow &window) override;
+    void draw(GameWorld &world) override;
     EditorSubState confirm(GameWorld &world) override;
     EditorSubState insert_item(GameWorld &world) override;
     EditorSubState menu(GameWorld &world) override;
 };
 
-sf::VertexArray get_island_vertex_array(const Island&);
+void get_island_vertex_array(const Island&);
 #endif //SINGING_WIND_EDITORSTATES_H

@@ -6,10 +6,11 @@
 #define SINGING_WIND_PROTAGONIST_H
 
 #include "WindDefs.h"
-#include "Components.h"
 #include "Collision.h"
+#include <memory>
 
 class GameWorld;
+class InputComponent;
 
 namespace Protagonist {
 

@@ -5,11 +5,12 @@
 #ifndef SINGING_WIND_COMPONENTS_H
 #define SINGING_WIND_COMPONENTS_H
 
-#include <memory>
 #include "Collision.h"
+#include <memory>
 #include <deque>
 
 class GameWorld;
+class ColShape;
 
 enum Components : int {
     CPosition,

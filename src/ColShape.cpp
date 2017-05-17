@@ -4,6 +4,9 @@
 
 #include "ColShape.h"
 #include "Collision.h"
+#include <WVecMath.h>
+#include <WRenderer.h>
+#include <iostream>
 
 ColTriangle::ColTriangle(const WVec &p1, const WVec &p2, const WVec &p3) {
     m_vertices[0] = p1;
@@ -23,12 +26,16 @@ ColTriangle::ColTriangle(const WVec &p1, const WVec &p2, const WVec &p3) {
     m_type = ColShapeName ::ColTriangle;
 }
 
-void ColTriangle::add_gfx_lines(sf::VertexArray &lines_va, const WTransform &tf) {
-    sf::Color col = m_highlight ? sf::Color::Red : sf::Color::White;
+void ColTriangle::add_gfx_lines(const WTransform &tf) {
+    WRenderer::set_mode(GL_LINES);
+    this->transform(tf);
     for (unsigned int i = 0 ; i < m_vertices.size() ; ++i) {
-        lines_va.append(sf::Vertex({(tf *  WVec3(m_vertices[i], 1)).x, (tf * WVec3(m_vertices[i], 1)).y}, col));
-        lines_va.append(sf::Vertex({(tf * WVec3(m_vertices[(i+1)%m_vertices.size()], 1)).x, (tf * WVec3(m_vertices[(i+1)%m_vertices.size()], 1)).y}, col));
+        WRenderer::add_primitive_vertex({{m_vertices[i].x, m_vertices[i].y}, {1, 1, 1}});
+        WRenderer::add_primitive_vertex(
+                {{m_vertices[(i + 1) % m_vertices.size()].x, m_vertices[(i + 1) % m_vertices.size()].y},
+                         {1, 1, 1}});
     }
+    this->transform(glm::inverse(tf));
 }
 
 WVec ColTriangle::get_support(const WVec &dir) const {
@@ -52,17 +59,19 @@ void ColTriangle::transform(const WTransform &transform) {
     }
 }
 
-void ColCircle::add_gfx_lines(sf::VertexArray &lines_va, const WTransform &tf) {
-    sf::Color col = m_highlight ? sf::Color::Green : sf::Color::White;
-    WVec center = WVec(tf * WVec3(0.f, 0.f, 1.f));
+void ColCircle::add_gfx_lines(const WTransform &tf) {
+    WRenderer::set_mode(GL_LINES);
+    this->transform(tf);
     float angle = 4 * acos(0.f) / 32.f;
     for (unsigned int i = 0 ; i < 32 ; ++i) {
-        lines_va.append(sf::Vertex({WVec(center.x + sin(i*angle) * m_radius,
-                                        center.y + cos(i*angle) * m_radius).x, WVec(center.x + sin(i*angle) * m_radius,
-                                                                                    center.y + cos(i*angle) * m_radius).y}, col));
-        lines_va.append(sf::Vertex({WVec(center.x + sin((i+1)*angle) * m_radius,
-                                        center.y + cos((i+1)*angle) * m_radius).x, WVec(center.x + sin((i+1)*angle) * m_radius,
-                                                                                        center.y + cos((i+1)*angle) * m_radius).y}, col));
+        WRenderer::add_primitive_vertex(
+                {{m_center.x + sin(i * angle) * m_radius,
+                  m_center.y + cos(i * angle) * m_radius},
+                  {0, 1, 0}});
+        WRenderer::add_primitive_vertex(
+                {{m_center.x + sin((i + 1) * angle) * m_radius,
+                  m_center.y + cos((i + 1) * angle) * m_radius},
+                  {0, 1, 0}});
     }
     this->transform(glm::inverse(tf));
 }
@@ -119,14 +128,17 @@ void ColCapsule::transform(const WTransform &transform) {
     m_b = WVec(transform * WVec3(m_b, 1));
 }
 
-void ColCapsule::add_gfx_lines(sf::VertexArray &lines_va, const WTransform &tf) {
+void ColCapsule::add_gfx_lines(const WTransform &tf) {
+    WRenderer::set_mode(GL_LINES);
     this->transform(tf);
     float angle = 4 * acos(0.f) / 32.f;
     for (unsigned int i = 0 ; i < 32 ; ++i) {
         WVec s1 = this->get_support( WVec(sin((i)*angle), cos((i)*angle)));
         WVec s2 = this->get_support( WVec(sin((i+1)*angle), cos((i+1)*angle)));
-        lines_va.append(sf::Vertex({s1.x, s1.y}, sf::Color::White));
-        lines_va.append(sf::Vertex({s2.x, s2.y}, sf::Color::White));
+        WRenderer::add_primitive_vertex({{s1.x, s1.y},
+                                         {1,    1, 1}});
+        WRenderer::add_primitive_vertex({{s2.x, s2.y},
+                                         {1,    1, 1}});
     }
     this->transform(glm::inverse(tf));
 }

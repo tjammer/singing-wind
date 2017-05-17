@@ -3,6 +3,7 @@
 //
 
 #include "ColGrid.h"
+#include "ColShape.h"
 
 const int P1 = 73856093;
 const int P2 = 19349663;

@@ -5,8 +5,6 @@
 #ifndef SINGING_WIND_FRAMETIMER_H
 #define SINGING_WIND_FRAMETIMER_H
 
-#include "WindDefs.h"
-#include <SFML/System.hpp>
 
 const float c_fixed_timestep = 1.f / 60.f;
 
@@ -15,13 +13,13 @@ public:
     void update();
     void reset();
     bool pop_fixed();
-    sf::Time get_elapsed() const {return m_elapsed;}
+    double get_elapsed() const {return m_elapsed;}
     float get_remaining() const {return m_fixed_counter;}
 
 private:
-    sf::Clock m_timer;
-    sf::Time m_elapsed;
+    double m_elapsed;
     float m_fixed_counter = 0;
+    double m_cont_timer = 0;
 };
 
 

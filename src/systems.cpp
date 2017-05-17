@@ -6,22 +6,23 @@
 #include "GameWorld.h"
 #include "MoveSystems.h"
 #include "entities.h"
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
+#include <WRenderer.h>
+#include <WVecMath.h>
 
-void debug_draw_update(GameWorld &world, sf::RenderWindow &window, const std::vector<unsigned int> &entities) {
-    sf::VertexArray lines_va(sf::Lines);
+void debug_draw_update(GameWorld &world, const std::vector<unsigned int> &entities) {
     WTransform zero_tf;
+    WRenderer::set_mode(GL_LINES);
     for (const auto &tri : world.m_grid.get_objects()) {
-        tri->add_gfx_lines(lines_va, zero_tf);
+        tri->add_gfx_lines(zero_tf);
     }
 
     for (const auto entity : entities) {
         auto &shape = world.m_debug_c[entity].shape;
         const auto &transform = world.m_pos_c[entity].global_transform;
-        shape->add_gfx_lines(lines_va, transform);
+        shape->add_gfx_lines(transform);
     }
-
-    window.draw(lines_va);
 }
 
 void static_col_update(GameWorld &world, const std::vector<unsigned int> &entities) {

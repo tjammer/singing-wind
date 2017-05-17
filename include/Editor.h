@@ -6,8 +6,8 @@
 #define SINGING_WIND_EDITOR_H
 
 #include "Engine.h"
-#include "GameWorld.h"
 #include "../target/release/Scene.pb.h"
+#include "Camera.h"
 #include <unordered_map>
 
 const float c_point_size = 5;
@@ -32,7 +32,7 @@ public:
     void cleanup() override {}
 
     void update(Engine &engine) override;
-    void draw(sf::RenderWindow &window) override ;
+    void draw() override ;
 
     EngineEditorState(const std::string &scene_name, GameWorld &game_world);
     ~EngineEditorState() = default;
@@ -42,7 +42,7 @@ private:
     std::unique_ptr<BaseEditorSubState> m_state;
     // last frame
     std::unordered_map<EditorButtons, bool> m_pressed;
-    sf::Vector2i m_mouse;
+    WVec m_mouse;
     float m_mouse_wheel = 0;
 
     // menu
@@ -55,7 +55,8 @@ private:
 
     // zoom
     float m_zoom = 1.f;
-    bool m_update_view = false;
+    Camera m_camera;
+
 };
 
 using EditorSubState = std::unique_ptr<BaseEditorSubState>;
@@ -63,7 +64,7 @@ using EditorSubState = std::unique_ptr<BaseEditorSubState>;
 class BaseEditorSubState {
 public:
     virtual EditorSubState update(const WVec &mpos) { m_mpos = mpos; return nullptr;}
-    virtual void draw(GameWorld &world, sf::RenderWindow &window) = 0;
+    virtual void draw(GameWorld &world) = 0;
     virtual EditorSubState confirm(GameWorld &) {return nullptr;}
     virtual EditorSubState cancel() {return nullptr;}
     virtual EditorSubState move(GameWorld &) {return nullptr;}

@@ -6,7 +6,12 @@
 #include "GameWorld.h"
 #include "MoveSystems.h"
 #include "entities.h"
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <WInput.h>
+#include <WVecMath.h>
 
 using namespace Protagonist;
 
@@ -28,19 +33,17 @@ void Protagonist::on_static_collision(const ColResult &result, GameWorld &world,
 }
 
 void Protagonist::handle_inputs(InputComponent &ic, const WVec &mouse) {
-    using namespace sf;
-
     ic.jump.pop_back();
-    ic.jump.push_front(Keyboard::isKeyPressed(Keyboard::Space));
+    ic.jump.push_front(WInput::is_key_pressed(GLFW_KEY_SPACE));
 
     ic.direction.pop_back();
-    ic.direction.push_front(Keyboard::isKeyPressed(Keyboard::D) - Keyboard::isKeyPressed(Keyboard::A));
+    ic.direction.push_front(WInput::is_key_pressed(GLFW_KEY_D) - WInput::is_key_pressed(GLFW_KEY_A));
 
     ic.mouse.pop_back();
     ic.mouse.push_front(mouse);
 
     ic.wings.pop_back();
-    ic.wings.push_front(Mouse::isButtonPressed(Mouse::Button::Right));
+    ic.wings.push_front(WInput::is_mouse_button_pressed(GLFW_MOUSE_BUTTON_RIGHT));
 }
 
 unsigned int Protagonist::create_player(GameWorld &world, const WVec &pos, unsigned int parent) {

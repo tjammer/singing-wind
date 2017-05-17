@@ -3,9 +3,9 @@
 //
 
 #include "Collision.h"
+#include "ColShape.h"
+#include <WVecMath.h>
 #include <assert.h>
-
-using namespace sf;
 
 const float c_epsilon = 0.01f;
 const int c_max_it = 20;

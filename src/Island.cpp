@@ -4,6 +4,7 @@
 
 #include "Island.h"
 #include "BCurve.h"
+#include "WRenderer.h"
 
 Island::Island(WVec pos, float spread) {
     m_points.push_back(pos + WVec(-spread,  spread));
@@ -29,36 +30,36 @@ std::vector<WVec> make_quad(const WVec& pos, float spread) {
     return out;
 }
 
-std::vector<sf::Vertex> Island::get_points(float spread) const {
-    std::vector<sf::Vertex> out;
+std::vector<PrimitiveVertex> Island::get_points(float spread) const {
+    std::vector<PrimitiveVertex> out;
     for (const auto& point : m_points) {
         for (auto v : make_quad(point, spread)) {
-            out.push_back(sf::Vertex({v.x, v.y}, sf::Color::White));
+            out.push_back({{v.x, v.y}, {1, 1, 1}});
 
         }
     }
     return out;
 }
 
-std::vector<sf::Vertex> Island::get_ctrl_points(float spread) const {
-    std::vector<sf::Vertex> out;
+std::vector<PrimitiveVertex> Island::get_ctrl_points(float spread) const {
+    std::vector<PrimitiveVertex> out;
     for (const auto& point : m_ctrl_points) {
         for (auto v : make_quad(point, spread)) {
-            out.push_back(sf::Vertex({v.x, v.y}, sf::Color::White));
+            out.push_back({{v.x, v.y}, {1, 1, 1}});
 
         }
     }
     return out;
 }
 
-std::vector<sf::Vertex> Island::get_curves(float distance) {
-    std::vector<sf::Vertex> out;
+std::vector<PrimitiveVertex> Island::get_curves(float distance) {
+    std::vector<PrimitiveVertex> out;
     auto size = m_points.size();
     for (unsigned int i = 0; i < size; ++i) {
         BCurve curve = BCurve{m_points[i], m_ctrl_points[i*2], m_ctrl_points[i*2 +1], m_points[(i+1)%size]};
         auto vecs = curve.line_along_curve(distance);
         for (auto v : vecs) {
-            out.push_back(sf::Vertex({v.x, v.y}, sf::Color(128, 128, 128)));
+            out.push_back({{v.x, v.y}, {.5, .5, .5}});
         }
     }
     return out;

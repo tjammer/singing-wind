@@ -5,12 +5,14 @@
 #ifndef SINGING_WIND_STATEBASE_H
 #define SINGING_WIND_STATEBASE_H
 
-#include "SFML/Graphics.hpp"
 #include <vector>
 #include <memory>
-#include "GameWorld.h"
+#include <limits>
+#include <WindDefs.h>
 
 class EngineState;
+class GameWorld;
+class GLFWwindow;
 
 // engine base class, different from gameplay states
 class Engine {
@@ -24,15 +26,13 @@ public:
     void update();
     void draw();
 
-    Engine(sf::RenderWindow& window);
-    ~Engine() {}
+    Engine(GLFWwindow &window);
+    ~Engine();
 
-    const sf::RenderWindow& get_window() const {return window;}
+    GLFWwindow & get_window() const {return window;}
 
     void set_focus(bool focus) {m_has_focus = focus;}
     bool get_focus() const {return m_has_focus;}
-
-    void set_view(const sf::View &view);
 
     GameWorld &get_world();
 
@@ -42,7 +42,7 @@ public:
 private:
     bool m_has_focus = true;
     std::vector<std::unique_ptr<EngineState>> m_states;
-    sf::RenderWindow& window;
+    GLFWwindow& window;
     size_t m_game_index = std::numeric_limits<long>::max();
     size_t m_editor_index = std::numeric_limits<long>::max();
 
@@ -62,7 +62,7 @@ public:
     virtual void switch_pause() {if (m_paused) {unpause(); return;} pause();}
 
     virtual void update(Engine& engine) = 0;
-    virtual void draw(sf::RenderWindow& window) = 0;
+    virtual void draw() = 0;
 
     virtual ~EngineState() = default;
 

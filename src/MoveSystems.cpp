@@ -5,6 +5,8 @@
 #include "MoveSystems.h"
 #include "BCurve.h"
 #include <iostream>
+#include <algorithm>
+#include <WVecMath.h>
 
 using namespace std;
 using accel_func = std::function<void(GameWorld &world, unsigned int entity)>;

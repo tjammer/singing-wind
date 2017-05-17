@@ -4,8 +4,11 @@
 
 #include "EntityEditor.h"
 #include "EditorStates.h"
+#include "GameWorld.h"
+#include "ColShape.h"
 #include "imgui.h"
 #include "imgui-bezier.h"
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
 
 const char* const moveset_names = {"Protagonist\0\0"};
@@ -24,7 +27,7 @@ const std::unordered_map<Components, std::string> component_names = {
 const char* const colshape_names = {"Triangle\0Circle\0Capsule\0\0"};
 const char* const col_responses = {"Actor\0\0"};
 
-void EntityIdle::draw(GameWorld &world, sf::RenderWindow &window) {
+void EntityIdle::draw(GameWorld &world) {
     bset debug_draw; debug_draw.set(CPosition); debug_draw.set(CDebugDraw);
 
     if (!for_gameworld::has_component(world.m_entities[m_entity], debug_draw))  {
@@ -33,9 +36,7 @@ void EntityIdle::draw(GameWorld &world, sf::RenderWindow &window) {
     const auto &shape = world.m_debug_c[m_entity].shape;
     auto circle = ColCircle(shape->get_radius());
     circle.m_highlight = true;
-    auto va = sf::VertexArray(sf::Lines);
-    circle.add_gfx_lines(va, world.m_pos_c[m_entity].global_transform);
-    window.draw(va);
+    circle.add_gfx_lines(world.m_pos_c[m_entity].global_transform);
 }
 
 EditorSubState EntityIdle::update(const WVec &mpos) {
@@ -205,7 +206,7 @@ EditorSubState EntityIdle::move(GameWorld &) {
     return EditorSubState(new EntityMove(m_world, m_entity, m_mpos));
 }
 
-void EntityMove::draw(GameWorld &world, sf::RenderWindow &window) {
+void EntityMove::draw(GameWorld &world) {
     bset debug_draw; debug_draw.set(CPosition); debug_draw.set(CDebugDraw);
 
     if (!for_gameworld::has_component(world.m_entities[m_entity], debug_draw))  {
@@ -214,9 +215,7 @@ void EntityMove::draw(GameWorld &world, sf::RenderWindow &window) {
     const auto &shape = world.m_debug_c[m_entity].shape;
     auto circle = ColCircle(shape->get_radius());
     circle.m_highlight = true;
-    auto va = sf::VertexArray(sf::Lines);
-    circle.add_gfx_lines(va, world.m_pos_c[m_entity].global_transform);
-    window.draw(va);
+    circle.add_gfx_lines(world.m_pos_c[m_entity].global_transform);
 }
 
 EditorSubState EntityMove::cancel() {

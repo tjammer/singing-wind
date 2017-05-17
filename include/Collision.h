@@ -5,7 +5,10 @@
 #ifndef SINGING_WIND_COLLISION_H
 #define SINGING_WIND_COLLISION_H
 
-#include "ColShape.h"
+#include "WindDefs.h"
+#include <vector>
+
+class ColShape;
 
 struct ColResult {
     bool collides = false;

@@ -4,45 +4,48 @@
 
 #include "Editor.h"
 #include "EditorStates.h"
-#include "triangulate.h"
+#include "ColShape.h"
+#include "GameWorld.h"
 #include <imgui.h>
 #include <iostream>
 #include <fstream>
-#include <Scene.pb.h>
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
+#include <GLFW/glfw3.h>
 
 const float zoom_constant = 0.05f;
 
-void EngineEditorState::draw(sf::RenderWindow &window) {
+void EngineEditorState::draw() {
     if (m_paused) {
         return;
     }
-
-    m_state->draw(m_game_world, window);
+    m_state->draw(m_game_world);
 }
 
 EngineEditorState::EngineEditorState(const std::string &scene_name, GameWorld &game_world)
         : m_game_world(game_world) {
     m_state = std::unique_ptr<BaseEditorSubState>(new EditorIdle);
     load_scene(scene_name);
+    m_camera.update({0, 0}, m_zoom);
 }
 
 void EngineEditorState::update(Engine &engine) {
     if (!engine.get_focus()) {
         return;
     }
-    const sf::RenderWindow& window = engine.get_window();
-    auto imouse = sf::Mouse::getPosition(window);
-    auto mouse = window.mapPixelToCoords(imouse);
+    GLFWwindow& window = engine.get_window();
+    double mpos[2];
+    glfwGetCursorPos(&window, &mpos[0], &mpos[1]);
+    WVec mouse = m_camera.unproject_mouse(mpos);
     if (main_menu()) {
         return;
     }
 
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right) and not m_pressed[Menu]) {
+    if (glfwGetMouseButton(&window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS and not m_pressed[Menu]) {
         m_menu = !m_menu;
-        ImGui::SetNextWindowPos(imouse);
+        ImGui::SetNextWindowPos({(float)mpos[0], (float)mpos[1]});
     }
-    m_pressed[Menu] = sf::Mouse::isButtonPressed(sf::Mouse::Button::Right);
+    m_pressed[Menu] = glfwGetMouseButton(&window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
 
     if (m_menu) {
         auto transition = m_state->menu(m_game_world);
@@ -52,98 +55,85 @@ void EngineEditorState::update(Engine &engine) {
             update_world();
         }
         else {
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) and not m_pressed[Confirm]) {
+            if (glfwGetMouseButton(&window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS and not m_pressed[Confirm]) {
                 if (!ImGui::IsAnyItemHovered()) {
                     m_menu = false;
                 }
             }
-            m_pressed[Confirm] = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+            m_pressed[Confirm] = glfwGetMouseButton(&window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
         }
         return;
     }
 
-    auto transition = m_state->update({mouse.x, mouse.y});
+    auto transition = m_state->update(mouse);
     if (transition != nullptr) {
         m_state = std::move(transition);
         update_world();
     }
 
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left) and not m_pressed[Confirm]) {
+    if (glfwGetMouseButton(&window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS and not m_pressed[Confirm]) {
         transition = m_state->confirm(m_game_world);
         if (transition != nullptr) {
             m_state = std::move(transition);
             update_world();
         }
     }
-    m_pressed[Confirm] = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+    m_pressed[Confirm] = glfwGetMouseButton(&window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) and not m_pressed[Cancel]) {
+    if (glfwGetKey(&window, GLFW_KEY_ESCAPE) == GLFW_PRESS and not m_pressed[Cancel]) {
         transition = m_state->cancel();
         if (transition != nullptr) {
             m_state = std::move(transition);
             update_world();
         }
     }
-    m_pressed[Cancel] = sf::Keyboard::isKeyPressed(sf::Keyboard::Escape);
+    m_pressed[Cancel] = glfwGetKey(&window, GLFW_KEY_ESCAPE) == GLFW_PRESS;
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::G) and not m_pressed[Move]) {
+    if (glfwGetKey(&window, GLFW_KEY_G) == GLFW_PRESS and not m_pressed[Move]) {
         transition = m_state->move(m_game_world);
         if (transition != nullptr) {
             m_state = std::move(transition);
             update_world();
         }
     }
-    m_pressed[Move] = sf::Keyboard::isKeyPressed(sf::Keyboard::G);
+    m_pressed[Move] = glfwGetKey(&window, GLFW_KEY_G) == GLFW_PRESS;
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::I) and not m_pressed[Insert]) {
+    if (glfwGetKey(&window, GLFW_KEY_I) == GLFW_PRESS and not m_pressed[Insert]) {
         transition = m_state->insert_item(m_game_world);
         if (transition != nullptr) {
             m_state = std::move(transition);
             update_world();
         }
     }
-    m_pressed[Insert] = sf::Keyboard::isKeyPressed(sf::Keyboard::I);
+    m_pressed[Insert] = glfwGetKey(&window, GLFW_KEY_I) == GLFW_PRESS;
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) and not m_pressed[Delete]) {
+    if (glfwGetKey(&window, GLFW_KEY_D) == GLFW_PRESS and not m_pressed[Delete]) {
         transition = m_state->delete_item(m_game_world);
         if (transition != nullptr) {
             m_state = std::move(transition);
             update_world();
         }
     }
-    m_pressed[Delete] = sf::Keyboard::isKeyPressed(sf::Keyboard::D);
+    m_pressed[Delete] = glfwGetKey(&window, GLFW_KEY_D) == GLFW_PRESS;
 
-
-    auto idiff = imouse - m_mouse;
-    m_mouse = imouse;
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Middle)) {
-        auto diff = WVec(idiff.x, idiff.y);
-        auto view = window.getView();
-        view.move({-diff.x * m_zoom, -diff.y * m_zoom});
-        engine.set_view(view);
+    auto screen_mouse = WVec(mpos[0],mpos[1]);
+    auto idiff = m_mouse - screen_mouse;
+    m_mouse = screen_mouse;
+    if (glfwGetMouseButton(&window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS) {
+        m_camera.update(m_zoom * idiff, m_zoom);
     }
 
     if (engine.get_mouse_wheel() != m_mouse_wheel) {
         m_zoom -= zoom_constant * (engine.get_mouse_wheel() - m_mouse_wheel);
         m_mouse_wheel = engine.get_mouse_wheel();
-        m_update_view = true;
     }
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Home) and not m_pressed[ResetZoom]) {
+    if (glfwGetKey(&window, GLFW_KEY_HOME) == GLFW_PRESS and not m_pressed[ResetZoom]) {
         m_zoom = 1.0f;
         m_mouse_wheel = engine.get_mouse_wheel();
         m_update_view = true;
     }
-    m_pressed[ResetZoom] = sf::Keyboard::isKeyPressed(sf::Keyboard::Home);
-
-    if (m_update_view) {
-        m_update_view = false;
-
-        auto view = window.getView();
-        auto default_size = window.getDefaultView().getSize();
-        view.setSize(default_size.x * m_zoom, default_size.y * m_zoom);
-        engine.set_view(view);
-    }
+    m_pressed[ResetZoom] = glfwGetKey(&window, GLFW_KEY_HOME) == GLFW_PRESS;
 
 }
 

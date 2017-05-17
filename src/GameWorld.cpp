@@ -26,10 +26,10 @@ void GameWorld::update_triangles() {
 GameWorld::GameWorld() {
 }
 
-void GameWorld::draw(sf::RenderWindow &window) {
+void GameWorld::draw() {
     find_entities_draw();
 
-    debug_draw_update(*this, window, m_debug_draw_ents);
+    debug_draw_update(*this, m_debug_draw_ents);
 }
 
 void GameWorld::step_fixed(float dt, const WVec &mouse) {

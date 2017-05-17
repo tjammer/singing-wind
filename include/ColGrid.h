@@ -6,10 +6,12 @@
 #define SINGING_WIND_COLGRID_H
 
 #include "WindDefs.h"
-#include "ColShape.h"
 #include <unordered_map>
 #include <set>
 #include <memory>
+#include <vector>
+
+class ColShape;
 
 class StaticGrid {
 public:

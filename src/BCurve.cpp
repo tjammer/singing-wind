@@ -4,6 +4,7 @@
 
 #include "BCurve.h"
 #include "Editor.h"
+#include "WVecMath.h"
 
 WVec BCurve::eval(float t) const {
     return powf(1 - t, 3) * from

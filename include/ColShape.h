@@ -6,7 +6,6 @@
 #define SINGING_WIND_COLSHAPE_H
 
 #include "WindDefs.h"
-#include <SFML/Graphics.hpp>
 #include <array>
 
 const float c_line_triangulate_split = 250.f;
@@ -25,7 +24,7 @@ public:
     virtual WVec get_support(const WVec &dir) const = 0;
     virtual float get_radius() const = 0;
     virtual ColResult collides(const ColShape &other) const;
-    virtual void add_gfx_lines(sf::VertexArray &lines_va, const WTransform &transform) = 0;
+    virtual void add_gfx_lines(const WTransform &transform) = 0;
     virtual void transform(const WTransform &transform) = 0;
 
     // in local space
@@ -39,7 +38,7 @@ class ColTriangle : public ColShape {
 public:
     WVec get_support(const WVec &dir) const override;
     float get_radius() const override {return m_radius;}
-    virtual void add_gfx_lines(sf::VertexArray &lines_va, const WTransform &tf) override;
+    virtual void add_gfx_lines(const WTransform &tf) override;
     virtual void transform(const WTransform &transform) override;
     ColTriangle(const WVec &p1, const WVec &p2, const WVec &p3);
     ~ColTriangle() = default;
@@ -53,7 +52,7 @@ class ColCircle : public ColShape {
 public:
     WVec get_support(const WVec &dir) const override;
     float get_radius() const override {return m_radius;}
-    virtual void add_gfx_lines(sf::VertexArray &lines_va, const WTransform &tf) override;
+    virtual void add_gfx_lines(const WTransform &tf) override;
     virtual void transform(const WTransform &transform) override;
 
     ColCircle(float radius);
@@ -67,7 +66,7 @@ class ColCapsule : public ColShape {
 public:
     WVec get_support(const WVec &dir) const override;
     float get_radius() const override {return m_radius;}
-    virtual void add_gfx_lines(sf::VertexArray &lines_va, const WTransform &tf) override;
+    virtual void add_gfx_lines(const WTransform &tf) override;
     virtual void transform(const WTransform &transform) override;
 
     ColCapsule(float radius, float length);

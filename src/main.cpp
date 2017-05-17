@@ -1,48 +1,41 @@
-#include "SFML/Graphics.hpp"
-#include "Engine.h"
-#include <imgui-SFML.h>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <imgui.h>
+#include "imgui_impl_glfw_gl3.h"
+#include "Engine.h"
+#include <WInput.h>
 
 int main() {
+    glfwInit();
 
-    sf::ContextSettings settings;
-    settings.depthBits = 24;
-    settings.stencilBits = 8;
-    settings.antialiasingLevel = 4;
-    settings.majorVersion = 3;
-    settings.minorVersion = 0;
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    GLFWwindow* window = glfwCreateWindow(1280, 720, "My Title", NULL, NULL);
 
-    sf::RenderWindow window(sf::VideoMode(1280, 720), "Editor", sf::Style::Close, settings);
-    window.setVerticalSyncEnabled(true);
-    Engine engine(window);
-    ImGui::SFML::Init(window);
+    glfwMakeContextCurrent(window);
+    gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
+    glfwSwapInterval(1);
 
-    sf::Clock imgui_clock;
-    while (window.isOpen()) {
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            ImGui::SFML::ProcessEvent(event);
-            if (event.type == sf::Event::Closed) {
-                window.close();
-            }
-            else if (event.type == sf::Event::GainedFocus) {
-                engine.set_focus(true);
-            }
-            else if (event.type == sf::Event::LostFocus) {
-                engine.set_focus(false);
-            }
-            else if (event.type == sf::Event::MouseWheelScrolled) {
-                if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel) {
-                    engine.update_mouse_wheel(event.mouseWheelScroll.delta);
-                }
-            }
-        }
-        ImGui::SFML::Update(window, imgui_clock.restart());
+    // these get overridden by imui, will get called there too
+    glfwSetKeyCallback(window, WInput::key_callback);
+    glfwSetMouseButtonCallback(window, WInput::mouse_button_callback);
+
+    Engine engine(*window);
+
+    ImGui_ImplGlfwGL3_Init(window, true);
+
+    while (!glfwWindowShouldClose(window)) {
+        glfwPollEvents();
+        ImGui_ImplGlfwGL3_NewFrame();
         engine.update();
 
         ImGui::Render();
-        window.display();
+        glfwSwapBuffers(window);
     }
 
+    ImGui_ImplGlfwGL3_Shutdown();
+    glfwDestroyWindow(window);
+    glfwTerminate();
     return 0;
 }

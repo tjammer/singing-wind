@@ -5,12 +5,23 @@
 #ifndef SINGING_WIND_CAMERA_H
 #define SINGING_WIND_CAMERA_H
 
-#include "GameWorld.h"
-#include "Engine.h"
+#include <WindDefs.h>
 
-struct Camera {
+class GameWorld;
+
+class Camera {
+public:
     unsigned int m_entity_to_follow;
-    void update(GameWorld &game_world, Engine &engine);
+    void update(GameWorld &game_world);
+    void update(const WVec& offset, float zoom);
+    WVec unproject_mouse(double pos[2]);
+
+private:
+    glm::tmat4x4 <float> m_projection;
+    glm::tmat4x4 <float> m_view;
+    float m_zoom = 1.4f;
+    WVec m_center;
+    void update();
 };
 
 

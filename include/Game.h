@@ -10,6 +10,10 @@
 #include "Camera.h"
 #include "FrameTimer.h"
 
+class Camera;
+class FrameTimer;
+class GameWorld;
+
 // the game state of the engine FSM
 class Game : public EngineState {
 public:
@@ -17,7 +21,7 @@ public:
     void unpause() override;
 
     void update(Engine& engine) override;
-    void draw(sf::RenderWindow& window) override;
+    void draw() override;
 
     Game();
     ~Game() = default;
