@@ -75,15 +75,25 @@ void WRenderer::render_array() {
     primitive_shader.use();
     glBindVertexArray(prim_vao);
     glBindBuffer(GL_ARRAY_BUFFER, prim_vbo);
-    glBufferData(GL_ARRAY_BUFFER, m_prim_line_verts.size() * sizeof(PrimitiveVertex), m_prim_line_verts.data(), GL_DYNAMIC_DRAW);
+    // write data to buffer, first check size
+    GLint size = 0;
+    glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+    if (size >= m_prim_line_verts.size() * sizeof(PrimitiveVertex)) {
+        glBufferSubData(GL_ARRAY_BUFFER, 0, m_prim_line_verts.size() * sizeof(PrimitiveVertex), m_prim_line_verts.data());
+    }
+    else {
+        glBufferData(GL_ARRAY_BUFFER, m_prim_line_verts.size() * sizeof(PrimitiveVertex), m_prim_line_verts.data(), GL_DYNAMIC_DRAW);
+    }
+
+
     glDrawArrays(GL_LINES, 0, m_prim_line_verts.size());
 
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, prim_ebo);
+    /*glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, prim_ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_prim_quad_inds.size() * sizeof(unsigned short), m_prim_quad_inds.data(), GL_DYNAMIC_DRAW);
 
     glBufferData(GL_ARRAY_BUFFER, m_prim_quad_verts.size() * sizeof(PrimitiveVertex), m_prim_quad_verts.data(), GL_DYNAMIC_DRAW);
-    glDrawElements(GL_TRIANGLES, m_prim_quad_inds.size(), GL_UNSIGNED_SHORT, 0);
+    glDrawElements(GL_TRIANGLES, m_prim_quad_inds.size(), GL_UNSIGNED_SHORT, 0);*/
 
     glBindVertexArray(0);
 }

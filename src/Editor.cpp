@@ -131,7 +131,6 @@ void EngineEditorState::update(Engine &engine) {
     if (glfwGetKey(&window, GLFW_KEY_HOME) == GLFW_PRESS and not m_pressed[ResetZoom]) {
         m_zoom = 1.0f;
         m_mouse_wheel = engine.get_mouse_wheel();
-        m_update_view = true;
     }
     m_pressed[ResetZoom] = glfwGetKey(&window, GLFW_KEY_HOME) == GLFW_PRESS;
 
@@ -172,7 +171,6 @@ bool EngineEditorState::load_scene(const std::string &name) {
     }
 
     m_zoom = pb_scene.zoom();
-    m_update_view = true;
 
     update_world();
     return true;
