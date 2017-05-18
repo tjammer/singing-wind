@@ -5,7 +5,7 @@
 #ifndef SINGING_WIND_SCENEIO_H
 #define SINGING_WIND_SCENEIO_H
 
-#include "../target/release/Scene.pb.h"
+#include <Scene.pb.h>
 
 
 scene::Entity * get_pb_entity(const GameWorld &game_world, unsigned int entity);
