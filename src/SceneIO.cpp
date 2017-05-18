@@ -232,7 +232,7 @@ void delete_entity_from_scene(GameWorld &game_world, unsigned int entity) {
 
 void scene_entity_to_world(const scene::Entity &pb_entity, GameWorld &game_world, unsigned int entity) {
     std::string filename = "scenes/" + pb_entity.name() + ".went";
-    if (load_entity_from_filename(filename, game_world, entity)) {
+    if (!(pb_entity.name() == "root") and load_entity_from_filename(filename, game_world, entity)) {
         if (pb_entity.has_pos_c()) {
             auto pos_c = pb_entity.pos_c();
             game_world.m_pos_c[entity].rotation = pos_c.rotation();
