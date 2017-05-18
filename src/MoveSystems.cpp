@@ -40,8 +40,8 @@ accel_func get_trans_func(const MoveTransition &trans, const MoveSet &set) {
     return trans_sets.at(set).at(trans);
 }
 
-
-inline void walk(InputComponent &ic, MoveComponent &mc, GroundMoveComponent &gc) {
+template<class GC>
+inline void walk(InputComponent &ic, MoveComponent &mc, GC &gc) {
     float mod = 1;
     if (ic.direction[0] * mc.velocity.x < 0) {
         mod *= gc.c_turn_mod;
@@ -54,9 +54,7 @@ inline void drag(MoveComponent &mc) {
     mc.accel.y -= copysignf(mc.velocity.y * mc.velocity.y * 0.3f * c_drag, mc.velocity.y);
 }
 
-inline void friction(MoveComponent &mc) {
-    mc.accel.x -= copysignf(mc.velocity.x * mc.velocity.x * c_friction, mc.velocity.x);
-}const float c_half_pi = (float)M_PI / 2.f;
+const float c_half_pi = (float)M_PI / 2.f;
 
 const float c_velocity_scaling = 1200;
 
@@ -121,7 +119,6 @@ void protagonist::on_ground(GameWorld &world, unsigned int entity) {
     }
 
     drag(mc);
-    friction(mc);
 
     // jumping
     if (ic.jump[0] and std::find(ic.jump.begin(), ic.jump.end(), false) != ic.jump.end()
@@ -171,7 +168,8 @@ void ::protagonist::jumping(GameWorld &world, unsigned int entity) {
         to_flying(world, entity);
     }
 
-    mc.accel.x += ic.direction[0] * jc.c_accel;
+    //mc.accel.x += ic.direction[0] * jc.c_accel;
+    walk(ic, mc, jc);
 
     drag(mc);
 }
