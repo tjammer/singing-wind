@@ -34,6 +34,8 @@ public:
     void update(Engine &engine) override;
     void draw() override ;
 
+    void unpause() override;
+
     EngineEditorState(const std::string &scene_name, GameWorld &game_world);
     ~EngineEditorState() = default;
 

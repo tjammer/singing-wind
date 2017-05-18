@@ -302,6 +302,11 @@ bool EngineEditorState::main_menu() {
     return rtn;
 }
 
+void EngineEditorState::unpause() {
+    EngineState::unpause();
+    m_camera.update({0, 0}, m_zoom);
+}
+
 scene::Entity * get_pb_entity(const GameWorld &game_world, unsigned int entity) {
     using namespace std;
 
