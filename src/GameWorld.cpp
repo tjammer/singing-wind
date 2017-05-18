@@ -7,6 +7,7 @@
 #include "entities.h"
 #include "systems.h"
 #include "Editor.h"
+#include "SceneIO.h"
 
 void GameWorld::update_triangles() {
     std::vector<WVec> triangles;

@@ -8,6 +8,8 @@
 #include "ColShape.h"
 #include "imgui.h"
 #include "imgui-bezier.h"
+#include "SceneIO.h"
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
 
@@ -133,13 +135,16 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
         switch (sc.shape->m_type) {
             case ColShapeName::ColCapsule: {
                 auto shape = dynamic_cast<ColCapsule*>(sc.shape.get());
+                auto dbshape = dynamic_cast<ColCapsule*>(m_world.m_debug_c[m_entity].shape.get());
                 float radius = shape->get_capsule_radius();
                 if (DragFloat("radius", &radius)) {
                     shape->set_capsule_radius(radius);
+                    dbshape->set_capsule_radius(radius);
                 }
                 float length = shape->m_length;
                 if (DragFloat("length", &length)) {
                     shape->set_length(length);
+                    dbshape->set_length(length);
                 }
                 break;
             }

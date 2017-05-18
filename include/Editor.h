@@ -6,7 +6,6 @@
 #define SINGING_WIND_EDITOR_H
 
 #include "Engine.h"
-#include "../target/release/Scene.pb.h"
 #include "Camera.h"
 #include <unordered_map>
 
@@ -77,11 +76,5 @@ public:
     WVec m_mpos;
 };
 
-
-bool load_entity_from_filename(const std::string &name, GameWorld &game_world, unsigned int entity);
-scene::Entity * get_pb_entity(const GameWorld &game_world, unsigned int entity);
-bool save_entity_standalone(const GameWorld &game_world, unsigned int entity);
-void delete_entity_from_scene(GameWorld &game_world, unsigned int entity);
-void entity_to_world(const scene::Entity& entity, GameWorld &game_world, unsigned int);
 
 #endif //SINGING_WIND_EDITOR_H
