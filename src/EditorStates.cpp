@@ -275,19 +275,18 @@ EditorSubState PointEdit::delete_item(GameWorld &) {
 }
 
 void CurveInsert::draw(GameWorld &) {
-    /*auto va = get_island_vertex_array(m_island);
-    window.draw(va);
+    get_island_vertex_array(m_island);
+    WRenderer::set_mode(GL_QUADS);
 
     float t_low = fmax(m_new_point_t - 0.01f, 0.f);
     float t_high = fmin(m_new_point_t + 0.01f, 1.f);
 
     auto base = m_curve.eval(t_low);
-    va.append(sf::Vertex({(base + m_curve.eval_perpendicular(t_low) * c_line_size).x, (base + m_curve.eval_perpendicular(t_low) * c_line_size).y}, sf::Color(128, 8, 128)));
-    va.append(sf::Vertex({(base - m_curve.eval_perpendicular(t_low) * c_line_size).x, (base - m_curve.eval_perpendicular(t_low) * c_line_size).y}, sf::Color(128, 8, 128)));
+    WRenderer::add_primitive_vertex({{(base + m_curve.eval_perpendicular(t_low) * c_line_size).x, (base + m_curve.eval_perpendicular(t_low) * c_line_size).y}, {0.5, 0.05, 0.5}});
+    WRenderer::add_primitive_vertex({{(base - m_curve.eval_perpendicular(t_low) * c_line_size).x, (base - m_curve.eval_perpendicular(t_low) * c_line_size).y}, {0.5, 0.05, 0.5}});
     base = m_curve.eval(t_high);
-    va.append(sf::Vertex({(base - m_curve.eval_perpendicular(t_high) * c_line_size).x, (base - m_curve.eval_perpendicular(t_high) * c_line_size).y}, sf::Color(128, 8, 128)));
-    va.append(sf::Vertex({(base + m_curve.eval_perpendicular(t_high) * c_line_size).x, (base + m_curve.eval_perpendicular(t_high) * c_line_size).y}, sf::Color(128, 8, 128)));
-    window.draw(va);*/
+    WRenderer::add_primitive_vertex({{(base - m_curve.eval_perpendicular(t_high) * c_line_size).x, (base - m_curve.eval_perpendicular(t_high) * c_line_size).y}, {0.5, 0.05, 0.5}});
+    WRenderer::add_primitive_vertex({{(base + m_curve.eval_perpendicular(t_high) * c_line_size).x, (base + m_curve.eval_perpendicular(t_high) * c_line_size).y}, {0.5, 0.05, 0.5}});
 }
 
 CurveInsert::CurveInsert(BCurve curve, Island &active) : m_curve(curve), m_island(active) {
