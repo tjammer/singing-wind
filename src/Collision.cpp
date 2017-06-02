@@ -4,8 +4,11 @@
 
 #include "Collision.h"
 #include "ColShape.h"
+#include "ColGrid.h"
 #include <WVecMath.h>
 #include <assert.h>
+#include <bits/shared_ptr.h>
+#include <set>
 
 const float c_epsilon = 0.01f;
 const int c_max_it = 20;
@@ -40,6 +43,61 @@ ColResult static_collide(const ColShape &a, const ColShape &b) {
         result.depth = sqrtf(w_dot(v, v));
     return result;
 }
+
+RayCastResult cast_ray_vs_shape(const WVec &a, const ColShape &b, const WVec &dir) {
+    RayCastResult result;
+    result.innerits = 0;
+
+    //initialize
+    int it = 0;
+    float t = 0;
+    WVec s(0, 0);
+    WVec n(0, 0);
+    //pick point in A - B
+    auto v = a - b.get_support(-dir);
+    Simplex W;
+
+    WVec p;
+    while (w_dot(v, v) > c_epsilon && it < c_max_it) {
+        p = a - b.get_support(v);
+
+        float dvp = w_dot(v, p);
+        float dvr = w_dot(v, dir);
+
+        if (dvp > t*dvr) {
+            if (dvr > 0) {
+                result.innerits++;
+                t = dvp / dvr;
+                /*if (t > 1) {
+                    return result;
+                }*/
+                s = t * dir;
+                //simplex is reset
+                W = Simplex();
+                n = -v;
+            }
+            else {
+                return result;
+            }
+        }
+        W.add(p - s);
+        W.solve(WVec(0, 0));
+        v = W.get_closest();
+
+        ++it;
+        result.its++;
+    }
+    if (s == n) {
+        n = v;
+    }
+    result.hitParameter = t;
+    result.hitSpot = s;
+    result.hitNormal = n;
+    result.hits = true;
+
+    return result;
+}
+
 
 float find_normal_epa(const ColShape &a, const ColShape &b, Simplex &s, WVec &normal, int &epa_it) {
     float dist = std::numeric_limits<float>::max();
@@ -298,5 +356,68 @@ WVec find_directed_overlap(const ColResult &result, const WVec &direction) {
 }
 
 std::ostream &operator<<(std::ostream &os, const ColResult &result) {
-        return os << "collides: " << result.collides << ", normal: x: " << result.normal.x << " y: " << result.normal.y << ", depth: " << result.depth << ", gjk it: " << result.gjk_it << ", epa it: " << result.epa_it;
+        return os << "collides: " << result.collides << ", normal: x: " <<
+                  result.normal.x << " y: " << result.normal.y << ", depth: " << result.depth << ", gjk it: " <<
+                  result.gjk_it << ", epa it: " << result.epa_it;
+}
+
+inline void swap(float& p1, float& p2) {
+    auto tmp = p1;
+    p1 = p2;
+    p2 = tmp;
+}
+
+RayCastResult cast_ray_vs_static_grid(StaticGrid &grid, WVec from, WVec to) {
+    std::set<std::shared_ptr<ColShape>> tested;
+
+    auto dir = w_normalize(to - from);
+    auto pos = from;
+    bool steep = abs(to.y - from.y) > abs(to.x - from.x);
+    if (steep) {
+        auto f = from.x;
+        swap(from.x, from.y);
+        swap(to.x, to.y);
+        assert(from.y == f);
+    }
+    float xstep = static_cast<float>(grid.get_size());
+    if (from.x > to.x) {
+        xstep = -xstep;
+    }
+
+    float dx = to.x - from.x;
+    float dy = abs(to.y - from.y);
+    float error = 0;
+    float ystep = 1;
+    float y = from.y;
+    if (from.y > to.y) {
+        ystep = -1;
+    }
+
+    RayCastResult result;
+
+    for (float x = from.x; xstep * x <= xstep * to.x; x += xstep) {
+        auto colliders = steep ? grid.get_colliders_of_point({y, x}) : grid.get_colliders_of_point({x, y});
+
+        // check collision
+        for (const auto &shape: colliders) {
+            if (tested.count(shape)) {
+                continue;
+            }
+            auto res = cast_ray_vs_shape(pos, *shape, -dir);
+            if (res.hitParameter < result.hitParameter) {
+                result = res;
+            }
+            tested.insert(shape);
+        }
+        if (result.hits) {
+            break;
+        }
+
+        error += dy;
+        if (2 * error >= dx) {
+            y += ystep;
+            error -= dx;
+        }
+    }
+    return result;
 }

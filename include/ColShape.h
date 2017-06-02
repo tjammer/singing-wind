@@ -16,7 +16,8 @@ enum class ColShapeName {
     ColTriangle,
     ColCircle,
     ColCapsule,
-    ColBase
+    ColBase,
+    ColPoint
 };
 
 class ColShape {
@@ -82,6 +83,21 @@ private:
     float m_capsule_radius;
     WVec m_a;
     WVec m_b;
+};
+
+class ColPoint : public ColShape {
+public:
+    WVec get_support(const WVec &dir) const override;
+    float get_radius() const override {return 0;}
+    virtual void add_gfx_lines(const WTransform &) override {};
+    virtual void transform(const WTransform &transform) override;
+
+    ColPoint();
+    ~ColPoint() = default;
+
+    // in local space
+    WVec m_center;
+    bool m_highlight = false;
 };
 
 

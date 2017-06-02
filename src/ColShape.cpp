@@ -154,3 +154,16 @@ void ColCapsule::set_capsule_radius(float radius) {
     m_capsule_radius = radius;
     m_radius = m_length / 2.f + m_capsule_radius;
 }
+
+ColPoint::ColPoint() {
+    m_center = WVec(0, 0);
+    m_type = ColShapeName ::ColPoint;
+}
+
+WVec ColPoint::get_support(const WVec &) const {
+    return m_center;
+}
+
+void ColPoint::transform(const WTransform &transform) {
+    m_center = WVec(transform * WVec3(m_center, 1));
+}

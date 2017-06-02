@@ -19,12 +19,15 @@ public:
     void clear();
     std::vector<std::shared_ptr<ColShape>> find_colliders(const std::shared_ptr<ColShape> &shape);
     std::vector<std::shared_ptr<ColShape>> get_objects() const {return m_objects;}
+    std::vector<std::shared_ptr<ColShape>> get_colliders_of_point(const WVec &p);
+
+    unsigned int get_size() const {return m_cell_size;}
 
     StaticGrid();
     ~StaticGrid() = default;
 
 private:
-    unsigned int cell_size;
+    unsigned int m_cell_size;
     std::vector<std::shared_ptr<ColShape>> m_objects;
     std::unordered_map<int, std::vector<size_t>> m_buckets;
     int get_id(const WVec &v) const;

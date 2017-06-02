@@ -18,6 +18,16 @@ struct ColResult {
     int epa_it = 0;
 };
 
+struct RayCastResult
+{
+    bool hits = false;
+    float hitParameter = std::numeric_limits<float>::max();
+    WVec hitSpot;
+    WVec hitNormal;
+    int its = 0;
+    int innerits = 0;
+};
+
 std::ostream& operator <<(std::ostream& os, const ColResult &result);
 
 struct Edge {
@@ -52,6 +62,11 @@ private:
 };
 
 ColResult static_collide(const ColShape &a, const ColShape &b);
+
+RayCastResult cast_ray_vs_shape(const WVec &p, const ColShape &b, const WVec &dir);
+
+class StaticGrid;
+RayCastResult cast_ray_vs_static_grid(StaticGrid &grid, WVec from, WVec to);
 
 float find_normal_epa(const ColShape &a, const ColShape &b, Simplex &s, WVec &normal, int&);
 
