@@ -21,6 +21,8 @@ namespace Protagonist {
     unsigned int create_player(GameWorld &world, const WVec &pos, unsigned int parent);
 
     std::shared_ptr<ColShape> get_shape();
+
+    const WVec c_capsule_size = {15, 30};
 }
 
 #endif //SINGING_WIND_PROTAGONIST_H

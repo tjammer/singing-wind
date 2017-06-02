@@ -9,6 +9,7 @@
 #include "imgui.h"
 #include "imgui-bezier.h"
 #include "SceneIO.h"
+#include "Protagonist.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
@@ -125,7 +126,8 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
             switch (static_cast<ColShapeName>(shape_type)) {
                 case ColShapeName::ColCapsule: {
                     if (sc.shape->m_type != ColShapeName::ColCapsule) {
-                        sc.shape = std::shared_ptr<ColShape>(new ColCapsule(15, 15));
+                        sc.shape = std::shared_ptr<ColShape>(new ColCapsule(Protagonist::c_capsule_size.x,
+                                                                            Protagonist::c_capsule_size.y));
                     }
                     break;
                 }
