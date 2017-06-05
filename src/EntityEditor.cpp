@@ -176,7 +176,7 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
     // fly
     if (m_world.m_entities[m_entity].test(CFly) and CollapsingHeader("flying")) {
         auto &fc = m_world.m_fly_c[m_entity];
-        if (DragFloat("lift", &fc.c_lift)) {}
+        if (DragFloat("lift", &fc.c_lift, .0001f, 0.0f, 0.0f, "%.5f")) {}
         if (DragFloat("stall angle", &fc.c_stall_angle)) {}
         if (DragFloat("max angle change", &fc.c_max_change_angle)) {}
         if (DragFloat("accel force", &fc.c_accel_force)) {}
