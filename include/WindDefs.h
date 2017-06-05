@@ -9,10 +9,10 @@
 #include <ostream>
 #include <bitset>
 
-using WVec = glm::tvec2<float>;
-using WVec3 = glm::tvec3<float>;
-using WTransform = glm::mat3;
-using bset = std::bitset<12>;
+typedef glm::tvec2<float> WVec;
+typedef glm::tvec3<float> WVec3;
+typedef glm::mat3 WTransform;
+typedef std::bitset<12> bset;
 
 inline std::ostream& operator <<(std::ostream& os, const WVec &v) {
     os << "(" << v.x << ", " << v.y << ")";
