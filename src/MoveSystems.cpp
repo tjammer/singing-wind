@@ -56,7 +56,7 @@ inline void drag(MoveComponent &mc) {
 
 const float c_half_pi = (float)M_PI / 2.f;
 
-const float c_velocity_scaling = 1200;
+const float c_velocity_scaling = 1400;
 
 inline float calc_drag(float angle, float vel_mag) {
     auto drag_coeff = c_drag * exp(vel_mag / c_velocity_scaling);
@@ -64,15 +64,14 @@ inline float calc_drag(float angle, float vel_mag) {
 }
 
 inline float calc_lift(float angle, float vel_mag, FlyComponent &fc) {
-    auto lift_coeff = fc.c_lift * exp(-vel_mag / c_velocity_scaling / 10);
     if (angle < 0) {
         return -calc_lift(-angle, vel_mag, fc);
     }
     assert(angle >= 0);
     if (angle < fc.c_stall_angle || abs(fmod(angle + (float)M_PI, (float)M_PI)) < fc.c_stall_angle) {
-        return lift_coeff * sin(angle * c_half_pi / fc.c_stall_angle);
+        return fc.c_lift * sin(angle * c_half_pi / fc.c_stall_angle);
     }
-    return lift_coeff * cos((angle - fc.c_stall_angle) * c_half_pi / (c_half_pi - fc.c_stall_angle));
+    return fc.c_lift * cos((angle - fc.c_stall_angle) * c_half_pi / (c_half_pi - fc.c_stall_angle));
 }
 
 // get angle from mouse to player in degrees (for smfl), zero is up
