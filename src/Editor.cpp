@@ -7,6 +7,7 @@
 #include "ColShape.h"
 #include "GameWorld.h"
 #include "SceneIO.h"
+#include "WRenderer.h"
 #include <imgui.h>
 #include <iostream>
 #include <fstream>
@@ -303,6 +304,8 @@ bool EngineEditorState::main_menu() {
 
 void EngineEditorState::unpause() {
     EngineState::unpause();
-    m_camera.update({0, 0}, m_zoom);
+    auto current = glm::inverse(WRenderer::get_camera());
+    WVec center = {current[3][0], current[3][1]};
+    m_camera.set_center(center);
 }
 

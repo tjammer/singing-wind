@@ -33,3 +33,7 @@ void Camera::update() {
     WRenderer::set_camera(m_projection * m_view);
 }
 
+void Camera::set_center(const WVec &center) {
+    m_center = center;
+}
+

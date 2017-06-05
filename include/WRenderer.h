@@ -24,6 +24,7 @@ namespace WRenderer {
     unsigned int get_vao();
     void set_mode(int mode);
     void set_camera(const glm::tmat4x4<float>& transform);
+    glm::tmat4x4<float>& get_camera();
     const glm::tvec2<int>& get_viewport();
 }
 

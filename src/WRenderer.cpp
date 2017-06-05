@@ -113,3 +113,7 @@ void ::WRenderer::set_camera(const glm::tmat4x4<float>& transform) {
 const glm::tvec2<int> &::WRenderer::get_viewport() {
     return viewport;
 }
+
+glm::tmat4x4<float> &::WRenderer::get_camera() {
+    return camera_transform;
+}

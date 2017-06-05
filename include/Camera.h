@@ -14,6 +14,7 @@ public:
     unsigned int m_entity_to_follow;
     void update(GameWorld &game_world);
     void update(const WVec& offset, float zoom);
+    void set_center(const WVec& center);
     WVec unproject_mouse(double pos[2]);
 
 private:
