@@ -98,7 +98,7 @@ struct GroundMoveComponent {
 struct JumpComponent {
     float c_accel = 500;
     float c_turn_mod = 4;
-    float c_jump_speed = 1000;
+    float c_jump_height = 1000;
 };
 
 struct FlyComponent {

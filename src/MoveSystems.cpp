@@ -181,7 +181,9 @@ void ::protagonist::to_jumping(GameWorld &world, unsigned int entity) {
 
     clear_arr(ic.jump, true);
     mc.movestate = MoveState::Jumping;
-    mc.velocity.y = -jc.c_jump_speed;
+    // calc jump speed from jump height
+    float jump_speed = sqrt(2.f * c_gravity * jc.c_jump_height);
+    mc.velocity.y = -jump_speed;
 }
 
 void ::protagonist::to_ground(GameWorld &world, unsigned int entity) {
