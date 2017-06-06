@@ -51,7 +51,6 @@ inline void walk(InputComponent &ic, MoveComponent &mc, GC &gc) {
 
 inline void drag(MoveComponent &mc) {
     mc.accel.x -= copysignf(mc.velocity.x * mc.velocity.x * c_drag, mc.velocity.x);
-    mc.accel.y -= copysignf(mc.velocity.y * mc.velocity.y * 0.3f * c_drag, mc.velocity.y);
 }
 
 const float c_half_pi = (float)M_PI / 2.f;
@@ -84,7 +83,7 @@ inline void fly(GameWorld & world, unsigned int entity) {
     auto &mc = world.m_move_c[entity];
     auto &fc = world.m_fly_c[entity];
 
-    mc.accel.y -= c_gravity * 0.5f;
+    mc.accel.y -= mc.mass * c_gravity * 0.5f;
 
     auto air_dir = w_normalize(mc.velocity);
     auto glide_dir = w_rotated_deg(WVec(0, -1), pc.rotation);
@@ -152,7 +151,6 @@ void ::protagonist::jumping(GameWorld &world, unsigned int entity) {
     auto &jc = world.m_jump_c[entity];
 
     if (mc.movestate == MoveState::Jumping) {
-        mc.accel.y -= c_gravity * 0.1f;
         if (mc.velocity.y > 0) {
             to_falling(mc);
         }

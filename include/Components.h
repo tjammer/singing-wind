@@ -75,6 +75,7 @@ struct MoveComponent {
     WVec additional_accel = {0, 0};
     MoveState movestate;
     MoveSet moveset;
+    float mass = 1;
 };
 
 enum class StaticColResponse : int {

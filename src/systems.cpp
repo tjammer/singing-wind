@@ -118,7 +118,7 @@ void move_update(GameWorld &world, float dt, const std::vector<unsigned int> &en
 
         auto old_accel = mc.accel;
 
-        mc.accel = WVec(0, c_gravity);
+        mc.accel = WVec(0, mc.mass * c_gravity);
         mc.accel += mc.additional_accel;
 
         mc.velocity += old_accel * dt;
