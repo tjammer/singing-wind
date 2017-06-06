@@ -307,5 +307,6 @@ void EngineEditorState::unpause() {
     auto current = glm::inverse(WRenderer::get_camera());
     WVec center = {current[3][0], current[3][1]};
     m_camera.set_center(center);
+    m_camera.update({0, 0}, m_zoom);
 }
 
