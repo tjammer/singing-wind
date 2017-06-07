@@ -63,12 +63,14 @@ message GroundMoveComponent {
     float accel = 1;
     float stop_friction = 2;
     float turn_mod = 3;
+    float max_vel = 4;
 }
 
 message JumpComponent {
     float accel = 1;
     float turn_mod = 2;
-    float jump_speed = 3;
+    float jump_height = 3;
+    float max_vel = 4;
 }
 
 message FlyComponent {

@@ -69,6 +69,7 @@ scene::Entity * get_pb_entity(const GameWorld &game_world, unsigned int entity) 
         ground_c->set_accel(game_world.m_ground_move_c.at(entity).c_accel);
         ground_c->set_stop_friction(game_world.m_ground_move_c.at(entity).c_stop_friction);
         ground_c->set_turn_mod(game_world.m_ground_move_c.at(entity).c_turn_mod);
+        ground_c->set_max_vel(game_world.m_ground_move_c.at(entity).c_max_vel);
         pb_entity->set_allocated_ground_move_c(ground_c);
     }
 
@@ -77,7 +78,7 @@ scene::Entity * get_pb_entity(const GameWorld &game_world, unsigned int entity) 
         scene::JumpComponent *jump_c = new scene::JumpComponent;
         jump_c->set_turn_mod(game_world.m_jump_c.at(entity).c_turn_mod);
         jump_c->set_accel(game_world.m_jump_c.at(entity).c_accel);
-        jump_c->set_jump_speed(game_world.m_jump_c.at(entity).c_jump_speed);
+        jump_c->set_jump_height(game_world.m_jump_c.at(entity).c_jump_height);
         pb_entity->set_allocated_jump_c(jump_c);
     }
 
@@ -183,6 +184,7 @@ void entity_to_world(const scene::Entity &pb_entity, GameWorld &game_world, unsi
         game_world.m_ground_move_c[entity].c_accel = ground_move_c.accel();
         game_world.m_ground_move_c[entity].c_turn_mod = ground_move_c.turn_mod();
         game_world.m_ground_move_c[entity].c_stop_friction = ground_move_c.stop_friction();
+        game_world.m_ground_move_c[entity].c_max_vel = ground_move_c.max_vel();
     }
 
     // jump move
@@ -190,7 +192,7 @@ void entity_to_world(const scene::Entity &pb_entity, GameWorld &game_world, unsi
         auto jump_c = pb_entity.jump_c();
         game_world.m_jump_c[entity].c_accel = jump_c.accel();
         game_world.m_jump_c[entity].c_turn_mod = jump_c.turn_mod();
-        game_world.m_jump_c[entity].c_jump_speed = jump_c.jump_speed();
+        game_world.m_jump_c[entity].c_jump_height = jump_c.jump_height();
     }
 
     // fly move

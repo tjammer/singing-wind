@@ -93,12 +93,14 @@ struct GroundMoveComponent {
     float c_stop_friction = 8;
     float c_turn_mod = 4;
     float air_time = 0;
+    float c_max_vel = 0;
 };
 
 struct JumpComponent {
     float c_accel = 500;
     float c_turn_mod = 4;
     float c_jump_height = 1000;
+    float c_max_vel = 0;
 };
 
 struct FlyComponent {

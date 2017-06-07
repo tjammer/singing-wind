@@ -165,6 +165,7 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
         if (DragFloat("accel", &gc.c_accel)) {}
         if (DragFloat("stop_friction", &gc.c_stop_friction)) {}
         if (DragFloat("turn_mod", &gc.c_turn_mod)) {}
+        if (DragFloat("max vel", &gc.c_max_vel)) {}
     }
     // jump
     if (m_world.m_entities[m_entity].test(CJump) and CollapsingHeader("jumping")) {
