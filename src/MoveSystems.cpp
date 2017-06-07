@@ -43,17 +43,27 @@ accel_func get_trans_func(const MoveTransition &trans, const MoveSet &set) {
 template<class GC>
 inline void walk(InputComponent &ic, MoveComponent &mc, GC &gc) {
     float mod = 1;
+    float accel = gc.c_accel;
     if (ic.direction[0] * mc.velocity.x < 0) {
         mod *= gc.c_turn_mod;
     }
-    // calc diminishing accel
-    float vel = fmin(gc.c_max_vel, abs(mc.velocity.x));
-    float accel = gc.c_accel * (1.f - exp(-pow(vel - gc.c_max_vel, 2.f) * 0.1f/gc.c_max_vel));
+    else {
+        // calc diminishing accel
+        float vel = fmin(gc.c_max_vel, abs(mc.velocity.x));
+        accel *= (1.f - exp(-pow(vel - gc.c_max_vel, 2.f) * 0.1f/gc.c_max_vel));
+    }
     mc.accel.x += ic.direction[0] * mod * accel;
 }
 
 inline void drag(MoveComponent &mc) {
     mc.accel.x -= copysignf(mc.velocity.x * mc.velocity.x * c_drag * 0.01f, mc.velocity.x);
+}
+
+template<class GC>
+inline void pseudo_friction(MoveComponent &mc, GC &gc) {
+    if (abs(mc.velocity.x) > gc.c_max_vel) {
+        mc.accel.x -= copysignf(gc.c_accel * (1.f - abs(mc.velocity.x) / gc.c_max_vel), mc.velocity.x);
+    }
 }
 
 const float c_half_pi = (float)M_PI / 2.f;
@@ -114,6 +124,7 @@ void protagonist::on_ground(GameWorld &world, unsigned int entity) {
     }
 
     walk(ic, mc, gc);
+    pseudo_friction(mc, gc);
 
     if (ic.direction[0] == 0) {
         mc.accel.x -= gc.c_stop_friction * mc.velocity.x;
