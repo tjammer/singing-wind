@@ -79,6 +79,7 @@ scene::Entity * get_pb_entity(const GameWorld &game_world, unsigned int entity) 
         jump_c->set_turn_mod(game_world.m_jump_c.at(entity).c_turn_mod);
         jump_c->set_accel(game_world.m_jump_c.at(entity).c_accel);
         jump_c->set_jump_height(game_world.m_jump_c.at(entity).c_jump_height);
+        jump_c->set_max_vel(game_world.m_jump_c.at(entity).c_max_vel);
         pb_entity->set_allocated_jump_c(jump_c);
     }
 
@@ -193,6 +194,7 @@ void entity_to_world(const scene::Entity &pb_entity, GameWorld &game_world, unsi
         game_world.m_jump_c[entity].c_accel = jump_c.accel();
         game_world.m_jump_c[entity].c_turn_mod = jump_c.turn_mod();
         game_world.m_jump_c[entity].c_jump_height = jump_c.jump_height();
+        game_world.m_jump_c[entity].c_max_vel = jump_c.max_vel();
     }
 
     // fly move

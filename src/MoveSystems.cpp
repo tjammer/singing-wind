@@ -46,11 +46,14 @@ inline void walk(InputComponent &ic, MoveComponent &mc, GC &gc) {
     if (ic.direction[0] * mc.velocity.x < 0) {
         mod *= gc.c_turn_mod;
     }
-    mc.accel.x += ic.direction[0] * mod * gc.c_accel;
+    // calc diminishing accel
+    float vel = fmin(gc.c_max_vel, abs(mc.velocity.x));
+    float accel = gc.c_accel * (1.f - exp(-pow(vel - gc.c_max_vel, 2.f) * 0.1f/gc.c_max_vel));
+    mc.accel.x += ic.direction[0] * mod * accel;
 }
 
 inline void drag(MoveComponent &mc) {
-    mc.accel.x -= copysignf(mc.velocity.x * mc.velocity.x * c_drag, mc.velocity.x);
+    mc.accel.x -= copysignf(mc.velocity.x * mc.velocity.x * c_drag * 0.01f, mc.velocity.x);
 }
 
 const float c_half_pi = (float)M_PI / 2.f;
