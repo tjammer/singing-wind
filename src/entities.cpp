@@ -17,7 +17,7 @@ unsigned int Entities::create_root(GameWorld &game_world, const WVec &position, 
         comps.set(i);
     }
     game_world.m_entities[root] = comps;
-    game_world.m_id_c[root] = "root";
+    game_world.m_name_c[root] = "root";
     game_world.m_pos_c[root].position = position;
     game_world.m_pos_c[root].parent = parent;
     game_world.m_pos_c[root].global_transform = glm::translate(WTransform(), position);
