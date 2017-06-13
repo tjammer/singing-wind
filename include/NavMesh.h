@@ -13,8 +13,9 @@
 
 enum class LinkType : int {
     Walk,
-    Jump,
-    Fall
+    JumpUp,
+    Drop,
+    JumpAlong
 };
 
 typedef glm::tvec2<int> NavNodeBase;
@@ -98,11 +99,15 @@ struct NavMesh {
     // for reusage
     std::unordered_map<NavNode, NavNode> m_path;
     std::unordered_map<NavNode, float> m_cost;
+
+    NavMesh() = default;
+    NavMesh(const NavMesh &other);
+    NavMesh& operator=(const NavMesh &);
 private:
     NavTree m_tree;
 };
 
-void build_navmesh(const std::vector<Island> &m_islands, StaticGrid &grid, const WVec &from, const WVec &to);
+NavMesh build_navmesh(const std::vector<Island> &m_islands, StaticGrid &gridmesh);
 
 inline float heuristic(const NavNode &from, const NavNode &to) {
     return abs(from.x - to.x) + abs(from.y - to.y);

@@ -137,7 +137,7 @@ void EngineEditorState::update(Engine &engine) {
 }
 
 void EngineEditorState::update_world() {
-    m_game_world.update_triangles();
+    m_game_world.update_world();
 }
 
 bool EngineEditorState::load_scene(const std::string &name) {
@@ -241,6 +241,14 @@ bool EngineEditorState::main_menu() {
             }
             if (ImGui::MenuItem("load scene")) {
                 load_scn = true;
+                rtn = true;
+            }
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("view")) {
+            rtn = true;
+            if (ImGui::MenuItem("NavMesh / visibility graph")) {
+                m_state = EditorSubState(new NavMeshIdle());
                 rtn = true;
             }
             ImGui::EndMenu();

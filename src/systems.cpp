@@ -14,7 +14,7 @@
 void debug_draw_update(GameWorld &world, const std::vector<unsigned int> &entities) {
     WTransform zero_tf;
     WRenderer::set_mode(GL_LINES);
-    for (const auto &tri : world.m_grid.get_objects()) {
+    for (const auto &tri : world.get_grid().get_objects()) {
         tri->add_gfx_lines(zero_tf);
     }
 
@@ -45,7 +45,7 @@ void static_col_update(GameWorld &world, const std::vector<unsigned int> &entiti
         // overwrite result
         result = ColResult();
 
-        auto colliders = world.m_grid.find_colliders(shape);
+        auto colliders = world.get_grid().find_colliders(shape);
         for (const auto &tri : colliders) {
             auto cr = shape->collides(*tri);
             if (cr.collides) {

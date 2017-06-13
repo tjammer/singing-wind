@@ -13,7 +13,7 @@
 #include "WRenderer.h"
 #include <iostream>
 
-void GameWorld::update_triangles() {
+void GameWorld::update_world() {
     std::vector<WVec> triangles;
     m_grid.clear();
     for (const auto &island : m_islands) {
@@ -26,6 +26,7 @@ void GameWorld::update_triangles() {
         }
     }
 
+    m_navmesh = build_navmesh(m_islands, m_grid);
 }
 
 GameWorld::GameWorld() {
@@ -63,7 +64,6 @@ void GameWorld::step_fixed(float dt, const WVec &mouse) {
     for (auto q : make_quad(m, 10)) {
         WRenderer::add_primitive_vertex({{q.x, q.y}, {1.f, 1.f, 1.f}});
     }
-    build_navmesh(m_islands, m_grid, p, m);
 }
 
 unsigned int GameWorld::create_entity() {

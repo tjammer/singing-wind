@@ -109,5 +109,11 @@ public:
     EditorSubState menu(GameWorld &world) override;
 };
 
+class NavMeshIdle : public BaseEditorSubState {
+public:
+    void draw(GameWorld &world) override;
+    EditorSubState cancel() override;
+};
+
 void get_island_vertex_array(const Island&);
 #endif //SINGING_WIND_EDITORSTATES_H

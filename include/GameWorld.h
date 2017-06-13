@@ -7,6 +7,7 @@
 
 #include "Island.h"
 #include "ColGrid.h"
+#include "NavMesh.h"
 #include "Components.h"
 
 class GLFWwindow;
@@ -47,17 +48,23 @@ public:
 
     // communication with editor
     std::vector<Island> &get_islands_ref() {return m_islands;};
-    void update_triangles();
+    void update_world();
 
     unsigned int create_entity();
     bool load_entity(const std::string &name);
     void create_root();
     void delete_entity_raw(unsigned int entity);
 
-    // members
+    // getters
+    StaticGrid &get_grid() {return m_grid;}
+    std::vector<Island> get_islands() {return m_islands;}
+    NavMesh &get_navmesh() {return m_navmesh;}
+
+private:
     StaticGrid m_grid;
     std::vector<Island> m_islands;
-private:
+    NavMesh m_navmesh;
+
     std::vector<unsigned int> m_input_ents;
     std::vector<unsigned int> m_move_ents;
     std::vector<unsigned int> m_debug_draw_ents;

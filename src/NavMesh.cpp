@@ -44,42 +44,7 @@ std::unordered_map<NavNode, std::vector<NavLink>> walkable_from_tri(std::array<W
     return graph;
 }
 
-void build_navmesh(const std::vector<Island> &m_islands, StaticGrid &grid, const WVec &from, const WVec &to) {
-    NavMesh mesh;
-    std::vector<WVec> triangles;
-    for (const auto &island : m_islands) {
-        triangulate_island(island, triangles);
-        for (unsigned int i = 0 ; i < triangles.size() / 3 ; ++i) {
-            auto p1 = triangles[i*3];
-            auto p2 = triangles[i*3+1];
-            auto p3 = triangles[i*3+2];
-            std::unordered_map<NavNode, std::vector<NavLink>> links = walkable_from_tri({p1, p2, p3}, grid);
-            for (const auto &pr : links) {
-                auto node = pr.first;
-                for (const auto &link : pr.second) {
-                    mesh.m_graph[node].push_back(link);
-                }
-            }
-        }
-    }
-    // todo sort into islands and check visibility to create links
-    build_levels_connections(mesh, grid);
-    mesh.build_tree();
-    // render
-    for (const auto &pr : mesh.m_graph) {
-        auto & node = pr.first;
-        auto & links = pr.second;
-        WRenderer::set_mode(GL_QUADS);
-        for (const auto &q : make_quad({node.x, node.y}, 5)) {
-            WRenderer::add_primitive_vertex({{q.x, q.y}, {0, 1, 1}});
-        }
-        WRenderer::set_mode(GL_LINES);
-        // links
-        for (const auto & link : links) {
-            WRenderer::add_primitive_vertex({{(float)link.from.x, (float)link.from.y}, {1, 1, 0}});
-            WRenderer::add_primitive_vertex({{(float)link.to.x, (float)link.to.y}, {1, 1, 0}});
-        }
-    }
+void dummy_search(const WVec &from, const WVec &to, NavMesh &mesh) {
     const NavNode & node = mesh.get_nearest(from);
     const NavNode & _to = mesh.get_nearest(to);
     if (a_star_search(mesh.m_graph, node, _to, mesh.m_path, mesh.m_cost)) {
@@ -101,6 +66,30 @@ void build_navmesh(const std::vector<Island> &m_islands, StaticGrid &grid, const
         }
     }
 
+}
+
+NavMesh build_navmesh(const std::vector<Island> &m_islands, StaticGrid &grid) {
+    NavMesh mesh;
+    std::vector<WVec> triangles;
+    for (const auto &island : m_islands) {
+        triangulate_island(island, triangles);
+        for (unsigned int i = 0 ; i < triangles.size() / 3 ; ++i) {
+            auto p1 = triangles[i*3];
+            auto p2 = triangles[i*3+1];
+            auto p3 = triangles[i*3+2];
+            std::unordered_map<NavNode, std::vector<NavLink>> links = walkable_from_tri({p1, p2, p3}, grid);
+            for (const auto &pr : links) {
+                auto node = pr.first;
+                for (const auto &link : pr.second) {
+                    mesh.m_graph[node].push_back(link);
+                }
+            }
+        }
+    }
+    // todo sort into islands and check visibility to create links
+    build_levels_connections(mesh, grid);
+    mesh.build_tree();
+    return mesh;
 }
 
 template <class pair>
@@ -158,6 +147,21 @@ void visit_node(NavNode &node, NavMesh &mesh, std::set<NavNode> &visited, unsign
     }
 }
 
+LinkType find_link_type(const NavLink &link) {
+    float dx = abs(link.to.x - link.from.x);
+    float dy = link.to.y - link.from.y;
+
+    if (abs(dy) > dx) {
+        // fall or jump
+        if (dy < 0) {
+            return LinkType::JumpUp;
+        }
+        return LinkType::Drop;
+    }
+    // along
+    return LinkType::JumpAlong;
+}
+
 void find_shortest_links(unsigned int l1, unsigned int l2, NavMesh &mesh, StaticGrid &grid) {
     struct Match {
         float dist = std::numeric_limits<float>::max();
@@ -166,7 +170,6 @@ void find_shortest_links(unsigned int l1, unsigned int l2, NavMesh &mesh, Static
     };
     std::unordered_map<NavNode, Match> outer_matches;
     std::unordered_map<NavNode, Match> inner_matches;
-
 
     for (auto &outer: mesh.m_graph) {
         auto &outer_node = outer.first;
@@ -195,13 +198,17 @@ void find_shortest_links(unsigned int l1, unsigned int l2, NavMesh &mesh, Static
         }
     }
 
-
     for (auto &pair : outer_matches) {
         auto &n1 = pair.first;
         auto &match = pair.second;
         if (match.create && inner_matches.at(match.node).node == n1) {
-            mesh.m_graph.at(n1).emplace_back(NavLink{match.node, n1});
-            mesh.m_graph.at(match.node).emplace_back(NavLink{n1, match.node});
+            NavLink l1{match.node, n1};
+            l1.link_type = find_link_type(l1);
+            mesh.m_graph.at(n1).push_back(l1);
+
+            NavLink l2{n1, match.node};
+            l2.link_type = find_link_type(l2);
+            mesh.m_graph.at(match.node).push_back(l2);
         }
 
     }
@@ -270,4 +277,20 @@ void NavMesh::build_tree() {
 
 NavNode NavMesh::get_nearest(const WVec &pos) {
     return m_tree.get_nearest(pos);
+}
+
+NavMesh::NavMesh(const NavMesh &other) {
+    m_graph = other.m_graph;
+    m_levels = other.m_levels;
+
+    build_tree();
+
+}
+
+NavMesh& NavMesh::operator=(const NavMesh &other) {
+    m_graph = other.m_graph;
+    m_levels = other.m_levels;
+
+    build_tree();
+    return *this;
 }

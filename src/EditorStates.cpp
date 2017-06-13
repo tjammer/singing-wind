@@ -472,3 +472,27 @@ EditorSubState IslandMove::menu(GameWorld &world) {
 IslandMove::IslandMove(Island &active, const WVec &mouse) : m_island(active) {
     m_mpos = mouse;
 }
+
+void NavMeshIdle::draw(GameWorld &world) {
+    const auto &mesh = world.get_navmesh();
+
+    // render
+    for (const auto &pr : mesh.m_graph) {
+        auto & node = pr.first;
+        auto & links = pr.second;
+        WRenderer::set_mode(GL_QUADS);
+        for (const auto &q : make_quad({node.x, node.y}, 5)) {
+            WRenderer::add_primitive_vertex({{q.x, q.y}, {0, 1, 1}});
+        }
+        WRenderer::set_mode(GL_LINES);
+        // links
+        for (const auto & link : links) {
+            WRenderer::add_primitive_vertex({{(float)link.from.x, (float)link.from.y}, {1, 1, 0}});
+            WRenderer::add_primitive_vertex({{(float)link.to.x, (float)link.to.y}, {1, 1, 0}});
+        }
+    }
+}
+
+EditorSubState NavMeshIdle::cancel() {
+    return EditorSubState(new EditorIdle());
+}
