@@ -54,7 +54,7 @@ unsigned int Protagonist::create_player(GameWorld &world, const WVec &pos, unsig
     }
 
     world.m_entities[player] = comps;
-    world.m_id_c[player] = "player";
+    world.m_name_c[player] = "player";
     world.m_pos_c[player].position = pos;
     world.m_pos_c[player].parent = parent;
     world.m_pos_c[player].global_transform = glm::rotate(glm::translate(WTransform(), pos),world.m_pos_c[player].rotation);

@@ -40,7 +40,7 @@ public:
         std::unordered_map<unsigned int, GroundMoveComponent> m_ground_move_c;
         std::unordered_map<unsigned int, JumpComponent> m_jump_c;
         std::unordered_map<unsigned int, FlyComponent> m_fly_c;
-        std::vector<IdComponent> m_id_c;
+        std::vector<NameComponent> m_name_c;
 
     void reset_entities();
     void reset_islands() {m_islands.clear();}

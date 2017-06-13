@@ -61,7 +61,7 @@ scene::Entity * get_pb_entity(const GameWorld &game_world, unsigned int entity) 
     }
 
     // name
-    pb_entity->set_name(game_world.m_id_c[entity]);
+    pb_entity->set_name(game_world.m_name_c[entity]);
 
     // ground move
     if (game_world.m_entities.at(entity).test(CGroundMove)) {
@@ -121,7 +121,7 @@ bool save_entity_standalone(const GameWorld &game_world, unsigned int entity) {
     pb_entity->mutable_pos_c()->mutable_position()->set_x(0);
     pb_entity->mutable_pos_c()->set_parent(0);
 
-    string entity_name = game_world.m_id_c[entity];
+    string entity_name = game_world.m_name_c[entity];
     string filename = "scenes/" + entity_name + ".went";
     fstream  scene_file(filename, ios_base::out | ios_base::trunc | ios_base::binary);
     if (!pb_entity->SerializeToOstream(&scene_file)) {
@@ -177,7 +177,7 @@ void entity_to_world(const scene::Entity &pb_entity, GameWorld &game_world, unsi
 
 
     // name
-    game_world.m_id_c[entity] = pb_entity.name();
+    game_world.m_name_c[entity] = pb_entity.name();
 
     // ground move
     if (pb_entity.has_ground_move_c()) {
