@@ -36,7 +36,15 @@ struct DebugComponent {
 };
 
 // for serializing and identification
-using IdComponent = std::string;
+using NameComponent = std::string;
+
+using TagComponent = bset;
+
+enum Tags : int {
+    TActor,
+    TProtagonist,
+    TEnemy
+};
 
 const int c_input_buffer_length = 15;
 
