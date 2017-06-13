@@ -17,20 +17,35 @@ enum class LinkType : int {
     Fall
 };
 
-using NavNode = glm::tvec2<int>;
-
-struct NavLink {
-    NavNode first;
-    NavNode second;
-    float weight;
-    LinkType link_type = LinkType::Walk;
-    NavNode& get_next(const NavNode& n);
-
-    NavLink(const NavNode& first, const NavNode& second);
+typedef glm::tvec2<int> NavNodeBase;
+struct NavNode : public NavNodeBase {
+    using NavNodeBase::vec;
 };
 
-// spatial partitioing to find nearest node
+namespace std {
+    template <>
+    struct hash<NavNode> : public hash<NavNodeBase>{};
+}
 
+
+inline bool operator<(const NavNode &lhs, const NavNode& rhs) {
+    return std::hash<NavNode>{}(lhs) < std::hash<NavNode>{}(rhs);
+}
+
+struct NavLink {
+    NavNode to;
+    NavNode from;
+    float cost;
+    LinkType link_type = LinkType::Walk;
+
+    NavLink(const NavNode& to, const NavNode& from);
+};
+
+inline bool operator==(const NavLink &lhs, const NavLink &rhs) {
+    return lhs.to == rhs.to && lhs.from == rhs.from;
+}
+
+typedef std::unordered_map<NavNode, std::vector<NavLink>> NavGraph;
 
 struct NavTree {
     NavTree();
@@ -50,7 +65,7 @@ private:
         {
             const float d0=p1[0]-nodes[idx_p2].x;
             const float d1=p1[1]-nodes[idx_p2].y;
-            return d0*d0+d1*d1;
+            return abs(d0)+abs(d1);
         }
 
         // Returns the dim'th component of the idx'th point in the class:
@@ -68,21 +83,34 @@ private:
         template <class BBOX>
         bool kdtree_get_bbox(BBOX& /*bb*/) const { return false; }
     };
-    using KDTree = nanoflann::KDTreeSingleIndexAdaptor<nanoflann::L1_Adaptor<float, NavCloud> , NavCloud, 2>;
+    typedef nanoflann::KDTreeSingleIndexAdaptor<nanoflann::L1_Adaptor<float, NavCloud> , NavCloud, 2> KDTree;
     NavCloud m_cloud;
     KDTree m_kd_tree;
 };
 
 struct NavMesh {
-    std::unordered_map<NavNode, std::vector<NavLink>> graph;
+    NavGraph m_graph;
+    std::unordered_map<NavNode, unsigned int> m_levels;
     void build_tree();
 
     NavNode get_nearest(const WVec &pos);
+
+    // for reusage
+    std::unordered_map<NavNode, NavNode> m_path;
+    std::unordered_map<NavNode, float> m_cost;
 private:
     NavTree m_tree;
 };
 
-void build_navmesh(const std::vector<Island> &m_islands, const StaticGrid &grid, const WVec &mouse);
+void build_navmesh(const std::vector<Island> &m_islands, StaticGrid &grid, const WVec &from, const WVec &to);
 
+inline float heuristic(const NavNode &from, const NavNode &to) {
+    return abs(from.x - to.x) + abs(from.y - to.y);
+}
+
+int a_star_search(const NavGraph &graph, const NavNode &start, const NavNode &goal,
+                  std::unordered_map<NavNode, NavNode> &, std::unordered_map<NavNode, float> &);
+
+void build_levels_connections(NavMesh &mesh, StaticGrid &grid);
 
 #endif //SINGING_WIND_NAVMESH_H

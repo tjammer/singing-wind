@@ -9,6 +9,10 @@
 #include "Editor.h"
 #include "SceneIO.h"
 
+#include "NavMesh.h"
+#include "WRenderer.h"
+#include <iostream>
+
 void GameWorld::update_triangles() {
     std::vector<WVec> triangles;
     m_grid.clear();
@@ -43,6 +47,23 @@ void GameWorld::step_fixed(float dt, const WVec &mouse) {
     // house keeping systems
     ground_move_update(*this, dt, m_ground_move_ents);
     fly_update(*this, dt, m_fly_ents);
+
+
+    auto result = cast_ray_vs_static_grid(m_grid, m_pos_c[1].position, m_pos_c[1].position + WVec{0, 1000});
+    auto p = m_pos_c[1].position;
+    if (result.hits) {
+        p.y += result.hitParameter;
+    }
+    result = cast_ray_vs_static_grid(m_grid, mouse, mouse + WVec{0, 1000});
+    auto m = mouse;
+    if (result.hits) {
+        m.y += result.hitParameter;
+    }
+    WRenderer::set_mode(GL_QUADS);
+    for (auto q : make_quad(m, 10)) {
+        WRenderer::add_primitive_vertex({{q.x, q.y}, {1.f, 1.f, 1.f}});
+    }
+    build_navmesh(m_islands, m_grid, p, m);
 }
 
 unsigned int GameWorld::create_entity() {
@@ -56,7 +77,7 @@ unsigned int GameWorld::create_entity() {
 
     // each component needs to be resized
     m_entities.push_back(0);
-    m_id_c.push_back(IdComponent());
+    m_name_c.push_back(NameComponent());
 
     return entity;
 }
@@ -125,7 +146,7 @@ void GameWorld::reset_entities() {
     m_ground_move_c.clear();
     m_jump_c.clear();
     m_fly_c.clear();
-    m_id_c.clear();
+    m_name_c.clear();
 }
 
 void GameWorld::create_root() {
