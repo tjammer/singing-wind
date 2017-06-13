@@ -58,7 +58,7 @@ void WRenderer::add_primitive_vertex(const PrimitiveVertex &vert) {
         m_prim_quad_verts.push_back(vert);
         if (m_prim_quad_verts.size() % 4 == 0) {
             // setup indices
-            auto offset = static_cast<unsigned short>(m_prim_quad_verts.size());
+            auto offset = static_cast<unsigned short>(m_prim_quad_verts.size()) - 4;
             for (unsigned short i : {0, 1, 2, 0, 2, 3}) {
                 m_prim_quad_inds.push_back(offset + i);
             }
