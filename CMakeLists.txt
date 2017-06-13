@@ -21,18 +21,33 @@ set(SOURCE_FILES src/main.cpp
         src/Engine.cpp include/Engine.h
         src/Editor.cpp include/Editor.h
         src/BCurve.cpp include/BCurve.h
-        include/WindDefs.h src/Island.cpp
-        include/Island.h
-        src/EditorStates.cpp
-        include/EditorStates.h
-        include/triangulate.h
-        src/triangulate.cpp
-        src/ColShape.cpp
-        include/ColShape.h
-        src/Collision.cpp
-        include/Collision.h
-        src/ColGrid.cpp
-        include/ColGrid.h src/GameWorld.cpp include/GameWorld.h src/Game.cpp include/Game.h src/Components.cpp include/Components.h include/entities.h src/entities.cpp src/Protagonist.cpp include/Protagonist.h src/systems.cpp include/systems.h src/Camera.cpp include/Camera.h src/FrameTimer.cpp include/FrameTimer.h src/EntityEditor.cpp include/EntityEditor.h src/MoveSystems.cpp include/MoveSystems.h include/imgui-bezier.h src/imgui_impl_glfw_gl3.cpp src/imgui_impl_glfw_gl3.cpp include/stb_image.h src/WRenderer.cpp include/WRenderer.h src/WShader.cpp include/WShader.h src/WTexture.cpp include/WTexture.h src/WInput.cpp include/WInput.h include/WVecMath.h src/SceneIO.cpp include/SceneIO.h src/NavMesh.cpp include/NavMesh.h)
+        include/WindDefs.h 
+        include/WVecMath.h 
+        src/Island.cpp include/Island.h
+        src/EditorStates.cpp include/EditorStates.h
+        include/triangulate.h src/triangulate.cpp
+        src/ColShape.cpp include/ColShape.h
+        src/Collision.cpp include/Collision.h
+        src/ColGrid.cpp include/ColGrid.h 
+        src/GameWorld.cpp include/GameWorld.h 
+        src/Game.cpp include/Game.h 
+        src/Components.cpp include/Components.h 
+        include/entities.h 
+        src/entities.cpp 
+        src/Protagonist.cpp include/Protagonist.h 
+        src/systems.cpp include/systems.h 
+        src/Camera.cpp include/Camera.h 
+        src/FrameTimer.cpp include/FrameTimer.h 
+        src/EntityEditor.cpp include/EntityEditor.h 
+        src/MoveSystems.cpp include/MoveSystems.h 
+        include/imgui-bezier.h 
+        src/imgui_impl_glfw_gl3.cpp include/stb_image.h 
+        src/WRenderer.cpp include/WRenderer.h 
+        src/WShader.cpp include/WShader.h 
+        src/WTexture.cpp include/WTexture.h 
+        src/WInput.cpp include/WInput.h 
+        src/SceneIO.cpp include/SceneIO.h 
+        src/NavMesh.cpp include/NavMesh.h)
 
 
 #set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")

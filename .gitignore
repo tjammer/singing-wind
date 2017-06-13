@@ -4,3 +4,4 @@ target
 videos
 compile_commands.json
 build
+*.swp
