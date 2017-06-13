@@ -40,8 +40,8 @@ void Game::unpause() {
 }
 
 void Game::update_camera_follow() {
-    for (unsigned int i = 0 ; i < m_game_world.m_id_c.size() ; ++i) {
-        if (m_game_world.m_id_c[i] == "player" and m_game_world.m_entities[i].any()) {
+    for (unsigned int i = 0 ; i < m_game_world.m_name_c.size() ; ++i) {
+        if (m_game_world.m_name_c[i] == "player" and m_game_world.m_entities[i].any()) {
             m_camera.m_entity_to_follow = i;
         }
     }
