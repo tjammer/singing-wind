@@ -51,3 +51,9 @@ foreach(shader ${shaders})
     message("to ${CMAKE_CURRENT_BINARY_DIR}/shaders/${outputFileName}")
     configure_file(${shader} ${CMAKE_CURRENT_BINARY_DIR}/shaders/${outputFileName} COPYONLY)
 endforeach()
+
+# for ycm
+set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
+add_custom_command(TARGET singing_wind PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json ${CMAKE_SOURCE_DIR})
