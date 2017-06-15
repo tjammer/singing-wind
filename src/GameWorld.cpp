@@ -11,7 +11,6 @@
 
 #include "NavMesh.h"
 #include "WRenderer.h"
-#include <iostream>
 
 void GameWorld::update_world() {
     std::vector<WVec> triangles;

@@ -366,45 +366,44 @@ inline void swap(float& p1, float& p2) {
     p1 = p2;
     p2 = tmp;
 }
+inline float pymod(float a, float b) {
+    return fmod(b + fmod(a, b), b);
+}
 
-RayCastResult cast_ray_vs_static_grid(StaticGrid &grid, WVec from, WVec to) {
+RayCastResult cast_ray_vs_static_grid(StaticGrid &grid, const WVec &from, const WVec &to) {
+    //http://www.cs.yorku.ca/~amana/research/grid.pdf
     std::set<std::shared_ptr<ColShape>> tested;
 
     auto dir = w_normalize(to - from);
-    auto pos = from;
-    bool steep = abs(to.y - from.y) > abs(to.x - from.x);
-    if (steep) {
-        auto f = from.x;
-        swap(from.x, from.y);
-        swap(to.x, to.y);
-        assert(from.y == f);
-    }
-    float xstep = static_cast<float>(grid.get_size());
-    if (from.x > to.x) {
-        xstep = -xstep;
-    }
-
-    float dx = to.x - from.x;
-    float dy = abs(to.y - from.y);
-    float error = 0;
-    float ystep = 1;
-    float y = from.y;
-    if (from.y > to.y) {
-        ystep = -1;
-    }
 
     RayCastResult result;
 
-    for (float x = from.x; xstep * x <= xstep * to.x; x += xstep) {
-        auto colliders = steep ? grid.get_colliders_of_point({y, x}) : grid.get_colliders_of_point({x, y});
+    auto pos = from;
 
+    float cell_size = static_cast<float>(grid.get_size());
+
+    float x_dt = 0;
+    float y_dt = 0;
+
+    while ((to.x - pos.x ) * dir.x >= 0 && (to.y - pos.y) * dir.y >= 0) {
+        float t = 0;
+        if (x_dt < y_dt) {
+            t = x_dt;
+        }
+        else {
+            t = y_dt;
+        }
+        pos += dir * t;
+
+        auto colliders = grid.get_colliders_of_point(pos);
         // check collision
         for (const auto &shape: colliders) {
             if (tested.count(shape)) {
                 continue;
             }
-            auto res = cast_ray_vs_shape(pos, *shape, -dir);
+            auto res = cast_ray_vs_shape(from, *shape, -dir);
             if (res.hitParameter < result.hitParameter) {
+                assert(res.hits);
                 result = res;
             }
             tested.insert(shape);
@@ -413,10 +412,19 @@ RayCastResult cast_ray_vs_static_grid(StaticGrid &grid, WVec from, WVec to) {
             break;
         }
 
-        error += dy;
-        if (2 * error >= dx) {
-            y += ystep;
-            error -= dx;
+        // todo: find xdt and ydt
+        if (dir.x != 0) {
+            x_dt = pymod(copysignf(pos.x, dir.x), cell_size) / abs(dir.x) + 0.1f;
+        }
+        else {
+            x_dt = std::numeric_limits<float>::max();
+        }
+
+        if (dir.y != 0) {
+            y_dt = pymod(copysignf(pos.y, dir.y), cell_size) / abs(dir.y) + 0.1f;
+        }
+        else {
+            y_dt = std::numeric_limits<float>::max();
         }
     }
     return result;
