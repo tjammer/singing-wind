@@ -27,4 +27,7 @@ void ground_move_update(GameWorld &world, float dt, const std::vector<unsigned i
 const bset c_fly_components{(1 << CFly)};
 void fly_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities);
 
+const bset c_path_components{(1 << CPosition) | (1 << CPathing)};
+void path_update(GameWorld &world, const std::vector<unsigned int> &entities);
+
 #endif //SINGING_WIND_SYSTEMS_H

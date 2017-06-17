@@ -6,6 +6,7 @@
 #include <assert.h>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
+#include "GameWorld.h"
 
 unsigned int Entities::create_root(GameWorld &game_world, const WVec &position, unsigned int parent) {
     // create root

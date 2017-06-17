@@ -6,11 +6,13 @@
 #define SINGING_WIND_ENTITIES_H
 
 #include <unordered_map>
-#include "GameWorld.h"
 #include <functional>
 #include "Protagonist.h"
 #include "TestEnemy.h"
 #include "ColShape.h"
+#include "Components.h"
+
+class GameWorld;
 
 namespace Entities {
     unsigned int create_root(GameWorld &game_world, const WVec &position, unsigned int parent);

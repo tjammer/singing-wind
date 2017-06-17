@@ -29,6 +29,7 @@ auto movestate_names = get_enum_string_array(movestate_string);
 const char* const colshape_names = {"Triangle\0Circle\0Capsule\0\0"};
 auto col_responses = get_enum_string_array(staticcolresponse_string);
 auto inputfunc_names = get_enum_string_array(inputfunc_string);
+auto pathingtype_names = get_enum_string_array(pathingtype_string);
 
 void EntityIdle::draw(GameWorld &world) {
     bset debug_draw; debug_draw.set(CPosition); debug_draw.set(CDebugDraw);
@@ -67,14 +68,9 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
         auto &comps = m_world.m_entities[m_entity];
 
         auto flags = comps.to_ulong();
-        CheckboxFlags(components_string.at(CMove), &flags, 1 << CMove);
-        CheckboxFlags(components_string.at(CAppearance), &flags, 1 << CAppearance);
-        CheckboxFlags(components_string.at(CStaticCol), &flags, 1 << CStaticCol);
-        CheckboxFlags(components_string.at(CInput), &flags, 1 << CInput);
-        CheckboxFlags(components_string.at(CDebugDraw), &flags, 1 << CDebugDraw);
-        CheckboxFlags(components_string.at(CGroundMove), &flags, 1 << CGroundMove);
-        CheckboxFlags(components_string.at(CJump), &flags, 1 << CJump);
-        CheckboxFlags(components_string.at(CFly), &flags, 1 << CFly);
+        for (auto &pair : components_string) {
+            CheckboxFlags(pair.second, &flags, 1 << static_cast<int>(pair.first));
+        }
         comps = bset(flags);
         Text(comps.to_string().c_str());
     }
@@ -198,6 +194,15 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
             fc.to = {points[3].x, points[3].y};
         }
     }
+    // pathing
+    if (m_world.m_entities[m_entity].test(CPathing) and CollapsingHeader("pathing")) {
+        auto &pc = m_world.m_path_c[m_entity];
+        int pathing_type = static_cast<int>(pc.p_type);
+        if (Combo("path type", &pathing_type, pathingtype_names.data(), pathingtype_names.size())) {
+            pc.p_type = static_cast<PathingType>(pathing_type);
+        }
+    }
+
     if (Button("save entity")) {
         save_entity_standalone(m_world, m_entity);
     }

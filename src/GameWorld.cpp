@@ -89,6 +89,7 @@ void GameWorld::find_entities_fixed() {
     m_ground_move_ents.clear();
     m_fly_ents.clear();
     m_static_col_ents.clear();
+    m_path_ents.clear();
 
     for (unsigned int i = 0 ; i < m_entities.size() ; ++i) {
         auto ent = m_entities[i];
@@ -111,6 +112,10 @@ void GameWorld::find_entities_fixed() {
 
         if (has_component(ent, c_static_col_components)) {
             m_static_col_ents.push_back(i);
+        }
+
+        if (has_component(ent, c_path_components)) {
+            m_path_ents.push_back(i);
         }
     }
 }

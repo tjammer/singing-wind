@@ -5,8 +5,6 @@
 #ifndef SINGING_WIND_GAMEWORLD_H
 #define SINGING_WIND_GAMEWORLD_H
 
-#include "Island.h"
-#include "ColGrid.h"
 #include "NavMesh.h"
 #include "Components.h"
 
@@ -41,6 +39,7 @@ public:
         std::unordered_map<unsigned int, GroundMoveComponent> m_ground_move_c;
         std::unordered_map<unsigned int, JumpComponent> m_jump_c;
         std::unordered_map<unsigned int, FlyComponent> m_fly_c;
+        std::unordered_map<unsigned int, PathingComponent> m_path_c;
         std::vector<NameComponent> m_name_c;
 
     void reset_entities();
@@ -71,6 +70,7 @@ private:
     std::vector<unsigned int> m_ground_move_ents;
     std::vector<unsigned int> m_fly_ents;
     std::vector<unsigned int> m_static_col_ents;
+    std::vector<unsigned int> m_path_ents;
 
     void find_entities_fixed();
     void find_entities_draw();

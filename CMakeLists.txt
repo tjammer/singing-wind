@@ -17,41 +17,69 @@ find_library(protobuf libprotobuf)
 find_package(Protobuf REQUIRED)
 PROTOBUF_GENERATE_CPP(protosrc protohdr src/Scene.proto)
 
+set(INCLUDE_FILES include/Engine.h
+    include/Editor.h
+    include/BCurve.h
+    include/WindDefs.h 
+    include/WVecMath.h 
+    include/Island.h
+    include/EditorStates.h
+    include/triangulate.h
+    include/ColShape.h
+    include/Collision.h
+    include/ColGrid.h
+    include/GameWorld.h    
+    include/Game.h
+    include/Components.h
+    include/entities.h
+    include/Protagonist.h
+    include/systems.h
+    include/Camera.h
+    include/FrameTimer.h
+    include/EntityEditor.h
+    include/MoveSystems.h
+    include/imgui-bezier.h
+    include/stb_image.h
+    include/WRenderer.h
+    include/WShader.h
+    include/WTexture.h
+    include/WInput.h
+    include/SceneIO.h
+    include/NavMesh.h
+    include/TestEnemy.h)
+
 set(SOURCE_FILES src/main.cpp
-        src/Engine.cpp include/Engine.h
-        src/Editor.cpp include/Editor.h
-        src/BCurve.cpp include/BCurve.h
-        include/WindDefs.h 
-        include/WVecMath.h 
-        src/Island.cpp include/Island.h
-        src/EditorStates.cpp include/EditorStates.h
-        include/triangulate.h src/triangulate.cpp
-        src/ColShape.cpp include/ColShape.h
-        src/Collision.cpp include/Collision.h
-        src/ColGrid.cpp include/ColGrid.h 
-        src/GameWorld.cpp include/GameWorld.h 
-        src/Game.cpp include/Game.h 
-        src/Components.cpp include/Components.h 
-        include/entities.h 
-        src/entities.cpp 
-        src/Protagonist.cpp include/Protagonist.h 
-        src/systems.cpp include/systems.h 
-        src/Camera.cpp include/Camera.h 
-        src/FrameTimer.cpp include/FrameTimer.h 
-        src/EntityEditor.cpp include/EntityEditor.h 
-        src/MoveSystems.cpp include/MoveSystems.h 
-        include/imgui-bezier.h 
-        src/imgui_impl_glfw_gl3.cpp include/stb_image.h 
-        src/WRenderer.cpp include/WRenderer.h 
-        src/WShader.cpp include/WShader.h 
-        src/WTexture.cpp include/WTexture.h 
-        src/WInput.cpp include/WInput.h 
-        src/SceneIO.cpp include/SceneIO.h 
-        src/NavMesh.cpp include/NavMesh.h
-        src/TestEnemy.cpp include/TestEnemy.h)
+    src/Engine.cpp 
+    src/Editor.cpp 
+    src/BCurve.cpp 
+    src/Island.cpp 
+    src/EditorStates.cpp 
+    src/triangulate.cpp
+    src/ColShape.cpp 
+    src/Collision.cpp 
+    src/ColGrid.cpp  
+    src/GameWorld.cpp  
+    src/Game.cpp  
+    src/Components.cpp  
+    src/entities.cpp 
+    src/Protagonist.cpp  
+    src/systems.cpp  
+    src/Camera.cpp  
+    src/FrameTimer.cpp  
+    src/EntityEditor.cpp  
+    src/MoveSystems.cpp  
+    src/imgui_impl_glfw_gl3.cpp  
+    src/WRenderer.cpp  
+    src/WShader.cpp  
+    src/WTexture.cpp  
+    src/WInput.cpp  
+    src/SceneIO.cpp  
+    src/NavMesh.cpp 
+    src/TestEnemy.cpp)
 
+include(unity_build.cmake)
+#enable_unity_build(singing_wind SOURCE_FILES)
 
-#set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
 add_executable(singing_wind ${SOURCE_FILES} ${protosrc} ${protohdr})
 target_link_libraries(singing_wind imgui glfw glm glad protobuf triangle nanoflann)
 

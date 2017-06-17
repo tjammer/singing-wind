@@ -8,7 +8,7 @@
 #include "WindDefs.h"
 #include <vector>
 
-class PrimitiveVertex;
+struct PrimitiveVertex;
 
 class Island {
 public:

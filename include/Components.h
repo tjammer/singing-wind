@@ -8,10 +8,12 @@
 #include "Collision.h"
 #include <memory>
 #include <deque>
+#include <queue>
 #include <map>
 
 class GameWorld;
 class ColShape;
+class NavNode;
 
 enum Components : int {
     CPosition,
@@ -22,7 +24,8 @@ enum Components : int {
     CDebugDraw,
     CGroundMove,
     CJump,
-    CFly
+    CFly,
+    CPathing
 };
 const std::map<Components, const char*> components_string = {
     {CPosition, "CPosition"},
@@ -33,7 +36,8 @@ const std::map<Components, const char*> components_string = {
     {CDebugDraw, "CDebugDraw"},
     {CGroundMove, "CGroundMove"},
     {CJump, "CJump"},
-    {CFly, "CFly"}
+    {CFly, "CFly"},
+    {CPathing, "CPathing"}
 };
 
 struct PosComponent {
@@ -157,5 +161,20 @@ struct FlyComponent {
     WVec to = {1.000, 0.870875001};
 };
 
+enum class PathingType : int {
+    Platform,
+    Jump,
+    Fly
+};
+const std::map<PathingType, const char*> pathingtype_string = {
+    {PathingType::Platform, "Platform"},
+    {PathingType::Jump, "Jump"},
+    {PathingType::Fly, "Fly"}
+};
+
+struct PathingComponent {
+    PathingType p_type;
+    std::queue<NavNode> path;
+};
 
 #endif //SINGING_WIND_COMPONENTS_H
