@@ -25,7 +25,7 @@ public:
     ~GameWorld() = default;
 
     // maybe a timer?
-    void step_fixed(float dt, const WVec &mouse);
+    void step_fixed(float dt);
     void pre_draw(float dt);
     void draw();
 

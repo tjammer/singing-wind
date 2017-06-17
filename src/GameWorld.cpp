@@ -37,10 +37,10 @@ void GameWorld::draw() {
     debug_draw_update(*this, m_debug_draw_ents);
 }
 
-void GameWorld::step_fixed(float dt, const WVec &mouse) {
+void GameWorld::step_fixed(float dt) {
     find_entities_fixed();
 
-    input_update(*this, mouse, m_input_ents);
+    input_update(*this, m_input_ents);
     move_update(*this, dt, m_move_ents);
     static_col_update(*this, m_static_col_ents);
 
@@ -49,7 +49,7 @@ void GameWorld::step_fixed(float dt, const WVec &mouse) {
     fly_update(*this, dt, m_fly_ents);
 
 
-    auto result = cast_ray_vs_static_grid(m_grid, m_pos_c[1].position, m_pos_c[1].position + WVec{0, 1000});
+    /*auto result = cast_ray_vs_static_grid(m_grid, m_pos_c[1].position, m_pos_c[1].position + WVec{0, 1000});
     auto p = m_pos_c[1].position;
     if (result.hits) {
         p.y += result.hitParameter;
@@ -62,7 +62,7 @@ void GameWorld::step_fixed(float dt, const WVec &mouse) {
     WRenderer::set_mode(GL_QUADS);
     for (auto q : make_quad(m, 10)) {
         WRenderer::add_primitive_vertex({{q.x, q.y}, {1.f, 1.f, 1.f}});
-    }
+    }*/
 }
 
 unsigned int GameWorld::create_entity() {

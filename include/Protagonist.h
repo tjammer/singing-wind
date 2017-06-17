@@ -16,7 +16,7 @@ namespace Protagonist {
 
     void on_static_collision(const ColResult &result, GameWorld &world, unsigned int entity);
 
-    void handle_inputs(InputComponent &ic, const WVec &mouse);
+    void handle_inputs(GameWorld &world, unsigned int entity);
 
     unsigned int create_player(GameWorld &world, const WVec &pos, unsigned int parent);
 

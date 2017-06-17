@@ -32,7 +32,9 @@ void Protagonist::on_static_collision(const ColResult &result, GameWorld &world,
 
 }
 
-void Protagonist::handle_inputs(InputComponent &ic, const WVec &mouse) {
+void Protagonist::handle_inputs(GameWorld &world, unsigned int entity) {
+    auto &ic = world.m_input_c.at(entity);
+
     ic.jump.pop_back();
     ic.jump.push_front(WInput::is_key_pressed(GLFW_KEY_SPACE));
 
@@ -40,7 +42,7 @@ void Protagonist::handle_inputs(InputComponent &ic, const WVec &mouse) {
     ic.direction.push_front(WInput::is_key_pressed(GLFW_KEY_D) - WInput::is_key_pressed(GLFW_KEY_A));
 
     ic.mouse.pop_back();
-    ic.mouse.push_front(mouse);
+    ic.mouse.push_front(WInput::get_mouse_pos());
 
     ic.wings.pop_back();
     ic.wings.push_front(WInput::is_mouse_button_pressed(GLFW_MOUSE_BUTTON_RIGHT));

@@ -5,6 +5,7 @@
 #include "Game.h"
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
+#include "WInput.h"
 
 Game::Game() {
     update_camera_follow();
@@ -23,7 +24,8 @@ void Game::update(Engine &engine) {
 
     m_timer.update();
     while (m_timer.pop_fixed()) {
-        m_game_world.step_fixed(c_fixed_timestep, {mouse.x, mouse.y});
+        WInput::set_mouse(mouse);
+        m_game_world.step_fixed(c_fixed_timestep);
     }
     m_camera.update(m_game_world);
 }

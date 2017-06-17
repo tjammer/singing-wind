@@ -7,6 +7,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include "WindDefs.h"
 
 namespace WInput {
     void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -14,6 +15,9 @@ namespace WInput {
 
     void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
     bool is_mouse_button_pressed(int button);
+
+    void set_mouse(const WVec &mouse);
+    WVec get_mouse_pos();
 }
 
 

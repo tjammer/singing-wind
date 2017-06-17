@@ -16,7 +16,7 @@ const bset c_static_col_components{(1 << CPosition) | (1 << CStaticCol)};
 void static_col_update(GameWorld &world, const std::vector<unsigned int> &entities);
 
 const bset c_input_components{(1 << CInput)};
-void input_update(GameWorld &world, const WVec &mouse, const std::vector<unsigned int> &entities);
+void input_update(GameWorld &world, const std::vector<unsigned int> &entities);
 
 const bset c_move_components{(1 << CPosition) | (1 << CMove)};
 void move_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities);

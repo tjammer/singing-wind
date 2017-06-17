@@ -8,6 +8,7 @@
 namespace WInput {
     std::unordered_map<int, int> keys;
     std::unordered_map<int, int> buttons;
+    WVec mouse;
 
     void key_callback(GLFWwindow*, int key, int, int action, int) {
         keys[key] = action;
@@ -24,4 +25,13 @@ namespace WInput {
     bool is_mouse_button_pressed(int button) {
         return buttons[button] == GLFW_PRESS;
     }
+
+    void set_mouse(const WVec &_mouse) {
+        mouse = _mouse;
+    }
+
+    WVec get_mouse_pos() {
+        return mouse;
+    }
+
 }

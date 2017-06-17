@@ -19,7 +19,7 @@ const std::unordered_map<StaticColResponse, std::function<void(const ColResult &
         {StaticColResponse::Actor, Protagonist::on_static_collision}
 };
 
-const std::unordered_map<InputFunc, std::function<void(InputComponent&, const WVec&)>> input_funcs = {
+const std::unordered_map<InputFunc, std::function<void(GameWorld &world, unsigned int entity)>> input_funcs = {
         {InputFunc::Protagonist, Protagonist::handle_inputs}
 };
 
