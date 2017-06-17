@@ -57,4 +57,10 @@ void clear_arr(std::deque<T> &arr, const T &val) {
     }
 }
 
+template<typename T>
+void push_value(std::deque<T> &arr, const T &val) {
+    arr.pop_back();
+    arr.push_front(val);
+}
+
 #endif //SINGING_WIND_WVECMATH_H
