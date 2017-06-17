@@ -114,7 +114,7 @@ inline float heuristic(const NavNode &from, const NavNode &to) {
 }
 
 int a_star_search(const NavGraph &graph, const NavNode &start, const NavNode &goal,
-                  std::unordered_map<NavNode, NavNode> &, std::unordered_map<NavNode, float> &);
+                  std::unordered_map<NavNode, NavNode> &);
 
 void build_levels_connections(NavMesh &mesh, StaticGrid &grid);
 

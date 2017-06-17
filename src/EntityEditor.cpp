@@ -29,6 +29,7 @@ const std::unordered_map<Components, std::string> component_names = {
 };
 const char* const colshape_names = {"Triangle\0Circle\0Capsule\0\0"};
 const char* const col_responses = {"Actor\0\0"};
+const char* const input_funcs = {"Protagonist\0TestEnemy\0\0"};
 
 void EntityIdle::draw(GameWorld &world) {
     bset debug_draw; debug_draw.set(CPosition); debug_draw.set(CDebugDraw);
@@ -159,6 +160,13 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
     }
     // appearance
     // input
+    if (m_world.m_entities[m_entity].test(CInput) and CollapsingHeader("input")) {
+        auto &ic = m_world.m_input_c[m_entity];
+        int inputstate = static_cast<int>(ic.input_func);
+        if (Combo("InputFunc", &inputstate, input_funcs)) {
+            ic.input_func = static_cast<InputFunc>(inputstate);
+        }
+    }
     // ground move
     if (m_world.m_entities[m_entity].test(CGroundMove) and CollapsingHeader("ground movement")) {
         auto &gc = m_world.m_ground_move_c[m_entity];

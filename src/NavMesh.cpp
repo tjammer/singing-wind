@@ -100,11 +100,12 @@ struct PQCompare {
 };
 
 int a_star_search(const NavGraph &graph, const NavNode &start, const NavNode &goal,
-                  std::unordered_map<NavNode, NavNode> &path, std::unordered_map<NavNode, float> &cost) {
+                  std::unordered_map<NavNode, NavNode> &path) {
     using namespace std;
 
+    unordered_map<NavNode, float> cost;
+
     path.clear();
-    cost.clear();
 
     typedef pair<float, NavNode> PQElement;
     typedef priority_queue<PQElement, vector<PQElement>, PQCompare<PQElement>> PQueue;

@@ -9,6 +9,7 @@
 #include "GameWorld.h"
 #include <functional>
 #include "Protagonist.h"
+#include "TestEnemy.h"
 #include "ColShape.h"
 
 namespace Entities {
@@ -20,7 +21,8 @@ const std::unordered_map<StaticColResponse, std::function<void(const ColResult &
 };
 
 const std::unordered_map<InputFunc, std::function<void(GameWorld &world, unsigned int entity)>> input_funcs = {
-        {InputFunc::Protagonist, Protagonist::handle_inputs}
+        {InputFunc::Protagonist, Protagonist::handle_inputs},
+        {InputFunc::TestEnemy, TestEnemy::handle_inputs}
 };
 
 #endif //SINGING_WIND_ENTITIES_H

@@ -49,7 +49,8 @@ enum Tags : int {
 const int c_input_buffer_length = 15;
 
 enum class InputFunc : int {
-    Protagonist
+    Protagonist,
+    TestEnemy
 };
 
 struct InputComponent {
