@@ -14,22 +14,21 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
 
-const char* const moveset_names = {"Protagonist\0\0"};
-const char* const movestate_names = {"OnGround\0Jumping\0Falling\0Flying\0FlyingAccel\0\0"};
-const std::unordered_map<Components, std::string> component_names = {
-        {CPosition, "Position"},
-        {CMove, "Move"},
-        {CStaticCol, "StaticCollision"},
-        {CAppearance, "Appearance"},
-        {CInput, "Input"},
-        {CDebugDraw, "DebugDraw"},
-        {CGroundMove, "GroundMove"},
-        {CJump, "Jump"},
-        {CFly, "Fly"}
-};
+template<typename T>
+std::vector<const char*> get_enum_string_array(std::map<T, const char*> data) {
+    std::vector<const char*> strings;
+
+    for (auto &pair : data) {
+        strings.push_back(pair.second);
+    }
+    return strings;
+}
+
+auto moveset_names = get_enum_string_array(moveset_string);
+auto movestate_names = get_enum_string_array(movestate_string);
 const char* const colshape_names = {"Triangle\0Circle\0Capsule\0\0"};
-const char* const col_responses = {"Actor\0\0"};
-const char* const input_funcs = {"Protagonist\0TestEnemy\0\0"};
+auto col_responses = get_enum_string_array(staticcolresponse_string);
+auto inputfunc_names = get_enum_string_array(inputfunc_string);
 
 void EntityIdle::draw(GameWorld &world) {
     bset debug_draw; debug_draw.set(CPosition); debug_draw.set(CDebugDraw);
@@ -68,14 +67,14 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
         auto &comps = m_world.m_entities[m_entity];
 
         auto flags = comps.to_ulong();
-        CheckboxFlags(component_names.at(CMove).c_str(), &flags, 1 << CMove);
-        CheckboxFlags(component_names.at(CAppearance).c_str(), &flags, 1 << CAppearance);
-        CheckboxFlags(component_names.at(CStaticCol).c_str(), &flags, 1 << CStaticCol);
-        CheckboxFlags(component_names.at(CInput).c_str(), &flags, 1 << CInput);
-        CheckboxFlags(component_names.at(CDebugDraw).c_str(), &flags, 1 << CDebugDraw);
-        CheckboxFlags(component_names.at(CGroundMove).c_str(), &flags, 1 << CGroundMove);
-        CheckboxFlags(component_names.at(CJump).c_str(), &flags, 1 << CJump);
-        CheckboxFlags(component_names.at(CFly).c_str(), &flags, 1 << CFly);
+        CheckboxFlags(components_string.at(CMove), &flags, 1 << CMove);
+        CheckboxFlags(components_string.at(CAppearance), &flags, 1 << CAppearance);
+        CheckboxFlags(components_string.at(CStaticCol), &flags, 1 << CStaticCol);
+        CheckboxFlags(components_string.at(CInput), &flags, 1 << CInput);
+        CheckboxFlags(components_string.at(CDebugDraw), &flags, 1 << CDebugDraw);
+        CheckboxFlags(components_string.at(CGroundMove), &flags, 1 << CGroundMove);
+        CheckboxFlags(components_string.at(CJump), &flags, 1 << CJump);
+        CheckboxFlags(components_string.at(CFly), &flags, 1 << CFly);
         comps = bset(flags);
         Text(comps.to_string().c_str());
     }
@@ -110,11 +109,11 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
             mc.accel = {data[0], data[1]};
         }
         int movestate = static_cast<int>(mc.movestate);
-        if (Combo("MoveState", &movestate, movestate_names)) {
+        if (Combo("MoveState", &movestate, movestate_names.data(), movestate_names.size())) {
             mc.movestate = static_cast<MoveState>(movestate);
         }
         int moveset = static_cast<int>(mc.moveset);
-        if (Combo("MoveSet", &moveset, moveset_names)) {
+        if (Combo("MoveSet", &moveset, moveset_names.data(), moveset_names.size())) {
             mc.moveset = static_cast<MoveSet>(moveset);
         }
     }
@@ -154,7 +153,7 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
             default: break;
         }
         int response = static_cast<int>(sc.col_response);
-        if (Combo("response", &response, col_responses)) {
+        if (Combo("response", &response, col_responses.data(), col_responses.size())) {
             sc.col_response = static_cast<StaticColResponse>(response);
         }
     }
@@ -163,7 +162,7 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
     if (m_world.m_entities[m_entity].test(CInput) and CollapsingHeader("input")) {
         auto &ic = m_world.m_input_c[m_entity];
         int inputstate = static_cast<int>(ic.input_func);
-        if (Combo("InputFunc", &inputstate, input_funcs)) {
+        if (Combo("InputFunc", &inputstate, inputfunc_names.data(), inputfunc_names.size())) {
             ic.input_func = static_cast<InputFunc>(inputstate);
         }
     }

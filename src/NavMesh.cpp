@@ -47,7 +47,7 @@ std::unordered_map<NavNode, std::vector<NavLink>> walkable_from_tri(std::array<W
 void dummy_search(const WVec &from, const WVec &to, NavMesh &mesh) {
     const NavNode & node = mesh.get_nearest(from);
     const NavNode & _to = mesh.get_nearest(to);
-    if (a_star_search(mesh.m_graph, node, _to, mesh.m_path, mesh.m_cost)) {
+    if (a_star_search(mesh.m_graph, node, _to, mesh.m_path)) {
         // render path
         auto current = _to;
         while (true) {

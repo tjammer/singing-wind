@@ -8,6 +8,7 @@
 #include "Collision.h"
 #include <memory>
 #include <deque>
+#include <map>
 
 class GameWorld;
 class ColShape;
@@ -22,6 +23,17 @@ enum Components : int {
     CGroundMove,
     CJump,
     CFly
+};
+const std::map<Components, const char*> components_string = {
+    {CPosition, "CPosition"},
+    {CMove, "CMove"},
+    {CStaticCol, "CStaticCol"},
+    {CAppearance, "CAppearance"},
+    {CInput, "CInput"},
+    {CDebugDraw, "CDebugDraw"},
+    {CGroundMove, "CGroundMove"},
+    {CJump, "CJump"},
+    {CFly, "CFly"}
 };
 
 struct PosComponent {
@@ -52,6 +64,10 @@ enum class InputFunc : int {
     Protagonist,
     TestEnemy
 };
+const std::map<InputFunc, const char*> inputfunc_string = {
+    {InputFunc::Protagonist, "Protagonist"},
+    {InputFunc::TestEnemy, "TestEnemy"}
+};
 
 struct InputComponent {
     std::deque<int> direction = std::deque<int>(c_input_buffer_length);
@@ -69,6 +85,13 @@ enum class MoveState : int {
     Flying,
     FlyingAccel,
 };
+const std::map<MoveState, const char*> movestate_string = {
+    {MoveState::OnGround, "OnGround"},
+    {MoveState::Jumping, "Jumping"},
+    {MoveState::Falling, "Falling"},
+    {MoveState::Flying, "Flying"},
+    {MoveState::FlyingAccel, "FlyingAccel"}
+};
 
 enum class MoveTransition : int {
     ToGround
@@ -77,6 +100,10 @@ enum class MoveTransition : int {
 enum class MoveSet : int {
     Protagonist
 };
+const std::map<MoveSet, const char*> moveset_string = {
+    {MoveSet::Protagonist, "Protagonist"}
+};
+
 
 struct MoveComponent {
     WVec velocity = {0, 0};
@@ -89,6 +116,9 @@ struct MoveComponent {
 
 enum class StaticColResponse : int {
     Actor
+};
+const std::map<StaticColResponse, const char*> staticcolresponse_string = {
+    {StaticColResponse::Actor, "Actor"}
 };
 
 struct StaticColComponent {
