@@ -47,7 +47,8 @@ set(SOURCE_FILES src/main.cpp
         src/WTexture.cpp include/WTexture.h 
         src/WInput.cpp include/WInput.h 
         src/SceneIO.cpp include/SceneIO.h 
-        src/NavMesh.cpp include/NavMesh.h)
+        src/NavMesh.cpp include/NavMesh.h
+        src/TestEnemy.cpp include/TestEnemy.h)
 
 
 #set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
