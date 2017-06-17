@@ -10,17 +10,12 @@
 #include <memory>
 
 class GameWorld;
-class InputComponent;
 
 namespace Protagonist {
 
     void on_static_collision(const ColResult &result, GameWorld &world, unsigned int entity);
 
     void handle_inputs(GameWorld &world, unsigned int entity);
-
-    unsigned int create_player(GameWorld &world, const WVec &pos, unsigned int parent);
-
-    std::shared_ptr<ColShape> get_shape();
 
     const WVec c_capsule_size = {15, 30};
 }

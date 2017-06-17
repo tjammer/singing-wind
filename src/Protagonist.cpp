@@ -47,32 +47,3 @@ void Protagonist::handle_inputs(GameWorld &world, unsigned int entity) {
     ic.wings.pop_back();
     ic.wings.push_front(WInput::is_mouse_button_pressed(GLFW_MOUSE_BUTTON_RIGHT));
 }
-
-unsigned int Protagonist::create_player(GameWorld &world, const WVec &pos, unsigned int parent) {
-    auto player = world.create_entity();
-    bset comps;
-    for (auto i : {CPosition, CDebugDraw, CMove, CInput, CStaticCol, CGroundMove, CJump, CFly}) {
-        comps.set(i);
-    }
-
-    world.m_entities[player] = comps;
-    world.m_name_c[player] = "player";
-    world.m_pos_c[player].position = pos;
-    world.m_pos_c[player].parent = parent;
-    world.m_pos_c[player].global_transform = glm::rotate(glm::translate(WTransform(), pos),world.m_pos_c[player].rotation);
-
-            //auto shape = std::shared_ptr<ColShape>(new ColCapsule(15, 30));
-    world.m_debug_c[player].shape = std::shared_ptr<ColShape>(new ColCapsule(Protagonist::c_capsule_size.x,
-                                                                             Protagonist::c_capsule_size.y));
-
-    world.m_move_c[player].movestate = MoveState::OnGround;
-    world.m_move_c[player].moveset = MoveSet ::Protagonist;
-
-    world.m_input_c[player].input_func = InputFunc::Protagonist;
-
-    world.m_static_col_c[player].shape = world.m_debug_c[player].shape;
-    world.m_static_col_c[player].col_response = StaticColResponse::Actor;
-
-    return player;
-}
-
