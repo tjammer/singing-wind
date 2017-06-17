@@ -56,10 +56,10 @@ using NameComponent = std::string;
 
 using TagComponent = bset;
 
-enum Tags : int {
-    TActor,
-    TProtagonist,
-    TEnemy
+enum class Tags : int {
+    Actor,
+    Protagonist,
+    Enemy
 };
 
 const int c_input_buffer_length = 15;

@@ -10,10 +10,6 @@
 #include "Camera.h"
 #include "FrameTimer.h"
 
-class Camera;
-class FrameTimer;
-class GameWorld;
-
 // the game state of the engine FSM
 class Game : public EngineState {
 public:

@@ -7,6 +7,7 @@
 #include <iostream>
 #include <algorithm>
 #include <WVecMath.h>
+#include "GameWorld.h"
 
 using namespace std;
 using accel_func = std::function<void(GameWorld &world, unsigned int entity)>;
