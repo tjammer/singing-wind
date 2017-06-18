@@ -8,9 +8,10 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp>
 #include "WRenderer.h"
+#include "Components.cpp"
 
 void Camera::update(GameWorld &game_world) {
-    m_center = game_world.m_pos_c[m_entity_to_follow].position;
+    m_center = game_world.pos_c(m_entity_to_follow).position;
     update();
 }
 

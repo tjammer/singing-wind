@@ -5,10 +5,25 @@
 #ifndef SINGING_WIND_GAMEWORLD_H
 #define SINGING_WIND_GAMEWORLD_H
 
-#include "NavMesh.h"
-#include "Components.h"
+#include <string>
+#include <vector>
+#include <memory>
+#include "WindDefs.h"
 
 class GLFWwindow;
+struct PosComponent;
+struct DebugComponent;
+struct InputComponent;
+struct MoveComponent;
+struct StaticColComponent;
+struct GroundMoveComponent;
+struct JumpComponent;
+struct FlyComponent;
+struct PathingComponent;
+class StaticGrid;
+class NavMesh;
+class Island;
+using NameComponent = std::string;
 
 // physics constants
 const float c_drag = 0.0026;
@@ -20,33 +35,31 @@ const float c_jump_tolerance = 0.1f;
 class GameWorld {
 public:
     GameWorld();
-    ~GameWorld() = default;
+    ~GameWorld();
 
     // maybe a timer?
     void step_fixed(float dt);
     void pre_draw(float dt);
     void draw();
 
-    // ecs stuff
-    std::vector<bset> m_entities;
+    std::vector<bset>& entities();
 
         // components
-        std::unordered_map<unsigned int, PosComponent> m_pos_c;
-        std::unordered_map<unsigned int, DebugComponent> m_debug_c;
-        std::unordered_map<unsigned int, InputComponent> m_input_c;
-        std::unordered_map<unsigned int, MoveComponent> m_move_c;
-        std::unordered_map<unsigned int, StaticColComponent> m_static_col_c;
-        std::unordered_map<unsigned int, GroundMoveComponent> m_ground_move_c;
-        std::unordered_map<unsigned int, JumpComponent> m_jump_c;
-        std::unordered_map<unsigned int, FlyComponent> m_fly_c;
-        std::unordered_map<unsigned int, PathingComponent> m_path_c;
-        std::vector<NameComponent> m_name_c;
+        PosComponent& pos_c(unsigned int entity);
+        DebugComponent &debug_c(unsigned int entity);
+        InputComponent &input_c(unsigned int entity);
+        MoveComponent &move_c(unsigned int entity);
+        StaticColComponent &static_col_c(unsigned int entity);
+        GroundMoveComponent &ground_move_c(unsigned int entity);
+        JumpComponent &jump_c(unsigned int entity);
+        FlyComponent &fly_c(unsigned int entity);
+        PathingComponent &path_c(unsigned int entity);
+        NameComponent &name_c(unsigned int entity);
 
     void reset_entities();
-    void reset_islands() {m_islands.clear();}
+    void reset_islands();
 
     // communication with editor
-    std::vector<Island> &get_islands_ref() {return m_islands;};
     void update_world();
 
     unsigned int create_entity();
@@ -55,22 +68,13 @@ public:
     void delete_entity_raw(unsigned int entity);
 
     // getters
-    StaticGrid &get_grid() {return m_grid;}
-    std::vector<Island> get_islands() {return m_islands;}
-    NavMesh &get_navmesh() {return m_navmesh;}
+    StaticGrid &grid();
+    NavMesh &navmesh();
+    std::vector<Island> &islands();
 
 private:
-    StaticGrid m_grid;
-    std::vector<Island> m_islands;
-    NavMesh m_navmesh;
-
-    std::vector<unsigned int> m_input_ents;
-    std::vector<unsigned int> m_move_ents;
-    std::vector<unsigned int> m_debug_draw_ents;
-    std::vector<unsigned int> m_ground_move_ents;
-    std::vector<unsigned int> m_fly_ents;
-    std::vector<unsigned int> m_static_col_ents;
-    std::vector<unsigned int> m_path_ents;
+    class impl;
+    std::unique_ptr<impl> pimpl;    
 
     void find_entities_fixed();
     void find_entities_draw();

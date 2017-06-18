@@ -6,6 +6,7 @@
 #include "GameWorld.h"
 #include "MoveSystems.h"
 #include "entities.h"
+#include "ColGrid.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
 #include <WRenderer.h>
@@ -14,13 +15,13 @@
 void debug_draw_update(GameWorld &world, const std::vector<unsigned int> &entities) {
     WTransform zero_tf;
     WRenderer::set_mode(GL_LINES);
-    for (const auto &tri : world.get_grid().get_objects()) {
+    for (const auto &tri : world.grid().get_objects()) {
         tri->add_gfx_lines(zero_tf);
     }
 
     for (const auto entity : entities) {
-        auto &shape = world.m_debug_c[entity].shape;
-        const auto &transform = world.m_pos_c[entity].global_transform;
+        auto &shape = world.debug_c(entity).shape;
+        const auto &transform = world.pos_c(entity).global_transform;
         shape->add_gfx_lines(transform);
     }
 }
@@ -29,23 +30,23 @@ void static_col_update(GameWorld &world, const std::vector<unsigned int> &entiti
 
     for (const auto entity : entities) {
         // position
-        auto &transform = world.m_pos_c[entity].global_transform;
-        auto &pos = world.m_pos_c[entity].position;
-        auto &rot = world.m_pos_c[entity].rotation;
-        auto parent = world.m_pos_c[entity].parent;
+        auto &transform = world.pos_c(entity).global_transform;
+        auto &pos = world.pos_c(entity).position;
+        auto &rot = world.pos_c(entity).rotation;
+        auto parent = world.pos_c(entity).parent;
 
         // collision
-        auto &result = world.m_static_col_c[entity].col_result;
-        auto &shape = world.m_static_col_c[entity].shape;
+        auto &result = world.static_col_c(entity).col_result;
+        auto &shape = world.static_col_c(entity).shape;
 
         //circle to world
-        transform = glm::rotate(glm::translate(WTransform(), pos), rot) * world.m_pos_c[parent].global_transform;
+        transform = glm::rotate(glm::translate(WTransform(), pos), rot) * world.pos_c(parent).global_transform;
         shape->transform(transform);
 
         // overwrite result
         result = ColResult();
 
-        auto colliders = world.get_grid().find_colliders(shape);
+        auto colliders = world.grid().find_colliders(shape);
         for (const auto &tri : colliders) {
             auto cr = shape->collides(*tri);
             if (cr.collides) {
@@ -74,7 +75,7 @@ void static_col_update(GameWorld &world, const std::vector<unsigned int> &entiti
 
             // slide movement and collide again
             //circle to world
-            transform = glm::rotate(glm::translate(WTransform(), pos), rot) * world.m_pos_c[parent].global_transform;
+            transform = glm::rotate(glm::translate(WTransform(), pos), rot) * world.pos_c(parent).global_transform;
             shape->transform(transform);
 
             ColResult second_result;
@@ -93,18 +94,18 @@ void static_col_update(GameWorld &world, const std::vector<unsigned int> &entiti
                 WVec correction = find_directed_overlap(second_result, WVec(-move_back.y, move_back.x));
                 pos += correction;
 
-                transform = glm::rotate(glm::translate(WTransform(), pos), rot) * world.m_pos_c[parent].global_transform;
+                transform = glm::rotate(glm::translate(WTransform(), pos), rot) * world.pos_c(parent).global_transform;
             }
 
             // call back
-            static_col_responses.at(world.m_static_col_c[entity].col_response)(result, world, entity);
+            static_col_responses.at(world.static_col_c(entity).col_response)(result, world, entity);
         }
     }
 }
 
 void input_update(GameWorld &world, const std::vector<unsigned int> &entities) {
     for (const auto entity : entities) {
-        auto &ic = world.m_input_c[entity];
+        auto &ic = world.input_c(entity);
         input_funcs.at(ic.input_func)(world, entity);
 
     }
@@ -113,8 +114,8 @@ void input_update(GameWorld &world, const std::vector<unsigned int> &entities) {
 void move_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities) {
     for (const auto entity : entities) {
 
-        auto &mc = world.m_move_c[entity];
-        auto &pc = world.m_pos_c[entity];
+        auto &mc = world.move_c(entity);
+        auto &pc = world.pos_c(entity);
 
         auto old_accel = mc.accel;
 
@@ -129,7 +130,7 @@ void move_update(GameWorld &world, float dt, const std::vector<unsigned int> &en
         auto motion = dt * (mc.velocity + mc.accel * dt / 2.0f);
         pc.position += motion;
 
-        pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * world.m_pos_c[pc.parent].global_transform;
+        pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * world.pos_c(pc.parent).global_transform;
     }
 
 }
@@ -138,7 +139,7 @@ void move_update(GameWorld &world, float dt, const std::vector<unsigned int> &en
 void ground_move_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities) {
     for (const auto entity : entities) {
 
-        auto &gc = world.m_ground_move_c[entity];
+        auto &gc = world.ground_move_c(entity);
         gc.air_time += dt;
     }
 }
@@ -146,7 +147,7 @@ void ground_move_update(GameWorld &world, float dt, const std::vector<unsigned i
 void fly_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities) {
     for (const auto entity : entities) {
 
-        auto &fc = world.m_fly_c[entity];
+        auto &fc = world.fly_c(entity);
         fc.timer += dt;
         if (fc.timer > fc.c_accel_time) {
             fc.timer = fc.c_accel_time;

@@ -3,50 +3,86 @@
 //
 
 #include "GameWorld.h"
+#include "Components.h"
 #include "triangulate.h"
 #include "entities.h"
 #include "systems.h"
 #include "Editor.h"
 #include "SceneIO.h"
-
 #include "NavMesh.h"
+
 #include "WRenderer.h"
+
+
+GameWorld::~GameWorld() = default;
+
+class GameWorld::impl {
+    public:
+    // ecs stuff
+    std::vector<bset> m_entities;
+
+        // components
+        std::unordered_map<unsigned int, PosComponent> m_pos_c;
+        std::unordered_map<unsigned int, DebugComponent> m_debug_c;
+        std::unordered_map<unsigned int, InputComponent> m_input_c;
+        std::unordered_map<unsigned int, MoveComponent> m_move_c;
+        std::unordered_map<unsigned int, StaticColComponent> m_static_col_c;
+        std::unordered_map<unsigned int, GroundMoveComponent> m_ground_move_c;
+        std::unordered_map<unsigned int, JumpComponent> m_jump_c;
+        std::unordered_map<unsigned int, FlyComponent> m_fly_c;
+        std::unordered_map<unsigned int, PathingComponent> m_path_c;
+        std::vector<NameComponent> m_name_c;
+
+
+    StaticGrid m_grid;
+    std::vector<Island> m_islands;
+    NavMesh m_navmesh;
+
+    std::vector<unsigned int> m_input_ents;
+    std::vector<unsigned int> m_move_ents;
+    std::vector<unsigned int> m_debug_draw_ents;
+    std::vector<unsigned int> m_ground_move_ents;
+    std::vector<unsigned int> m_fly_ents;
+    std::vector<unsigned int> m_static_col_ents;
+    std::vector<unsigned int> m_path_ents;
+};
+
 
 void GameWorld::update_world() {
     std::vector<WVec> triangles;
-    m_grid.clear();
-    for (const auto &island : m_islands) {
+    grid().clear();
+    for (const auto &island : islands()) {
         triangulate_island(island, triangles);
         for (unsigned int i = 0 ; i < triangles.size() / 3 ; ++i) {
-            auto p1 = WVec(m_pos_c[0].global_transform * WVec3(triangles[i*3], 1));
-            auto p2 = WVec(m_pos_c[0].global_transform * WVec3(triangles[i*3+1], 1));
-            auto p3 = WVec(m_pos_c[0].global_transform * WVec3(triangles[i*3+2], 1));
-            m_grid.add_object(std::shared_ptr<ColShape>(new ColTriangle(p1, p2, p3)));
+            auto p1 = WVec(pos_c(0).global_transform * WVec3(triangles[i*3], 1));
+            auto p2 = WVec(pos_c(0).global_transform * WVec3(triangles[i*3+1], 1));
+            auto p3 = WVec(pos_c(0).global_transform * WVec3(triangles[i*3+2], 1));
+            grid().add_object(std::shared_ptr<ColShape>(new ColTriangle(p1, p2, p3)));
         }
     }
 
-    m_navmesh = build_navmesh(m_islands, m_grid);
+    pimpl->m_navmesh = build_navmesh(islands(), grid());
 }
 
-GameWorld::GameWorld() {
+GameWorld::GameWorld() : pimpl(std::make_unique<impl>()) {
 }
 
 void GameWorld::draw() {
     find_entities_draw();
 
-    debug_draw_update(*this, m_debug_draw_ents);
+    debug_draw_update(*this, pimpl->m_debug_draw_ents);
 }
 
 void GameWorld::step_fixed(float dt) {
     find_entities_fixed();
 
-    input_update(*this, m_input_ents);
-    move_update(*this, dt, m_move_ents);
-    static_col_update(*this, m_static_col_ents);
+    input_update(*this, pimpl->m_input_ents);
+    move_update(*this, dt, pimpl->m_move_ents);
+    static_col_update(*this, pimpl->m_static_col_ents);
 
     // house keeping systems
-    ground_move_update(*this, dt, m_ground_move_ents);
-    fly_update(*this, dt, m_fly_ents);
+    ground_move_update(*this, dt,pimpl-> m_ground_move_ents);
+    fly_update(*this, dt, pimpl->m_fly_ents);
 
 
     /*auto result = cast_ray_vs_static_grid(m_grid, m_pos_c[1].position, m_pos_c[1].position + WVec{0, 1000});
@@ -67,16 +103,16 @@ void GameWorld::step_fixed(float dt) {
 
 unsigned int GameWorld::create_entity() {
     unsigned int entity;
-    for (entity = 0 ; entity < m_entities.size() ; ++entity) {
-        if (m_entities[entity].none()) {
+    for (entity = 0 ; entity < entities().size() ; ++entity) {
+        if (entities()[entity].none()) {
             return entity;
         }
     }
-    entity = static_cast<unsigned int>(m_entities.size());
+    entity = static_cast<unsigned int>(entities().size());
 
     // each component needs to be resized
-    m_entities.push_back(0);
-    m_name_c.push_back(NameComponent());
+    pimpl->m_entities.push_back(0);
+    pimpl->m_name_c.push_back(NameComponent());
 
     return entity;
 }
@@ -84,49 +120,49 @@ unsigned int GameWorld::create_entity() {
 void GameWorld::find_entities_fixed() {
     using namespace for_gameworld;
 
-    m_input_ents.clear();
-    m_move_ents.clear();
-    m_ground_move_ents.clear();
-    m_fly_ents.clear();
-    m_static_col_ents.clear();
-    m_path_ents.clear();
+    pimpl->m_input_ents.clear();
+    pimpl->m_move_ents.clear();
+    pimpl->m_ground_move_ents.clear();
+    pimpl->m_fly_ents.clear();
+    pimpl->m_static_col_ents.clear();
+    pimpl->m_path_ents.clear();
 
-    for (unsigned int i = 0 ; i < m_entities.size() ; ++i) {
-        auto ent = m_entities[i];
+    for (unsigned int i = 0 ; i < pimpl->m_entities.size() ; ++i) {
+        auto ent = pimpl->m_entities[i];
 
         if (has_component(ent, c_input_components)) {
-            m_input_ents.push_back(i);
+            pimpl->m_input_ents.push_back(i);
         }
 
         if (has_component(ent, c_move_components)) {
-            m_move_ents.push_back(i);
+            pimpl->m_move_ents.push_back(i);
         }
 
         if (has_component(ent, c_ground_move_components)) {
-            m_ground_move_ents.push_back(i);
+            pimpl->m_ground_move_ents.push_back(i);
         }
 
         if (has_component(ent, c_fly_components)) {
-            m_fly_ents.push_back(i);
+            pimpl->m_fly_ents.push_back(i);
         }
 
         if (has_component(ent, c_static_col_components)) {
-            m_static_col_ents.push_back(i);
+            pimpl->m_static_col_ents.push_back(i);
         }
 
         if (has_component(ent, c_path_components)) {
-            m_path_ents.push_back(i);
+            pimpl->m_path_ents.push_back(i);
         }
     }
 }
 
 void GameWorld::find_entities_draw() {
     using namespace for_gameworld;
-    m_debug_draw_ents.clear();
+    pimpl->m_debug_draw_ents.clear();
 
-    for (unsigned int i = 0 ; i < m_entities.size() ; ++i) {
-        if (has_component(m_entities[i], c_debug_draw_components)) {
-            m_debug_draw_ents.push_back(i);
+    for (unsigned int i = 0 ; i < pimpl->m_entities.size() ; ++i) {
+        if (has_component(pimpl->m_entities[i], c_debug_draw_components)) {
+            pimpl->m_debug_draw_ents.push_back(i);
         }
     }
 }
@@ -139,18 +175,22 @@ bool GameWorld::load_entity(const std::string &name) {
 }
 
 void GameWorld::reset_entities() {
-    m_entities.clear();
+   pimpl->m_entities.clear();
 
     // components
-    m_pos_c.clear();
-    m_debug_c.clear();
-    m_input_c.clear();
-    m_move_c.clear();
-    m_static_col_c.clear();
-    m_ground_move_c.clear();
-    m_jump_c.clear();
-    m_fly_c.clear();
-    m_name_c.clear();
+    pimpl->m_pos_c.clear();
+    pimpl->m_debug_c.clear();
+    pimpl->m_input_c.clear();
+    pimpl->m_move_c.clear();
+    pimpl->m_static_col_c.clear();
+    pimpl->m_ground_move_c.clear();
+    pimpl->m_jump_c.clear();
+    pimpl->m_fly_c.clear();
+    pimpl->m_name_c.clear();
+}
+
+void GameWorld::reset_islands() {
+    pimpl->m_islands.clear();
 }
 
 void GameWorld::create_root() {
@@ -158,14 +198,71 @@ void GameWorld::create_root() {
 }
 
 void GameWorld::delete_entity_raw(unsigned int entity) {
-    m_pos_c.erase(entity);
-    m_debug_c.erase(entity);
-    m_input_c.erase(entity);
-    m_move_c.erase(entity);
-    m_static_col_c.erase(entity);
-    m_ground_move_c.erase(entity);
-    m_jump_c.erase(entity);
-    m_fly_c.erase(entity);
-    m_entities[entity].reset();
-    assert(m_entities[entity].none());
+    pimpl->m_pos_c.erase(entity);
+    pimpl->m_debug_c.erase(entity);
+    pimpl->m_input_c.erase(entity);
+    pimpl->m_move_c.erase(entity);
+    pimpl->m_static_col_c.erase(entity);
+    pimpl->m_ground_move_c.erase(entity);
+    pimpl->m_jump_c.erase(entity);
+    pimpl->m_fly_c.erase(entity);
+    pimpl->m_entities[entity].reset();
+    assert(pimpl->m_entities[entity].none());
+}
+
+StaticGrid& GameWorld::grid() {
+    return pimpl->m_grid;
+}
+
+NavMesh& GameWorld::navmesh() {
+    return pimpl->m_navmesh;
+}
+
+std::vector<Island>& GameWorld::islands() {
+    return pimpl->m_islands;
+}
+
+
+std::vector<bset>& GameWorld::entities() {
+    return pimpl->m_entities;
+}
+
+PosComponent& GameWorld::pos_c(unsigned int entity) {
+    return pimpl->m_pos_c[entity];
+}
+
+DebugComponent& GameWorld::debug_c(unsigned int entity) {
+    return pimpl->m_debug_c[entity];
+}
+
+InputComponent & GameWorld::input_c(unsigned int entity) {
+    return pimpl->m_input_c[entity];
+}
+
+MoveComponent & GameWorld::move_c(unsigned int entity) {
+    return pimpl->m_move_c[entity];
+}
+
+StaticColComponent & GameWorld::static_col_c(unsigned int entity) {
+    return pimpl->m_static_col_c[entity];
+}
+
+GroundMoveComponent & GameWorld::ground_move_c(unsigned int entity) {
+    return pimpl->m_ground_move_c[entity];
+}
+
+JumpComponent & GameWorld::jump_c(unsigned int entity) {
+    return pimpl->m_jump_c[entity];
+}
+
+FlyComponent & GameWorld::fly_c(unsigned int entity) {
+    return pimpl->m_fly_c[entity];
+}
+
+PathingComponent & GameWorld::path_c(unsigned int entity) {
+    return pimpl->m_path_c[entity];
+}
+
+NameComponent & GameWorld::name_c(unsigned int entity) {
+    return pimpl->m_name_c[entity];
 }

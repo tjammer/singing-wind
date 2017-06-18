@@ -6,6 +6,8 @@
 #include "EntityEditor.h"
 #include "Island.h"
 #include "GameWorld.h"
+#include "Components.h"
+#include "NavMesh.h"
 #include "WRenderer.h"
 #include <iostream>
 #include <iomanip>
@@ -69,7 +71,7 @@ void IslandIdle::draw(GameWorld &) {
 }
 
 EditorSubState IslandIdle::delete_island(GameWorld &world) {
-    auto &islands = world.get_islands_ref();
+    auto &islands = world.islands();
     islands.erase(std::remove( islands.begin(), islands.end(), m_island), islands.end());
     return EditorSubState(new EditorIdle);
 }
@@ -336,7 +338,7 @@ EditorSubState CurveInsert::menu(GameWorld &world) {
 }
 
 EditorSubState EditorIdle::confirm(GameWorld &world) {
-    auto &islands = world.get_islands_ref();
+    auto &islands = world.islands();
 
     // find island point closest to cursor
     bool is_island = false;
@@ -361,10 +363,10 @@ EditorSubState EditorIdle::confirm(GameWorld &world) {
         }
     }
 
-    for (unsigned int i = 0 ; i < world.m_entities.size() ; ++i) {
+    for (unsigned int i = 0 ; i < world.entities().size() ; ++i) {
         bset pos_set{ (1 << CPosition) | (1 << CDebugDraw) };
-        if (for_gameworld::has_component(world.m_entities[i], pos_set)) {
-            float dist_to_point = w_magnitude(m_mpos - WVec(world.m_pos_c[i].global_transform * WVec3(0, 0, 1)));
+        if (for_gameworld::has_component(world.entities()[i], pos_set)) {
+            float dist_to_point = w_magnitude(m_mpos - WVec(world.pos_c(i).global_transform * WVec3(0, 0, 1)));
             if (dist_to_point < dist) {
                 dist = dist_to_point;
                 index = i;
@@ -387,7 +389,7 @@ void EditorIdle::draw(GameWorld &) {
 }
 
 EditorSubState EditorIdle::insert_item(GameWorld &world) {
-    auto &islands = world.get_islands_ref();
+    auto &islands = world.islands();
     auto index = static_cast<unsigned int>(islands.size());
 
     islands.push_back(Island(m_mpos, 50));
@@ -474,7 +476,7 @@ IslandMove::IslandMove(Island &active, const WVec &mouse) : m_island(active) {
 }
 
 void NavMeshIdle::draw(GameWorld &world) {
-    const auto &mesh = world.get_navmesh();
+    const auto &mesh = world.navmesh();
 
     // render
     for (const auto &pr : mesh.m_graph) {

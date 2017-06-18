@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <WVecMath.h>
 #include "GameWorld.h"
+#include <unordered_map>
 
 using namespace std;
 using accel_func = std::function<void(GameWorld &world, unsigned int entity)>;
@@ -93,9 +94,9 @@ inline float angle_up_from_local_mouse_deg(const WVec &mouse) {
 };
 
 inline void fly(GameWorld & world, unsigned int entity) {
-    auto &pc = world.m_pos_c[entity];
-    auto &mc = world.m_move_c[entity];
-    auto &fc = world.m_fly_c[entity];
+    auto &pc = world.pos_c(entity);
+    auto &mc = world.move_c(entity);
+    auto &fc = world.fly_c(entity);
 
     mc.accel.y -= mc.mass * c_gravity * 0.5f;
 
@@ -111,10 +112,10 @@ inline void fly(GameWorld & world, unsigned int entity) {
 }
 
 void protagonist::on_ground(GameWorld &world, unsigned int entity) {
-    auto &ic = world.m_input_c[entity];
-    auto &mc = world.m_move_c[entity];
-    auto &gc = world.m_ground_move_c[entity];
-    auto &bset = world.m_entities[entity];
+    auto &ic = world.input_c(entity);
+    auto &mc = world.move_c(entity);
+    auto &gc = world.ground_move_c(entity);
+    auto &bset = world.entities()[entity];
 
     if (bset.test(CInput) and ic.direction[0] and ic.direction[0] != ic.last_dir) {
         ic.last_dir = ic.direction[0];
@@ -142,12 +143,12 @@ void protagonist::on_ground(GameWorld &world, unsigned int entity) {
 }
 
 void ::protagonist::to_flying(GameWorld &world, unsigned int entity) {
-    if (!world.m_entities[entity].test(CFly)) {
+    if (!world.entities()[entity].test(CFly)) {
         return;
     }
-    auto &ic = world.m_input_c[entity];
-    auto &mc = world.m_move_c[entity];
-    auto &pc = world.m_pos_c[entity];
+    auto &ic = world.input_c(entity);
+    auto &mc = world.move_c(entity);
+    auto &pc = world.pos_c(entity);
 
     mc.movestate = MoveState::Flying;
     clear_arr(ic.wings, true);
@@ -161,9 +162,9 @@ void ::protagonist::to_falling(MoveComponent &mc) {
 }
 
 void ::protagonist::jumping(GameWorld &world, unsigned int entity) {
-    auto &ic = world.m_input_c[entity];
-    auto &mc = world.m_move_c[entity];
-    auto &jc = world.m_jump_c[entity];
+    auto &ic = world.input_c(entity);
+    auto &mc = world.move_c(entity);
+    auto &jc = world.jump_c(entity);
 
     if (mc.movestate == MoveState::Jumping) {
         if (mc.velocity.y > 0) {
@@ -187,12 +188,12 @@ void ::protagonist::jumping(GameWorld &world, unsigned int entity) {
 }
 
 void ::protagonist::to_jumping(GameWorld &world, unsigned int entity) {
-    if (!world.m_entities[entity].test(CJump)) {
+    if (!world.entities()[entity].test(CJump)) {
         return;
     }
-    auto &mc = world.m_move_c[entity];
-    auto &ic = world.m_input_c[entity];
-    auto &jc = world.m_jump_c[entity];
+    auto &mc = world.move_c(entity);
+    auto &ic = world.input_c(entity);
+    auto &jc = world.jump_c(entity);
 
     clear_arr(ic.jump, true);
     mc.movestate = MoveState::Jumping;
@@ -202,21 +203,21 @@ void ::protagonist::to_jumping(GameWorld &world, unsigned int entity) {
 }
 
 void ::protagonist::to_ground(GameWorld &world, unsigned int entity) {
-    if (!world.m_entities[entity].test(CGroundMove)) {
+    if (!world.entities()[entity].test(CGroundMove)) {
         return;
     }
-    auto &mc = world.m_move_c[entity];
-    auto &pc = world.m_pos_c[entity];
+    auto &mc = world.move_c(entity);
+    auto &pc = world.pos_c(entity);
 
     mc.movestate = MoveState::OnGround;
     pc.rotation = 0;
 }
 
 void ::protagonist::flying(GameWorld &world, unsigned int entity) {
-    auto &pc = world.m_pos_c[entity];
-    auto &ic = world.m_input_c[entity];
-    auto &mc = world.m_move_c[entity];
-    auto &fc = world.m_fly_c[entity];
+    auto &pc = world.pos_c(entity);
+    auto &ic = world.input_c(entity);
+    auto &mc = world.move_c(entity);
+    auto &fc = world.fly_c(entity);
 
     auto mouse = WVec(glm::inverse(pc.global_transform) * WVec3(ic.mouse[0], 1));
     float mouse_angle = angle_up_from_local_mouse_deg(mouse);
@@ -238,21 +239,21 @@ void ::protagonist::flying(GameWorld &world, unsigned int entity) {
 }
 
 void ::protagonist::to_flying_accel(GameWorld &world, unsigned int entity) {
-    if (!world.m_entities[entity].test(CFly)) {
+    if (!world.entities()[entity].test(CFly)) {
         return;
     }
-    auto &mc = world.m_move_c[entity];
-    auto &fc = world.m_fly_c[entity];
+    auto &mc = world.move_c(entity);
+    auto &fc = world.fly_c(entity);
 
     mc.movestate = MoveState::FlyingAccel;
     fc.timer = 0;
 }
 
 void ::protagonist::flying_accel(GameWorld &world, unsigned int entity) {
-    auto &pc = world.m_pos_c[entity];
-    auto &ic = world.m_input_c[entity];
-    auto &mc = world.m_move_c[entity];
-    auto &fc = world.m_fly_c[entity];
+    auto &pc = world.pos_c(entity);
+    auto &ic = world.input_c(entity);
+    auto &mc = world.move_c(entity);
+    auto &fc = world.fly_c(entity);
 
     if (!ic.wings[0] or fc.timer >= fc.c_accel_time) {
         mc.movestate = MoveState ::Flying;

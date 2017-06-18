@@ -8,9 +8,9 @@
 #include <Scene.pb.h>
 
 
-scene::Entity * get_pb_entity(const GameWorld &game_world, unsigned int entity);
+scene::Entity * get_pb_entity(GameWorld &game_world, unsigned int entity);
 
-bool save_entity_standalone(const GameWorld &game_world, unsigned int entity);
+bool save_entity_standalone(GameWorld &game_world, unsigned int entity);
 
 void entity_to_world(const scene::Entity& entity, GameWorld &game_world, unsigned int);
 

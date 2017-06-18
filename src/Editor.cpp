@@ -7,6 +7,8 @@
 #include "ColShape.h"
 #include "GameWorld.h"
 #include "SceneIO.h"
+#include "Island.h"
+
 #include "WRenderer.h"
 #include <imgui.h>
 #include <iostream>
@@ -142,7 +144,7 @@ void EngineEditorState::update_world() {
 
 bool EngineEditorState::load_scene(const std::string &name) {
     using namespace std;
-    auto &islands = m_game_world.get_islands_ref();
+    auto &islands = m_game_world.islands();
 
     string filename = "scenes/" + name + ".wscn";
     fstream scene_file(filename, ios::in | ios::binary);
@@ -178,8 +180,8 @@ bool EngineEditorState::load_scene(const std::string &name) {
 
 void EngineEditorState::save_scene(const std::string &name) const {
     using namespace std;
-    const auto &islands = m_game_world.get_islands_ref();
-    const auto &entities = m_game_world.m_entities;
+    const auto &islands = m_game_world.islands();
+    const auto &entities = m_game_world.entities();
 
     scene::Scene pb_scene;
     for (const auto &island : islands) {

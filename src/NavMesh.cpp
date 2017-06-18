@@ -7,6 +7,7 @@
 #include "triangulate.h"
 #include "WVecMath.h"
 #include "GameWorld.h"
+#include "Collision.h"
 #include <ColShape.h>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>

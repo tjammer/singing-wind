@@ -10,6 +10,7 @@
 #include "imgui-bezier.h"
 #include "SceneIO.h"
 #include "Protagonist.h"
+#include "Components.cpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
@@ -34,13 +35,13 @@ auto pathingtype_names = get_enum_string_array(pathingtype_string);
 void EntityIdle::draw(GameWorld &world) {
     bset debug_draw; debug_draw.set(CPosition); debug_draw.set(CDebugDraw);
 
-    if (!for_gameworld::has_component(world.m_entities[m_entity], debug_draw))  {
+    if (!for_gameworld::has_component(world.entities()[m_entity], debug_draw))  {
         return;
     }
-    const auto &shape = world.m_debug_c[m_entity].shape;
+    const auto &shape = world.debug_c(m_entity).shape;
     auto circle = ColCircle(shape->get_radius());
     circle.m_highlight = true;
-    circle.add_gfx_lines(world.m_pos_c[m_entity].global_transform);
+    circle.add_gfx_lines(world.pos_c(m_entity).global_transform);
 }
 
 EditorSubState EntityIdle::update(const WVec &mpos) {
@@ -56,7 +57,7 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
     SameLine(100);
     Text(to_string(m_entity).c_str());
 
-    string &_name = m_world.m_name_c[m_entity];
+    string &_name = m_world.name_c(m_entity);
     vector<char> entity_name(_name.begin(), _name.end());
     entity_name.push_back('\0');
     entity_name.resize(128);
@@ -65,7 +66,7 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
 
     // bitset
     if (CollapsingHeader("components bitset")) {
-        auto &comps = m_world.m_entities[m_entity];
+        auto &comps = m_world.entities()[m_entity];
 
         auto flags = comps.to_ulong();
         for (auto &pair : components_string) {
@@ -76,26 +77,26 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
     }
 
     // position
-    if (m_world.m_entities[m_entity].test(CPosition) and CollapsingHeader("position")) {
-        auto &pc = m_world.m_pos_c[m_entity];
+    if (m_world.entities()[m_entity].test(CPosition) and CollapsingHeader("position")) {
+        auto &pc = m_world.pos_c(m_entity);
         float data[2] = {pc.position.x, pc.position.y};
         if (DragFloat2("position", data)) {
             pc.position.x = data[0];
-            pc.position.y = data[1];pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * m_world.m_pos_c[pc.parent].global_transform;
+            pc.position.y = data[1];pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * m_world.pos_c(pc.parent).global_transform;
         }
         if (DragFloat("rotation", &pc.rotation)) {
-            pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * m_world.m_pos_c[pc.parent].global_transform;
+            pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * m_world.pos_c(pc.parent).global_transform;
         }
         int parent = pc.parent;
         if (InputInt("parent", &parent)) {
             pc.parent = (unsigned int) parent;
-            pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * m_world.m_pos_c[pc.parent].global_transform;
+            pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * m_world.pos_c(pc.parent).global_transform;
         }
     }
 
     // movement
-    if (m_world.m_entities[m_entity].test(CMove) and CollapsingHeader("movement")) {
-        auto &mc = m_world.m_move_c[m_entity];
+    if (m_world.entities()[m_entity].test(CMove) and CollapsingHeader("movement")) {
+        auto &mc = m_world.move_c(m_entity);
         float data[2] = {mc.velocity.x, mc.velocity.y};
         if (DragFloat2("velocity", data)) {
             mc.velocity = {data[0], data[1]};
@@ -115,8 +116,8 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
     }
 
     // static col
-    if (m_world.m_entities[m_entity].test(CStaticCol) and CollapsingHeader("static collision")) {
-        auto &sc = m_world.m_static_col_c[m_entity];
+    if (m_world.entities()[m_entity].test(CStaticCol) and CollapsingHeader("static collision")) {
+        auto &sc = m_world.static_col_c(m_entity);
         int shape_type = static_cast<int>(sc.shape->m_type);
         if (Combo("Shape", &shape_type, colshape_names)) {
             switch (static_cast<ColShapeName>(shape_type)) {
@@ -133,7 +134,7 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
         switch (sc.shape->m_type) {
             case ColShapeName::ColCapsule: {
                 auto shape = dynamic_cast<ColCapsule*>(sc.shape.get());
-                auto dbshape = dynamic_cast<ColCapsule*>(m_world.m_debug_c[m_entity].shape.get());
+                auto dbshape = dynamic_cast<ColCapsule*>(m_world.debug_c(m_entity).shape.get());
                 float radius = shape->get_capsule_radius();
                 if (DragFloat("radius", &radius)) {
                     shape->set_capsule_radius(radius);
@@ -155,32 +156,32 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
     }
     // appearance
     // input
-    if (m_world.m_entities[m_entity].test(CInput) and CollapsingHeader("input")) {
-        auto &ic = m_world.m_input_c[m_entity];
+    if (m_world.entities()[m_entity].test(CInput) and CollapsingHeader("input")) {
+        auto &ic = m_world.input_c(m_entity);
         int inputstate = static_cast<int>(ic.input_func);
         if (Combo("InputFunc", &inputstate, inputfunc_names.data(), inputfunc_names.size())) {
             ic.input_func = static_cast<InputFunc>(inputstate);
         }
     }
     // ground move
-    if (m_world.m_entities[m_entity].test(CGroundMove) and CollapsingHeader("ground movement")) {
-        auto &gc = m_world.m_ground_move_c[m_entity];
+    if (m_world.entities()[m_entity].test(CGroundMove) and CollapsingHeader("ground movement")) {
+        auto &gc = m_world.ground_move_c(m_entity);
         if (DragFloat("accel", &gc.c_accel)) {}
         if (DragFloat("stop_friction", &gc.c_stop_friction)) {}
         if (DragFloat("turn_mod", &gc.c_turn_mod)) {}
         if (DragFloat("max vel", &gc.c_max_vel)) {}
     }
     // jump
-    if (m_world.m_entities[m_entity].test(CJump) and CollapsingHeader("jumping")) {
-        auto &jc = m_world.m_jump_c[m_entity];
+    if (m_world.entities()[m_entity].test(CJump) and CollapsingHeader("jumping")) {
+        auto &jc = m_world.jump_c(m_entity);
         if (DragFloat("accel", &jc.c_accel)) {}
         if (DragFloat("jump height", &jc.c_jump_height)) {}
         if (DragFloat("turn_mod", &jc.c_turn_mod)) {}
         if (DragFloat("max vel", &jc.c_max_vel)) {}
     }
     // fly
-    if (m_world.m_entities[m_entity].test(CFly) and CollapsingHeader("flying")) {
-        auto &fc = m_world.m_fly_c[m_entity];
+    if (m_world.entities()[m_entity].test(CFly) and CollapsingHeader("flying")) {
+        auto &fc = m_world.fly_c(m_entity);
         if (DragFloat("lift", &fc.c_lift, .0001f, 0.0f, 0.0f, "%.5f")) {}
         if (DragFloat("stall angle", &fc.c_stall_angle)) {}
         if (DragFloat("max angle change", &fc.c_max_change_angle)) {}
@@ -195,8 +196,8 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
         }
     }
     // pathing
-    if (m_world.m_entities[m_entity].test(CPathing) and CollapsingHeader("pathing")) {
-        auto &pc = m_world.m_path_c[m_entity];
+    if (m_world.entities()[m_entity].test(CPathing) and CollapsingHeader("pathing")) {
+        auto &pc = m_world.path_c(m_entity);
         int pathing_type = static_cast<int>(pc.p_type);
         if (Combo("path type", &pathing_type, pathingtype_names.data(), pathingtype_names.size())) {
             pc.p_type = static_cast<PathingType>(pathing_type);
@@ -230,40 +231,40 @@ EditorSubState EntityIdle::move(GameWorld &) {
 void EntityMove::draw(GameWorld &world) {
     bset debug_draw; debug_draw.set(CPosition); debug_draw.set(CDebugDraw);
 
-    if (!for_gameworld::has_component(world.m_entities[m_entity], debug_draw))  {
+    if (!for_gameworld::has_component(world.entities()[m_entity], debug_draw))  {
         return;
     }
-    const auto &shape = world.m_debug_c[m_entity].shape;
+    const auto &shape = world.debug_c(m_entity).shape;
     auto circle = ColCircle(shape->get_radius());
     circle.m_highlight = true;
-    circle.add_gfx_lines(world.m_pos_c[m_entity].global_transform);
+    circle.add_gfx_lines(world.pos_c(m_entity).global_transform);
 }
 
 EditorSubState EntityMove::cancel() {
-    auto &pc = m_world.m_pos_c[m_entity];
+    auto &pc = m_world.pos_c(m_entity);
 
     pc.position += m_diff;
-    pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * m_world.m_pos_c[pc.parent].global_transform;
+    pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * m_world.pos_c(pc.parent).global_transform;
 
     return EditorSubState(new EntityIdle(m_world, m_entity));
 }
 
 EntityMove::EntityMove(GameWorld &world, unsigned int entity, const WVec &mouse)
     : m_world(world), m_entity(entity) {
-    m_diff = m_world.m_pos_c[m_entity].position - mouse;
+    m_diff = m_world.pos_c(m_entity).position - mouse;
     m_mpos = mouse;
-    m_world.m_pos_c[m_entity].position = mouse;
+    m_world.pos_c(m_entity).position = mouse;
 }
 
 EditorSubState EntityMove::update(const WVec &mpos) {
-    auto &pc = m_world.m_pos_c[m_entity];
+    auto &pc = m_world.pos_c(m_entity);
 
     auto diff = m_mpos - mpos;
     m_diff += diff;
     BaseEditorSubState::update(mpos);
 
     pc.position -= diff;
-    pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * m_world.m_pos_c[pc.parent].global_transform;
+    pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * m_world.pos_c(pc.parent).global_transform;
 
     return nullptr;
 }

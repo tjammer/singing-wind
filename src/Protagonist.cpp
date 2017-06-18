@@ -16,8 +16,8 @@
 using namespace Protagonist;
 
 void Protagonist::on_static_collision(const ColResult &result, GameWorld &world, unsigned int entity) {
-    auto &mc = world.m_move_c[entity];
-    auto &gc = world.m_ground_move_c[entity];
+    auto &mc = world.move_c(entity);
+    auto &gc = world.ground_move_c(entity);
 
     if (w_dot(WVec(0, 1), result.normal) > c_max_floor_angle) {
         gc.air_time = 0;
@@ -33,7 +33,7 @@ void Protagonist::on_static_collision(const ColResult &result, GameWorld &world,
 }
 
 void Protagonist::handle_inputs(GameWorld &world, unsigned int entity) {
-    auto &ic = world.m_input_c.at(entity);
+    auto &ic = world.input_c(entity);
 
     push_value(ic.jump, WInput::is_key_pressed(GLFW_KEY_SPACE));
 
