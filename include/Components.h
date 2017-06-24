@@ -13,7 +13,7 @@
 
 class GameWorld;
 class ColShape;
-class NavNode;
+struct NavNode;
 
 enum Components : int {
     CPosition,
@@ -112,7 +112,7 @@ const std::map<MoveSet, const char*> moveset_string = {
 struct MoveComponent {
     WVec velocity = {0, 0};
     WVec accel = {0, 0};
-    WVec additional_accel = {0, 0};
+    WVec additional_force = {0, 0};
     MoveState movestate;
     MoveSet moveset;
     float mass = 1;
@@ -152,6 +152,8 @@ struct FlyComponent {
     float c_max_change_angle = 4;
     float c_accel_force = 1000;
     float c_accel_time = 0.7f;
+    float c_drag = 0.0026;
+    float c_push_vel = 500.f;
     float timer = 0;
 
     // bcurve for acceling

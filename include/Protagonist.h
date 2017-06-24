@@ -11,13 +11,22 @@
 
 class GameWorld;
 
-namespace Protagonist {
+namespace protagonist {
 
     void on_static_collision(const ColResult &result, GameWorld &world, unsigned int entity);
 
     void handle_inputs(GameWorld &world, unsigned int entity);
 
     const WVec c_capsule_size = {15, 30};
+
+    void to_ground(GameWorld &world, unsigned int entity);
+    void on_ground(GameWorld &world, unsigned int entity);
+    void to_falling(GameWorld &world, unsigned int entity_name);
+    void falling(GameWorld &world, unsigned int entity);
+    void to_flying(GameWorld &world, unsigned int entity);
+    void flying(GameWorld &world, unsigned int entity);
+    void to_flying_accel(GameWorld &world, unsigned int entity);
+    void flying_accel(GameWorld &world, unsigned int entity);
 }
 
 #endif //SINGING_WIND_PROTAGONIST_H

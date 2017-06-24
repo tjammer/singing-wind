@@ -113,6 +113,7 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
         if (Combo("MoveSet", &moveset, moveset_names.data(), moveset_names.size())) {
             mc.moveset = static_cast<MoveSet>(moveset);
         }
+        if (DragFloat("mass", &mc.mass)) {}
     }
 
     // static col
@@ -123,8 +124,8 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
             switch (static_cast<ColShapeName>(shape_type)) {
                 case ColShapeName::ColCapsule: {
                     if (sc.shape->m_type != ColShapeName::ColCapsule) {
-                        sc.shape = std::shared_ptr<ColShape>(new ColCapsule(Protagonist::c_capsule_size.x,
-                                                                            Protagonist::c_capsule_size.y));
+                        sc.shape = std::shared_ptr<ColShape>(new ColCapsule(protagonist::c_capsule_size.x,
+                                                                            protagonist::c_capsule_size.y));
                     }
                     break;
                 }
@@ -187,6 +188,8 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
         if (DragFloat("max angle change", &fc.c_max_change_angle)) {}
         if (DragFloat("accel force", &fc.c_accel_force)) {}
         if (DragFloat("accel time", &fc.c_accel_time)) {}
+        if (DragFloat("drag", &fc.c_drag, .0001f, 0.0f, 0.0f, "%.5f")) {}
+        if (DragFloat("push vel", &fc.c_push_vel)) {}
         ImVec2 points[4] = {{fc.from.x, fc.from.y}, {fc.ctrl_from.x, fc.ctrl_from.y}, {fc.ctrl_to.x, fc.ctrl_to.y}, {fc.to.x, fc.to.y}};
         if (Bezier("accel curve", points)) {
             fc.from = {points[0].x, points[0].y};

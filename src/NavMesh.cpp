@@ -78,7 +78,7 @@ NavMesh build_navmesh(const std::vector<Island> &m_islands, StaticGrid &grid) {
             auto p1 = triangles[i*3];
             auto p2 = triangles[i*3+1];
             auto p3 = triangles[i*3+2];
-            std::unordered_map<NavNode, std::vector<NavLink>> links = walkable_from_tri({p1, p2, p3}, grid);
+            std::unordered_map<NavNode, std::vector<NavLink>> links = walkable_from_tri({{p1, p2, p3}}, grid);
             for (const auto &pr : links) {
                 auto node = pr.first;
                 for (const auto &link : pr.second) {

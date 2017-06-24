@@ -12,7 +12,7 @@
 
 class EngineState;
 class GameWorld;
-class GLFWwindow;
+struct GLFWwindow;
 
 // engine base class, different from gameplay states
 class Engine {

@@ -10,7 +10,7 @@
 #include <memory>
 #include "WindDefs.h"
 
-class GLFWwindow;
+struct GLFWwindow;
 struct PosComponent;
 struct DebugComponent;
 struct InputComponent;
@@ -21,7 +21,7 @@ struct JumpComponent;
 struct FlyComponent;
 struct PathingComponent;
 class StaticGrid;
-class NavMesh;
+struct NavMesh;
 class Island;
 using NameComponent = std::string;
 

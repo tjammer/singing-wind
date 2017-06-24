@@ -47,6 +47,7 @@ scene::Entity * get_pb_entity(GameWorld &game_world, unsigned int entity) {
         auto move_c = new scene::MoveComponent;
         move_c->set_moveset(static_cast<int>(game_world.move_c(entity).moveset));
         move_c->set_movestate(static_cast<int>(game_world.move_c(entity).movestate));
+        move_c->set_mass(game_world.move_c(entity).mass);
         pb_entity->set_allocated_move_c(move_c);
     }
 
@@ -96,6 +97,7 @@ scene::Entity * get_pb_entity(GameWorld &game_world, unsigned int entity) {
         fly_c->set_lift(game_world.fly_c(entity).c_lift);
         fly_c->set_max_change_angle(game_world.fly_c(entity).c_max_change_angle);
         fly_c->set_stall_angle(game_world.fly_c(entity).c_stall_angle);
+        fly_c->set_push_vel(game_world.fly_c(entity).c_push_vel);
         from->set_x(game_world.fly_c(entity).from.x);
         from->set_y(game_world.fly_c(entity).from.y);
         ctrl_from->set_x(game_world.fly_c(entity).ctrl_from.x);
@@ -161,6 +163,7 @@ void entity_to_world(const scene::Entity &pb_entity, GameWorld &game_world, unsi
         auto move_c = pb_entity.move_c();
         game_world.move_c(entity).movestate = static_cast<MoveState>(move_c.movestate());
         game_world.move_c(entity).moveset = static_cast<MoveSet>(move_c.moveset());
+        game_world.move_c(entity).mass = move_c.mass();
     }
 
     // static_col_c
@@ -206,6 +209,7 @@ void entity_to_world(const scene::Entity &pb_entity, GameWorld &game_world, unsi
         game_world.fly_c(entity).c_max_change_angle = fly_c.max_change_angle();
         game_world.fly_c(entity).c_accel_time = fly_c.accel_time();
         game_world.fly_c(entity).c_accel_force = fly_c.accel_force();
+        game_world.fly_c(entity).c_push_vel = fly_c.push_vel();
 
         game_world.fly_c(entity).from = WVec(fly_c.from().x(), fly_c.from().y());
         game_world.fly_c(entity).ctrl_from = WVec(fly_c.ctrl_from().x(), fly_c.ctrl_from().y());

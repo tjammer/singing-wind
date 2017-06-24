@@ -49,6 +49,7 @@ message InputComponent {
 message MoveComponent {
     int32 movestate = 1;
     int32 moveset = 2;
+    float mass = 3;
 }
 
 message StaticColComponent {
@@ -79,6 +80,7 @@ message FlyComponent {
     float max_change_angle = 3;
     float accel_force = 4;
     float accel_time = 5;
+    float push_vel = 10;
 
     // bcurve for acceling
     Point from = 6;
