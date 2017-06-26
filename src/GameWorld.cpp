@@ -31,6 +31,7 @@ class GameWorld::impl {
         std::unordered_map<unsigned int, JumpComponent> m_jump_c;
         std::unordered_map<unsigned int, FlyComponent> m_fly_c;
         std::unordered_map<unsigned int, PathingComponent> m_path_c;
+        std::unordered_map<unsigned int, SimpleFlyComponent> m_simple_fly_c;
         std::vector<NameComponent> m_name_c;
 
 
@@ -187,6 +188,8 @@ void GameWorld::reset_entities() {
     pimpl->m_jump_c.clear();
     pimpl->m_fly_c.clear();
     pimpl->m_name_c.clear();
+    pimpl->m_path_c.clear();
+    pimpl->m_simple_fly_c.clear();
 }
 
 void GameWorld::reset_islands() {
@@ -207,6 +210,8 @@ void GameWorld::delete_entity_raw(unsigned int entity) {
     pimpl->m_jump_c.erase(entity);
     pimpl->m_fly_c.erase(entity);
     pimpl->m_entities[entity].reset();
+    pimpl->m_path_c.erase(entity);
+    pimpl->m_simple_fly_c.erase(entity);
     assert(pimpl->m_entities[entity].none());
 }
 
@@ -265,4 +270,8 @@ PathingComponent & GameWorld::path_c(unsigned int entity) {
 
 NameComponent & GameWorld::name_c(unsigned int entity) {
     return pimpl->m_name_c[entity];
+}
+
+SimpleFlyComponent & GameWorld::simple_fly_c(unsigned int entity) {
+    return pimpl->m_simple_fly_c[entity];
 }

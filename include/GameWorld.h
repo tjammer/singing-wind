@@ -20,6 +20,7 @@ struct GroundMoveComponent;
 struct JumpComponent;
 struct FlyComponent;
 struct PathingComponent;
+struct SimpleFlyComponent;
 class StaticGrid;
 struct NavMesh;
 class Island;
@@ -55,6 +56,7 @@ public:
         FlyComponent &fly_c(unsigned int entity);
         PathingComponent &path_c(unsigned int entity);
         NameComponent &name_c(unsigned int entity);
+        SimpleFlyComponent &simple_fly_c(unsigned int entity);
 
     void reset_entities();
     void reset_islands();

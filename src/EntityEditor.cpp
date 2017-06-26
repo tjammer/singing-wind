@@ -206,6 +206,14 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
             pc.p_type = static_cast<PathingType>(pathing_type);
         }
     }
+    // simplefly
+    if (m_world.entities()[m_entity].test(CSimpleFly) and CollapsingHeader("simple fly")) {
+        auto &fc = m_world.simple_fly_c(m_entity);
+        if (DragFloat("max vel", &fc.c_max_vel)) {}
+        if (DragFloat("accel", &fc.c_accel)) {}
+        if (DragFloat("near threshold", &fc.c_near_threshold)) {}
+        if (DragFloat("stop coeff", &fc.c_stop_coef)) {}
+    }
 
     if (Button("save entity")) {
         save_entity_standalone(m_world, m_entity);

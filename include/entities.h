@@ -19,7 +19,8 @@ namespace Entities {
 }
 
 const std::unordered_map<StaticColResponse, std::function<void(const ColResult &, GameWorld &, unsigned int)>> static_col_responses = {
-        {StaticColResponse::Actor, protagonist::on_static_collision}
+        {StaticColResponse::Actor, protagonist::on_static_collision},
+        {StaticColResponse::SimpleFlyer, TestEnemy::on_static_collision}
 };
 
 const std::unordered_map<InputFunc, std::function<void(GameWorld &world, unsigned int entity)>> input_funcs = {

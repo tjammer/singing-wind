@@ -25,7 +25,8 @@ enum Components : int {
     CGroundMove,
     CJump,
     CFly,
-    CPathing
+    CPathing,
+    CSimpleFly
 };
 const std::map<Components, const char*> components_string = {
     {CPosition, "CPosition"},
@@ -37,7 +38,8 @@ const std::map<Components, const char*> components_string = {
     {CGroundMove, "CGroundMove"},
     {CJump, "CJump"},
     {CFly, "CFly"},
-    {CPathing, "CPathing"}
+    {CPathing, "CPathing"},
+    {CSimpleFly, "CSimpleFly"}
 };
 
 struct PosComponent {
@@ -102,10 +104,12 @@ enum class MoveTransition : int {
 };
 
 enum class MoveSet : int {
-    Protagonist
+    Protagonist,
+    TestEnemy
 };
 const std::map<MoveSet, const char*> moveset_string = {
-    {MoveSet::Protagonist, "Protagonist"}
+    {MoveSet::Protagonist, "Protagonist"},
+    {MoveSet::TestEnemy, "TestEnemy"}
 };
 
 
@@ -119,10 +123,12 @@ struct MoveComponent {
 };
 
 enum class StaticColResponse : int {
-    Actor
+    Actor,
+    SimpleFlyer
 };
 const std::map<StaticColResponse, const char*> staticcolresponse_string = {
-    {StaticColResponse::Actor, "Actor"}
+    {StaticColResponse::Actor, "Actor"},
+    {StaticColResponse::SimpleFlyer, "SimpleFlyer"}
 };
 
 struct StaticColComponent {
@@ -177,6 +183,13 @@ const std::map<PathingType, const char*> pathingtype_string = {
 struct PathingComponent {
     PathingType p_type;
     std::queue<NavNode> path;
+};
+
+struct SimpleFlyComponent {
+    float c_max_vel = 500;
+    float c_accel = 1000;
+    float c_near_threshold = 10;
+    float c_stop_coef = 0.04;
 };
 
 #endif //SINGING_WIND_COMPONENTS_H

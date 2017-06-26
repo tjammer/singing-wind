@@ -5,10 +5,12 @@
 #include "MoveSystems.h"
 #include "Protagonist.h"
 #include <unordered_map>
+#include "TestEnemy.h"
 
 using namespace std;
 using accel_func = std::function<void(GameWorld &world, unsigned int entity)>;
 
+// protagonist
 const unordered_map<MoveState, accel_func> protagonist_ms = {
         {MoveState::OnGround, protagonist::on_ground},
         {MoveState::Falling, protagonist::falling},
@@ -20,8 +22,14 @@ const unordered_map<MoveTransition, accel_func> protagonist_trans = {
         {MoveTransition::ToGround, protagonist::to_ground}
 };
 
+// testenemy
+const unordered_map<MoveState, accel_func> testenemy_ms = {
+    {MoveState::Flying, TestEnemy::simple_flying}
+};
+
 const unordered_map<MoveSet, unordered_map<MoveState, accel_func>> move_sets = {
-        {MoveSet::Protagonist, protagonist_ms}
+        {MoveSet::Protagonist, protagonist_ms},
+        {MoveSet::TestEnemy, testenemy_ms}
 };
 
 const unordered_map<MoveSet, unordered_map<MoveTransition, accel_func>> trans_sets = {
