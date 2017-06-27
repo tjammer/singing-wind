@@ -90,9 +90,9 @@ RayCastResult cast_ray_vs_shape(const WVec &a, const ColShape &b, const WVec &di
     if (s == n) {
         n = v;
     }
-    result.hitParameter = t;
-    result.hitSpot = s;
-    result.hitNormal = n;
+    result.hit_parameter = t;
+    result.hit_spot = s;
+    result.hit_normal = n;
     result.hits = true;
 
     return result;
@@ -402,7 +402,7 @@ RayCastResult cast_ray_vs_static_grid(StaticGrid &grid, const WVec &from, const 
                 continue;
             }
             auto res = cast_ray_vs_shape(from, *shape, -dir);
-            if (res.hitParameter < result.hitParameter) {
+            if (res.hit_parameter < result.hit_parameter) {
                 assert(res.hits);
                 result = res;
             }

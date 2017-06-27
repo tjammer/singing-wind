@@ -21,9 +21,9 @@ struct ColResult {
 struct RayCastResult
 {
     bool hits = false;
-    float hitParameter = std::numeric_limits<float>::max();
-    WVec hitSpot;
-    WVec hitNormal;
+    float hit_parameter = std::numeric_limits<float>::max();
+    WVec hit_spot;
+    WVec hit_normal;
     int its = 0;
     int innerits = 0;
 };

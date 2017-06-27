@@ -185,7 +185,7 @@ void find_shortest_links(unsigned int l1, unsigned int l2, NavMesh &mesh, Static
                 continue;
             }
             auto result = cast_ray_vs_static_grid(grid, outer_node, inner_node);
-            if (result.hitParameter < w_magnitude(outer_node - inner_node)) {
+            if (result.hit_parameter < w_magnitude(outer_node - inner_node)) {
                 continue;
             }
             NavLink link{outer_node, inner_node};
@@ -252,18 +252,18 @@ void build_node_space(NavMesh &mesh, StaticGrid &grid) {
         auto node = WVec{inode.x, inode.y};
         // up
         auto result = cast_ray_vs_static_grid(grid, node, node + WVec{0, -check_height});
-        if (result.hitParameter < check_height) {
-            ns.up = result.hitParameter;
+        if (result.hit_parameter < check_height) {
+            ns.up = result.hit_parameter;
         }
         // left
         result = cast_ray_vs_static_grid(grid, node, node + WVec{-check_height, 0});
-        if (result.hitParameter < check_height) {
-            ns.left = result.hitParameter;
+        if (result.hit_parameter < check_height) {
+            ns.left = result.hit_parameter;
         }
         // right
         result = cast_ray_vs_static_grid(grid, node, node + WVec{check_height, 0});
-        if (result.hitParameter < check_height) {
-            ns.right = result.hitParameter;
+        if (result.hit_parameter < check_height) {
+            ns.right = result.hit_parameter;
         }
         mesh.m_space[inode] = ns;
     }
