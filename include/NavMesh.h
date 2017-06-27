@@ -28,7 +28,6 @@ namespace std {
     struct hash<NavNode> : public hash<NavNodeBase>{};
 }
 
-
 inline bool operator<(const NavNode &lhs, const NavNode& rhs) {
     return std::hash<NavNode>{}(lhs) < std::hash<NavNode>{}(rhs);
 }
@@ -89,9 +88,17 @@ private:
     KDTree m_kd_tree;
 };
 
+struct NodeSpace {
+    // no down, bc nodes are built on top of islands
+    float up = std::numeric_limits<float>::max();
+    float left = std::numeric_limits<float>::max();
+    float right = std::numeric_limits<float>::max();
+};
+
 struct NavMesh {
     NavGraph m_graph;
     std::unordered_map<NavNode, unsigned int> m_levels;
+    std::unordered_map<NavNode, NodeSpace> m_space;
     void build_tree();
 
     NavNode get_nearest(const WVec &pos);
@@ -117,6 +124,7 @@ int a_star_search(const NavGraph &graph, const NavNode &start, const NavNode &go
                   std::unordered_map<NavNode, NavNode> &);
 
 void build_levels_connections(NavMesh &mesh, StaticGrid &grid);
+void build_node_space(NavMesh &mesh, StaticGrid &grid);
 
 struct PathingComponent;
 void get_path_platform(WVec &from, PathingComponent &pc, NavMesh &mesh, StaticGrid &grid);

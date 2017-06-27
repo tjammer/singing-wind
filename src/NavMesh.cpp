@@ -45,7 +45,7 @@ std::unordered_map<NavNode, std::vector<NavLink>> walkable_from_tri(std::array<W
     return graph;
 }
 
-void dummy_search(const WVec &from, const WVec &to, NavMesh &mesh, const bset &ent) {
+void dummy_search(const WVec &from, const WVec &to, NavMesh &mesh, const bset &) {
     const NavNode & node = mesh.get_nearest(from);
     const NavNode & _to = mesh.get_nearest(to);
     if (a_star_search(mesh.m_graph, node, _to, mesh.m_path)) {
@@ -87,8 +87,9 @@ NavMesh build_navmesh(const std::vector<Island> &m_islands, StaticGrid &grid) {
             }
         }
     }
-    // todo sort into islands and check visibility to create links
     build_levels_connections(mesh, grid);
+    // todo check space for earch node
+    build_node_space(mesh, grid);
     mesh.build_tree();
     return mesh;
 }
@@ -243,6 +244,31 @@ void build_levels_connections(NavMesh &mesh, StaticGrid &grid) {
     }
 }
 
+void build_node_space(NavMesh &mesh, StaticGrid &grid) {
+    float check_height = 10000;
+    for (auto &pair : mesh.m_graph) {
+        NodeSpace ns;
+        auto &inode = pair.first;
+        auto node = WVec{inode.x, inode.y};
+        // up
+        auto result = cast_ray_vs_static_grid(grid, node, node + WVec{0, -check_height});
+        if (result.hitParameter < check_height) {
+            ns.up = result.hitParameter;
+        }
+        // left
+        result = cast_ray_vs_static_grid(grid, node, node + WVec{-check_height, 0});
+        if (result.hitParameter < check_height) {
+            ns.left = result.hitParameter;
+        }
+        // right
+        result = cast_ray_vs_static_grid(grid, node, node + WVec{check_height, 0});
+        if (result.hitParameter < check_height) {
+            ns.right = result.hitParameter;
+        }
+        mesh.m_space[inode] = ns;
+    }
+}
+
 NavLink::NavLink(const NavNode &to, const NavNode &from)
     : to(to), from(from) {
     // manhattan distance
@@ -284,6 +310,7 @@ NavNode NavMesh::get_nearest(const WVec &pos) {
 NavMesh::NavMesh(const NavMesh &other) {
     m_graph = other.m_graph;
     m_levels = other.m_levels;
+    m_space = other.m_space;
 
     build_tree();
 
@@ -292,6 +319,7 @@ NavMesh::NavMesh(const NavMesh &other) {
 NavMesh& NavMesh::operator=(const NavMesh &other) {
     m_graph = other.m_graph;
     m_levels = other.m_levels;
+    m_space = other.m_space;
 
     build_tree();
     return *this;

@@ -13,7 +13,7 @@
 
 class GameWorld;
 class ColShape;
-struct NavNode;
+struct NavLink;
 
 enum Components : int {
     CPosition,
@@ -182,7 +182,7 @@ const std::map<PathingType, const char*> pathingtype_string = {
 
 struct PathingComponent {
     PathingType p_type;
-    std::queue<NavNode> path;
+    std::queue<NavLink> path;
 };
 
 struct SimpleFlyComponent {
