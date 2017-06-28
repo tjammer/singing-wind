@@ -120,15 +120,7 @@ inline float heuristic(const NavNode &from, const NavNode &to) {
     return abs(from.x - to.x) + abs(from.y - to.y);
 }
 
-int a_star_search(const NavGraph &graph, const NavNode &start, const NavNode &goal,
-                  std::unordered_map<NavNode, NavNode> &);
-
 void build_levels_connections(NavMesh &mesh, StaticGrid &grid);
 void build_node_space(NavMesh &mesh, StaticGrid &grid);
-
-struct PathingComponent;
-void get_path_platform(WVec &from, PathingComponent &pc, NavMesh &mesh, StaticGrid &grid);
-void get_path_jump(const WVec &from, const WVec &to, NavMesh &mesh, StaticGrid &grid);
-void get_path_fly(const WVec &from, const WVec &to, NavMesh &mesh);
 
 #endif //SINGING_WIND_NAVMESH_H

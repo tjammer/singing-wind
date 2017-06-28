@@ -6,6 +6,7 @@
 #include "EntityEditor.h"
 #include "Island.h"
 #include "GameWorld.h"
+#include "PosComponent.h"
 #include "Components.h"
 #include "NavMesh.h"
 #include "WRenderer.h"

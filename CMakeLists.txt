@@ -46,7 +46,11 @@ set(INCLUDE_FILES include/Engine.h
     include/WInput.h
     include/SceneIO.h
     include/NavMesh.h
-    include/TestEnemy.h)
+    include/TestEnemy.h
+    include/InputComponent.h
+    include/CollisionComponent.h
+    include/PosComponent.h
+    include/Pathfinding.h)
 
 set(SOURCE_FILES src/main.cpp
     src/Engine.cpp 
@@ -75,7 +79,10 @@ set(SOURCE_FILES src/main.cpp
     src/WInput.cpp  
     src/SceneIO.cpp  
     src/NavMesh.cpp 
-    src/TestEnemy.cpp)
+    src/TestEnemy.cpp
+    src/InputComponent.cpp
+    src/CollisionComponent.cpp
+    src/Pathfinding.cpp)
 
 include(unity_build.cmake)
 #enable_unity_build(singing_wind SOURCE_FILES)

@@ -12,6 +12,10 @@
 #include "Editor.h"
 #include "SceneIO.h"
 #include "Components.cpp"
+#include "InputComponent.h"
+#include "CollisionComponent.h"
+#include "MoveSystems.h"
+#include "PosComponent.h"
 
 scene::Entity * get_pb_entity(GameWorld &game_world, unsigned int entity) {
     using namespace std;

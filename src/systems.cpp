@@ -5,8 +5,11 @@
 #include "systems.h"
 #include "GameWorld.h"
 #include "MoveSystems.h"
-#include "entities.h"
+#include "InputComponent.h"
+#include "CollisionComponent.h"
+#include "PosComponent.h"
 #include "ColGrid.h"
+#include "ColShape.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
 #include <WRenderer.h>
@@ -98,7 +101,7 @@ void static_col_update(GameWorld &world, const std::vector<unsigned int> &entiti
             }
 
             // call back
-            static_col_responses.at(world.static_col_c(entity).col_response)(result, world, entity);
+            get_static_col_response(world.static_col_c(entity).col_response)(result, world, entity);
         }
     }
 }
@@ -106,7 +109,7 @@ void static_col_update(GameWorld &world, const std::vector<unsigned int> &entiti
 void input_update(GameWorld &world, const std::vector<unsigned int> &entities) {
     for (const auto entity : entities) {
         auto &ic = world.input_c(entity);
-        input_funcs.at(ic.input_func)(world, entity);
+        get_input_func(ic.input_func)(world, entity);
 
     }
 }

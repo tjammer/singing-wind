@@ -1,7 +1,10 @@
 #include "TestEnemy.h"
 #include "GameWorld.h"
 #include "WVecMath.h"
-#include "Components.h"
+#include "PosComponent.h"
+#include "InputComponent.h"
+#include "Collision.h"
+#include "MoveSystems.h"
 
 #include <iostream>
 using namespace TestEnemy;

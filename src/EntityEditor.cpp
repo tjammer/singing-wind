@@ -10,7 +10,12 @@
 #include "imgui-bezier.h"
 #include "SceneIO.h"
 #include "Protagonist.h"
-#include "Components.cpp"
+#include "PosComponent.h"
+#include "Components.h"
+#include "InputComponent.h"
+#include "CollisionComponent.h"
+#include "MoveSystems.h"
+#include "Pathfinding.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
@@ -30,7 +35,6 @@ auto movestate_names = get_enum_string_array(movestate_string);
 const char* const colshape_names = {"Triangle\0Circle\0Capsule\0\0"};
 auto col_responses = get_enum_string_array(staticcolresponse_string);
 auto inputfunc_names = get_enum_string_array(inputfunc_string);
-auto pathingtype_names = get_enum_string_array(pathingtype_string);
 
 void EntityIdle::draw(GameWorld &world) {
     bset debug_draw; debug_draw.set(CPosition); debug_draw.set(CDebugDraw);
@@ -201,10 +205,12 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
     // pathing
     if (m_world.entities()[m_entity].test(CPathing) and CollapsingHeader("pathing")) {
         auto &pc = m_world.path_c(m_entity);
-        int pathing_type = static_cast<int>(pc.p_type);
-        if (Combo("path type", &pathing_type, pathingtype_names.data(), pathingtype_names.size())) {
-            pc.p_type = static_cast<PathingType>(pathing_type);
+        auto flags = pc.p_type.to_ulong();
+        for (auto &pair : pathingtype_string) {
+            CheckboxFlags(pair.second, &flags, 1 << static_cast<int>(pair.first));
         }
+        pc.p_type = PathingType(flags);
+        if (DragFloat("max mh dist", &pc.c_max_mh_dist)) {}
     }
     // simplefly
     if (m_world.entities()[m_entity].test(CSimpleFly) and CollapsingHeader("simple fly")) {

@@ -3,7 +3,6 @@
 //
 
 #include "NavMesh.h"
-#include "WRenderer.h"
 #include "triangulate.h"
 #include "WVecMath.h"
 #include "GameWorld.h"
@@ -11,8 +10,6 @@
 #include <ColShape.h>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
-
-#include <queue>
 
 std::unordered_map<NavNode, std::vector<NavLink>> walkable_from_tri(std::array<WVec, 3> tri, const StaticGrid &grid) {
     std::unordered_map<NavNode, std::vector<NavLink>> graph;
@@ -45,12 +42,12 @@ std::unordered_map<NavNode, std::vector<NavLink>> walkable_from_tri(std::array<W
     return graph;
 }
 
-void fly_path_search(const WVec &from, const WVec &to, NavMesh &mesh) {
+/*void fly_path_search(const WVec &from, const WVec &to, NavMesh &mesh) {
     const NavNode & node = mesh.get_nearest(from);
     const NavNode & _to = mesh.get_nearest(to);
     if (a_star_search(mesh.m_graph, node, _to, mesh.m_path)) {
     }
-}
+}*/
 
 NavMesh build_navmesh(const std::vector<Island> &m_islands, StaticGrid &grid) {
     NavMesh mesh;
@@ -75,51 +72,6 @@ NavMesh build_navmesh(const std::vector<Island> &m_islands, StaticGrid &grid) {
     build_node_space(mesh, grid);
     mesh.build_tree();
     return mesh;
-}
-
-template <class pair>
-struct PQCompare {
-    inline bool operator()( const pair& lhs, const pair& rhs ) {
-        return lhs.first > rhs.first;
-    };
-};
-
-int a_star_search(const NavGraph &graph, const NavNode &start, const NavNode &goal,
-                  std::unordered_map<NavNode, NavNode> &path) {
-    using namespace std;
-
-    unordered_map<NavNode, float> cost;
-
-    path.clear();
-
-    typedef pair<float, NavNode> PQElement;
-    typedef priority_queue<PQElement, vector<PQElement>, PQCompare<PQElement>> PQueue;
-    PQueue frontier;
-    frontier.emplace(0, start);
-
-    path[start] = start;
-    cost[start] = 0;
-
-    while (!frontier.empty()) {
-        auto current = frontier.top().second;
-        frontier.pop();
-
-        if (current == goal) {
-            return 1;
-        }
-
-        for (const auto &link : graph.at(current)) {
-            float new_cost = cost[current] + link.cost;
-            if (!cost.count(link.to) || new_cost < cost[link.to]) {
-                cost[link.to] = new_cost;
-                auto heur = heuristic(link.to, goal);
-                float priority = new_cost + heur;
-                frontier.emplace(priority, link.to);
-                path[link.to] = current;
-            }
-        }
-    }
-    return 0;
 }
 
 void visit_node(NavNode &node, NavMesh &mesh, std::set<NavNode> &visited, unsigned int level) {

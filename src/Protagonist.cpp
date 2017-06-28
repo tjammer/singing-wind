@@ -5,6 +5,9 @@
 #include "Protagonist.h"
 #include "GameWorld.h"
 #include "MoveSystems.h"
+#include "PosComponent.h"
+#include "Components.h"
+#include "InputComponent.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
 #include <glad/glad.h>

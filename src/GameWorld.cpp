@@ -3,15 +3,18 @@
 //
 
 #include "GameWorld.h"
-#include "Components.h"
+#include "PosComponent.h"
 #include "triangulate.h"
 #include "entities.h"
 #include "systems.h"
 #include "Editor.h"
 #include "SceneIO.h"
 #include "NavMesh.h"
-
-#include "WRenderer.h"
+#include "InputComponent.h"
+#include "CollisionComponent.h"
+#include "ColShape.h"
+#include "MoveSystems.h"
+#include "Pathfinding.h"
 
 
 GameWorld::~GameWorld() = default;
