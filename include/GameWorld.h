@@ -65,7 +65,7 @@ public:
     void update_world();
 
     unsigned int create_entity();
-    bool load_entity(const std::string &name);
+    unsigned int load_entity(const std::string &name);
     void create_root();
     void delete_entity_raw(unsigned int entity);
 

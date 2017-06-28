@@ -182,7 +182,7 @@ const std::map<PathingType, const char*> pathingtype_string = {
 
 struct PathingComponent {
     PathingType p_type;
-    std::queue<NavLink> path;
+    std::deque<NavLink> path;
 };
 
 struct SimpleFlyComponent {

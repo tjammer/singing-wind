@@ -168,11 +168,12 @@ void GameWorld::find_entities_draw() {
     }
 }
 
-bool GameWorld::load_entity(const std::string &name) {
+unsigned int GameWorld::load_entity(const std::string &name) {
     std::string filename = "scenes/" + name + ".went";
     unsigned int ent = create_entity();
 
-    return load_entity_from_filename(filename, *this, ent);
+    load_entity_from_filename(filename, *this, ent);
+    return ent;
 }
 
 void GameWorld::reset_entities() {

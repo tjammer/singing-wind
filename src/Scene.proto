@@ -29,6 +29,7 @@ message Entity {
     GroundMoveComponent ground_move_c = 9;
     JumpComponent jump_c = 10;
     FlyComponent fly_c = 11;
+    SimplyFlyComponent simple_fly_c = 12;
 
 }
 
@@ -87,4 +88,11 @@ message FlyComponent {
     Point ctrl_from = 7;
     Point ctrl_to = 8;
     Point to = 9;
-};
+}
+
+message SimplyFlyComponent {
+    float max_vel = 1;
+    float accel = 2;
+    float near_threshold = 3;
+    float stop_coef = 4;
+}

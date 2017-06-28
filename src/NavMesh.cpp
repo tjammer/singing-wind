@@ -45,28 +45,11 @@ std::unordered_map<NavNode, std::vector<NavLink>> walkable_from_tri(std::array<W
     return graph;
 }
 
-void dummy_search(const WVec &from, const WVec &to, NavMesh &mesh, const bset &) {
+void fly_path_search(const WVec &from, const WVec &to, NavMesh &mesh) {
     const NavNode & node = mesh.get_nearest(from);
     const NavNode & _to = mesh.get_nearest(to);
     if (a_star_search(mesh.m_graph, node, _to, mesh.m_path)) {
-        // render path
-        auto current = _to;
-        while (true) {
-            WRenderer::set_mode(GL_LINES);
-            if (mesh.m_path.count(current) && !(mesh.m_path.at(current) == current)) {
-                WRenderer::add_primitive_vertex({{(float)current.x, (float)current.y}, {1, 0, 0}});
-                current = mesh.m_path.at(current);
-                WRenderer::add_primitive_vertex({{(float)current.x, (float)current.y}, {1, 0, 0}});
-                if (current == node) {
-                    break;
-                }
-            }
-            else {
-                break;
-            }
-        }
     }
-
 }
 
 NavMesh build_navmesh(const std::vector<Island> &m_islands, StaticGrid &grid) {

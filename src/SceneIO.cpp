@@ -113,6 +113,16 @@ scene::Entity * get_pb_entity(GameWorld &game_world, unsigned int entity) {
         pb_entity->set_allocated_fly_c(fly_c);
     }
 
+    // simple fly
+    if (game_world.entities().at(entity).test(CSimpleFly)) {
+        auto fly_c = new scene::SimplyFlyComponent;
+        fly_c->set_max_vel(game_world.simple_fly_c(entity).c_max_vel);
+        fly_c->set_accel(game_world.simple_fly_c(entity).c_accel);
+        fly_c->set_near_threshold(game_world.simple_fly_c(entity).c_near_threshold);
+        fly_c->set_stop_coef(game_world.simple_fly_c(entity).c_stop_coef);
+        pb_entity->set_allocated_simple_fly_c(fly_c);
+    }
+
     return move(pb_entity);
 }
 
@@ -215,6 +225,15 @@ void entity_to_world(const scene::Entity &pb_entity, GameWorld &game_world, unsi
         game_world.fly_c(entity).ctrl_from = WVec(fly_c.ctrl_from().x(), fly_c.ctrl_from().y());
         game_world.fly_c(entity).ctrl_to = WVec(fly_c.ctrl_to().x(), fly_c.ctrl_to().y());
         game_world.fly_c(entity).to = WVec(fly_c.to().x(), fly_c.to().y());
+    }
+
+    // simply fly
+    if (pb_entity.has_simple_fly_c()) {
+        auto fly_c = pb_entity.simple_fly_c();
+        game_world.simple_fly_c(entity).c_max_vel = fly_c.max_vel();
+        game_world.simple_fly_c(entity).c_accel = fly_c.accel();
+        game_world.simple_fly_c(entity).c_near_threshold = fly_c.near_threshold();
+        game_world.simple_fly_c(entity).c_stop_coef = fly_c.stop_coef();
     }
 }
 

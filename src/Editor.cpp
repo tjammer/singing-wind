@@ -8,6 +8,7 @@
 #include "GameWorld.h"
 #include "SceneIO.h"
 #include "Island.h"
+#include "EntityEditor.h"
 
 #include "WRenderer.h"
 #include <imgui.h>
@@ -268,7 +269,10 @@ bool EngineEditorState::main_menu() {
         ImGui::InputText("entity name", &entity_name[0], entity_name.size());
         ent_name = std::string(&entity_name[0]);
         if (ImGui::Button("load entity")) {
-            m_game_world.load_entity(ent_name);
+            // load new entity to move mode
+            auto new_ent = m_game_world.load_entity(ent_name);
+            double mpos[2] = {m_mouse.x, m_mouse.y};
+            m_state = std::move(EditorSubState(new EntityMove(m_game_world, new_ent, m_camera.unproject_mouse(mpos))));
             ImGui::CloseCurrentPopup();
         }
         ImGui::EndPopup();
