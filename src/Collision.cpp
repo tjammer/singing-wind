@@ -409,6 +409,9 @@ RayCastResult cast_ray_vs_static_grid(StaticGrid &grid, const WVec &from, const 
             tested.insert(shape);
         }
         if (result.hits) {
+            if (result.hit_parameter > w_magnitude(to - from)) {
+                result.hits = false;
+            }
             break;
         }
 
