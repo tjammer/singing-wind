@@ -87,22 +87,6 @@ void GameWorld::step_fixed(float dt) {
     // house keeping systems
     ground_move_update(*this, dt,pimpl-> m_ground_move_ents);
     fly_update(*this, dt, pimpl->m_fly_ents);
-
-
-    /*auto result = cast_ray_vs_static_grid(m_grid, m_pos_c[1].position, m_pos_c[1].position + WVec{0, 1000});
-    auto p = m_pos_c[1].position;
-    if (result.hits) {
-        p.y += result.hitParameter;
-    }
-    result = cast_ray_vs_static_grid(m_grid, mouse, mouse + WVec{0, 1000});
-    auto m = mouse;
-    if (result.hits) {
-        m.y += result.hitParameter;
-    }
-    WRenderer::set_mode(GL_QUADS);
-    for (auto q : make_quad(m, 10)) {
-        WRenderer::add_primitive_vertex({{q.x, q.y}, {1.f, 1.f, 1.f}});
-    }*/
 }
 
 unsigned int GameWorld::create_entity() {

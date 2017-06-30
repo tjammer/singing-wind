@@ -120,7 +120,7 @@ void find_shortest_links(unsigned int l1, unsigned int l2, NavMesh &mesh, Static
                 continue;
             }
             auto result = cast_ray_vs_static_grid(grid, outer_node, inner_node);
-            if (result.hit_parameter < w_magnitude(outer_node - inner_node)) {
+            if (result.hits ){// < w_magnitude(outer_node - inner_node)) {
                 continue;
             }
             NavLink link{outer_node, inner_node};
@@ -219,14 +219,20 @@ void NavTree::rebuild(const std::vector<NavNode> &nodes) {
     m_kd_tree.buildIndex();
 }
 
-NavNode & NavTree::get_nearest(const WVec &pos) {
+std::vector<NavNode> NavTree::get_nearest(const WVec &pos, unsigned int n) {
     float query_pt[2] = {pos.x, pos.y};
 
-    std::vector<size_t>   ret_index(1);
-    std::vector<float> out_dist_sqr(1);
+    std::vector<size_t>   ret_index(n);
+    std::vector<float> out_dist_sqr(n);
 
-    m_kd_tree.knnSearch(&query_pt[0], 1, ret_index.data(), out_dist_sqr.data());
-    return m_cloud.nodes[ret_index[0]];
+    m_kd_tree.knnSearch(&query_pt[0], n, ret_index.data(), out_dist_sqr.data());
+    std::vector<NavNode> out;
+    out.reserve(n);
+    for (auto i : ret_index) {
+        out.push_back(m_cloud.nodes[i]);
+    }
+    assert(out[0] == m_cloud.nodes[ret_index[0]]);
+    return out;
 }
 
 void NavMesh::build_tree() {
@@ -239,7 +245,18 @@ void NavMesh::build_tree() {
 }
 
 NavNode NavMesh::get_nearest(const WVec &pos) {
-    return m_tree.get_nearest(pos);
+    return m_tree.get_nearest(pos)[0];
+}
+
+NavNode NavMesh::get_nearest_visible(const WVec &pos, StaticGrid &grid) {
+    // get four nearest
+    auto nodes = m_tree.get_nearest(pos, 4);
+    for (auto &node : nodes) {
+        if (!cast_ray_vs_static_grid(grid, pos, WVec{node.x, node.y}).hits) {
+            return node;
+        }
+    }
+    return nodes[0];
 }
 
 NavMesh::NavMesh(const NavMesh &other) {

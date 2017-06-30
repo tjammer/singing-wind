@@ -211,6 +211,8 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
         }
         pc.p_type = PathingType(flags);
         if (DragFloat("max mh dist", &pc.c_max_mh_dist)) {}
+        if (DragFloat("padding", &pc.c_padding)) {}
+        Text(std::to_string(pc.index).c_str());
     }
     // simplefly
     if (m_world.entities()[m_entity].test(CSimpleFly) and CollapsingHeader("simple fly")) {

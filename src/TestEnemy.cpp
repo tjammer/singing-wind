@@ -5,8 +5,8 @@
 #include "InputComponent.h"
 #include "Collision.h"
 #include "MoveSystems.h"
+#include "Pathfinding.h"
 
-#include <iostream>
 using namespace TestEnemy;
 
 void TestEnemy::on_static_collision(const ColResult &result, GameWorld &world, unsigned int entity) {
@@ -16,10 +16,32 @@ void TestEnemy::on_static_collision(const ColResult &result, GameWorld &world, u
 
 void TestEnemy::handle_inputs(GameWorld &world, unsigned int entity) {
     auto &ic = world.input_c(entity);
+    auto &pc = world.path_c(entity);
 
     unsigned int following = 1; //should be player
-
-    push_value(ic.mouse, world.pos_c(following).position);
+    auto &ent_pos = world.pos_c(entity).position;
+    auto &follow_pos = world.pos_c(following).position;
+    get_path_fly(ent_pos, world.pos_c(following).position, world, pc);     
+    pc.index = pc.path.size() -1;
+    while (pc.index > 0) {
+        auto result = cast_ray_vs_static_grid(world.grid(), ent_pos, pc.path[pc.index - 1]);
+        if (!result.hits) {
+            pc.index--;
+            pc.path.pop_back();
+        } else {
+            break;
+        } 
+    }
+    if (pc.index > 0) {
+        push_value(ic.mouse, pc.path[pc.index]);
+    } else {
+        auto result = cast_ray_vs_static_grid(world.grid(), ent_pos, follow_pos);
+        if (!result.hits) {
+            push_value(ic.mouse, follow_pos);
+        } else {
+            push_value(ic.mouse, pc.path[pc.index]);
+        }
+    }
 }
 
 void TestEnemy::simple_flying(GameWorld &world, unsigned int entity) {

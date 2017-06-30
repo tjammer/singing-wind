@@ -52,7 +52,7 @@ struct NavTree {
     ~NavTree() = default;
 
     void rebuild(const std::vector<NavNode>& nodes);
-    NavNode & get_nearest(const WVec &pos);
+    std::vector<NavNode> get_nearest(const WVec &pos, unsigned int n=1);
 private:
     struct NavCloud {
         std::vector<NavNode> nodes;
@@ -102,6 +102,7 @@ struct NavMesh {
     void build_tree();
 
     NavNode get_nearest(const WVec &pos);
+    NavNode get_nearest_visible(const WVec &pos, StaticGrid &grid);
 
     // for reusage
     std::unordered_map<NavNode, NavNode> m_path;
