@@ -411,8 +411,9 @@ RayCastResult cast_ray_vs_static_grid(StaticGrid &grid, const WVec &from, const 
         if (result.hits) {
             if (result.hit_parameter > w_magnitude(to - from)) {
                 result.hits = false;
+            } else {
+                break;
             }
-            break;
         }
 
         // todo: find xdt and ydt
