@@ -50,7 +50,8 @@ set(INCLUDE_FILES include/Engine.h
     include/InputComponent.h
     include/CollisionComponent.h
     include/PosComponent.h
-    include/Pathfinding.h)
+    include/Pathfinding.h
+    include/SkillComponent.h)
 
 set(SOURCE_FILES src/main.cpp
     src/Engine.cpp 
@@ -82,7 +83,8 @@ set(SOURCE_FILES src/main.cpp
     src/TestEnemy.cpp
     src/InputComponent.cpp
     src/CollisionComponent.cpp
-    src/Pathfinding.cpp)
+    src/Pathfinding.cpp
+    src/SkillComponent.cpp)
 
 include(unity_build.cmake)
 #enable_unity_build(singing_wind SOURCE_FILES)

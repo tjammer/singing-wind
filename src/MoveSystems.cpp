@@ -18,8 +18,8 @@ const unordered_map<MoveState, accel_func> protagonist_ms = {
         {MoveState::FlyingAccel, protagonist::flying_accel}
 };
 
-const unordered_map<MoveTransition, accel_func> protagonist_trans = {
-        {MoveTransition::ToGround, protagonist::to_ground}
+const unordered_map<MoveState, accel_func> protagonist_trans = {
+        {MoveState::OnGround, protagonist::to_ground}
 };
 
 // testenemy
@@ -27,20 +27,20 @@ const unordered_map<MoveState, accel_func> testenemy_ms = {
     {MoveState::Flying, TestEnemy::simple_flying}
 };
 
-const unordered_map<MoveSet, unordered_map<MoveState, accel_func>> move_sets = {
+unordered_map<MoveSet, unordered_map<MoveState, accel_func>> move_sets = {
         {MoveSet::Protagonist, protagonist_ms},
         {MoveSet::TestEnemy, testenemy_ms}
 };
 
-const unordered_map<MoveSet, unordered_map<MoveTransition, accel_func>> trans_sets = {
+unordered_map<MoveSet, unordered_map<MoveState, accel_func>> trans_sets = {
         {MoveSet::Protagonist, protagonist_trans}
 };
 
 
 accel_func get_accel_func(const MoveState &state, const MoveSet &set) {
-    return move_sets.at(set).at(state);
+    return move_sets.at(set)[state];
 }
 
-accel_func get_trans_func(const MoveTransition &trans, const MoveSet &set) {
-    return trans_sets.at(set).at(trans);
+accel_func get_trans_func(const MoveState &trans, const MoveSet &set) {
+    return trans_sets.at(set)[trans];
 }

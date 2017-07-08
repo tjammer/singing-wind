@@ -25,8 +25,10 @@ void protagonist::on_static_collision(const ColResult &result, GameWorld &world,
 
     if (w_dot(WVec(0, 1), result.normal) > c_max_floor_angle) {
         gc.air_time = 0;
-        if (!(mc.movestate == MoveState::OnGround)) {
-            get_trans_func(MoveTransition::ToGround, MoveSet::Protagonist)(world, entity);
+        // movestate to ground
+        auto trans_fc = get_trans_func(MoveState::OnGround, MoveSet::Protagonist);
+        if (trans_fc) {
+            trans_fc(world, entity);
         }
         mc.velocity.y = w_slide(mc.velocity, result.normal).y * 0.5f;
     }
@@ -144,10 +146,13 @@ void protagonist::falling(GameWorld &world, unsigned int entity) {
 }
 
 void ::protagonist::to_ground(GameWorld &world, unsigned int entity) {
+    auto &mc = world.move_c(entity);
+    if (mc.movestate == MoveState::OnGround) {
+        return;
+    }
     if (!world.entities()[entity].test(CGroundMove)) {
         return;
     }
-    auto &mc = world.move_c(entity);
     auto &pc = world.pos_c(entity);
 
     mc.movestate = MoveState::OnGround;

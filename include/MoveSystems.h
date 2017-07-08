@@ -27,10 +27,6 @@ const std::map<MoveState, const char*> movestate_string = {
     {MoveState::FlyingAccel, "FlyingAccel"}
 };
 
-enum class MoveTransition : int {
-    ToGround
-};
-
 enum class MoveSet : int {
     Protagonist,
     TestEnemy
@@ -90,6 +86,6 @@ struct SimpleFlyComponent {
 };
 
 std::function<void(GameWorld &world, unsigned int entity)> get_accel_func(const MoveState &state, const MoveSet &set);
-std::function<void(GameWorld &world, unsigned int entity)> get_trans_func(const MoveTransition &trans, const MoveSet &set);
+std::function<void(GameWorld &world, unsigned int entity)> get_trans_func(const MoveState&trans, const MoveSet &set);
 
 #endif //SINGING_WIND_MOVESYSTEMS_H
