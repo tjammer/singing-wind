@@ -27,7 +27,7 @@ ColTriangle::ColTriangle(const WVec &p1, const WVec &p2, const WVec &p3) {
 }
 
 void ColTriangle::add_gfx_lines(const WTransform &tf) {
-    WRenderer::set_mode(GL_LINES);
+    WRenderer::set_mode(PLines);
     this->transform(tf);
     for (unsigned int i = 0 ; i < m_vertices.size() ; ++i) {
         WRenderer::add_primitive_vertex({{m_vertices[i].x, m_vertices[i].y}, {1, 1, 1}});
@@ -60,7 +60,7 @@ void ColTriangle::transform(const WTransform &transform) {
 }
 
 void ColCircle::add_gfx_lines(const WTransform &tf) {
-    WRenderer::set_mode(GL_LINES);
+    WRenderer::set_mode(PLines);
     this->transform(tf);
     float angle = 4 * acos(0.f) / 32.f;
     for (unsigned int i = 0 ; i < 32 ; ++i) {
@@ -129,7 +129,7 @@ void ColCapsule::transform(const WTransform &transform) {
 }
 
 void ColCapsule::add_gfx_lines(const WTransform &tf) {
-    WRenderer::set_mode(GL_LINES);
+    WRenderer::set_mode(PLines);
     this->transform(tf);
     float angle = 4 * acos(0.f) / 32.f;
     for (unsigned int i = 0 ; i < 32 ; ++i) {

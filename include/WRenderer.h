@@ -15,6 +15,11 @@ struct PrimitiveVertex {
     float color[3];
 };
 
+enum PrimitiveStyle {
+    PLines,
+    PQuads
+};
+
 namespace WRenderer {
     void init(GLFWwindow *window);
     void shutdown();

@@ -51,10 +51,10 @@ void ::WRenderer::init(GLFWwindow *window) {
 }
 
 void WRenderer::add_primitive_vertex(const PrimitiveVertex &vert) {
-    if (m_mode == GL_LINES) {
+    if (m_mode == PLines) {
         m_prim_line_verts.push_back(vert);
     }
-    else if (m_mode == GL_QUADS) {
+    else if (m_mode == PQuads) {
         m_prim_quad_verts.push_back(vert);
         if (m_prim_quad_verts.size() % 4 == 0) {
             // setup indices

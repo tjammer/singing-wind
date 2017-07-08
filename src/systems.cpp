@@ -17,7 +17,7 @@
 
 void debug_draw_update(GameWorld &world, const std::vector<unsigned int> &entities) {
     WTransform zero_tf;
-    WRenderer::set_mode(GL_LINES);
+    WRenderer::set_mode(PLines);
     for (const auto &tri : world.grid().get_objects()) {
         tri->add_gfx_lines(zero_tf);
     }

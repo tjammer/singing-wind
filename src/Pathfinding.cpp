@@ -126,7 +126,7 @@ void get_path_fly(const WVec &from, const WVec &to, GameWorld &world, PathingCom
         }
     }
 
-    WRenderer::set_mode(GL_LINES);
+    WRenderer::set_mode(PLines);
     for (size_t i = 0 ; i < pc.path.size() - 1 ; ++i) {
         WRenderer::add_primitive_vertex({{pc.path[i].x, pc.path[i].y}, {1, 0, 0}});
         WRenderer::add_primitive_vertex({{pc.path[i+1].x, pc.path[i+1].y}, {1, 0, 0}});

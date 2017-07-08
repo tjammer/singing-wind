@@ -86,7 +86,7 @@ CurveIdle::CurveIdle(const BCurve &curve, Island &active) : m_curve(curve), m_is
 
 void CurveIdle::draw(GameWorld &) {
     get_island_vertex_array(m_island);
-    WRenderer::set_mode(GL_QUADS);
+    WRenderer::set_mode(PQuads);
     for (auto v : m_curve.line_along_curve(c_line_draw_distance)) {
         WRenderer::add_primitive_vertex({{v.x, v.y}, {0.5, 0.05, 0.5}});
     }
@@ -97,7 +97,7 @@ void CurveIdle::draw(GameWorld &) {
         }
     }
 
-    WRenderer::set_mode(GL_LINES);
+    WRenderer::set_mode(PLines);
     WRenderer::add_primitive_vertex({{m_curve.from.x, m_curve.from.y}, {1, 1, 1}});
     WRenderer::add_primitive_vertex({{m_curve.ctrl_from.x, m_curve.ctrl_from.y}, {1, 1, 1}});
     WRenderer::add_primitive_vertex({{m_curve.ctrl_to.x, m_curve.ctrl_to.y}, {1, 1, 1}});
@@ -213,7 +213,7 @@ EditorSubState PointEdit::cancel() {
 
 void PointEdit::draw(GameWorld &) {
     get_island_vertex_array(m_island);
-    WRenderer::set_mode(GL_QUADS);
+    WRenderer::set_mode(PQuads);
     for (const auto &v : make_quad(m_point, c_point_size)) {
         WRenderer::add_primitive_vertex({{v.x, v.y}, {0.5, 0.05, 0.5}});
     }
@@ -279,7 +279,7 @@ EditorSubState PointEdit::delete_item(GameWorld &) {
 
 void CurveInsert::draw(GameWorld &) {
     get_island_vertex_array(m_island);
-    WRenderer::set_mode(GL_QUADS);
+    WRenderer::set_mode(PQuads);
 
     float t_low = fmax(m_new_point_t - 0.01f, 0.f);
     float t_high = fmin(m_new_point_t + 0.01f, 1.f);
@@ -412,7 +412,7 @@ EditorSubState EditorIdle::menu(GameWorld &world) {
 }
 
 void get_island_vertex_array(const Island& island) {
-    WRenderer::set_mode(GL_QUADS);
+    WRenderer::set_mode(PQuads);
     auto curves = const_cast<Island&>(island).get_curves(c_line_draw_distance);
     for (auto& v : curves) {
         WRenderer::add_primitive_vertex(v);
@@ -427,7 +427,7 @@ void get_island_vertex_array(const Island& island) {
 
 void IslandMove::draw(GameWorld &) {
     get_island_vertex_array(m_island);
-    WRenderer::set_mode(GL_QUADS);
+    WRenderer::set_mode(PQuads);
     for (const auto &point : m_island.m_points) {
         for (const auto &v : make_quad(point, c_point_size)) {
             WRenderer::add_primitive_vertex({{v.x, v.y}, {0.5, 0.05, 0.5}});
@@ -483,11 +483,11 @@ void NavMeshIdle::draw(GameWorld &world) {
     for (const auto &pr : mesh.m_graph) {
         auto & node = pr.first;
         auto & links = pr.second;
-        WRenderer::set_mode(GL_QUADS);
+        WRenderer::set_mode(PQuads);
         for (const auto &q : make_quad({node.x, node.y}, 5)) {
             WRenderer::add_primitive_vertex({{q.x, q.y}, {0, 1, 1}});
         }
-        WRenderer::set_mode(GL_LINES);
+        WRenderer::set_mode(PLines);
         // links
         for (const auto & link : links) {
             WRenderer::add_primitive_vertex({{(float)link.from.x, (float)link.from.y}, {1, 1, 0}});
