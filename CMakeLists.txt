@@ -4,8 +4,8 @@ project(singing_wind)
 set(CMAKE_CXX_STANDARD 14)
 
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions -W -Wall")
-set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} -fno-exceptions -W -Wall")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fno-exceptions -O2 -W -Wall -s")
+set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG}  -fno-exceptions -W -Wall")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2 -fno-exceptions -W -Wall -DNDEBUG -s")
 
 add_subdirectory(external)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${PROJECT_BINARY_DIR}
@@ -88,7 +88,7 @@ include(unity_build.cmake)
 #enable_unity_build(singing_wind SOURCE_FILES)
 
 add_executable(singing_wind ${SOURCE_FILES} ${protosrc} ${protohdr})
-target_link_libraries(singing_wind imgui glfw glm glad protobuf triangle nanoflann)
+target_link_libraries(singing_wind imgui glfw glm glad protobuf triangle nanoflann openfbx)
 
 # at compile time
 add_custom_command(TARGET singing_wind POST_BUILD
