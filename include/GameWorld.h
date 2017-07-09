@@ -21,10 +21,13 @@ struct JumpComponent;
 struct FlyComponent;
 struct PathingComponent;
 struct SimpleFlyComponent;
+struct SkillComponent;
+struct DynamicColComponent;
 class StaticGrid;
 struct NavMesh;
 class Island;
 using NameComponent = std::string;
+using TagComponent = bset;
 
 // physics constants
 const float c_drag = 0.0026;
@@ -57,6 +60,9 @@ public:
         PathingComponent &path_c(unsigned int entity);
         NameComponent &name_c(unsigned int entity);
         SimpleFlyComponent &simple_fly_c(unsigned int entity);
+        SkillComponent &skill_c(unsigned int entity);
+        DynamicColComponent &dyn_col_c(unsigned int entity);
+        TagComponent &tag_c(unsigned int entity);
 
     void reset_entities();
     void reset_islands();

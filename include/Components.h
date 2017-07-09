@@ -26,7 +26,10 @@ enum Components : int {
     CJump,
     CFly,
     CPathing,
-    CSimpleFly
+    CSimpleFly,
+    CSkill,
+    CDynCol,
+    CTag
 };
 const std::map<Components, const char*> components_string = {
     {CPosition, "CPosition"},
@@ -39,7 +42,10 @@ const std::map<Components, const char*> components_string = {
     {CJump, "CJump"},
     {CFly, "CFly"},
     {CPathing, "CPathing"},
-    {CSimpleFly, "CSimpleFly"}
+    {CSimpleFly, "CSimpleFly"},
+    {CSkill, "CSkill"},
+    {CDynCol, "CDynCol"},
+    {CTag, "CTag"}
 };
 
 struct DebugComponent {
@@ -48,13 +54,5 @@ struct DebugComponent {
 
 // for serializing and identification
 using NameComponent = std::string;
-
-using TagComponent = bset;
-
-enum class Tags : int {
-    Actor,
-    Protagonist,
-    Enemy
-};
 
 #endif //SINGING_WIND_COMPONENTS_H

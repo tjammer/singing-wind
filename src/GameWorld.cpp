@@ -15,6 +15,8 @@
 #include "ColShape.h"
 #include "MoveSystems.h"
 #include "Pathfinding.h"
+#include "SkillComponent.h"
+#include "TagComponent.h"
 
 
 GameWorld::~GameWorld() = default;
@@ -35,6 +37,9 @@ class GameWorld::impl {
         std::unordered_map<unsigned int, FlyComponent> m_fly_c;
         std::unordered_map<unsigned int, PathingComponent> m_path_c;
         std::unordered_map<unsigned int, SimpleFlyComponent> m_simple_fly_c;
+        std::unordered_map<unsigned int, SkillComponent> m_skill_c;
+        std::unordered_map<unsigned int, DynamicColComponent> m_dyn_c;
+        std::unordered_map<unsigned int, TagComponent> m_tag_c;
         std::vector<NameComponent> m_name_c;
 
 
@@ -49,6 +54,8 @@ class GameWorld::impl {
     std::vector<unsigned int> m_fly_ents;
     std::vector<unsigned int> m_static_col_ents;
     std::vector<unsigned int> m_path_ents;
+    std::vector<unsigned int> m_skill_ents;
+    std::vector<unsigned int> m_dyn_col_ents;
 };
 
 
@@ -83,10 +90,12 @@ void GameWorld::step_fixed(float dt) {
     input_update(*this, pimpl->m_input_ents);
     move_update(*this, dt, pimpl->m_move_ents);
     static_col_update(*this, pimpl->m_static_col_ents);
+    // todo dyn col update
 
     // house keeping systems
     ground_move_update(*this, dt,pimpl-> m_ground_move_ents);
     fly_update(*this, dt, pimpl->m_fly_ents);
+    skill_update(*this, dt, pimpl->m_skill_ents);
 }
 
 unsigned int GameWorld::create_entity() {
@@ -114,6 +123,8 @@ void GameWorld::find_entities_fixed() {
     pimpl->m_fly_ents.clear();
     pimpl->m_static_col_ents.clear();
     pimpl->m_path_ents.clear();
+    pimpl->m_skill_ents.clear();
+    pimpl->m_dyn_col_ents.clear();
 
     for (unsigned int i = 0 ; i < pimpl->m_entities.size() ; ++i) {
         auto ent = pimpl->m_entities[i];
@@ -140,6 +151,14 @@ void GameWorld::find_entities_fixed() {
 
         if (has_component(ent, c_path_components)) {
             pimpl->m_path_ents.push_back(i);
+        }
+
+        if (has_component(ent, c_skill_components)) {
+            pimpl->m_skill_ents.push_back(i);
+        }
+
+        if (has_component(ent, c_dyn_col_components)) {
+            pimpl->m_dyn_col_ents.push_back(i);
         }
     }
 }
@@ -178,6 +197,9 @@ void GameWorld::reset_entities() {
     pimpl->m_name_c.clear();
     pimpl->m_path_c.clear();
     pimpl->m_simple_fly_c.clear();
+    pimpl->m_skill_c.clear();
+    pimpl->m_dyn_c.clear();
+    pimpl->m_tag_c.clear();
 }
 
 void GameWorld::reset_islands() {
@@ -200,6 +222,9 @@ void GameWorld::delete_entity_raw(unsigned int entity) {
     pimpl->m_entities[entity].reset();
     pimpl->m_path_c.erase(entity);
     pimpl->m_simple_fly_c.erase(entity);
+    pimpl->m_skill_c.erase(entity);
+    pimpl->m_dyn_c.erase(entity);
+    pimpl->m_tag_c.erase(entity);
     assert(pimpl->m_entities[entity].none());
 }
 
@@ -262,4 +287,16 @@ NameComponent & GameWorld::name_c(unsigned int entity) {
 
 SimpleFlyComponent & GameWorld::simple_fly_c(unsigned int entity) {
     return pimpl->m_simple_fly_c[entity];
+}
+
+SkillComponent & GameWorld::skill_c(unsigned int entity) {
+    return pimpl->m_skill_c[entity];
+}
+
+DynamicColComponent & GameWorld::dyn_col_c(unsigned int entity) {
+    return pimpl->m_dyn_c[entity];
+}
+
+TagComponent & GameWorld::tag_c(unsigned int entity) {
+    return pimpl->m_tag_c[entity];
 }

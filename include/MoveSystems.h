@@ -86,6 +86,6 @@ struct SimpleFlyComponent {
 };
 
 std::function<void(GameWorld &world, unsigned int entity)> get_accel_func(const MoveState &state, const MoveSet &set);
-std::function<void(GameWorld &world, unsigned int entity)> get_trans_func(const MoveState&trans, const MoveSet &set);
+std::function<void(GameWorld &world, unsigned int entity)> get_trans_func(const MoveState &trans, const MoveSet &set);
 
 #endif //SINGING_WIND_MOVESYSTEMS_H

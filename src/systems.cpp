@@ -8,6 +8,7 @@
 #include "InputComponent.h"
 #include "CollisionComponent.h"
 #include "PosComponent.h"
+#include "SkillComponent.h"
 #include "ColGrid.h"
 #include "ColShape.h"
 #define GLM_ENABLE_EXPERIMENTAL
@@ -101,7 +102,10 @@ void static_col_update(GameWorld &world, const std::vector<unsigned int> &entiti
             }
 
             // call back
-            get_static_col_response(world.static_col_c(entity).col_response)(result, world, entity);
+            auto fn = get_static_col_response(world.static_col_c(entity).col_response);
+            if (fn) {
+                fn(result, world, entity);
+            }
         }
     }
 }
@@ -154,6 +158,55 @@ void fly_update(GameWorld &world, float dt, const std::vector<unsigned int> &ent
         fc.timer += dt;
         if (fc.timer > fc.c_accel_time) {
             fc.timer = fc.c_accel_time;
+        }
+    }
+}
+
+void skill_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities) {
+    for (const auto entity : entities) {
+        auto &sc = world.skill_c(entity);
+        for (auto &s : sc.skills) {
+            s.timer -= dt;
+
+            auto fn = get_skill_func(s.skillstate, s.id);
+            if (fn) {
+            fn(world, entity);
+            }
+
+            switch (s.skillstate) {
+                case SkillState::BuildUp : {
+                                               if (s.timer <= 0) {
+                                                    s.skillstate = SkillState::Channel;
+                                                    s.timer = s.c_time_channel;
+                                               }
+                                               break;
+                                           }
+                case SkillState::Channel : {
+                                               if (s.timer <= 0) {
+                                                   s.skillstate = SkillState::Recover;
+                                                   s.timer = s.c_time_recover;
+                                               } 
+                                               break;
+                                           }
+                case SkillState::Recover : {
+                                               if (s.timer <= 0) {
+                                                   s.skillstate = SkillState::Cooldown;
+                                                   s.timer = s.c_time_cooldown;
+                                               }
+                                               break;
+                                           }
+                case SkillState::Cooldown : {
+                                                if (s.timer <= 0) {
+                                                    s.skillstate = SkillState::Ready;
+                                                }
+                                                break;
+                                            }
+                case SkillState::Ready : {
+                                             if (sc.active != SkillID::None) {
+                                                 sc.active = SkillID::None;
+                                             }
+                                         }
+            }
         }
     }
 }

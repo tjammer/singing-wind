@@ -31,4 +31,10 @@ void fly_update(GameWorld &world, float dt, const std::vector<unsigned int> &ent
 const bset c_path_components{(1 << CPosition) | (1 << CPathing)};
 void path_update(GameWorld &world, const std::vector<unsigned int> &entities);
 
+const bset c_skill_components{(1 << CSkill)};
+void skill_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities);
+
+const bset c_dyn_col_components{(1 << CDynCol)};
+void dyn_col_update(GameWorld &world, const std::vector<unsigned int> &entities);
+
 #endif //SINGING_WIND_SYSTEMS_H

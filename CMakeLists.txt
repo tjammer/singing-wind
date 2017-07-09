@@ -51,7 +51,8 @@ set(INCLUDE_FILES include/Engine.h
     include/CollisionComponent.h
     include/PosComponent.h
     include/Pathfinding.h
-    include/SkillComponent.h)
+    include/SkillComponent.h
+    include/TagComponent.h)
 
 set(SOURCE_FILES src/main.cpp
     src/Engine.cpp 
@@ -86,8 +87,11 @@ set(SOURCE_FILES src/main.cpp
     src/Pathfinding.cpp
     src/SkillComponent.cpp)
 
-include(unity_build.cmake)
-#enable_unity_build(singing_wind SOURCE_FILES)
+option(enable_unity_build "enable unity build for executable" OFF)
+if (enable_unity_build)
+    include(unity_build.cmake)
+    enable_unity_build(singing_wind SOURCE_FILES)
+endif(enable_unity_build)
 
 add_executable(singing_wind ${SOURCE_FILES} ${protosrc} ${protohdr})
 target_link_libraries(singing_wind imgui glfw glm glad protobuf triangle nanoflann openfbx)
