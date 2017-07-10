@@ -58,7 +58,7 @@ scene::Entity * get_pb_entity(GameWorld &game_world, unsigned int entity) {
     // static_col_comp
     if (game_world.entities().at(entity).test(CStaticCol)) {
         auto static_c = new scene::StaticColComponent;
-        auto capsule = dynamic_cast<ColCapsule *>(game_world.static_col_c(entity).shape.get());
+        auto capsule = dynamic_cast<ColCapsule *>(game_world.cshape_c(entity).shape.get());
         static_c->set_col_response(static_cast<int>(game_world.static_col_c(entity).col_response));
         static_c->set_shape(static_cast<int>(capsule->m_type));
         static_c->set_length(capsule->m_length);
@@ -186,11 +186,9 @@ void entity_to_world(const scene::Entity &pb_entity, GameWorld &game_world, unsi
         if (static_cast<ColShapeName>(static_c.shape()) != ColShapeName::ColCapsule) {
             assert(false);
         }
-        game_world.static_col_c(entity).shape = std::make_shared<ColCapsule>(ColCapsule{static_c.radius(), static_c.length()});
+        game_world.cshape_c(entity).shape = std::make_shared<ColCapsule>(ColCapsule{static_c.radius(), static_c.length()});
+        game_world.entities()[entity].set(CColShape);
         game_world.static_col_c(entity).col_response = static_cast<StaticColResponse>(static_c.col_response());
-
-        // debug_c
-        game_world.debug_c(entity).shape = std::make_shared<ColCapsule>(ColCapsule{static_c.radius(), static_c.length()});
     }
 
 

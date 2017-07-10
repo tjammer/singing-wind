@@ -23,7 +23,9 @@ struct PathingComponent;
 struct SimpleFlyComponent;
 struct SkillComponent;
 struct DynamicColComponent;
+struct ColShapeComponent;
 class StaticGrid;
+class PruneSweeper;
 struct NavMesh;
 class Island;
 using NameComponent = std::string;
@@ -63,6 +65,7 @@ public:
         SkillComponent &skill_c(unsigned int entity);
         DynamicColComponent &dyn_col_c(unsigned int entity);
         TagComponent &tag_c(unsigned int entity);
+        ColShapeComponent &cshape_c(unsigned int entity);
 
     void reset_entities();
     void reset_islands();
@@ -78,6 +81,7 @@ public:
     // getters
     StaticGrid &grid();
     NavMesh &navmesh();
+    PruneSweeper &prune_sweep();
     std::vector<Island> &islands();
 
 private:

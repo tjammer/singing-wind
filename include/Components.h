@@ -29,7 +29,8 @@ enum Components : int {
     CSimpleFly,
     CSkill,
     CDynCol,
-    CTag
+    CTag,
+    CColShape
 };
 const std::map<Components, const char*> components_string = {
     {CPosition, "CPosition"},
@@ -45,11 +46,12 @@ const std::map<Components, const char*> components_string = {
     {CSimpleFly, "CSimpleFly"},
     {CSkill, "CSkill"},
     {CDynCol, "CDynCol"},
-    {CTag, "CTag"}
+    {CTag, "CTag"},
+    {CColShape, "ColShape"}
 };
 
 struct DebugComponent {
-    std::shared_ptr<ColShape> shape;
+    int f;
 };
 
 // for serializing and identification

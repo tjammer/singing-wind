@@ -42,7 +42,7 @@ void EntityIdle::draw(GameWorld &world) {
     if (!for_gameworld::has_component(world.entities()[m_entity], debug_draw))  {
         return;
     }
-    const auto &shape = world.debug_c(m_entity).shape;
+    const auto &shape = world.cshape_c(m_entity).shape;
     auto circle = ColCircle(shape->get_radius());
     circle.m_highlight = true;
     circle.add_gfx_lines(world.pos_c(m_entity).global_transform);
@@ -123,37 +123,6 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
     // static col
     if (m_world.entities()[m_entity].test(CStaticCol) and CollapsingHeader("static collision")) {
         auto &sc = m_world.static_col_c(m_entity);
-        int shape_type = static_cast<int>(sc.shape->m_type);
-        if (Combo("Shape", &shape_type, colshape_names)) {
-            switch (static_cast<ColShapeName>(shape_type)) {
-                case ColShapeName::ColCapsule: {
-                    if (sc.shape->m_type != ColShapeName::ColCapsule) {
-                        sc.shape = std::shared_ptr<ColShape>(new ColCapsule(protagonist::c_capsule_size.x,
-                                                                            protagonist::c_capsule_size.y));
-                    }
-                    break;
-                }
-                default: break;
-            }
-        }
-        switch (sc.shape->m_type) {
-            case ColShapeName::ColCapsule: {
-                auto shape = dynamic_cast<ColCapsule*>(sc.shape.get());
-                auto dbshape = dynamic_cast<ColCapsule*>(m_world.debug_c(m_entity).shape.get());
-                float radius = shape->get_capsule_radius();
-                if (DragFloat("radius", &radius)) {
-                    shape->set_capsule_radius(radius);
-                    dbshape->set_capsule_radius(radius);
-                }
-                float length = shape->m_length;
-                if (DragFloat("length", &length)) {
-                    shape->set_length(length);
-                    dbshape->set_length(length);
-                }
-                break;
-            }
-            default: break;
-        }
         int response = static_cast<int>(sc.col_response);
         if (Combo("response", &response, col_responses.data(), col_responses.size())) {
             sc.col_response = static_cast<StaticColResponse>(response);
@@ -222,6 +191,54 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
         if (DragFloat("near threshold", &fc.c_near_threshold)) {}
         if (DragFloat("stop coeff", &fc.c_stop_coef)) {}
     }
+    // skill
+    // shape
+    if (m_world.entities()[m_entity].test(CColShape) and CollapsingHeader("col shape")) {
+        auto &shape = m_world.cshape_c(m_entity).shape;
+        if (!shape) {
+            shape = std::shared_ptr<ColShape>(
+                    new ColCapsule(protagonist::c_capsule_size.x,
+                                   protagonist::c_capsule_size.y));
+        }
+        int shape_type = static_cast<int>(shape->m_type);
+        if (Combo("Shape", &shape_type, colshape_names)) {
+            switch (static_cast<ColShapeName>(shape_type)) {
+                case ColShapeName::ColCapsule: {
+                    if (shape->m_type != ColShapeName::ColCapsule) {
+                        shape = std::shared_ptr<ColShape>(
+                                new ColCapsule(protagonist::c_capsule_size.x,
+                                               protagonist::c_capsule_size.y));
+                    }
+                    break;
+                }
+                default: break;
+            }
+        }
+        switch (shape->m_type) {
+            case ColShapeName::ColCapsule: {
+                auto cap_shape = dynamic_cast<ColCapsule*>(shape.get());
+                float radius = cap_shape->get_capsule_radius();
+                if (DragFloat("radius", &radius)) {
+                    cap_shape->set_capsule_radius(radius);
+                }
+                float length = cap_shape->m_length;
+                if (DragFloat("length", &length)) {
+                    cap_shape->set_length(length);
+                }
+                break;
+            }
+            default: break;
+        }
+    }
+    // dyn col
+    if (m_world.entities()[m_entity].test(CDynCol) and CollapsingHeader("DynCol")) {
+        auto &dc = m_world.dyn_col_c(m_entity);
+        int response = static_cast<int>(dc.col_response);
+        if (Combo("response", &response, col_responses.data(), col_responses.size())) {
+            dc.col_response = static_cast<DynColResponse>(response);
+        }
+    }
+    // tag
 
     if (Button("save entity")) {
         save_entity_standalone(m_world, m_entity);
@@ -253,7 +270,7 @@ void EntityMove::draw(GameWorld &world) {
     if (!for_gameworld::has_component(world.entities()[m_entity], debug_draw))  {
         return;
     }
-    const auto &shape = world.debug_c(m_entity).shape;
+    const auto &shape = world.cshape_c(m_entity).shape;
     auto circle = ColCircle(shape->get_radius());
     circle.m_highlight = true;
     circle.add_gfx_lines(world.pos_c(m_entity).global_transform);

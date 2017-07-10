@@ -13,7 +13,7 @@ class GameWorld;
 
 namespace protagonist {
 
-    void on_static_collision(const ColResult &result, GameWorld &world, unsigned int entity);
+    void on_static_collision(GameWorld &world, unsigned int entity);
 
     void handle_inputs(GameWorld &world, unsigned int entity);
 

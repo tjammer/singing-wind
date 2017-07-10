@@ -13,11 +13,12 @@
 #include "InputComponent.h"
 #include "CollisionComponent.h"
 #include "ColShape.h"
+#include "ColGrid.h"
+#include "CPruneSweep.h"
 #include "MoveSystems.h"
 #include "Pathfinding.h"
 #include "SkillComponent.h"
 #include "TagComponent.h"
-
 
 GameWorld::~GameWorld() = default;
 
@@ -40,10 +41,12 @@ class GameWorld::impl {
         std::unordered_map<unsigned int, SkillComponent> m_skill_c;
         std::unordered_map<unsigned int, DynamicColComponent> m_dyn_c;
         std::unordered_map<unsigned int, TagComponent> m_tag_c;
+        std::unordered_map<unsigned int, ColShapeComponent> m_cshape_c;
         std::vector<NameComponent> m_name_c;
 
 
     StaticGrid m_grid;
+    PruneSweeper m_prune_sweep;
     std::vector<Island> m_islands;
     NavMesh m_navmesh;
 
@@ -55,7 +58,7 @@ class GameWorld::impl {
     std::vector<unsigned int> m_static_col_ents;
     std::vector<unsigned int> m_path_ents;
     std::vector<unsigned int> m_skill_ents;
-    std::vector<unsigned int> m_dyn_col_ents;
+    std::unordered_map<unsigned int, bool> m_dyn_col_ents;
 };
 
 
@@ -90,7 +93,7 @@ void GameWorld::step_fixed(float dt) {
     input_update(*this, pimpl->m_input_ents);
     move_update(*this, dt, pimpl->m_move_ents);
     static_col_update(*this, pimpl->m_static_col_ents);
-    // todo dyn col update
+    dyn_col_update(*this, pimpl->m_dyn_col_ents);
 
     // house keeping systems
     ground_move_update(*this, dt,pimpl-> m_ground_move_ents);
@@ -158,7 +161,7 @@ void GameWorld::find_entities_fixed() {
         }
 
         if (has_component(ent, c_dyn_col_components)) {
-            pimpl->m_dyn_col_ents.push_back(i);
+            pimpl->m_dyn_col_ents[i] = false;
         }
     }
 }
@@ -200,6 +203,7 @@ void GameWorld::reset_entities() {
     pimpl->m_skill_c.clear();
     pimpl->m_dyn_c.clear();
     pimpl->m_tag_c.clear();
+    pimpl->m_cshape_c.clear();
 }
 
 void GameWorld::reset_islands() {
@@ -225,11 +229,16 @@ void GameWorld::delete_entity_raw(unsigned int entity) {
     pimpl->m_skill_c.erase(entity);
     pimpl->m_dyn_c.erase(entity);
     pimpl->m_tag_c.erase(entity);
+    pimpl->m_cshape_c.erase(entity);
     assert(pimpl->m_entities[entity].none());
 }
 
 StaticGrid& GameWorld::grid() {
     return pimpl->m_grid;
+}
+
+PruneSweeper& GameWorld::prune_sweep() {
+    return pimpl->m_prune_sweep;
 }
 
 NavMesh& GameWorld::navmesh() {
@@ -299,4 +308,8 @@ DynamicColComponent & GameWorld::dyn_col_c(unsigned int entity) {
 
 TagComponent & GameWorld::tag_c(unsigned int entity) {
     return pimpl->m_tag_c[entity];
+}
+
+ColShapeComponent & GameWorld::cshape_c(unsigned int entity) {
+    return pimpl->m_cshape_c[entity];
 }

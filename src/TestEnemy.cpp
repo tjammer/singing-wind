@@ -3,14 +3,16 @@
 #include "WVecMath.h"
 #include "PosComponent.h"
 #include "InputComponent.h"
+#include "CollisionComponent.h"
 #include "Collision.h"
 #include "MoveSystems.h"
 #include "Pathfinding.h"
 
 using namespace TestEnemy;
 
-void TestEnemy::on_static_collision(const ColResult &result, GameWorld &world, unsigned int entity) {
+void TestEnemy::on_static_collision(GameWorld &world, unsigned int entity) {
     auto &mc = world.move_c(entity);
+    auto result = world.static_col_c(entity).col_result;
     mc.velocity = w_slide(mc.velocity, result.normal);
 }
 

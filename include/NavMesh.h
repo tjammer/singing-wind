@@ -6,10 +6,12 @@
 #define SINGING_WIND_NAVMESH_H
 
 #include "Island.h"
-#include "ColGrid.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 #include <nanoflann.hpp>
+#include <unordered_map>
+
+class StaticGrid;
 
 enum class LinkType : int {
     Walk,

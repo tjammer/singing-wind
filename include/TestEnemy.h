@@ -5,7 +5,7 @@ class GameWorld;
 struct ColResult;
 
 namespace TestEnemy {
-    void on_static_collision(const ColResult &result, GameWorld &world, unsigned int entity);
+    void on_static_collision(GameWorld &world, unsigned int entity);
     
     void handle_inputs(GameWorld &world, unsigned int entity);
 

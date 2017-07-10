@@ -11,10 +11,14 @@
 #include "SkillComponent.h"
 #include "ColGrid.h"
 #include "ColShape.h"
+#include "CPruneSweep.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
 #include <WRenderer.h>
 #include <WVecMath.h>
+#include <algorithm>
+
+#include <iostream>
 
 void debug_draw_update(GameWorld &world, const std::vector<unsigned int> &entities) {
     WTransform zero_tf;
@@ -24,7 +28,7 @@ void debug_draw_update(GameWorld &world, const std::vector<unsigned int> &entiti
     }
 
     for (const auto entity : entities) {
-        auto &shape = world.debug_c(entity).shape;
+        auto &shape = world.cshape_c(entity).shape;
         const auto &transform = world.pos_c(entity).global_transform;
         shape->add_gfx_lines(transform);
     }
@@ -41,10 +45,9 @@ void static_col_update(GameWorld &world, const std::vector<unsigned int> &entiti
 
         // collision
         auto &result = world.static_col_c(entity).col_result;
-        auto &shape = world.static_col_c(entity).shape;
+        auto &shape = world.cshape_c(entity).shape;
 
         //circle to world
-        transform = glm::rotate(glm::translate(WTransform(), pos), rot) * world.pos_c(parent).global_transform;
         shape->transform(transform);
 
         // overwrite result
@@ -102,9 +105,10 @@ void static_col_update(GameWorld &world, const std::vector<unsigned int> &entiti
             }
 
             // call back
+            world.static_col_c(entity).col_result = result;
             auto fn = get_static_col_response(world.static_col_c(entity).col_response);
             if (fn) {
-                fn(result, world, entity);
+                fn(world, entity);
             }
         }
     }
@@ -206,6 +210,85 @@ void skill_update(GameWorld &world, float dt, const std::vector<unsigned int> &e
                                                  sc.active = SkillID::None;
                                              }
                                          }
+            }
+        }
+    }
+}
+
+void dyn_col_update(GameWorld &world, std::unordered_map<unsigned int, bool> &entities) {
+    auto &prune_sweep = world.prune_sweep();
+    auto &boxes = prune_sweep.get_boxes();
+    std::vector<unsigned int> to_delete;
+    
+    for (auto &box : boxes) {
+        // has dyn_col_comp
+        if (entities.count(box.entity) > 0) {
+            // todo transform, set bool to true
+            auto &shape = world.cshape_c(box.entity).shape;
+            shape->transform(world.pos_c(box.entity).global_transform);
+            entities.at(box.entity) = true;
+            box.mins = shape->m_center - shape->get_radius();
+            box.maxs = shape->m_center + shape->get_radius();
+        } else {
+            // todo move to delete list
+            to_delete.push_back(box.entity);
+        }
+    }
+
+    for (const auto &pair : entities) {
+        auto checked = pair.second;
+        auto entity = pair.first;
+        std::cout << entity << std::endl;
+        // todo if checked, transform back
+        if (checked) {
+            auto &shape = world.cshape_c(entity).shape;
+            shape->transform(glm::inverse(world.pos_c(entity).global_transform));
+        } else {
+        // else insert, transform back
+            auto &shape = world.cshape_c(entity).shape;
+            shape->transform(world.pos_c(entity).global_transform);
+            boxes.emplace_back(PSBox{shape->m_center - shape->get_radius(), shape->m_center + shape->get_radius(), entity});
+            shape->transform(glm::inverse(world.pos_c(entity).global_transform));
+            
+        }
+    }
+    // todo remove boxes from delete list
+    for (auto ent : to_delete) {
+        boxes.erase(std::remove_if(boxes.begin(), boxes.end(), [ent] (const PSBox& b) 
+                    {return b.entity == ent;}));
+    }
+    // prune and sweep
+    prune_sweep.prune_and_sweep();
+    // cols and update transforms
+    for (auto &pair : prune_sweep.get_pairs()) {
+        unsigned int a = pair.first;
+        unsigned int b = pair.second;
+
+        auto &shape_a = world.cshape_c(a).shape;
+        auto &shape_b = world.cshape_c(b).shape;
+        
+        shape_a->transform(world.pos_c(a).global_transform);
+        shape_b->transform(world.pos_c(b).global_transform);
+        auto result = shape_a->collides(*shape_b);
+        shape_a->transform(glm::inverse(world.pos_c(a).global_transform));
+        shape_b->transform(glm::inverse(world.pos_c(b).global_transform));
+        
+
+        if (result.collides) {
+            auto &dc = world.dyn_col_c(a);
+            dc.col_result = result;
+            dc.collided = b;
+            auto fn = get_dynamic_col_response(dc.col_response);
+            if (fn) {
+                fn(world, a);
+            }
+            auto &dcb = world.dyn_col_c(b);
+            dcb.col_result = result;
+            dcb.col_result.normal *= -1.f;
+            dcb.collided = a;
+            fn = get_dynamic_col_response(dcb.col_response);
+            if (fn) {
+                fn(world, b);
             }
         }
     }

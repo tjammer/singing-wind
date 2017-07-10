@@ -8,6 +8,7 @@
 #include "PosComponent.h"
 #include "Components.h"
 #include "InputComponent.h"
+#include "CollisionComponent.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
 #include <glad/glad.h>
@@ -19,9 +20,10 @@
 
 using namespace protagonist;
 
-void protagonist::on_static_collision(const ColResult &result, GameWorld &world, unsigned int entity) {
+void protagonist::on_static_collision(GameWorld &world, unsigned int entity) {
     auto &mc = world.move_c(entity);
     auto &gc = world.ground_move_c(entity);
+    auto result = world.static_col_c(entity).col_result;
 
     if (w_dot(WVec(0, 1), result.normal) > c_max_floor_angle) {
         gc.air_time = 0;

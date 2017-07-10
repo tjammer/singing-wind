@@ -52,7 +52,8 @@ set(INCLUDE_FILES include/Engine.h
     include/PosComponent.h
     include/Pathfinding.h
     include/SkillComponent.h
-    include/TagComponent.h)
+    include/TagComponent.h
+    include/CPruneSweep.h)
 
 set(SOURCE_FILES src/main.cpp
     src/Engine.cpp 
@@ -85,7 +86,8 @@ set(SOURCE_FILES src/main.cpp
     src/InputComponent.cpp
     src/CollisionComponent.cpp
     src/Pathfinding.cpp
-    src/SkillComponent.cpp)
+    src/SkillComponent.cpp
+    src/CPruneSweep.cpp)
 
 option(enable_unity_build "enable unity build for executable" OFF)
 if (enable_unity_build)
