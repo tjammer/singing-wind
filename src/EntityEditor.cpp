@@ -21,15 +21,6 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
 
-template<typename T>
-std::vector<const char*> get_enum_string_array(std::map<T, const char*> data) {
-    std::vector<const char*> strings;
-
-    for (auto &pair : data) {
-        strings.push_back(pair.second);
-    }
-    return strings;
-}
 
 auto moveset_names = get_enum_string_array(moveset_string);
 auto movestate_names = get_enum_string_array(movestate_string);
@@ -232,13 +223,7 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
         }
     }
     // dyn col
-    if (m_world.entities()[m_entity].test(CDynCol) and CollapsingHeader("DynCol")) {
-        auto &dc = m_world.dyn_col_c(m_entity);
-        int response = static_cast<int>(dc.col_response);
-        if (Combo("response", &response, col_responses.data(), col_responses.size())) {
-            dc.col_response = static_cast<DynColResponse>(response);
-        }
-    }
+    entity_edit_dyn_cols(m_world, m_entity);
     // tag
     entity_edit_tags(m_world, m_entity);
 
