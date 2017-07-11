@@ -127,6 +127,22 @@ scene::Entity * get_pb_entity(GameWorld &game_world, unsigned int entity) {
         pb_entity->set_allocated_simple_fly_c(fly_c);
     }
 
+    // skill
+    // dyn col
+    if (game_world.entities().at(entity).test(CDynCol)) {
+        auto dc = new scene::DynColComponent;
+        dc->set_col_response(static_cast<int>(game_world.dyn_col_c(entity).col_response));
+        pb_entity->set_allocated_dyn_col_c(dc);
+    }
+
+    // tag
+    if (game_world.entities().at(entity).test(CTag)) {
+        auto tc = new scene::TagComponent;
+        tc->set_tags(game_world.tag_c(entity).to_ulong());
+        pb_entity->set_allocated_tag_c(tc);
+    }
+    // col shape?
+
     return move(pb_entity);
 }
 
@@ -237,6 +253,20 @@ void entity_to_world(const scene::Entity &pb_entity, GameWorld &game_world, unsi
         game_world.simple_fly_c(entity).c_near_threshold = fly_c.near_threshold();
         game_world.simple_fly_c(entity).c_stop_coef = fly_c.stop_coef();
     }
+
+    // skill
+    // dyn col
+    if (pb_entity.has_dyn_col_c()) {
+        auto dc = pb_entity.dyn_col_c();
+        game_world.dyn_col_c(entity).col_response = static_cast<DynColResponse>(dc.col_response());
+    }
+
+    // tag
+    if (pb_entity.has_tag_c()) {
+        auto tc = pb_entity.tag_c();
+        game_world.tag_c(entity) = bset(tc.tags());
+    }
+    // col shape?
 }
 
 bool load_entity_from_filename(const std::__cxx11::string &name, GameWorld &game_world, unsigned int entity) {

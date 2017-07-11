@@ -16,6 +16,7 @@
 #include "CollisionComponent.h"
 #include "MoveSystems.h"
 #include "Pathfinding.h"
+#include "TagComponent.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
@@ -239,6 +240,7 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
         }
     }
     // tag
+    entity_edit_tags(m_world, m_entity);
 
     if (Button("save entity")) {
         save_entity_standalone(m_world, m_entity);

@@ -3,12 +3,18 @@
 
 #include "WindDefs.h"
 
+class GameWorld;
+
 using TagComponent = bset;
 
 enum class Tags : int {
     Actor,
     Protagonist,
-    Enemy
+    Enemy,
+    Projectile,
+    Hurtbox
 };
+
+void entity_edit_tags(GameWorld&, unsigned int entity);
 
 #endif /* TAGCOMPONENT_H */

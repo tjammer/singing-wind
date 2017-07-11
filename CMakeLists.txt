@@ -87,7 +87,8 @@ set(SOURCE_FILES src/main.cpp
     src/CollisionComponent.cpp
     src/Pathfinding.cpp
     src/SkillComponent.cpp
-    src/CPruneSweep.cpp)
+    src/CPruneSweep.cpp
+    src/TagComponent.cpp)
 
 option(enable_unity_build "enable unity build for executable" OFF)
 if (enable_unity_build)

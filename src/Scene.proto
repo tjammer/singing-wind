@@ -30,7 +30,8 @@ message Entity {
     JumpComponent jump_c = 10;
     FlyComponent fly_c = 11;
     SimplyFlyComponent simple_fly_c = 12;
-
+    DynColComponent dyn_col_c = 13;
+    TagComponent tag_c = 14;
 }
 
 message Bitset {
@@ -95,4 +96,12 @@ message SimplyFlyComponent {
     float accel = 2;
     float near_threshold = 3;
     float stop_coef = 4;
+}
+
+message DynColComponent {
+    int32 col_response = 1;
+}
+
+message TagComponent {
+    int64 tags = 1;
 }
