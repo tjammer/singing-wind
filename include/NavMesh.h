@@ -54,7 +54,8 @@ struct NavTree {
     ~NavTree() = default;
 
     void rebuild(const std::vector<NavNode>& nodes);
-    std::vector<NavNode> get_nearest(const WVec &pos, unsigned int n=1);
+    std::vector<size_t> get_nearest_indices(const WVec &pos);
+    const std::vector<NavNode> &get_nodes() const {return m_cloud.nodes;}
 private:
     struct NavCloud {
         std::vector<NavNode> nodes;

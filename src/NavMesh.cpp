@@ -220,20 +220,22 @@ void NavTree::rebuild(const std::vector<NavNode> &nodes) {
     m_kd_tree.buildIndex();
 }
 
-std::vector<NavNode> NavTree::get_nearest(const WVec &pos, unsigned int n) {
+std::vector<size_t> NavTree::get_nearest_indices(const WVec &pos) {
     float query_pt[2] = {pos.x, pos.y};
+    size_t n = m_cloud.nodes.size();
 
     std::vector<size_t>   ret_index(n);
     std::vector<float> out_dist_sqr(n);
 
     m_kd_tree.knnSearch(&query_pt[0], n, ret_index.data(), out_dist_sqr.data());
-    std::vector<NavNode> out;
-    out.reserve(n);
-    for (auto i : ret_index) {
-        out.push_back(m_cloud.nodes[i]);
-    }
-    assert(out[0] == m_cloud.nodes[ret_index[0]]);
-    return out;
+    //std::vector<NavNode> out;
+    //out.reserve(n);
+    //for (auto i : ret_index) {
+    //    out.push_back(m_cloud.nodes[i]);
+    //}
+    //assert(out[0] == m_cloud.nodes[ret_index[0]]);
+    //return out;
+    return ret_index;
 }
 
 void NavMesh::build_tree() {
@@ -246,13 +248,15 @@ void NavMesh::build_tree() {
 }
 
 NavNode NavMesh::get_nearest(const WVec &pos) {
-    return m_tree.get_nearest(pos)[0];
+    return m_tree.get_nodes()[m_tree.get_nearest_indices(pos)[0]];
 }
 
 NavNode NavMesh::get_nearest_visible(const WVec &pos, StaticGrid &grid) {
     // get four nearest
-    auto nodes = m_tree.get_nearest(pos, 4);
-    for (auto &node : nodes) {
+    auto inds = m_tree.get_nearest_indices(pos);
+    const auto &nodes = m_tree.get_nodes();
+    for (auto &i : inds) {
+        const auto &node = nodes[i];
         if (!cast_ray_vs_static_grid(grid, pos, WVec{node.x, node.y}).hits) {
             return node;
         }
