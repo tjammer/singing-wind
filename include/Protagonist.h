@@ -1,6 +1,6 @@
-//
-// Created by jammer on 11/04/17.
-//
+    //
+    // Created by jammer on 11/04/17.
+    //
 
 #ifndef SINGING_WIND_PROTAGONIST_H
 #define SINGING_WIND_PROTAGONIST_H
@@ -12,9 +12,6 @@
 class GameWorld;
 
 namespace protagonist {
-
-    void on_static_collision(GameWorld &world, unsigned int entity);
-
     void handle_inputs(GameWorld &world, unsigned int entity);
 
     const WVec c_capsule_size = {15, 30};

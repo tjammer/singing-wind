@@ -23,15 +23,15 @@ void PruneSweeper::prune_and_sweep() {
     glm::tvec2<float> means{0, 0};
     glm::tvec2<float> sqrd_means{0, 0};
 
-    for (size_t i = 0 ; i < m_boxes.size() ; ++i) {
+    for (unsigned int i = 0 ; i < m_boxes.size() ; ++i) {
         const auto &box = m_boxes[i];
         glm::tvec2<float> p_mn = 0.5f * (box.mins + box.maxs);
 
         means += p_mn;
         sqrd_means += p_mn * p_mn;
 
-        for (size_t j = i+1 ; i < m_boxes.size() ; ++j) {
-            if (m_boxes[j].mins[sort_axis] > box.mins[sort_axis]) {
+        for (unsigned int j = i+1 ; j < m_boxes.size() ; ++j) {
+            if (m_boxes[j].mins[sort_axis] > box.maxs[sort_axis]) {
                 break;
             }
             if (overlap(box, m_boxes[j])) {

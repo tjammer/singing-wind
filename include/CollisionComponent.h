@@ -41,4 +41,5 @@ struct DynamicColComponent {
 std::function<void(GameWorld &, unsigned int)> get_static_col_response(const StaticColResponse&);
 std::function<void(GameWorld &, unsigned int)> get_dynamic_col_response(const DynColResponse&);
 
+void entity_edit_dyn_cols(GameWorld &world, unsigned int entity);
 #endif /* CSTATICCOL_H */

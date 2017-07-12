@@ -11,7 +11,7 @@ struct PSBox {
     unsigned int entity;
 };
 
-using ColPair = std::pair<unsigned int,unsigned int>;
+using ColPair = std::pair<unsigned int, unsigned int>;
 
 class PruneSweeper {
 public:

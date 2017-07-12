@@ -6,6 +6,7 @@
 #define SINGING_WIND_ENTITYEDITOR_H
 
 #include "Editor.h"
+#include <map>
 
 class EntityIdle : public BaseEditorSubState {
 public:
@@ -36,5 +37,13 @@ private:
     WVec m_diff;
 };
 
+template<typename T>
+std::vector<const char*> get_enum_string_array(std::map<T, const char*> data) {
+    std::vector<const char*> strings;
 
+    for (auto &pair : data) {
+        strings.push_back(pair.second);
+    }
+    return strings;
+}
 #endif //SINGING_WIND_ENTITYEDITOR_H

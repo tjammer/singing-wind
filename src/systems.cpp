@@ -18,8 +18,6 @@
 #include <WVecMath.h>
 #include <algorithm>
 
-#include <iostream>
-
 void debug_draw_update(GameWorld &world, const std::vector<unsigned int> &entities) {
     WTransform zero_tf;
     WRenderer::set_mode(PLines);
@@ -142,8 +140,9 @@ void move_update(GameWorld &world, float dt, const std::vector<unsigned int> &en
         pc.position += motion;
 
         pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * world.pos_c(pc.parent).global_transform;
-    }
 
+        mc.additional_force = {0, 0};
+    }
 }
 
 
@@ -238,7 +237,6 @@ void dyn_col_update(GameWorld &world, std::unordered_map<unsigned int, bool> &en
     for (const auto &pair : entities) {
         auto checked = pair.second;
         auto entity = pair.first;
-        std::cout << entity << std::endl;
         // todo if checked, transform back
         if (checked) {
             auto &shape = world.cshape_c(entity).shape;
@@ -249,13 +247,20 @@ void dyn_col_update(GameWorld &world, std::unordered_map<unsigned int, bool> &en
             shape->transform(world.pos_c(entity).global_transform);
             boxes.emplace_back(PSBox{shape->m_center - shape->get_radius(), shape->m_center + shape->get_radius(), entity});
             shape->transform(glm::inverse(world.pos_c(entity).global_transform));
-            
         }
     }
     // todo remove boxes from delete list
     for (auto ent : to_delete) {
         boxes.erase(std::remove_if(boxes.begin(), boxes.end(), [ent] (const PSBox& b) 
                     {return b.entity == ent;}));
+    }
+    for (auto &b : boxes) {
+        assert(entities.count(b.entity) > 0);
+    }
+    for (auto &pair : entities) {
+        assert(std::find_if(boxes.begin(), boxes.end(), [pair] (const PSBox& b) {
+                    return b.entity == pair.first;
+                    }) != boxes.end());
     }
     // prune and sweep
     prune_sweep.prune_and_sweep();
