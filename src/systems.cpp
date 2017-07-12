@@ -222,12 +222,10 @@ void dyn_col_update(GameWorld &world, std::unordered_map<unsigned int, bool> &en
     for (auto &box : boxes) {
         // has dyn_col_comp
         if (entities.count(box.entity) > 0) {
-            // todo transform, set bool to true
             auto &shape = world.cshape_c(box.entity).shape;
-            shape->transform(world.pos_c(box.entity).global_transform);
             entities.at(box.entity) = true;
-            box.mins = shape->m_center - shape->get_radius();
-            box.maxs = shape->m_center + shape->get_radius();
+            box.mins = world.pos_c(box.entity).position - shape->get_radius();
+            box.maxs = world.pos_c(box.entity).position + shape->get_radius();
         } else {
             // todo move to delete list
             to_delete.push_back(box.entity);
@@ -237,16 +235,10 @@ void dyn_col_update(GameWorld &world, std::unordered_map<unsigned int, bool> &en
     for (const auto &pair : entities) {
         auto checked = pair.second;
         auto entity = pair.first;
-        // todo if checked, transform back
-        if (checked) {
+        if (!checked) {        
             auto &shape = world.cshape_c(entity).shape;
-            shape->transform(glm::inverse(world.pos_c(entity).global_transform));
-        } else {
-        // else insert, transform back
-            auto &shape = world.cshape_c(entity).shape;
-            shape->transform(world.pos_c(entity).global_transform);
-            boxes.emplace_back(PSBox{shape->m_center - shape->get_radius(), shape->m_center + shape->get_radius(), entity});
-            shape->transform(glm::inverse(world.pos_c(entity).global_transform));
+            const auto &pos = world.pos_c(entity).position;
+            boxes.emplace_back(PSBox{pos - shape->get_radius(), pos + shape->get_radius(), entity});
         }
     }
     // todo remove boxes from delete list
@@ -264,7 +256,7 @@ void dyn_col_update(GameWorld &world, std::unordered_map<unsigned int, bool> &en
     }
     // prune and sweep
     prune_sweep.prune_and_sweep();
-    // cols and update transforms
+
     for (auto &pair : prune_sweep.get_pairs()) {
         unsigned int a = pair.first;
         unsigned int b = pair.second;
