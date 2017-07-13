@@ -116,6 +116,10 @@ void input_update(GameWorld &world, const std::vector<unsigned int> &entities) {
     for (const auto entity : entities) {
         auto &ic = world.input_c(entity);
         get_input_func(ic.input_func)(world, entity);
+        auto fn = get_input_func(ic.input_func);
+        if (fn) {
+            fn(world, entity);
+        }
 
     }
 }
@@ -133,7 +137,10 @@ void move_update(GameWorld &world, float dt, const std::vector<unsigned int> &en
 
         mc.velocity += old_accel * dt;
 
-        get_accel_func(mc.movestate, mc.moveset)(world, entity);
+        auto fn = get_accel_func(mc.movestate, mc.moveset);
+        if (fn) {
+            fn(world, entity);
+        }
 
         mc.velocity += dt * (mc.accel - old_accel) / 2.0f;
         auto motion = dt * (mc.velocity + mc.accel * dt / 2.0f);
