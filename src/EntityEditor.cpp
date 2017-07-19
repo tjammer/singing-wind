@@ -138,8 +138,8 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
         if (DragFloat("max vel", &gc.c_max_vel)) {}
     }
     // jump
-    if (m_world.entities()[m_entity].test(CJump) and CollapsingHeader("jumping")) {
-        auto &jc = m_world.jump_c(m_entity);
+    if (m_world.entities()[m_entity].test(CFall) and CollapsingHeader("jumping")) {
+        auto &jc = m_world.fall_c(m_entity);
         if (DragFloat("accel", &jc.c_accel)) {}
         if (DragFloat("jump height", &jc.c_jump_height)) {}
         if (DragFloat("turn_mod", &jc.c_turn_mod)) {}

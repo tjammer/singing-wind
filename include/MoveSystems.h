@@ -9,22 +9,24 @@
 #include <assert.h>
 #include <functional>
 #include <map>
+#include <vector>
 
 class GameWorld;
 
 enum class MoveState : int {
     OnGround,
-    Jumping,
     Falling,
     Flying,
     FlyingAccel,
+    SimpleFlying,
+    state_count
 };
 const std::map<MoveState, const char*> movestate_string = {
     {MoveState::OnGround, "OnGround"},
-    {MoveState::Jumping, "Jumping"},
     {MoveState::Falling, "Falling"},
     {MoveState::Flying, "Flying"},
-    {MoveState::FlyingAccel, "FlyingAccel"}
+    {MoveState::FlyingAccel, "FlyingAccel"},
+    {MoveState::SimpleFlying, "SimpleFlying"}
 };
 
 enum class MoveSet : int {
@@ -51,14 +53,14 @@ struct GroundMoveComponent {
     float c_stop_friction = 8;
     float c_turn_mod = 4;
     float air_time = 0;
-    float c_max_vel = 0;
+    float c_max_vel = 100;
 };
 
-struct JumpComponent {
+struct FallComponent {
     float c_accel = 500;
     float c_turn_mod = 4;
     float c_jump_height = 1000;
-    float c_max_vel = 0;
+    float c_max_vel = 100;
 };
 
 struct FlyComponent {
@@ -83,9 +85,11 @@ struct SimpleFlyComponent {
     float c_accel = 1000;
     float c_near_threshold = 10;
     float c_stop_coef = 0.04;
+    float c_max_change_angle = 0.06;
 };
 
-std::function<void(GameWorld &world, unsigned int entity)> get_accel_func(const MoveState &state, const MoveSet &set);
-std::function<void(GameWorld &world, unsigned int entity)> get_trans_func(const MoveState &trans, const MoveSet &set);
-
+std::function<void(GameWorld &world, unsigned int entity)> get_accel_func(const MoveState &state);
+std::function<bool(GameWorld &world, unsigned int entity)> get_trans_func(const MoveState &trans);
+std::function<void(GameWorld &world, unsigned int entity)> get_to_func(const MoveState &state);
+const std::vector<MoveState> & get_trans_funcs(const MoveSet &set, const MoveState &state); 
 #endif //SINGING_WIND_MOVESYSTEMS_H

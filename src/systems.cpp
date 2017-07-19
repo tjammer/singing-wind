@@ -18,6 +18,7 @@
 #include <WVecMath.h>
 #include <algorithm>
 
+#include <iostream>
 void debug_draw_update(GameWorld &world, const std::vector<unsigned int> &entities) {
     WTransform zero_tf;
     WRenderer::set_mode(PLines);
@@ -103,11 +104,7 @@ void static_col_update(GameWorld &world, const std::vector<unsigned int> &entiti
             }
 
             // call back
-            world.static_col_c(entity).col_result = result;
-            auto fn = get_static_col_response(world.static_col_c(entity).col_response);
-            if (fn) {
-                fn(world, entity);
-            }
+            get_static_col_response(world.static_col_c(entity).col_response)(world, entity);
         }
     }
 }
@@ -116,11 +113,6 @@ void input_update(GameWorld &world, const std::vector<unsigned int> &entities) {
     for (const auto entity : entities) {
         auto &ic = world.input_c(entity);
         get_input_func(ic.input_func)(world, entity);
-        auto fn = get_input_func(ic.input_func);
-        if (fn) {
-            fn(world, entity);
-        }
-
     }
 }
 
@@ -137,10 +129,14 @@ void move_update(GameWorld &world, float dt, const std::vector<unsigned int> &en
 
         mc.velocity += old_accel * dt;
 
-        auto fn = get_accel_func(mc.movestate, mc.moveset);
-        if (fn) {
-            fn(world, entity);
+        // check transistions
+        for (MoveState m: get_trans_funcs(mc.moveset, mc.movestate)) {
+            if (get_trans_func(m)(world, entity)) {
+                get_to_func(m)(world, entity);
+                break;
+            }
         }
+        get_accel_func(mc.movestate)(world, entity);
 
         mc.velocity += dt * (mc.accel - old_accel) / 2.0f;
         auto motion = dt * (mc.velocity + mc.accel * dt / 2.0f);
@@ -175,47 +171,56 @@ void fly_update(GameWorld &world, float dt, const std::vector<unsigned int> &ent
 void skill_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities) {
     for (const auto entity : entities) {
         auto &sc = world.skill_c(entity);
+        auto &ic = world.input_c(entity);
+
+        // handle skill input
+        if (ic.att_melee[0]) {
+            cast_skill(world, entity, SkillID::Melee);
+        }
+
         for (auto &s : sc.skills) {
             s.timer -= dt;
 
-            auto fn = get_skill_func(s.skillstate, s.id);
-            if (fn) {
-            fn(world, entity);
+            if (s.id == sc.active) {
+                auto fn = get_skill_func(s.skillstate, s.id);
+                if (fn) {
+                fn(world, entity);
+                }
             }
 
             switch (s.skillstate) {
                 case SkillState::BuildUp : {
-                                               if (s.timer <= 0) {
-                                                    s.skillstate = SkillState::Channel;
-                                                    s.timer = s.c_time_channel;
-                                               }
-                                               break;
-                                           }
+   	                if (s.timer <= 0) {
+                        s.skillstate = SkillState::Channel;
+                        s.timer = s.c_time_channel;
+   	                }
+                    break;
+                }
                 case SkillState::Channel : {
-                                               if (s.timer <= 0) {
-                                                   s.skillstate = SkillState::Recover;
-                                                   s.timer = s.c_time_recover;
-                                               } 
-                                               break;
-                                           }
+         	        if (s.timer <= 0) {
+ 	                    s.skillstate = SkillState::Recover;
+ 	                    s.timer = s.c_time_recover;
+ 	       	        } 
+               	    break;
+           	    }
                 case SkillState::Recover : {
-                                               if (s.timer <= 0) {
-                                                   s.skillstate = SkillState::Cooldown;
-                                                   s.timer = s.c_time_cooldown;
-                                               }
-                                               break;
-                                           }
+ 	          	    if (s.timer <= 0) {
+                        s.skillstate = SkillState::Cooldown;
+                        s.timer = s.c_time_cooldown;
+               	    }
+               	    break;
+           	    }
                 case SkillState::Cooldown : {
-                                                if (s.timer <= 0) {
-                                                    s.skillstate = SkillState::Ready;
-                                                }
-                                                break;
-                                            }
+                    if (s.timer <= 0) {
+                        s.skillstate = SkillState::Ready;
+                    }
+                    break;
+                }
                 case SkillState::Ready : {
-                                             if (sc.active != SkillID::None) {
-                                                 sc.active = SkillID::None;
-                                             }
-                                         }
+             	    if (sc.active == s.id) {
+                        sc.active = SkillID::None;
+                    }
+                }
             }
         }
     }

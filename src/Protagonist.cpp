@@ -8,6 +8,7 @@
 #include "PosComponent.h"
 #include "Components.h"
 #include "InputComponent.h"
+#include "CollisionComponent.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
 #include <glad/glad.h>
@@ -110,20 +111,11 @@ void ::protagonist::to_falling(GameWorld &world, unsigned int entity) {
 void protagonist::falling(GameWorld &world, unsigned int entity) {
     auto &ic = world.input_c(entity);
     auto &mc = world.move_c(entity);
-    auto &gc = world.ground_move_c(entity);
+    auto &fc = world.fall_c(entity);
 
-    if (gc.air_time > c_jump_tolerance) {
-        to_falling(world, entity);
-    }
-
-    walk(ic, mc, gc);
+    walk(ic, mc, fc);
 
     drag_x(mc);
-
-    // flying
-    if (ic.wings[0] and std::find(ic.wings.begin(), ic.wings.end(), false) != ic.wings.end()) {
-        to_flying(world, entity);
-    }
 }
 
 void ::protagonist::to_ground(GameWorld &world, unsigned int entity) {
@@ -150,10 +142,6 @@ void protagonist::on_ground(GameWorld &world, unsigned int entity) {
         ic.last_dir = ic.direction[0];
     }
 
-    if (gc.air_time > c_jump_tolerance) {
-        to_falling(world, entity);
-    }
-
     walk(ic, mc, gc);
     pseudo_friction(mc, gc);
 
@@ -162,13 +150,6 @@ void protagonist::on_ground(GameWorld &world, unsigned int entity) {
     }
 
     drag_x(mc);
-
-    // flying
-    if (ic.wings[0] and std::find(ic.wings.begin(), ic.wings.end(), false) != ic.wings.end()
-        && gc.air_time < c_jump_tolerance) {
-        // transistion to jump
-        to_flying(world, entity);
-    }
 }
 
 void ::protagonist::to_flying(GameWorld &world, unsigned int entity) {
@@ -201,17 +182,6 @@ void ::protagonist::flying(GameWorld &world, unsigned int entity) {
     pc.rotation = std::remainder(pc.rotation, (float)M_PI * 2.f);
 
     fly(world, entity);
-
-    // to falling
-    if (ic.jump[0] and std::find(ic.jump.begin(), ic.jump.end(), false) != ic.jump.end()) {
-        clear_arr(ic.jump, true);
-        to_falling(world, entity);
-        pc.rotation = 0;
-    }
-    // to wings
-    if (ic.wings[0] and std::find(ic.wings.begin(), ic.wings.end(), false) != ic.wings.end()) {
-        to_flying_accel(world, entity);
-    }
 }
 
 void ::protagonist::to_flying_accel(GameWorld &world, unsigned int entity) {
@@ -248,4 +218,45 @@ void ::protagonist::flying_accel(GameWorld &world, unsigned int entity) {
     auto glide_dir = w_rotated_deg(WVec(0, -1), pc.rotation);
 
     mc.accel += glide_dir * fc.c_accel_force * time_frac;
+}
+
+bool protagonist::transition_ground(GameWorld &world, unsigned int entity) {
+    const auto &result = world.static_col_c(entity).col_result;
+
+    if (w_dot(WVec(0, 1), result.normal) > c_max_floor_angle) {
+        return true;
+    }
+    return false;
+}
+
+bool protagonist::transistion_falling(GameWorld &world, unsigned int entity) {
+    const auto &mc = world.move_c(entity);
+    const auto &gc = world.ground_move_c(entity);
+    auto &ic = world.input_c(entity);
+
+    if (mc.movestate == MoveState::OnGround and gc.air_time > c_jump_tolerance) {
+        return true;
+    } else if (mc.movestate == MoveState::Flying) {
+        if (ic.jump[0] and std::find(ic.jump.begin(), ic.jump.end(), false) != ic.jump.end()) {
+            clear_arr(ic.jump, true);
+            to_falling(world, entity);
+        }
+    }
+    return false;
+}
+
+bool protagonist::transition_flying(GameWorld &world, unsigned int entity) {
+    const auto &ic = world.input_c(entity);
+    if (ic.wings[0] and std::find(ic.wings.begin(), ic.wings.end(), false) != ic.wings.end()) {
+        return true;
+    }
+    return false;
+}
+
+bool protagonist::transition_flying_accel(GameWorld &world, unsigned int entity) {
+    const auto &ic = world.input_c(entity);
+    if (ic.wings[0] and std::find(ic.wings.begin(), ic.wings.end(), false) != ic.wings.end()) {
+        return true;
+    }
+    return false;
 }

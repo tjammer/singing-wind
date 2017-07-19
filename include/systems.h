@@ -32,7 +32,7 @@ void fly_update(GameWorld &world, float dt, const std::vector<unsigned int> &ent
 const bset c_path_components{(1 << CPosition) | (1 << CPathing)};
 void path_update(GameWorld &world, const std::vector<unsigned int> &entities);
 
-const bset c_skill_components{(1 << CSkill)};
+const bset c_skill_components{(1 << CSkill) | (1 << CInput)};
 void skill_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities);
 
 const bset c_dyn_col_components{(1 << CPosition) | (1 << CDynCol) | (1 << CColShape)};

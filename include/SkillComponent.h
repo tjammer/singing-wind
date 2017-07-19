@@ -16,7 +16,8 @@ enum class SkillState : int {
 };
 
 enum class SkillID {
-    None
+    None,
+    Melee
 };
 
 struct Skill {

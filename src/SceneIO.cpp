@@ -80,13 +80,13 @@ scene::Entity * get_pb_entity(GameWorld &game_world, unsigned int entity) {
     }
 
     // jump
-    if (game_world.entities().at(entity).test(CJump)) {
-        scene::JumpComponent *jump_c = new scene::JumpComponent;
-        jump_c->set_turn_mod(game_world.jump_c(entity).c_turn_mod);
-        jump_c->set_accel(game_world.jump_c(entity).c_accel);
-        jump_c->set_jump_height(game_world.jump_c(entity).c_jump_height);
-        jump_c->set_max_vel(game_world.jump_c(entity).c_max_vel);
-        pb_entity->set_allocated_jump_c(jump_c);
+    if (game_world.entities().at(entity).test(CFall)) {
+        scene::FallComponent *fall_c = new scene::FallComponent;
+        fall_c->set_turn_mod(game_world.fall_c(entity).c_turn_mod);
+        fall_c->set_accel(game_world.fall_c(entity).c_accel);
+        fall_c->set_jump_height(game_world.fall_c(entity).c_jump_height);
+        fall_c->set_max_vel(game_world.fall_c(entity).c_max_vel);
+        pb_entity->set_allocated_fall_c(fall_c);
     }
 
     // fly
@@ -221,12 +221,12 @@ void entity_to_world(const scene::Entity &pb_entity, GameWorld &game_world, unsi
     }
 
     // jump move
-    if (pb_entity.has_jump_c()) {
-        auto jump_c = pb_entity.jump_c();
-        game_world.jump_c(entity).c_accel = jump_c.accel();
-        game_world.jump_c(entity).c_turn_mod = jump_c.turn_mod();
-        game_world.jump_c(entity).c_jump_height = jump_c.jump_height();
-        game_world.jump_c(entity).c_max_vel = jump_c.max_vel();
+    if (pb_entity.has_fall_c()) {
+        auto fall_c = pb_entity.fall_c();
+        game_world.fall_c(entity).c_accel = fall_c.accel();
+        game_world.fall_c(entity).c_turn_mod = fall_c.turn_mod();
+        game_world.fall_c(entity).c_jump_height = fall_c.jump_height();
+        game_world.fall_c(entity).c_max_vel = fall_c.max_vel();
     }
 
     // fly move

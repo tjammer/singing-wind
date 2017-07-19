@@ -2,7 +2,6 @@
 #include "GameWorld.h"
 #include <algorithm>
 
-using namespace std;
 using skill_func = std::function<void(GameWorld &world, unsigned int entity)>;
 
 std::function<void(GameWorld &world, unsigned int entity)> get_skill_func(const SkillState &, const SkillID &) {

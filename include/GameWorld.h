@@ -17,7 +17,7 @@ struct InputComponent;
 struct MoveComponent;
 struct StaticColComponent;
 struct GroundMoveComponent;
-struct JumpComponent;
+struct FallComponent;
 struct FlyComponent;
 struct PathingComponent;
 struct SimpleFlyComponent;
@@ -57,7 +57,7 @@ public:
         MoveComponent &move_c(unsigned int entity);
         StaticColComponent &static_col_c(unsigned int entity);
         GroundMoveComponent &ground_move_c(unsigned int entity);
-        JumpComponent &jump_c(unsigned int entity);
+        FallComponent &fall_c(unsigned int entity);
         FlyComponent &fly_c(unsigned int entity);
         PathingComponent &path_c(unsigned int entity);
         NameComponent &name_c(unsigned int entity);

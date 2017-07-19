@@ -5,19 +5,16 @@
 #include "CollisionComponent.h"
 #include "TagComponent.h"
 #include "PosComponent.h"
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/matrix_transform_2d.hpp>
 
 void actor::on_static_collision(GameWorld &world, unsigned int entity) {
     auto &mc = world.move_c(entity);
     auto &gc = world.ground_move_c(entity);
-    auto result = world.static_col_c(entity).col_result;
+    const auto &result = world.static_col_c(entity).col_result;
 
     if (w_dot(WVec(0, 1), result.normal) > c_max_floor_angle) {
         gc.air_time = 0;
-        // movestate to ground
-        auto trans_fc = get_trans_func(MoveState::OnGround, MoveSet::Protagonist);
-        if (trans_fc) {
-            trans_fc(world, entity);
-        }
         mc.velocity.y = w_slide(mc.velocity, result.normal).y * 0.5f;
     }
     else {
@@ -33,9 +30,10 @@ void actor::on_dynamic_collision(GameWorld &world, unsigned int entity) {
 
     if (world.tag_c(collider).test(static_cast<int>(Tags::Actor))) {
         pc.position -=  0.5f * result.normal * result.depth; 
+        //pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * world.pos_c(pc.parent).global_transform;
         // dont slide for now
         world.move_c(collider).additional_force += 200.f * result.normal;
-        mc.velocity = 0.5f * (mc.velocity + w_slide(mc.velocity, result.normal));
+        mc.velocity =  0.98f * mc.velocity + .02f * w_slide(mc.velocity, result.normal);
     } else {
         assert(false);
     }

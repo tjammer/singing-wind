@@ -34,7 +34,7 @@ class GameWorld::impl {
         std::unordered_map<unsigned int, MoveComponent> m_move_c;
         std::unordered_map<unsigned int, StaticColComponent> m_static_col_c;
         std::unordered_map<unsigned int, GroundMoveComponent> m_ground_move_c;
-        std::unordered_map<unsigned int, JumpComponent> m_jump_c;
+        std::unordered_map<unsigned int, FallComponent> m_fall_c;
         std::unordered_map<unsigned int, FlyComponent> m_fly_c;
         std::unordered_map<unsigned int, PathingComponent> m_path_c;
         std::unordered_map<unsigned int, SimpleFlyComponent> m_simple_fly_c;
@@ -195,7 +195,7 @@ void GameWorld::reset_entities() {
     pimpl->m_move_c.clear();
     pimpl->m_static_col_c.clear();
     pimpl->m_ground_move_c.clear();
-    pimpl->m_jump_c.clear();
+    pimpl->m_fall_c.clear();
     pimpl->m_fly_c.clear();
     pimpl->m_name_c.clear();
     pimpl->m_path_c.clear();
@@ -221,7 +221,7 @@ void GameWorld::delete_entity_raw(unsigned int entity) {
     pimpl->m_move_c.erase(entity);
     pimpl->m_static_col_c.erase(entity);
     pimpl->m_ground_move_c.erase(entity);
-    pimpl->m_jump_c.erase(entity);
+    pimpl->m_fall_c.erase(entity);
     pimpl->m_fly_c.erase(entity);
     pimpl->m_entities[entity].reset();
     pimpl->m_path_c.erase(entity);
@@ -278,8 +278,8 @@ GroundMoveComponent & GameWorld::ground_move_c(unsigned int entity) {
     return pimpl->m_ground_move_c[entity];
 }
 
-JumpComponent & GameWorld::jump_c(unsigned int entity) {
-    return pimpl->m_jump_c[entity];
+FallComponent & GameWorld::fall_c(unsigned int entity) {
+    return pimpl->m_fall_c[entity];
 }
 
 FlyComponent & GameWorld::fly_c(unsigned int entity) {

@@ -53,6 +53,12 @@ void TestEnemy::simple_flying(GameWorld &world, unsigned int entity) {
     auto &mc = world.move_c(entity);
     
     auto dir = w_normalize(ic.mouse[0] - pc.position);
+    // rotate
+    auto mouse = WVec(glm::inverse(pc.global_transform) * WVec3(ic.mouse[0], 1));
+    // see src/Protagonist angle_up
+    float mouse_angle = atan2f(mouse.x, -mouse.y);
+    pc.rotation += copysignf(fmin(fc.c_max_change_angle, abs(mouse_angle)), mouse_angle);
+    pc.rotation = std::remainder(pc.rotation, (float)M_PI * 2.f);
     // cancel gravity
     mc.accel.y = 0;
     float distance = w_magnitude(ic.mouse[0] - pc.position);
@@ -65,4 +71,13 @@ void TestEnemy::simple_flying(GameWorld &world, unsigned int entity) {
     } else {
         mc.accel -= fc.c_stop_coef * mc.velocity;
     }
+}
+
+void TestEnemy::to_simple_flying(GameWorld &world, unsigned int entity) {
+    auto &mc = world.move_c(entity);
+    mc.movestate = MoveState::SimpleFlying;
+}
+
+bool TestEnemy::transition_simple_flying(GameWorld &, unsigned int) {
+    return true;
 }

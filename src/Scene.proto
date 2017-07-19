@@ -27,7 +27,7 @@ message Entity {
     StaticColComponent static_col_c = 7;
     string name = 8;
     GroundMoveComponent ground_move_c = 9;
-    JumpComponent jump_c = 10;
+    FallComponent fall_c = 10;
     FlyComponent fly_c = 11;
     SimplyFlyComponent simple_fly_c = 12;
     DynColComponent dyn_col_c = 13;
@@ -69,7 +69,7 @@ message GroundMoveComponent {
     float max_vel = 4;
 }
 
-message JumpComponent {
+message FallComponent {
     float accel = 1;
     float turn_mod = 2;
     float jump_height = 3;

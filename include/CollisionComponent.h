@@ -10,12 +10,14 @@ class GameWorld;
 
 enum class StaticColResponse : int {
     Actor,
-    SimpleFlyer
+    SimpleFlyer,
+    state_count
 };
 
 enum class DynColResponse : int {
     Actor,
-    Projectile
+    Projectile,
+    state_count
 };
 
 const std::map<StaticColResponse, const char*> staticcolresponse_string = {
