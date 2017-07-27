@@ -8,8 +8,10 @@ set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG}  -fno-exceptions -W -Wall"
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2 -fno-exceptions -W -Wall -DNDEBUG -s")
 
 add_subdirectory(external)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${PROJECT_BINARY_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/external/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include 
+    ${CMAKE_CURRENT_SOURCE_DIR}/skills
+    ${PROJECT_BINARY_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/include)
 link_directories(${PROJECT_SOURCE_DIR}/external/lib-linux)
 
 
@@ -55,7 +57,10 @@ set(INCLUDE_FILES include/Engine.h
     include/TagComponent.h
     include/CPruneSweep.h
     include/Actor.h
-    skills/Melee.h)
+    skills/Melee.h
+    include/HurtBoxComponent.h
+    include/LifeTimeComponent.h
+    include/StatusEffectComponent.h)
 
 set(SOURCE_FILES src/main.cpp
     src/Engine.cpp 
@@ -92,7 +97,9 @@ set(SOURCE_FILES src/main.cpp
     src/CPruneSweep.cpp
     src/TagComponent.cpp
     src/Actor.cpp
-    skills/Melee.cpp)
+    skills/Melee.cpp
+    src/HurtBoxComponent.cpp
+    src/StatusEffectComponent.cpp)
 
 option(enable_unity_build "enable unity build for executable" OFF)
 if (enable_unity_build)

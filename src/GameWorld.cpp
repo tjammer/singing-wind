@@ -19,6 +19,9 @@
 #include "Pathfinding.h"
 #include "SkillComponent.h"
 #include "TagComponent.h"
+#include "HurtBoxComponent.h"
+#include "LifeTimeComponent.h"
+#include "StatusEffectComponent.h"
 
 GameWorld::~GameWorld() = default;
 
@@ -42,6 +45,9 @@ class GameWorld::impl {
         std::unordered_map<unsigned int, DynamicColComponent> m_dyn_c;
         std::unordered_map<unsigned int, TagComponent> m_tag_c;
         std::unordered_map<unsigned int, ColShapeComponent> m_cshape_c;
+        std::unordered_map<unsigned int, LifeTimeComponent> m_lifetime_c;
+        std::unordered_map<unsigned int, HurtBoxComponent> m_hurtbox_c;
+        std::unordered_map<unsigned int, StatusEffectComponent> m_statuseffect_c;
         std::vector<NameComponent> m_name_c;
 
 
@@ -51,7 +57,7 @@ class GameWorld::impl {
     NavMesh m_navmesh;
 
     std::vector<unsigned int> m_input_ents;
-    std::vector<unsigned int> m_move_ents;
+    //std::vector<unsigned int> m_move_ents;
     std::vector<unsigned int> m_debug_draw_ents;
     std::vector<unsigned int> m_ground_move_ents;
     std::vector<unsigned int> m_fly_ents;
@@ -59,6 +65,11 @@ class GameWorld::impl {
     std::vector<unsigned int> m_path_ents;
     std::vector<unsigned int> m_skill_ents;
     std::unordered_map<unsigned int, bool> m_dyn_col_ents;
+    std::vector<unsigned int> m_lifetime_ents;
+    std::vector<unsigned int> m_statuseffect_ents;
+
+    std::vector<unsigned int> m_to_delete;
+    void delete_entitites(GameWorld &);
 };
 
 
@@ -89,9 +100,10 @@ void GameWorld::draw() {
 
 void GameWorld::step_fixed(float dt) {
     find_entities_fixed();
+    pimpl->m_to_delete.clear();
 
     input_update(*this, pimpl->m_input_ents);
-    move_update(*this, dt, pimpl->m_move_ents);
+    move_update(*this, dt);
     static_col_update(*this, pimpl->m_static_col_ents);
     dyn_col_update(*this, pimpl->m_dyn_col_ents);
 
@@ -99,6 +111,11 @@ void GameWorld::step_fixed(float dt) {
     ground_move_update(*this, dt,pimpl-> m_ground_move_ents);
     fly_update(*this, dt, pimpl->m_fly_ents);
     skill_update(*this, dt, pimpl->m_skill_ents);
+    lifetime_update(*this, dt, pimpl->m_lifetime_ents);
+    statuseffect_update(*this, dt, pimpl->m_statuseffect_ents);
+
+    // delete entities
+    pimpl->delete_entitites(*this);
 }
 
 unsigned int GameWorld::create_entity() {
@@ -121,13 +138,15 @@ void GameWorld::find_entities_fixed() {
     using namespace for_gameworld;
 
     pimpl->m_input_ents.clear();
-    pimpl->m_move_ents.clear();
+    //pimpl->m_move_ents.clear();
     pimpl->m_ground_move_ents.clear();
     pimpl->m_fly_ents.clear();
     pimpl->m_static_col_ents.clear();
     pimpl->m_path_ents.clear();
     pimpl->m_skill_ents.clear();
     pimpl->m_dyn_col_ents.clear();
+    pimpl->m_lifetime_ents.clear();
+    pimpl->m_statuseffect_ents.clear();
 
     for (unsigned int i = 0 ; i < pimpl->m_entities.size() ; ++i) {
         auto ent = pimpl->m_entities[i];
@@ -136,9 +155,10 @@ void GameWorld::find_entities_fixed() {
             pimpl->m_input_ents.push_back(i);
         }
 
-        if (has_component(ent, c_move_components)) {
+        // every entity has to update pos
+        /*if (has_component(ent, c_move_components)) {
             pimpl->m_move_ents.push_back(i);
-        }
+        }*/
 
         if (has_component(ent, c_ground_move_components)) {
             pimpl->m_ground_move_ents.push_back(i);
@@ -162,6 +182,14 @@ void GameWorld::find_entities_fixed() {
 
         if (has_component(ent, c_dyn_col_components)) {
             pimpl->m_dyn_col_ents[i] = false;
+        }
+
+        if (has_component(ent, c_lifetime_components)) {
+            pimpl->m_lifetime_ents.push_back(i);
+        }
+
+        if (has_component(ent, c_statuseffect_components)) {
+            pimpl->m_statuseffect_ents.push_back(i);
         }
     }
 }
@@ -204,6 +232,9 @@ void GameWorld::reset_entities() {
     pimpl->m_dyn_c.clear();
     pimpl->m_tag_c.clear();
     pimpl->m_cshape_c.clear();
+    pimpl->m_lifetime_c.clear();
+    pimpl->m_hurtbox_c.clear();
+    pimpl->m_statuseffect_c.clear();
 }
 
 void GameWorld::reset_islands() {
@@ -231,6 +262,19 @@ void GameWorld::delete_entity_raw(unsigned int entity) {
     pimpl->m_tag_c.erase(entity);
     pimpl->m_cshape_c.erase(entity);
     assert(pimpl->m_entities[entity].none());
+    pimpl->m_lifetime_c.erase(entity);
+    pimpl->m_hurtbox_c.erase(entity);
+    pimpl->m_statuseffect_c.erase(entity);
+}
+
+void GameWorld::impl::delete_entitites(GameWorld &world) {
+    for (auto entity : m_to_delete) {
+        world.delete_entity_raw(entity);
+    }
+}
+
+void GameWorld::queue_delete(unsigned int entity) {
+    pimpl->m_to_delete.push_back(entity);
 }
 
 StaticGrid& GameWorld::grid() {
@@ -312,4 +356,16 @@ TagComponent & GameWorld::tag_c(unsigned int entity) {
 
 ColShapeComponent & GameWorld::cshape_c(unsigned int entity) {
     return pimpl->m_cshape_c[entity];
+}
+
+LifeTimeComponent & GameWorld::lifetime_c(unsigned int entity) {
+    return pimpl->m_lifetime_c[entity];
+}
+
+HurtBoxComponent & GameWorld::hurtbox_c(unsigned int entity) {
+    return pimpl->m_hurtbox_c[entity];
+}
+
+StatusEffectComponent & GameWorld::statuseffect_c(unsigned int entity) {
+    return pimpl->m_statuseffect_c[entity];
 }

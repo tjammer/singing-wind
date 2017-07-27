@@ -28,14 +28,16 @@ void actor::on_dynamic_collision(GameWorld &world, unsigned int entity) {
     auto &mc = world.move_c(entity);
     auto &pc = world.pos_c(entity);
 
-    if (world.tag_c(collider).test(static_cast<int>(Tags::Actor))) {
+    const auto &tag = world.tag_c(collider);
+    if (tag.test(static_cast<int>(Tags::Actor))) {
         pc.position -=  0.5f * result.normal * result.depth; 
         //pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * world.pos_c(pc.parent).global_transform;
         // dont slide for now
         world.move_c(collider).additional_force += 200.f * result.normal;
         mc.velocity =  0.98f * mc.velocity + .02f * w_slide(mc.velocity, result.normal);
+    } else if (tag.test(static_cast<int>(Tags::Hurtbox))) {
     } else {
-        assert(false);
+        assert (false);
     }
 }
 

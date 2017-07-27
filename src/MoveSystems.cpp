@@ -43,8 +43,11 @@ std::unordered_map<MoveState, std::vector<MoveState>> protagonist_trans = {
 };
 
 std::unordered_map<MoveState, std::vector<MoveState>> testenemy_trans = {
-    {MoveState::SimpleFlying, {}}
+    {MoveState::SimpleFlying, {}},
+    {MoveState::Falling, {MoveState::SimpleFlying}}
 };
+
+std::unordered_map<MoveState, std::vector<MoveState>> special_trans = {};
 
 accel_func get_accel_func(const MoveState &state) {
     return accel_funcs[static_cast<size_t>(state)];
@@ -59,9 +62,9 @@ accel_func get_to_func(const MoveState &state) {
 }
 
 const std::vector<MoveState> & get_trans_funcs (const MoveSet &set, const MoveState &state) {
-    if (set == MoveSet::Protagonist) {
-        return protagonist_trans[state];
-    } else {
-        return testenemy_trans[state];
+    switch (set) {
+        case MoveSet::Protagonist : return protagonist_trans[state]; break;
+        case MoveSet::TestEnemy : return testenemy_trans[state]; break;
+        case MoveSet::Special : return special_trans[state];
     }
 }

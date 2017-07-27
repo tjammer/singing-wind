@@ -4,7 +4,7 @@
 struct cmp_func {
     size_t sort_axis;
     bool operator() (const PSBox &a, const PSBox &b) {
-        return a.mins[sort_axis] <= b.mins[sort_axis];
+        return a.mins[sort_axis] < b.mins[sort_axis];
     }
 };
 
@@ -23,7 +23,7 @@ void PruneSweeper::prune_and_sweep() {
     glm::tvec2<float> means{0, 0};
     glm::tvec2<float> sqrd_means{0, 0};
 
-    for (unsigned int i = 0 ; i < m_boxes.size() ; ++i) {
+    /*for (unsigned int i = 0 ; i < m_boxes.size() ; ++i) {
         const auto &box = m_boxes[i];
         glm::tvec2<float> p_mn = 0.5f * (box.mins + box.maxs);
 
@@ -38,7 +38,7 @@ void PruneSweeper::prune_and_sweep() {
                 m_pairs.emplace_back(box.entity, m_boxes[j].entity);
             }
         }
-    }
+    }*/
 
     glm::tvec2<float> var = sqrd_means - means * means / (float)m_boxes.size();
     sort_axis = 0;

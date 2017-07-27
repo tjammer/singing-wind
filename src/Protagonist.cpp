@@ -30,6 +30,8 @@ void protagonist::handle_inputs(GameWorld &world, unsigned int entity) {
     push_value(ic.mouse, WInput::get_mouse_pos());
 
     push_value(ic.wings, WInput::is_mouse_button_pressed(GLFW_MOUSE_BUTTON_RIGHT));
+
+    push_value(ic.att_melee, WInput::is_key_pressed(GLFW_KEY_Q));
 }
 
 template<class GC>

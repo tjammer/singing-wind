@@ -17,6 +17,7 @@ enum class StaticColResponse : int {
 enum class DynColResponse : int {
     Actor,
     Projectile,
+    HurtBox,
     state_count
 };
 

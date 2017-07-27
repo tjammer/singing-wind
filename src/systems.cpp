@@ -9,16 +9,19 @@
 #include "CollisionComponent.h"
 #include "PosComponent.h"
 #include "SkillComponent.h"
+#include "Components.h"
 #include "ColGrid.h"
 #include "ColShape.h"
 #include "CPruneSweep.h"
+#include "LifeTimeComponent.h"
+#include "StatusEffectComponent.h"
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
 #include <WRenderer.h>
 #include <WVecMath.h>
 #include <algorithm>
 
-#include <iostream>
 void debug_draw_update(GameWorld &world, const std::vector<unsigned int> &entities) {
     WTransform zero_tf;
     WRenderer::set_mode(PLines);
@@ -38,6 +41,7 @@ void static_col_update(GameWorld &world, const std::vector<unsigned int> &entiti
     for (const auto entity : entities) {
         // position
         auto &transform = world.pos_c(entity).global_transform;
+        auto &inverse = world.pos_c(entity).global_inverse_transform;
         auto &pos = world.pos_c(entity).position;
         auto &rot = world.pos_c(entity).rotation;
         auto parent = world.pos_c(entity).parent;
@@ -61,10 +65,7 @@ void static_col_update(GameWorld &world, const std::vector<unsigned int> &entiti
                 }
             }
         }
-        // in this example it's okay to reset the transformation here.
-        // this deals only with the environmental collision.
-        // (what to do about moving platforms)
-        shape->transform(glm::inverse(transform));
+        shape->transform(inverse);
 
         if (result.collides && result.epa_it < 21) {
             auto move_back = result.normal * -result.depth;
@@ -82,6 +83,7 @@ void static_col_update(GameWorld &world, const std::vector<unsigned int> &entiti
             // slide movement and collide again
             //circle to world
             transform = glm::rotate(glm::translate(WTransform(), pos), rot) * world.pos_c(parent).global_transform;
+            inverse = glm::inverse(transform);
             shape->transform(transform);
 
             ColResult second_result;
@@ -94,13 +96,14 @@ void static_col_update(GameWorld &world, const std::vector<unsigned int> &entiti
                     }
                 }
             }
-            shape->transform(glm::inverse(transform));
+            shape->transform(inverse);
 
             if (second_result.collides) {
                 WVec correction = find_directed_overlap(second_result, WVec(-move_back.y, move_back.x));
                 pos += correction;
 
                 transform = glm::rotate(glm::translate(WTransform(), pos), rot) * world.pos_c(parent).global_transform;
+                inverse = glm::inverse(transform);
             }
 
             // call back
@@ -116,35 +119,39 @@ void input_update(GameWorld &world, const std::vector<unsigned int> &entities) {
     }
 }
 
-void move_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities) {
-    for (const auto entity : entities) {
+void move_update(GameWorld &world, float dt) {
+    for (unsigned int entity = 0 ; entity < world.entities().size() ; ++entity) {
 
-        auto &mc = world.move_c(entity);
         auto &pc = world.pos_c(entity);
+        
+        if (world.entities()[entity].test(CMove)) {
 
-        auto old_accel = mc.accel;
+            auto &mc = world.move_c(entity);
 
-        mc.accel = WVec(0, c_gravity);
-        mc.accel += mc.additional_force / mc.mass;
+            auto old_accel = mc.accel;
 
-        mc.velocity += old_accel * dt;
+            mc.accel = WVec(0, c_gravity);
+            mc.accel += mc.additional_force / mc.mass;
 
-        // check transistions
-        for (MoveState m: get_trans_funcs(mc.moveset, mc.movestate)) {
-            if (get_trans_func(m)(world, entity)) {
-                get_to_func(m)(world, entity);
-                break;
+            mc.velocity += old_accel * dt;
+
+            // check transistions
+            for (MoveState m: get_trans_funcs(mc.moveset, mc.movestate)) {
+                if (get_trans_func(m)(world, entity)) {
+                    get_to_func(m)(world, entity);
+                    break;
+                }
             }
+            get_accel_func(mc.movestate)(world, entity);
+
+            mc.velocity += dt * (mc.accel - old_accel) / 2.0f;
+            auto motion = dt * (mc.velocity + mc.accel * dt / 2.0f);
+            pc.position += motion;
+            mc.additional_force = {0, 0};
+
         }
-        get_accel_func(mc.movestate)(world, entity);
-
-        mc.velocity += dt * (mc.accel - old_accel) / 2.0f;
-        auto motion = dt * (mc.velocity + mc.accel * dt / 2.0f);
-        pc.position += motion;
-
-        pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * world.pos_c(pc.parent).global_transform;
-
-        mc.additional_force = {0, 0};
+        pc.global_transform =  world.pos_c(pc.parent).global_transform * glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation);
+        pc.global_inverse_transform = glm::inverse(pc.global_transform);
     }
 }
 
@@ -174,20 +181,27 @@ void skill_update(GameWorld &world, float dt, const std::vector<unsigned int> &e
         auto &ic = world.input_c(entity);
 
         // handle skill input
-        if (ic.att_melee[0]) {
+        auto begin = ic.att_melee.begin();
+        auto end = ic.att_melee.end();
+        if (ic.att_melee[0] and std::find(begin, end, false) != end) {
             cast_skill(world, entity, SkillID::Melee);
         }
 
-        for (auto &s : sc.skills) {
-            s.timer -= dt;
+        for (auto &pair : sc.skills) {
+            auto &s = pair.second;
+            assert(s.id == pair.first);
 
-            if (s.id == sc.active) {
+            // either buildup, channel or recover
+            if (s.id == sc.active and static_cast<int>(s.skillstate) > 1) {
                 auto fn = get_skill_func(s.skillstate, s.id);
                 if (fn) {
-                fn(world, entity);
+                    fn(world, entity);
                 }
             }
 
+            s.timer -= dt;
+
+            // TODO: set animation hints
             switch (s.skillstate) {
                 case SkillState::BuildUp : {
    	                if (s.timer <= 0) {
@@ -206,7 +220,7 @@ void skill_update(GameWorld &world, float dt, const std::vector<unsigned int> &e
                 case SkillState::Recover : {
  	          	    if (s.timer <= 0) {
                         s.skillstate = SkillState::Cooldown;
-                        s.timer = s.c_time_cooldown;
+                        s.timer = s.c_time_cooldown - s.c_time_recover;
                	    }
                	    break;
            	    }
@@ -221,6 +235,7 @@ void skill_update(GameWorld &world, float dt, const std::vector<unsigned int> &e
                         sc.active = SkillID::None;
                     }
                 }
+                default: break;
             }
         }
     }
@@ -236,8 +251,10 @@ void dyn_col_update(GameWorld &world, std::unordered_map<unsigned int, bool> &en
         if (entities.count(box.entity) > 0) {
             auto &shape = world.cshape_c(box.entity).shape;
             entities.at(box.entity) = true;
-            box.mins = world.pos_c(box.entity).position - shape->get_radius();
-            box.maxs = world.pos_c(box.entity).position + shape->get_radius();
+            shape->transform(world.pos_c(box.entity).global_transform);
+            box.mins = shape->m_center - shape->get_radius();
+            box.maxs = shape->m_center + shape->get_radius();
+            shape->transform(world.pos_c(box.entity).global_inverse_transform);
         } else {
             // todo move to delete list
             to_delete.push_back(box.entity);
@@ -279,8 +296,8 @@ void dyn_col_update(GameWorld &world, std::unordered_map<unsigned int, bool> &en
         shape_a->transform(world.pos_c(a).global_transform);
         shape_b->transform(world.pos_c(b).global_transform);
         auto result = shape_a->collides(*shape_b);
-        shape_a->transform(glm::inverse(world.pos_c(a).global_transform));
-        shape_b->transform(glm::inverse(world.pos_c(b).global_transform));
+        shape_a->transform(world.pos_c(a).global_inverse_transform);
+        shape_b->transform(world.pos_c(b).global_inverse_transform);
         
 
         if (result.collides) {
@@ -298,6 +315,40 @@ void dyn_col_update(GameWorld &world, std::unordered_map<unsigned int, bool> &en
             fn = get_dynamic_col_response(dcb.col_response);
             if (fn) {
                 fn(world, b);
+            }
+        }
+    }
+}
+
+void lifetime_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities) {
+    for (const auto& entity : entities) {
+        auto &lc = world.lifetime_c(entity);
+        lc.timer -= dt;
+        if (lc.timer <= 0) {
+            if (lc.delete_func) {
+                lc.delete_func(world, entity);
+            }
+            world.queue_delete(entity);
+        }
+    }
+}
+
+void statuseffect_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities) {
+    for (const auto &entity : entities) {
+        for (auto &effect : world.statuseffect_c(entity).effects) {
+            effect.timer -= dt;
+
+            if (effect.timer <= 0) {
+                auto fn = effect.on_stop;
+                if (fn) {
+                    fn(world, entity);
+                }
+                delete_effect(world, entity, effect);
+            } else {
+                auto fn = effect.on_tick;
+                if (fn) {
+                    fn(world, entity);
+                }
             }
         }
     }

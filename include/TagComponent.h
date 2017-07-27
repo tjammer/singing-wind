@@ -15,6 +15,7 @@ enum class Tags : int {
     Hurtbox
 };
 
+// for editor
 void entity_edit_tags(GameWorld&, unsigned int entity);
 
 #endif /* TAGCOMPONENT_H */

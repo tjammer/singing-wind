@@ -21,7 +21,7 @@ const bset c_input_components{(1 << CInput)};
 void input_update(GameWorld &world, const std::vector<unsigned int> &entities);
 
 const bset c_move_components{(1 << CPosition) | (1 << CMove)};
-void move_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities);
+void move_update(GameWorld &world, float dt);
 
 const bset c_ground_move_components{(1 << CMove)};
 void ground_move_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities);
@@ -37,5 +37,11 @@ void skill_update(GameWorld &world, float dt, const std::vector<unsigned int> &e
 
 const bset c_dyn_col_components{(1 << CPosition) | (1 << CDynCol) | (1 << CColShape)};
 void dyn_col_update(GameWorld &world, std::unordered_map<unsigned int, bool> &entities);
+
+const bset c_lifetime_components{(1 << CLifeTime)};
+void lifetime_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities);
+
+const bset c_statuseffect_components{(1 << CStatusEffect)};
+void statuseffect_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities);
 
 #endif //SINGING_WIND_SYSTEMS_H

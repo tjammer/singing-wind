@@ -4,6 +4,7 @@
 #include <functional>
 #include <vector>
 #include <map>
+#include <unordered_map>
 
 class GameWorld;
 
@@ -12,12 +13,14 @@ enum class SkillState : int {
     Cooldown,
     BuildUp,
     Channel,
-    Recover
+    Recover,
+    state_count
 };
 
 enum class SkillID {
     None,
-    Melee
+    Melee,
+    state_count
 };
 
 struct Skill {
@@ -32,7 +35,7 @@ struct Skill {
 };
 
 struct SkillComponent {
-    std::vector<Skill> skills;
+    std::unordered_map<SkillID, Skill> skills;
     SkillID active = SkillID::None;
 };
 

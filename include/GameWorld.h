@@ -24,6 +24,9 @@ struct SimpleFlyComponent;
 struct SkillComponent;
 struct DynamicColComponent;
 struct ColShapeComponent;
+struct LifeTimeComponent;
+struct HurtBoxComponent;
+struct StatusEffectComponent;
 class StaticGrid;
 class PruneSweeper;
 struct NavMesh;
@@ -66,9 +69,15 @@ public:
         DynamicColComponent &dyn_col_c(unsigned int entity);
         TagComponent &tag_c(unsigned int entity);
         ColShapeComponent &cshape_c(unsigned int entity);
+        LifeTimeComponent &lifetime_c(unsigned int entity);
+        HurtBoxComponent &hurtbox_c(unsigned int entity);
+        StatusEffectComponent &statuseffect_c(unsigned int entity);
 
     void reset_entities();
     void reset_islands();
+
+    // delete entities
+    void queue_delete(unsigned int entity);
 
     // communication with editor
     void update_world();

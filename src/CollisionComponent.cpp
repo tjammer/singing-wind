@@ -5,9 +5,10 @@
 #include "Components.h"
 #include "GameWorld.h"
 #include "EntityEditor.h"
+#include "HurtBoxComponent.h"
 #include <unordered_map>
 
-using response_func = std::function<void(GameWorld &, unsigned int)>;
+using response_func = std::function<void(GameWorld &, const unsigned int)>;
 
 const response_func c_static_col_responses[static_cast<size_t>(StaticColResponse::state_count)] = {
     actor::on_static_collision,
@@ -15,14 +16,16 @@ const response_func c_static_col_responses[static_cast<size_t>(StaticColResponse
 };
 
 const response_func c_dyn_col_responses[static_cast<size_t>(DynColResponse::state_count)] = {
-    actor::on_dynamic_collision
+    actor::on_dynamic_collision,
+    nullptr,
+    hurtbox::on_dynamic_collision
 };
 
 std::function<void(GameWorld &, unsigned int)> get_static_col_response(const StaticColResponse &scr) {
     return c_static_col_responses[static_cast<size_t>(scr)];
 }
 
-std::function<void(GameWorld &, unsigned int entity)> get_dynamic_col_response(const DynColResponse &scr) {
+std::function<void(GameWorld & world, unsigned int entity)> get_dynamic_col_response(const DynColResponse &scr) {
     return c_dyn_col_responses[static_cast<size_t>(scr)];
 }
 
