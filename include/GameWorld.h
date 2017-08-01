@@ -37,7 +37,7 @@ using TagComponent = bset;
 // physics constants
 const float c_drag = 0.0026;
 const float c_max_floor_angle = 0.7;
-const float c_gravity = 1900;
+const float c_gravity = 980;
 const float c_jump_tolerance = 0.1f;
 
 // implements the ecs

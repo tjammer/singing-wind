@@ -10,7 +10,7 @@ namespace melee_skill {
     void on_recover(GameWorld &, unsigned int);
 
     const Skill skill = {
-        .3, .1, 1, 2, SkillState::Ready, SkillID::Melee, 0, 0
+        .1, .1, 1, 2, SkillState::Ready, SkillID::Melee, 0, 0
     };
 
     const std::array<std::function<void(GameWorld&, unsigned int)>, static_cast<size_t>(SkillState::state_count)> funcs = {{

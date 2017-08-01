@@ -1,9 +1,32 @@
 #include "HurtBoxComponent.h"
 #include "GameWorld.h"
+#include "CollisionComponent.h"
+
+#include <algorithm>
 
 void hurtbox::on_dynamic_collision(GameWorld &world, const unsigned int entity) {
-    auto fn = world.hurtbox_c(entity).hit_function;
+    auto &dc = world.dyn_col_c(entity);
+    auto &hb = world.hurtbox_c(entity);
+    
+    if (std::find(hb.hit_entities.begin(), hb.hit_entities.end(), dc.collided) != hb.hit_entities.end()) {
+        return;
+    } else if (dc.collided == hb.owner) {
+        return;
+    } 
+
+    auto fn = hb.hurt_function;
     if (fn) {
-        fn(world, entity);
+        fn(world, dc.collided, hb.owner);
     }
+    // we ahve a hit! check if owner has made a response yet
+    if (std::find(hb.hit_entities.begin(), hb.hit_entities.end(), hb.owner) == hb.hit_entities.end()) {
+        fn = hb.on_hit;
+        if (fn) {
+            fn(world, hb.owner, dc.collided);
+        }
+        hb.hit_entities.push_back(hb.owner);
+    }
+    
+    
+    hb.hit_entities.push_back(dc.collided);
 }

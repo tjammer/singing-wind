@@ -7,7 +7,7 @@
 class GameWorld;
 
 enum StatusEffects {
-    Knockback
+    Knockback,
 };
 
 struct StatusEffect {
@@ -26,6 +26,8 @@ struct StatusEffectComponent {
 void add_effect(GameWorld &, unsigned int entity, StatusEffect& effect);
 void delete_effect(GameWorld &, unsigned int entity, StatusEffect & effect);
 
-StatusEffect statuseffect_knockback();
+namespace statuseffects {
+    StatusEffect knockback();
+};
 
 #endif /* STATUSEFFECTCOMPONENT_H */

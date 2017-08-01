@@ -9,7 +9,10 @@ class GameWorld;
 struct HurtBoxComponent {
     unsigned int owner = 0;
     std::vector<unsigned int> hit_entities;
-    std::function<void(GameWorld &, const unsigned int)> hit_function = nullptr;
+    // for enemies
+    std::function<void(GameWorld &, const unsigned int victim, const unsigned int attacker)> hurt_function = nullptr;
+    // for owner
+    std::function<void(GameWorld &, const unsigned int attacker, const unsigned int victim)> on_hit = nullptr;
 };
 
 namespace hurtbox {

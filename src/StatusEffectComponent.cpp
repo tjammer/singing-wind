@@ -2,7 +2,11 @@
 #include "GameWorld.h"
 #include "MoveSystems.h"
 #include "Components.h"
+#include "CollisionComponent.h"
 #include <algorithm>
+#include "WVecMath.h"
+
+#include <iostream>
 
 void add_effect(GameWorld &world, unsigned int entity, StatusEffect& effect) {
     if (!world.entities()[entity].test(CStatusEffect)) {
@@ -33,6 +37,7 @@ void knockback_start(GameWorld &world, unsigned int entity) {
     StatusEffect &effect = *it;
     auto &mc = world.move_c(entity);
     effect.saved_state.push_back(static_cast<int>(mc.moveset));
+    effect.saved_state.push_back(static_cast<int>(mc.movestate));
     mc.movestate = MoveState::Falling;
     mc.moveset = MoveSet::Special;
 }
@@ -45,10 +50,11 @@ void knockback_stop(GameWorld &world, unsigned int entity) {
     StatusEffect &effect = *it;
     if (mc.moveset == MoveSet::Special and mc.movestate == MoveState::Falling) {
         mc.moveset = static_cast<MoveSet>(effect.saved_state[0]);
+        mc.movestate = static_cast<MoveState>(effect.saved_state[1]);
     }
 }
 
-StatusEffect statuseffect_knockback() {
+StatusEffect statuseffects::knockback() {
     StatusEffect out;
     out.on_start = knockback_start;
     out.on_stop = knockback_stop;

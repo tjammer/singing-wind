@@ -14,26 +14,25 @@
 #include "Components.h"
 #include "StatusEffectComponent.h"
 
-#include <algorithm>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/matrix_transform_2d.hpp>
 
-void melee_skill_hurtfunc(GameWorld &world, unsigned int entity) {
-    const auto &dc = world.dyn_col_c(entity);
-    auto &hb = world.hurtbox_c(entity);
-    entity = world.hurtbox_c(entity).owner;
-    if (entity == dc.collided) {
-        return;
-    }
-    if (std::find(hb.hit_entities.begin(), hb.hit_entities.end(), dc.collided) != hb.hit_entities.end()) {
-        return ;
-    }
+void melee_skill_hurtfunc(GameWorld &world, unsigned int victim, unsigned int attacker) {
     // knockback
-    auto dir = w_normalize(world.pos_c(dc.collided).position - world.pos_c(entity).position);
-    world.move_c(dc.collided).velocity = dir * 300.f;
-    auto kb = statuseffect_knockback();
-    kb.timer = .5f;
-    add_effect(world, dc.collided, kb);
+    auto dir = w_normalize(world.pos_c(victim).position - world.pos_c(attacker).position);
+    world.move_c(victim).velocity = dir * 200.f;
+    auto kb = statuseffects::knockback();
+    kb.timer = .3f;
+    add_effect(world, victim, kb);
     // TODO: damage
-    hb.hit_entities.push_back(dc.collided);
+}
+
+void melee_skill_on_hit(GameWorld &world, unsigned int attacker, unsigned int victim) {
+    auto dir = w_normalize(world.pos_c(attacker).position - world.pos_c(victim).position);
+    world.move_c(attacker).velocity = dir * 200.f;
+    auto kb = statuseffects::knockback();
+    kb.timer = .1f;
+    add_effect(world, attacker, kb);
 }
 
 void melee_skill::on_channel(GameWorld &world, unsigned int entity) {
@@ -56,10 +55,9 @@ void melee_skill::on_channel(GameWorld &world, unsigned int entity) {
     // pos
     auto &pc = world.pos_c(hurtbox);
     pc.parent = entity;
-    // figure out direction
-    const auto &parent_ic = world.input_c(entity);
     pc.position = WVec(0, -35);
     pc.rotation = 0;
+    pc.global_transform =  world.pos_c(pc.parent).global_transform * glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation);
     // col shape
     auto &csc = world.cshape_c(hurtbox);
     csc.shape = std::shared_ptr<ColShape>(new ColCapsule(35, 15));
@@ -79,5 +77,6 @@ void melee_skill::on_channel(GameWorld &world, unsigned int entity) {
     // hurtbox
     auto &hb = world.hurtbox_c(hurtbox);
     hb.owner = entity;
-    hb.hit_function = melee_skill_hurtfunc;
+    hb.hurt_function = melee_skill_hurtfunc;
+    hb.on_hit = melee_skill_on_hit;
 }
