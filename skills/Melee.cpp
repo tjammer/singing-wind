@@ -43,11 +43,11 @@ void melee_skill_on_hit(GameWorld &world, unsigned int attacker, unsigned int vi
     world.fly_c(attacker).timer = -0.5f;
 }
 
-void melee_skill::move_buildup(GameWorld &world, unsigned int entity) {
+void melee_skill::move_buildup(GameWorld &, unsigned int ) {
 
 }
 
-void melee_skill::move_channel(GameWorld &world, unsigned int entity) {
+void melee_skill::move_channel(GameWorld &, unsigned int ) {
 
 }
 

@@ -42,12 +42,10 @@ const std::map<MoveState, const char*> movestate_string = {
 enum class MoveSet : int {
     Protagonist,
     TestEnemy,
-    Special
 };
 const std::map<MoveSet, const char*> moveset_string = {
     {MoveSet::Protagonist, "Protagonist"},
     {MoveSet::TestEnemy, "TestEnemy"},
-    {MoveSet::Special, "Special"}
 };
 
 

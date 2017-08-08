@@ -17,6 +17,7 @@ void add_effect(GameWorld &world, unsigned int entity, StatusEffect& effect) {
     if (it == effects.end()) {
         effects.push_back(effect);
     } else {
+        // TODO: check for timing collisions
         *it = effect;
     }
     auto fn = effect.on_start;
@@ -31,26 +32,14 @@ void delete_effect(GameWorld &world, unsigned int entity, StatusEffect &effect) 
 }
 
 void knockback_start(GameWorld &world, unsigned int entity) {
-    auto &effects = world.statuseffect_c(entity).effects;
-    auto it = std::find_if(effects.begin(), effects.end(), [](const StatusEffect& e) {return e.id == StatusEffects::Knockback;});
-    assert(it != effects.end());
-    StatusEffect &effect = *it;
     auto &mc = world.move_c(entity);
-    effect.saved_state.push_back(static_cast<int>(mc.moveset));
-    effect.saved_state.push_back(static_cast<int>(mc.movestate));
-    mc.movestate = MoveState::Falling;
-    mc.moveset = MoveSet::Special;
+    mc.special = SpecialMoveState::Knockback;
 }
 
 void knockback_stop(GameWorld &world, unsigned int entity) {
     auto &mc = world.move_c(entity);
-    auto &effects = world.statuseffect_c(entity).effects;
-    auto it = std::find_if(effects.begin(), effects.end(), [](const StatusEffect& e) {return e.id == StatusEffects::Knockback;});
-    assert(it != effects.end());
-    StatusEffect &effect = *it;
-    if (mc.moveset == MoveSet::Special and mc.movestate == MoveState::Falling) {
-        mc.moveset = static_cast<MoveSet>(effect.saved_state[0]);
-        mc.movestate = static_cast<MoveState>(effect.saved_state[1]);
+    if (mc.special == SpecialMoveState::Knockback) {
+        mc.special = SpecialMoveState::None;
     }
 }
 
