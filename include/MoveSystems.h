@@ -21,6 +21,16 @@ enum class MoveState : int {
     SimpleFlying,
     state_count
 };
+
+enum class SpecialMoveState : int {
+    None,
+    Still,
+    Knockback,
+    MeleeBuildUp,
+    MeleeChannel,
+    state_count
+};
+
 const std::map<MoveState, const char*> movestate_string = {
     {MoveState::OnGround, "OnGround"},
     {MoveState::Falling, "Falling"},
@@ -47,7 +57,9 @@ struct MoveComponent {
     WVec additional_force = {0, 0};
     MoveState movestate;
     MoveSet moveset;
+    SpecialMoveState special = SpecialMoveState::None;
     float mass = 1;
+    float time_fac = 1;
 };
 
 struct GroundMoveComponent {
@@ -91,6 +103,7 @@ struct SimpleFlyComponent {
 };
 
 std::function<void(GameWorld &world, unsigned int entity)> get_accel_func(const MoveState &state);
+std::function<void(GameWorld &world, unsigned int entity)> get_special_func(const SpecialMoveState &state);
 std::function<bool(GameWorld &world, unsigned int entity)> get_trans_func(const MoveState &trans);
 std::function<void(GameWorld &world, unsigned int entity)> get_to_func(const MoveState &state);
 const std::vector<MoveState> & get_trans_funcs(const MoveSet &set, const MoveState &state); 

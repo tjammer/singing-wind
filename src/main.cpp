@@ -12,7 +12,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_SAMPLES, 2);
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "My Title", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(1280, 720, "singing_wind", NULL, NULL);
 
     glfwMakeContextCurrent(window);
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);

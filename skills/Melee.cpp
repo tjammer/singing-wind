@@ -22,8 +22,11 @@ void melee_skill_hurtfunc(GameWorld &world, unsigned int victim, unsigned int at
     auto dir = w_normalize(world.pos_c(victim).position - world.pos_c(attacker).position);
     world.move_c(victim).velocity = dir * 200.f;
     auto kb = statuseffects::knockback();
-    kb.timer = .3f;
+    kb.timer = .4f;
     add_effect(world, victim, kb);
+    auto hs = statuseffects::hitstun();
+    hs.timer = .1f;
+    add_effect(world, victim, hs);
     // TODO: damage
 }
 
@@ -33,6 +36,19 @@ void melee_skill_on_hit(GameWorld &world, unsigned int attacker, unsigned int vi
     auto kb = statuseffects::knockback();
     kb.timer = .1f;
     add_effect(world, attacker, kb);
+    auto hs = statuseffects::hitstun();
+    hs.timer = .1f;
+    add_effect(world, attacker, hs);
+
+    world.fly_c(attacker).timer = -0.5f;
+}
+
+void melee_skill::move_buildup(GameWorld &world, unsigned int entity) {
+
+}
+
+void melee_skill::move_channel(GameWorld &world, unsigned int entity) {
+
 }
 
 void melee_skill::on_channel(GameWorld &world, unsigned int entity) {

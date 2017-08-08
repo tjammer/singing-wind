@@ -8,6 +8,7 @@ class GameWorld;
 
 enum StatusEffects {
     Knockback,
+    HitStun
 };
 
 struct StatusEffect {
@@ -28,6 +29,7 @@ void delete_effect(GameWorld &, unsigned int entity, StatusEffect & effect);
 
 namespace statuseffects {
     StatusEffect knockback();
+    StatusEffect hitstun();
 };
 
 #endif /* STATUSEFFECTCOMPONENT_H */

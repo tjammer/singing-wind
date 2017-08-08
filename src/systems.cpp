@@ -119,7 +119,7 @@ void input_update(GameWorld &world, const std::vector<unsigned int> &entities) {
     }
 }
 
-void move_update(GameWorld &world, float dt) {
+void move_update(GameWorld &world, float timedelta) {
     for (unsigned int entity = 0 ; entity < world.entities().size() ; ++entity) {
 
         auto &pc = world.pos_c(entity);
@@ -129,6 +129,7 @@ void move_update(GameWorld &world, float dt) {
             auto &mc = world.move_c(entity);
 
             auto old_accel = mc.accel;
+            auto dt = timedelta * mc.time_fac;
 
             mc.accel = WVec(0, c_gravity);
             mc.accel += mc.additional_force / mc.mass;
@@ -142,14 +143,20 @@ void move_update(GameWorld &world, float dt) {
                     break;
                 }
             }
-            get_accel_func(mc.movestate)(world, entity);
+            // if char is in special state, the correct func needs to be found 
+            if (mc.special != SpecialMoveState::None) {
+                get_special_func(mc.special)(world, entity);
+            } else {
+                get_accel_func(mc.movestate)(world, entity);
+            }
 
             mc.velocity += dt * (mc.accel - old_accel) / 2.0f;
             auto motion = dt * (mc.velocity + mc.accel * dt / 2.0f);
             pc.position += motion;
             mc.additional_force = {0, 0};
-
+            mc.time_fac = 1;
         }
+
         pc.global_transform =  world.pos_c(pc.parent).global_transform * glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation);
         pc.global_inverse_transform = glm::inverse(pc.global_transform);
     }
@@ -169,9 +176,6 @@ void fly_update(GameWorld &world, float dt, const std::vector<unsigned int> &ent
 
         auto &fc = world.fly_c(entity);
         fc.timer += dt;
-        if (fc.timer > fc.c_accel_time) {
-            fc.timer = fc.c_accel_time;
-        }
     }
 }
 

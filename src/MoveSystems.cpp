@@ -6,6 +6,7 @@
 #include "Protagonist.h"
 #include <unordered_map>
 #include "TestEnemy.h"
+#include "Melee.h"
 
 using namespace std;
 using accel_func = std::function<void(GameWorld &world, unsigned int entity)>;
@@ -35,6 +36,17 @@ const trans_func transition_test_funcs[static_cast<size_t>(MoveState::state_coun
     TestEnemy::transition_simple_flying
 };
 
+void still_func(GameWorld &, unsigned int) {
+
+}
+
+const accel_func special_funcs[static_cast<size_t>(SpecialMoveState::state_count)] = {
+    still_func,
+    still_func,
+    melee_skill::move_buildup,
+    melee_skill::move_channel
+};
+
 std::unordered_map<MoveState, std::vector<MoveState>> protagonist_trans = {
     {MoveState::OnGround, {MoveState::Falling, MoveState::Flying}},
     {MoveState::Falling, {MoveState::OnGround, MoveState::Flying}},
@@ -61,10 +73,15 @@ accel_func get_to_func(const MoveState &state) {
     return to_funcs[static_cast<size_t>(state)];
 }
 
+accel_func get_special_func(const SpecialMoveState &state) {
+    return special_funcs[static_cast<size_t>(state)];
+}
+
 const std::vector<MoveState> & get_trans_funcs (const MoveSet &set, const MoveState &state) {
     switch (set) {
         case MoveSet::Protagonist : return protagonist_trans[state]; break;
         case MoveSet::TestEnemy : return testenemy_trans[state]; break;
         case MoveSet::Special : return special_trans[state];
+        default : return special_trans[state];
     }
 }

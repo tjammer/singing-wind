@@ -61,3 +61,15 @@ StatusEffect statuseffects::knockback() {
     out.id = StatusEffects::Knockback;
     return out;
 }
+
+void hitstun_tick(GameWorld &world, unsigned int entity) {
+    world.move_c(entity).time_fac *= 0.1f;
+}
+
+StatusEffect statuseffects::hitstun() {
+    StatusEffect out;
+    out.on_start = hitstun_tick;
+    out.on_tick = hitstun_tick;
+    out.id = StatusEffects::HitStun;
+    return out;
+}

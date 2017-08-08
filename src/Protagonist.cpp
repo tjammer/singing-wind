@@ -192,8 +192,18 @@ void ::protagonist::to_flying_accel(GameWorld &world, unsigned int entity) {
     }
     auto &mc = world.move_c(entity);
     auto &fc = world.fly_c(entity);
+    auto &pc = world.pos_c(entity);
+    auto &ic = world.input_c(entity);
 
     mc.movestate = MoveState::FlyingAccel;
+    if (fc.timer < 0) {
+        auto mouse = WVec(glm::inverse(pc.global_transform) * WVec3(ic.mouse[0], 1));
+        float mouse_angle = angle_up_from_local_mouse_deg(mouse);
+        pc.rotation += copysignf(fmin(fc.c_max_change_angle, abs(mouse_angle)), mouse_angle);
+        pc.rotation = std::remainder(pc.rotation, (float)M_PI * 2.f);
+        mc.velocity = world.fly_c(entity).c_push_vel * 1.0f * w_rotated_deg(WVec(0, -1), pc.rotation);
+        pc.rotation = w_angle_to_vec(WVec(0, -1), mc.velocity);
+    }
     fc.timer = 0;
 }
 
