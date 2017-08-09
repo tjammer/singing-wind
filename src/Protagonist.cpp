@@ -195,6 +195,7 @@ void ::protagonist::to_flying_accel(GameWorld &world, unsigned int entity) {
     auto &pc = world.pos_c(entity);
     auto &ic = world.input_c(entity);
 
+    clear_arr(ic.wings, true);
     mc.movestate = MoveState::FlyingAccel;
     if (fc.timer < 0) {
         auto mouse = WVec(glm::inverse(pc.global_transform) * WVec3(ic.mouse[0], 1));

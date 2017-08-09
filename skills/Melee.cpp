@@ -47,8 +47,11 @@ void melee_skill::move_buildup(GameWorld &, unsigned int ) {
 
 }
 
-void melee_skill::move_channel(GameWorld &, unsigned int ) {
+void melee_skill::move_channel(GameWorld &world, unsigned int entity) {
+    const auto &pc = world.pos_c(entity);
+    auto &mc = world.move_c(entity);
 
+    mc.accel = 2500.f * w_rotated_deg(WVec(0, -1), pc.rotation);
 }
 
 void melee_skill::on_channel(GameWorld &world, unsigned int entity) {
@@ -58,6 +61,11 @@ void melee_skill::on_channel(GameWorld &world, unsigned int entity) {
     if (skill.timer != skill.c_time_channel) {
         return;
     }
+    
+    // set movestate for caster
+    auto &mc = world.move_c(entity);
+    mc.special = SpecialMoveState::MeleeChannel;
+
     // create hurtbox
     auto hurtbox = world.create_entity();
     bset comps;
@@ -95,4 +103,8 @@ void melee_skill::on_channel(GameWorld &world, unsigned int entity) {
     hb.owner = entity;
     hb.hurt_function = melee_skill_hurtfunc;
     hb.on_hit = melee_skill_on_hit;
+}
+
+void melee_skill::on_recover(GameWorld &world, unsigned int entity) {
+    reset_special(world, entity);
 }

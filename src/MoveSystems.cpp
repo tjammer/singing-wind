@@ -88,3 +88,7 @@ const std::vector<MoveState> & get_trans_funcs (const MoveSet &set, const MoveSt
         default : return empty_trans[state];
     }
 }
+
+void reset_special(GameWorld &world, unsigned int entity) {
+    world.move_c(entity).special = SpecialMoveState::None;
+}

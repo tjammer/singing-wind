@@ -6,6 +6,7 @@
 
 namespace melee_skill {
     void on_channel(GameWorld &, unsigned int);
+    void on_recover(GameWorld &, unsigned int);
     
     void move_buildup(GameWorld&, unsigned int);
     void move_channel(GameWorld &, unsigned int);
@@ -19,7 +20,7 @@ namespace melee_skill {
         nullptr, // Cooldown
         nullptr, // BuildUp
         melee_skill::on_channel, // Channel
-        nullptr // Recover
+        melee_skill::on_recover // Recover
     }};
 };
 
