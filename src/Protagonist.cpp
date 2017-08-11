@@ -197,6 +197,7 @@ void ::protagonist::to_flying_accel(GameWorld &world, unsigned int entity) {
 
     clear_arr(ic.wings, true);
     mc.movestate = MoveState::FlyingAccel;
+    // can get set after skill hit or so
     if (fc.timer < 0) {
         auto mouse = WVec(glm::inverse(pc.global_transform) * WVec3(ic.mouse[0], 1));
         float mouse_angle = angle_up_from_local_mouse_deg(mouse);
