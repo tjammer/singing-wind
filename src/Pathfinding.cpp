@@ -2,10 +2,12 @@
 #include "NavMesh.h"
 #include "Collision.h"
 #include "GameWorld.h"
+#include "PosComponent.h"
 #include "WVecMath.h"
-
 #include "WRenderer.h"
+#include "Components.h"
 #include <iostream>
+#include <imgui.h>
 
 template <class pair>
 struct PQCompare {
@@ -130,5 +132,41 @@ void get_path_fly(const WVec &from, const WVec &to, GameWorld &world, PathingCom
     for (size_t i = 0 ; i < pc.path.size() - 1 ; ++i) {
         WRenderer::add_primitive_vertex({{pc.path[i].x, pc.path[i].y}, {1, 0, 0}});
         WRenderer::add_primitive_vertex({{pc.path[i+1].x, pc.path[i+1].y}, {1, 0, 0}});
+    }
+}
+
+void get_path_platform(const WVec &, const WVec &, NavMesh &, PathingComponent &) {}
+void get_path_jump(const WVec &, const WVec &, NavMesh &, PathingComponent &) {}
+
+void get_path(GameWorld &world, unsigned int entity) {
+    auto &pc = world.path_c(entity);
+    switch (pc.p_type) {
+        case PathingType::Platform : {
+            assert(false); break;
+        }
+        case PathingType::Jump : {
+            assert(false); break;
+        }
+        case PathingType::Fly : {
+            if (pc.following != 0) {
+                auto &pos = world.pos_c(entity).position;
+                auto &follow = world.pos_c(pc.following).position;
+                get_path_fly(pos, follow, world, pc);
+                pc.index = pc.path.size() - 1;
+            } else {
+                assert(false); // patrol not implemented
+            }
+            break;
+        }
+    }
+}
+
+void entity_edit_pathfind(GameWorld &world, unsigned int entity) {
+    using namespace ImGui;
+    if (world.entities()[entity].test(CPathing) and CollapsingHeader("pathing")) {
+        auto &pc = world.path_c(entity);
+
+        if (DragFloat("max mh dist", &pc.c_max_mh_dist)) {}
+        if (DragFloat("padding", &pc.c_padding)) {}
     }
 }

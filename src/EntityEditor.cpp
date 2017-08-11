@@ -164,17 +164,7 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
         }
     }
     // pathing
-    if (m_world.entities()[m_entity].test(CPathing) and CollapsingHeader("pathing")) {
-        auto &pc = m_world.path_c(m_entity);
-        auto flags = pc.p_type.to_ulong();
-        for (auto &pair : pathingtype_string) {
-            CheckboxFlags(pair.second, &flags, 1 << static_cast<int>(pair.first));
-        }
-        pc.p_type = PathingType(flags);
-        if (DragFloat("max mh dist", &pc.c_max_mh_dist)) {}
-        if (DragFloat("padding", &pc.c_padding)) {}
-        Text(std::to_string(pc.index).c_str());
-    }
+    entity_edit_pathfind(m_world, m_entity);
     // simplefly
     if (m_world.entities()[m_entity].test(CSimpleFly) and CollapsingHeader("simple fly")) {
         auto &fc = m_world.simple_fly_c(m_entity);

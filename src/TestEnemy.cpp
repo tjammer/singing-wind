@@ -23,7 +23,7 @@ void TestEnemy::handle_inputs(GameWorld &world, unsigned int entity) {
     unsigned int following = 1; //should be player
     auto &ent_pos = world.pos_c(entity).position;
     auto &follow_pos = world.pos_c(following).position;
-    get_path_fly(ent_pos, world.pos_c(following).position, world, pc);     
+    get_path(world, entity);
     pc.index = pc.path.size() -1;
     while (pc.index > 0) {
         auto result = cast_ray_vs_static_grid(world.grid(), ent_pos, pc.path[pc.index - 1]);

@@ -15,6 +15,7 @@
 #include "CPruneSweep.h"
 #include "LifeTimeComponent.h"
 #include "StatusEffectComponent.h"
+#include "AIComponent.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
@@ -354,6 +355,26 @@ void statuseffect_update(GameWorld &world, float dt, const std::vector<unsigned 
                     fn(world, entity);
                 }
             }
+        }
+    }
+}
+
+
+void ai_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities) {
+    for (const auto &entity : entities) {
+        auto &ac = world.ai_c(entity);
+        ac.timer += dt;
+
+        // TODO: state change logic for ai states
+        for (AIState aistate : ai::get_trans_states(ac.type, ac.state)) {
+            if (ai::get_trans_func(aistate)(world, entity)) {
+                ai::get_to_func(aistate)(world, entity);
+            }
+        } 
+        // only pathing states have funcs, allow nullptr here
+        auto fn = ai::get_func(ac.state);
+        if (fn) {
+            fn(world, entity);
         }
     }
 }

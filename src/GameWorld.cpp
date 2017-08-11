@@ -22,6 +22,7 @@
 #include "HurtBoxComponent.h"
 #include "LifeTimeComponent.h"
 #include "StatusEffectComponent.h"
+#include "AIComponent.h"
 
 GameWorld::~GameWorld() = default;
 
@@ -48,6 +49,7 @@ class GameWorld::impl {
         std::unordered_map<unsigned int, LifeTimeComponent> m_lifetime_c;
         std::unordered_map<unsigned int, HurtBoxComponent> m_hurtbox_c;
         std::unordered_map<unsigned int, StatusEffectComponent> m_statuseffect_c;
+        std::unordered_map<unsigned int, AIComponent> m_ai_c;
         std::vector<NameComponent> m_name_c;
 
 
@@ -67,6 +69,7 @@ class GameWorld::impl {
     std::unordered_map<unsigned int, bool> m_dyn_col_ents;
     std::vector<unsigned int> m_lifetime_ents;
     std::vector<unsigned int> m_statuseffect_ents;
+    std::vector<unsigned int> m_ai_ents;
 
     std::vector<unsigned int> m_to_delete;
     void delete_entitites(GameWorld &);
@@ -113,6 +116,7 @@ void GameWorld::step_fixed(float dt) {
     skill_update(*this, dt, pimpl->m_skill_ents);
     lifetime_update(*this, dt, pimpl->m_lifetime_ents);
     statuseffect_update(*this, dt, pimpl->m_statuseffect_ents);
+    ai_update(*this, dt, pimpl->m_ai_ents);
 
     // delete entities
     pimpl->delete_entitites(*this);
@@ -147,6 +151,7 @@ void GameWorld::find_entities_fixed() {
     pimpl->m_dyn_col_ents.clear();
     pimpl->m_lifetime_ents.clear();
     pimpl->m_statuseffect_ents.clear();
+    pimpl->m_ai_ents.clear();
 
     for (unsigned int i = 0 ; i < pimpl->m_entities.size() ; ++i) {
         auto ent = pimpl->m_entities[i];
@@ -190,6 +195,10 @@ void GameWorld::find_entities_fixed() {
 
         if (has_component(ent, c_statuseffect_components)) {
             pimpl->m_statuseffect_ents.push_back(i);
+        }
+
+        if (has_component(ent, c_ai_components)) {
+            pimpl->m_ai_ents.push_back(i);
         }
     }
 }
@@ -235,6 +244,7 @@ void GameWorld::reset_entities() {
     pimpl->m_lifetime_c.clear();
     pimpl->m_hurtbox_c.clear();
     pimpl->m_statuseffect_c.clear();
+    pimpl->m_ai_c.clear();
 }
 
 void GameWorld::reset_islands() {
@@ -265,6 +275,7 @@ void GameWorld::delete_entity_raw(unsigned int entity) {
     pimpl->m_lifetime_c.erase(entity);
     pimpl->m_hurtbox_c.erase(entity);
     pimpl->m_statuseffect_c.erase(entity);
+    pimpl->m_ai_c.erase(entity);
 }
 
 void GameWorld::impl::delete_entitites(GameWorld &world) {
@@ -368,4 +379,8 @@ HurtBoxComponent & GameWorld::hurtbox_c(unsigned int entity) {
 
 StatusEffectComponent & GameWorld::statuseffect_c(unsigned int entity) {
     return pimpl->m_statuseffect_c[entity];
+}
+
+AIComponent & GameWorld::ai_c(unsigned int entity) {
+    return pimpl->m_ai_c[entity];
 }

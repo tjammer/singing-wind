@@ -27,6 +27,7 @@ struct ColShapeComponent;
 struct LifeTimeComponent;
 struct HurtBoxComponent;
 struct StatusEffectComponent;
+struct AIComponent;
 class StaticGrid;
 class PruneSweeper;
 struct NavMesh;
@@ -72,6 +73,7 @@ public:
         LifeTimeComponent &lifetime_c(unsigned int entity);
         HurtBoxComponent &hurtbox_c(unsigned int entity);
         StatusEffectComponent &statuseffect_c(unsigned int entity);
+        AIComponent &ai_c(unsigned int entity);
 
     void reset_entities();
     void reset_islands();

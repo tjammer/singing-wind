@@ -44,4 +44,7 @@ void lifetime_update(GameWorld &world, float dt, const std::vector<unsigned int>
 const bset c_statuseffect_components{(1 << CStatusEffect)};
 void statuseffect_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities);
 
+const bset c_ai_components{(1 << CAI)};
+void ai_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities);
+
 #endif //SINGING_WIND_SYSTEMS_H

@@ -32,7 +32,8 @@ enum Components : int {
     CTag,
     CColShape,
     CLifeTime,
-    CStatusEffect
+    CStatusEffect,
+    CAI
 };
 const std::map<Components, const char*> components_string = {
     {CPosition, "CPosition"},
@@ -50,7 +51,8 @@ const std::map<Components, const char*> components_string = {
     {CDynCol, "CDynCol"},
     {CTag, "CTag"},
     {CColShape, "ColShape"},
-    {CStatusEffect, "StatusEffect"}
+    {CStatusEffect, "StatusEffect"},
+    {CAI, "AI"}
 };
 
 struct DebugComponent {

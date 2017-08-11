@@ -12,7 +12,7 @@ namespace melee_skill {
     void move_channel(GameWorld &, unsigned int);
 
     const Skill skill = {
-        .1, .1, 1, 2, SkillState::Ready, SkillID::Melee, 0, 0
+        .1, .2, 1, 2, SkillState::Ready, SkillID::Melee, 0, 0
     };
 
     const std::array<std::function<void(GameWorld&, unsigned int)>, static_cast<size_t>(SkillState::state_count)> funcs = {{

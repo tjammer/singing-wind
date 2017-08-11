@@ -60,7 +60,11 @@ set(INCLUDE_FILES include/Engine.h
     skills/Melee.h
     include/HurtBoxComponent.h
     include/LifeTimeComponent.h
-    include/StatusEffectComponent.h)
+    include/StatusEffectComponent.h
+    include/AIComponent.h
+    include/ai_state_transitions.h
+    include/ai_state_funcs.h
+    include/ai_input_funcs.h)
 
 set(SOURCE_FILES src/main.cpp
     src/Engine.cpp 
@@ -99,7 +103,11 @@ set(SOURCE_FILES src/main.cpp
     src/Actor.cpp
     skills/Melee.cpp
     src/HurtBoxComponent.cpp
-    src/StatusEffectComponent.cpp)
+    src/StatusEffectComponent.cpp
+    src/AIComponent.cpp
+    src/ai_state_transitions.cpp
+    src/ai_state_funcs.cpp
+    src/ai_input_funcs.cpp)
 
 option(enable_unity_build "enable unity build for executable" OFF)
 if (enable_unity_build)
