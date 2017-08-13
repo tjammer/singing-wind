@@ -24,12 +24,12 @@ struct StatusEffectComponent {
     std::vector<StatusEffect> effects;
 };
 
-void add_effect(GameWorld &, unsigned int entity, StatusEffect& effect);
-void delete_effect(GameWorld &, unsigned int entity, StatusEffect & effect);
-
 namespace statuseffects {
     StatusEffect knockback();
     StatusEffect hitstun();
+
+    void add_effect(GameWorld &, unsigned int entity, StatusEffect& effect);
+    void delete_effect(GameWorld &, unsigned int entity, StatusEffect & effect);
 };
 
 #endif /* STATUSEFFECTCOMPONENT_H */

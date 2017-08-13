@@ -23,10 +23,10 @@ void melee_skill_hurtfunc(GameWorld &world, unsigned int victim, unsigned int at
     world.move_c(victim).velocity = dir * 200.f;
     auto kb = statuseffects::knockback();
     kb.timer = .4f;
-    add_effect(world, victim, kb);
+    statuseffects::add_effect(world, victim, kb);
     auto hs = statuseffects::hitstun();
     hs.timer = .1f;
-    add_effect(world, victim, hs);
+    statuseffects::add_effect(world, victim, hs);
     // TODO: damage
 }
 
@@ -35,10 +35,10 @@ void melee_skill_on_hit(GameWorld &world, unsigned int attacker, unsigned int vi
     world.move_c(attacker).velocity = dir * 200.f;
     auto kb = statuseffects::knockback();
     kb.timer = .1f;
-    add_effect(world, attacker, kb);
+    statuseffects::add_effect(world, attacker, kb);
     auto hs = statuseffects::hitstun();
     hs.timer = .1f;
-    add_effect(world, attacker, hs);
+    statuseffects::add_effect(world, attacker, hs);
 
     world.fly_c(attacker).timer = -0.5f;
 }

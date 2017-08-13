@@ -8,7 +8,7 @@ struct cmp_func {
     }
 };
 
-bool overlap(const PSBox &a, const PSBox &b) {
+inline bool overlap(const PSBox &a, const PSBox &b) {
     for (size_t i = 0 ; i < 2 ; ++i) {
         if (a.maxs[i] < b.mins[i]) return false;
         if (a.mins[i] > b.maxs[i]) return false;

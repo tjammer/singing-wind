@@ -295,6 +295,14 @@ void dyn_col_update(GameWorld &world, std::unordered_map<unsigned int, bool> &en
         unsigned int a = pair.first;
         unsigned int b = pair.second;
 
+        auto &pos_a = world.pos_c(a);
+        auto &pos_b = world.pos_c(b);
+
+        // for hurtboxes or alert circles
+        if((pos_a.parent == b || pos_b.parent == a)) {
+            continue;
+        }
+
         auto &shape_a = world.cshape_c(a).shape;
         auto &shape_b = world.cshape_c(b).shape;
         
@@ -348,7 +356,7 @@ void statuseffect_update(GameWorld &world, float dt, const std::vector<unsigned 
                 if (fn) {
                     fn(world, entity);
                 }
-                delete_effect(world, entity, effect);
+                statuseffects::delete_effect(world, entity, effect);
             } else {
                 auto fn = effect.on_tick;
                 if (fn) {

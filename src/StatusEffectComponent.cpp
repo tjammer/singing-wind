@@ -8,27 +8,29 @@
 
 #include <iostream>
 
-void add_effect(GameWorld &world, unsigned int entity, StatusEffect& effect) {
-    if (!world.entities()[entity].test(CStatusEffect)) {
-        return;
+namespace statuseffects {
+    void add_effect(GameWorld &world, unsigned int entity, StatusEffect& effect) {
+        if (!world.entities()[entity].test(CStatusEffect)) {
+            return;
+        }
+        auto &effects = world.statuseffect_c(entity).effects;
+        auto it = std::find_if(effects.begin(), effects.end(), [effect](const StatusEffect& e) {return e.id == effect.id;});
+        if (it == effects.end()) {
+            effects.push_back(effect);
+        } else {
+            // TODO: check for timing collisions
+            *it = effect;
+        }
+        auto fn = effect.on_start;
+        if (fn) {
+            fn(world, entity);
+        }
     }
-    auto &effects = world.statuseffect_c(entity).effects;
-    auto it = std::find_if(effects.begin(), effects.end(), [effect](const StatusEffect& e) {return e.id == effect.id;});
-    if (it == effects.end()) {
-        effects.push_back(effect);
-    } else {
-        // TODO: check for timing collisions
-        *it = effect;
-    }
-    auto fn = effect.on_start;
-    if (fn) {
-        fn(world, entity);
-    }
-}
 
-void delete_effect(GameWorld &world, unsigned int entity, StatusEffect &effect) {
-    auto &effects = world.statuseffect_c(entity).effects;
-    effects.erase(std::remove_if(effects.begin(), effects.end(), [effect](const StatusEffect& e) {return e.id == effect.id;}));
+    void delete_effect(GameWorld &world, unsigned int entity, StatusEffect &effect) {
+        auto &effects = world.statuseffect_c(entity).effects;
+        effects.erase(std::remove_if(effects.begin(), effects.end(), [effect](const StatusEffect& e) {return e.id == effect.id;}));
+    }
 }
 
 void knockback_start(GameWorld &world, unsigned int entity) {
