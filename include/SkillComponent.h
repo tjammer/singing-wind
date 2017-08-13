@@ -17,9 +17,10 @@ enum class SkillState : int {
     state_count
 };
 
-enum class SkillID {
+enum class SkillID : int {
     None,
     Melee,
+    Lounge,
     state_count
 };
 
@@ -39,17 +40,16 @@ struct SkillComponent {
     SkillID active = SkillID::None;
 };
 
-std::function<void(GameWorld &world, unsigned int entity)> get_skill_func(const SkillState &state, const SkillID &id);
+namespace skill {
+    std::function<void(GameWorld &world, unsigned int entity)> get_func(const SkillState &state, const SkillID &id);
 
-void cast_skill(GameWorld &world, unsigned int entity, SkillID id);
+    void cast(GameWorld &world, unsigned int entity, SkillID id);
 
-const std::map<SkillState, const char*> skillstate_string = {
-    {SkillState::Ready, "Ready"},
-    {SkillState::Cooldown, "Cooldown"},
-    {SkillState::BuildUp, "Buildup"},
-    {SkillState::Channel, "Channel"},
-    {SkillState::Recover, "Recover"}
-};
+    void entity_edit(GameWorld &, unsigned int);
 
+    void add(GameWorld &, unsigned int);
+
+    Skill from_id(const SkillID &);
+}
 
 #endif /* SKILLCOMPONENT_H */

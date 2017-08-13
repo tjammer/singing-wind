@@ -33,7 +33,7 @@ void ai_to_funcs::to_attack(GameWorld &world, unsigned int entity) {
 
     // transition has already set skillid in data vec
     SkillID sid = static_cast<SkillID>(ac.msg_data[0]);
-    cast_skill(world, entity, sid);
+    skill::cast(world, entity, sid);
     if (sc.active == sid) {
         ac.timer = 0;
         ac.state = AIState::Attack;

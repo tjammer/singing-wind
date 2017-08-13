@@ -16,6 +16,7 @@
 #include "CollisionComponent.h"
 #include "MoveSystems.h"
 #include "PosComponent.h"
+#include "SkillComponent.h"
 
 scene::Entity * get_pb_entity(GameWorld &game_world, unsigned int entity) {
     using namespace std;
@@ -127,7 +128,6 @@ scene::Entity * get_pb_entity(GameWorld &game_world, unsigned int entity) {
         pb_entity->set_allocated_simple_fly_c(fly_c);
     }
 
-    // skill
     // dyn col
     if (game_world.entities().at(entity).test(CDynCol)) {
         auto dc = new scene::DynColComponent;
@@ -142,6 +142,16 @@ scene::Entity * get_pb_entity(GameWorld &game_world, unsigned int entity) {
         pb_entity->set_allocated_tag_c(tc);
     }
     // col shape?
+    // skill
+    if (game_world.entities().at(entity).test(CSkill)) {
+        auto sc = new scene::SkillComponent;
+        for (auto &pair : game_world.skill_c(entity).skills) {
+            sc->add_skill_array(static_cast<int>(pair.first));
+        }
+        pb_entity->set_allocated_skill_c(sc);
+    }
+    // statuseffect
+    // ai
 
     return move(pb_entity);
 }
@@ -254,7 +264,6 @@ void entity_to_world(const scene::Entity &pb_entity, GameWorld &game_world, unsi
         game_world.simple_fly_c(entity).c_stop_coef = fly_c.stop_coef();
     }
 
-    // skill
     // dyn col
     if (pb_entity.has_dyn_col_c()) {
         auto dc = pb_entity.dyn_col_c();
@@ -267,6 +276,19 @@ void entity_to_world(const scene::Entity &pb_entity, GameWorld &game_world, unsi
         game_world.tag_c(entity) = bset(tc.tags());
     }
     // col shape?
+    // skill
+    if (pb_entity.has_skill_c()) {
+        auto skill_c = pb_entity.skill_c();
+        auto &sc = game_world.skill_c(entity);
+        sc.skills.clear();
+        for (auto i = 0 ; i < skill_c.skill_array_size() ; ++i) {
+            auto id_int = skill_c.skill_array(i);
+            SkillID id = static_cast<SkillID>(id_int);
+            sc.skills[id] = skill::from_id(id);
+        }
+    }
+    // statuseffect
+    // ai
 }
 
 bool load_entity_from_filename(const std::__cxx11::string &name, GameWorld &game_world, unsigned int entity) {

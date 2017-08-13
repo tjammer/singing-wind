@@ -32,6 +32,7 @@ message Entity {
     SimplyFlyComponent simple_fly_c = 12;
     DynColComponent dyn_col_c = 13;
     TagComponent tag_c = 14;
+    SkillComponent skill_c = 15;
 }
 
 message Bitset {
@@ -104,4 +105,8 @@ message DynColComponent {
 
 message TagComponent {
     int64 tags = 1;
+}
+
+message SkillComponent {
+    repeated int32 skill_array = 1;
 }

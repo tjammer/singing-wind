@@ -189,7 +189,7 @@ void skill_update(GameWorld &world, float dt, const std::vector<unsigned int> &e
         auto begin = ic.att_melee.begin();
         auto end = ic.att_melee.end();
         if (ic.att_melee[0] and std::find(begin, end, false) != end) {
-            cast_skill(world, entity, SkillID::Melee);
+            skill::cast(world, entity, SkillID::Melee);
         }
 
         for (auto &pair : sc.skills) {
@@ -198,7 +198,7 @@ void skill_update(GameWorld &world, float dt, const std::vector<unsigned int> &e
 
             // either buildup, channel or recover
             if (s.id == sc.active and static_cast<int>(s.skillstate) > 1) {
-                auto fn = get_skill_func(s.skillstate, s.id);
+                auto fn = skill::get_func(s.skillstate, s.id);
                 if (fn) {
                     fn(world, entity);
                 }
@@ -365,7 +365,6 @@ void ai_update(GameWorld &world, float dt, const std::vector<unsigned int> &enti
         auto &ac = world.ai_c(entity);
         ac.timer += dt;
 
-        // TODO: state change logic for ai states
         for (AIState aistate : ai::get_trans_states(ac.type, ac.state)) {
             if (ai::get_trans_func(aistate)(world, entity)) {
                 ai::get_to_func(aistate)(world, entity);

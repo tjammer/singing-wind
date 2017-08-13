@@ -1,8 +1,11 @@
 #include "AIComponent.h"
 #include "GameWorld.h"
+#include "Components.h"
 #include "ai_state_transitions.h"
 #include "ai_state_funcs.h"
 #include "ai_input_funcs.h"
+#include "EntityEditor.h"
+#include <imgui.h>
 #include <unordered_map>
 
 namespace ai {
@@ -63,5 +66,22 @@ namespace ai {
         assert(world.ai_c(entity).state == AIState::Pursuit);
         ai_input::simple_flying(world, entity);
     } 
+
+    const std::map<AIType, const char*> c_ai_types = {
+        {AIType::TestEnemy, "TestEnemy"}
+    };
+
+    auto ai_types = get_enum_string_array(c_ai_types);
+
+    void entity_edit(GameWorld &world, unsigned int entity) {
+        using namespace ImGui;
+        if (world.entities()[entity].test(CAI) and CollapsingHeader("ai")) {
+            auto &ac = world.ai_c(entity);
+            int type = static_cast<int>(ac.type);
+            if (Combo("type", &type, ai_types.data(), ai_types.size())) {
+                ac.type = static_cast<AIType>(type);
+            }
+        }
+    }
 }
 

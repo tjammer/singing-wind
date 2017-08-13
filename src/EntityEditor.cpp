@@ -17,6 +17,8 @@
 #include "MoveSystems.h"
 #include "Pathfinding.h"
 #include "TagComponent.h"
+#include "AIComponent.h"
+#include "SkillComponent.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
@@ -174,6 +176,7 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
         if (DragFloat("stop coeff", &fc.c_stop_coef)) {}
     }
     // skill
+    skill::entity_edit(m_world, m_entity);
     // shape
     if (m_world.entities()[m_entity].test(CColShape) and CollapsingHeader("col shape")) {
         auto &shape = m_world.cshape_c(m_entity).shape;
@@ -216,6 +219,8 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
     entity_edit_dyn_cols(m_world, m_entity);
     // tag
     entity_edit_tags(m_world, m_entity);
+    // ai
+    ai::entity_edit(m_world, m_entity);
 
     if (Button("save entity")) {
         save_entity_standalone(m_world, m_entity);

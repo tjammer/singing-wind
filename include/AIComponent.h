@@ -40,6 +40,8 @@ namespace ai {
 
     const float c_pathfinding_time = 1.f;
     const float c_flee_time = 10.f;
+
+    void entity_edit(GameWorld &, unsigned int);
 }
 
 #endif /* AICOMPONENT_H */
