@@ -65,7 +65,7 @@ void simpleflyer::hover(GameWorld &world, unsigned int entity) {
 
     // rotate
     pc.rotation += copysignf(fmin(fc.c_max_change_angle, abs(pc.rotation)), pc.rotation - (float)M_PI);
-    //pc.rotation = std::remainder(pc.rotation, (float)M_PI * 2.f);
+    pc.rotation = std::remainder(pc.rotation, (float)M_PI * 2.f);
     
     // hover
     // mitigate gravity
