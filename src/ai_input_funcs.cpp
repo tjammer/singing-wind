@@ -3,6 +3,7 @@
 #include "MoveSystems.h"
 #include "InputComponent.h"
 #include "Pathfinding.h"
+#include "PatrolComponent.h"
 #include "WVecMath.h"
 
 namespace ai_input {
@@ -18,6 +19,7 @@ namespace ai_input {
 
     void hover(GameWorld &world, unsigned int entity) {
         auto &ic = world.input_c(entity);
-        push_value(ic.mouse, WVec(200, 200));
+        auto &pc = world.patrol_c(entity);
+        push_value(ic.mouse, pc.patrol_point);
     }
 }

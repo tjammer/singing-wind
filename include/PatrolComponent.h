@@ -14,5 +14,8 @@ namespace alert_bubble {
     void on_dynamic_collision(GameWorld &, unsigned int);
 }
 
+namespace patrol {
+    void entity_edit(GameWorld &, unsigned int);
+}
 
 #endif /* PATROLCOMPONENT_H */

@@ -5,15 +5,7 @@
 #ifndef SINGING_WIND_COMPONENTS_H
 #define SINGING_WIND_COMPONENTS_H
 
-#include "WindDefs.h"
-
-#include <memory>
-#include <deque>
 #include <map>
-
-class GameWorld;
-class ColShape;
-struct NavLink;
 
 enum Components : int {
     CPosition,
@@ -33,7 +25,8 @@ enum Components : int {
     CColShape,
     CLifeTime,
     CStatusEffect,
-    CAI
+    CAI,
+    CPatrol
 };
 const std::map<Components, const char*> components_string = {
     {CPosition, "CPosition"},
@@ -52,7 +45,8 @@ const std::map<Components, const char*> components_string = {
     {CTag, "CTag"},
     {CColShape, "ColShape"},
     {CStatusEffect, "StatusEffect"},
-    {CAI, "AI"}
+    {CAI, "AI"},
+    {CPatrol, "Patrol"}
 };
 
 struct DebugComponent {

@@ -33,6 +33,7 @@ message Entity {
     DynColComponent dyn_col_c = 13;
     TagComponent tag_c = 14;
     SkillComponent skill_c = 15;
+    PatrolComponent patrol_c = 16;
 }
 
 message Bitset {
@@ -109,4 +110,8 @@ message TagComponent {
 
 message SkillComponent {
     repeated int32 skill_array = 1;
+}
+
+message PatrolComponent {
+    Point pp = 1;
 }

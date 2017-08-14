@@ -23,6 +23,7 @@
 #include "LifeTimeComponent.h"
 #include "StatusEffectComponent.h"
 #include "AIComponent.h"
+#include "PatrolComponent.h"
 
 GameWorld::~GameWorld() = default;
 
@@ -50,6 +51,7 @@ class GameWorld::impl {
         std::unordered_map<unsigned int, HurtBoxComponent> m_hurtbox_c;
         std::unordered_map<unsigned int, StatusEffectComponent> m_statuseffect_c;
         std::unordered_map<unsigned int, AIComponent> m_ai_c;
+        std::unordered_map<unsigned int, PatrolComponent> m_patrol_c;
         std::vector<NameComponent> m_name_c;
 
 
@@ -245,6 +247,7 @@ void GameWorld::reset_entities() {
     pimpl->m_hurtbox_c.clear();
     pimpl->m_statuseffect_c.clear();
     pimpl->m_ai_c.clear();
+    pimpl->m_patrol_c.clear();
 }
 
 void GameWorld::reset_islands() {
@@ -276,6 +279,7 @@ void GameWorld::delete_entity_raw(unsigned int entity) {
     pimpl->m_hurtbox_c.erase(entity);
     pimpl->m_statuseffect_c.erase(entity);
     pimpl->m_ai_c.erase(entity);
+    pimpl->m_patrol_c.erase(entity);
 }
 
 void GameWorld::impl::delete_entitites(GameWorld &world) {
@@ -383,4 +387,8 @@ StatusEffectComponent & GameWorld::statuseffect_c(unsigned int entity) {
 
 AIComponent & GameWorld::ai_c(unsigned int entity) {
     return pimpl->m_ai_c[entity];
+}
+
+PatrolComponent & GameWorld::patrol_c(unsigned int entity) {
+    return pimpl->m_patrol_c[entity];
 }

@@ -6,6 +6,7 @@
 #include "Collision.h"
 #include "PosComponent.h"
 #include "AIComponent.h"
+#include "PatrolComponent.h"
 
 void ai_funcs::pursuit_func(GameWorld &world, unsigned int entity) {
     assert(world.entities()[entity].test(CPathing));
@@ -43,7 +44,7 @@ void ai_funcs::return_func(GameWorld &world, unsigned int entity) {
     auto &pc = world.path_c(entity);
     auto &pos = world.pos_c(entity).position;
     assert(pc.following == 0);
-    auto &follow = world.pos_c(pc.following).position;
+    const auto &follow = world.patrol_c(entity).patrol_point;
 
     while (pc.index > 0) {
         auto result = cast_ray_vs_static_grid(world.grid(), pos, pc.path[pc.index - 1]);
@@ -64,15 +65,6 @@ void ai_funcs::return_func(GameWorld &world, unsigned int entity) {
 
 void ai_funcs::idle_func(GameWorld &world, unsigned int entity) {
     auto &ac = world.ai_c(entity);
-    auto &path_c = world.path_c(entity);
-    auto &pc = world.pos_c(entity);
-
     // reset msg_data to prolong alert bubble
     ac.msg_data.clear();
-    if (path_c.path.size() == 0) {
-        path_c.path.push_back(pc.position + WVec(0, -10));
-    } else {
-        path_c.path[0] = pc.position + WVec(0, -10);
-    }
-    path_c.index = 0;
 }

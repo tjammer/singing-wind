@@ -17,6 +17,7 @@
 #include "MoveSystems.h"
 #include "PosComponent.h"
 #include "SkillComponent.h"
+#include "PatrolComponent.h"
 
 scene::Entity * get_pb_entity(GameWorld &game_world, unsigned int entity) {
     using namespace std;
@@ -152,6 +153,16 @@ scene::Entity * get_pb_entity(GameWorld &game_world, unsigned int entity) {
     }
     // statuseffect
     // ai
+    // patrol
+    if (game_world.entities().at(entity).test(CPatrol)) {
+        auto pc = new scene::PatrolComponent;
+        auto pp = new scene::Point;
+        pp->set_x(game_world.patrol_c(entity).patrol_point.x);
+        pp->set_y(game_world.patrol_c(entity).patrol_point.y);
+        pc->set_allocated_pp(pp);
+        pb_entity->set_allocated_patrol_c(pc);
+    }
+    
 
     return move(pb_entity);
 }
@@ -289,6 +300,11 @@ void entity_to_world(const scene::Entity &pb_entity, GameWorld &game_world, unsi
     }
     // statuseffect
     // ai
+    // patrol
+    if (pb_entity.has_patrol_c()) {
+        auto patrol_c = pb_entity.patrol_c();
+        game_world.patrol_c(entity).patrol_point = WVec(patrol_c.pp().x(), patrol_c.pp().y());
+    }
 }
 
 bool load_entity_from_filename(const std::__cxx11::string &name, GameWorld &game_world, unsigned int entity) {

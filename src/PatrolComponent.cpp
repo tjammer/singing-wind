@@ -8,6 +8,7 @@
 #include "LifeTimeComponent.h"
 #include "Components.h"
 #include "AIComponent.h"
+#include <imgui.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
@@ -60,5 +61,23 @@ pc.global_transform =  world.pos_c(pc.parent).global_transform * glm::rotate(glm
         }
         parent_ac.msg_data.push_back(static_cast<unsigned int>(dc.collided));
         parent_ac.msg_data.push_back(static_cast<unsigned int>(entity));
+    }
+}
+
+namespace patrol {
+    void entity_edit(GameWorld &world, unsigned int entity) {
+        using namespace ImGui;
+        if (world.entities()[entity].test(CPatrol) and CollapsingHeader("patrol")) {
+            auto &pc = world.pos_c(entity);
+            // TODO: draw line to point
+            auto &patrol_c = world.patrol_c(entity);
+            float pp[2] = {patrol_c.patrol_point.x, patrol_c.patrol_point.y};
+            if (DragFloat2("patrol point", pp)) {
+                patrol_c.patrol_point = {pp[0], pp[1]};
+            }
+            if (Button("set point here")) {
+                patrol_c.patrol_point = pc.position;
+            }
+        }
     }
 }

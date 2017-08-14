@@ -6,6 +6,7 @@
 #define SINGING_WIND_SYSTEMS_H
 
 #include "Components.h"
+#include "WindDefs.h"
 #include <vector>
 #include <unordered_map>
 

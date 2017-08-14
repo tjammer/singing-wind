@@ -19,6 +19,7 @@
 #include "TagComponent.h"
 #include "AIComponent.h"
 #include "SkillComponent.h"
+#include "PatrolComponent.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
@@ -221,6 +222,8 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
     entity_edit_tags(m_world, m_entity);
     // ai
     ai::entity_edit(m_world, m_entity);
+    // patrol
+    patrol::entity_edit(m_world, m_entity);
 
     if (Button("save entity")) {
         save_entity_standalone(m_world, m_entity);

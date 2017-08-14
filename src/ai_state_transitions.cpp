@@ -57,12 +57,13 @@ void ai_to_funcs::to_attack(GameWorld &world, unsigned int entity) {
 void ai_to_funcs::to_return(GameWorld &world, unsigned int entity) {
     auto &ic = world.input_c(entity);
     auto &ac = world.ai_c(entity);
+    auto &pc = world.patrol_c(entity);
     ac.timer = 0;
     ac.msg_data.clear();
     world.path_c(entity).following = 0;
 
     // set new path
-    push_value(ic.mouse, WVec(200, 200));
+    push_value(ic.mouse, pc.patrol_point);
     get_path(world, entity);
     ac.state = AIState::Return;
     std::cout << "to return" << std::endl;
