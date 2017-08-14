@@ -17,7 +17,7 @@ namespace ai {
         ai_funcs::pursuit_func,
         nullptr,
         nullptr,
-        nullptr,
+        ai_funcs::return_func,
         nullptr
     };
 

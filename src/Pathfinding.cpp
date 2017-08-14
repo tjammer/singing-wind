@@ -3,6 +3,7 @@
 #include "Collision.h"
 #include "GameWorld.h"
 #include "PosComponent.h"
+#include "InputComponent.h"
 #include "WVecMath.h"
 #include "WRenderer.h"
 #include "Components.h"
@@ -148,14 +149,15 @@ void get_path(GameWorld &world, unsigned int entity) {
             assert(false); break;
         }
         case PathingType::Fly : {
+            auto &pos = world.pos_c(entity).position;
+            WVec follow;
             if (pc.following != 0) {
-                auto &pos = world.pos_c(entity).position;
-                auto &follow = world.pos_c(pc.following).position;
-                get_path_fly(pos, follow, world, pc);
-                pc.index = pc.path.size() - 1;
+                follow = world.pos_c(pc.following).position;
             } else {
-                assert(false); // patrol not implemented
+                follow = world.input_c(entity).mouse[0];
             }
+            get_path_fly(pos, follow, world, pc);
+            pc.index = pc.path.size() - 1;
             break;
         }
     }

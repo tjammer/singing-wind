@@ -3,11 +3,12 @@
 #include "AIComponent.h"
 #include "Pathfinding.h"
 #include "SkillComponent.h"
+#include "InputComponent.h"
 #include "PosComponent.h"
 #include "Collision.h"
 #include "WVecMath.h"
 #include "Components.h"
-#include "AlertBubble.h"
+#include "PatrolComponent.h"
 #include <iostream>
 
 void ai_to_funcs::to_idle(GameWorld &world, unsigned int entity) {
@@ -24,6 +25,8 @@ void ai_to_funcs::to_idle(GameWorld &world, unsigned int entity) {
 void ai_to_funcs::to_pursuit(GameWorld &world, unsigned int entity) {
     auto &ac = world.ai_c(entity);
     ac.timer = 0;
+    ac.msg_data.clear();
+    ac.msg_data.push_back(0);
 
     // set new path
     // this needs to have the following field in pathfinding comp set
@@ -51,9 +54,18 @@ void ai_to_funcs::to_attack(GameWorld &world, unsigned int entity) {
     
 }
 
-void ai_to_funcs::to_return(GameWorld &, unsigned int ) {
-    assert(false);
-    // patrolling not implemented yet
+void ai_to_funcs::to_return(GameWorld &world, unsigned int entity) {
+    auto &ic = world.input_c(entity);
+    auto &ac = world.ai_c(entity);
+    ac.timer = 0;
+    ac.msg_data.clear();
+    world.path_c(entity).following = 0;
+
+    // set new path
+    push_value(ic.mouse, WVec(200, 200));
+    get_path(world, entity);
+    ac.state = AIState::Return;
+    std::cout << "to return" << std::endl;
 }
 
 void ai_to_funcs::to_flee(GameWorld &, unsigned int ) {
@@ -109,6 +121,10 @@ bool ai_transitions::trans_flee(GameWorld &, unsigned int ) {
     return false;
 }
 
-bool ai_transitions::trans_return(GameWorld &, unsigned int ) {
+bool ai_transitions::trans_return(GameWorld &world, unsigned int entity) {
+    auto &ac = world.ai_c(entity);
+    if (ac.msg_data[0] > 10) {
+        return true;
+    }
     return false;
 }

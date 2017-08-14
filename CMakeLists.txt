@@ -65,7 +65,7 @@ set(INCLUDE_FILES include/Engine.h
     include/ai_state_transitions.h
     include/ai_state_funcs.h
     include/ai_input_funcs.h
-    include/AlertBubble.h)
+    include/PatrolComponent.h)
 
 set(SOURCE_FILES src/main.cpp
     src/Engine.cpp 
@@ -109,7 +109,7 @@ set(SOURCE_FILES src/main.cpp
     src/ai_state_transitions.cpp
     src/ai_state_funcs.cpp
     src/ai_input_funcs.cpp
-    src/AlertBubble.cpp)
+    src/PatrolComponent.cpp)
 
 option(enable_unity_build "enable unity build for executable" OFF)
 if (enable_unity_build)

@@ -6,7 +6,7 @@
 #include "GameWorld.h"
 #include "EntityEditor.h"
 #include "HurtBoxComponent.h"
-#include "AlertBubble.h"
+#include "PatrolComponent.h"
 #include <unordered_map>
 
 using response_func = std::function<void(GameWorld &, const unsigned int)>;
