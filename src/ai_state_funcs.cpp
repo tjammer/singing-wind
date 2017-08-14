@@ -35,3 +35,18 @@ void ai_funcs::pursuit_func(GameWorld &world, unsigned int entity) {
     }
 
 }
+
+void ai_funcs::idle_func(GameWorld &world, unsigned int entity) {
+    auto &ac = world.ai_c(entity);
+    auto &path_c = world.path_c(entity);
+    auto &pc = world.pos_c(entity);
+
+    // reset msg_data to prolong alert bubble
+    ac.msg_data.clear();
+    if (path_c.path.size() == 0) {
+        path_c.path.push_back(pc.position + WVec(0, -10));
+    } else {
+        path_c.path[0] = pc.position + WVec(0, -10);
+    }
+    path_c.index = 0;
+}

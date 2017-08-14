@@ -12,7 +12,8 @@ enum class Tags : int {
     Protagonist,
     Enemy,
     Projectile,
-    Hurtbox
+    Hurtbox,
+    AlertBubble
 };
 
 // for editor

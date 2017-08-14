@@ -5,11 +5,10 @@
 #include "MoveSystems.h"
 #include "Protagonist.h"
 #include <unordered_map>
-#include "TestEnemy.h"
+#include "SimpleFlyer.h"
 #include "Melee.h"
 #include "GameWorld.h"
 
-using namespace std;
 using accel_func = std::function<void(GameWorld &world, unsigned int entity)>;
 using trans_func = std::function<bool(GameWorld &world, unsigned int entity)>;
 
@@ -18,7 +17,8 @@ const accel_func accel_funcs[static_cast<size_t>(MoveState::state_count)] = {
     protagonist::falling,
     protagonist::flying,
     protagonist::flying_accel,
-    TestEnemy::simple_flying
+    simpleflyer::simple_flying,
+    simpleflyer::hover
 };
 
 const accel_func to_funcs[static_cast<size_t>(MoveState::state_count)] = {
@@ -26,7 +26,8 @@ const accel_func to_funcs[static_cast<size_t>(MoveState::state_count)] = {
     protagonist::to_falling,
     protagonist::to_flying,
     protagonist::to_flying_accel,
-    TestEnemy::to_simple_flying
+    simpleflyer::to_simple_flying,
+    simpleflyer::to_hover
 };
 
 const trans_func transition_test_funcs[static_cast<size_t>(MoveState::state_count)] = {
@@ -34,7 +35,8 @@ const trans_func transition_test_funcs[static_cast<size_t>(MoveState::state_coun
     protagonist::transistion_falling,
     protagonist::transition_flying,
     protagonist::transition_flying_accel,
-    TestEnemy::transition_simple_flying
+    simpleflyer::transition_simple_flying,
+    simpleflyer::transition_hover
 };
 
 void still_func(GameWorld &world, unsigned int entity) {
@@ -59,8 +61,8 @@ std::unordered_map<MoveState, std::vector<MoveState>> protagonist_trans = {
 };
 
 std::unordered_map<MoveState, std::vector<MoveState>> testenemy_trans = {
-    {MoveState::SimpleFlying, {}},
-    {MoveState::Falling, {MoveState::SimpleFlying}}
+    {MoveState::SimpleFlying, {MoveState::Hover}},
+    {MoveState::Hover, {MoveState::SimpleFlying}}
 };
 
 std::unordered_map<MoveState, std::vector<MoveState>> empty_trans = {};

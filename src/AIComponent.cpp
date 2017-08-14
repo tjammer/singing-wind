@@ -1,6 +1,7 @@
 #include "AIComponent.h"
 #include "GameWorld.h"
 #include "Components.h"
+#include "MoveSystems.h"
 #include "ai_state_transitions.h"
 #include "ai_state_funcs.h"
 #include "ai_input_funcs.h"
@@ -12,8 +13,9 @@ namespace ai {
 
     // maybe not needed for now
     const func c_ai_funcs[static_cast<size_t>(AIState::state_count)] = {
-        nullptr,
+        ai_funcs::idle_func,
         ai_funcs::pursuit_func,
+        nullptr,
         nullptr,
         nullptr,
         nullptr
@@ -24,7 +26,8 @@ namespace ai {
         ai_transitions::trans_pursuit,
         ai_transitions::trans_attack,
         ai_transitions::trans_flee,
-        ai_transitions::trans_pursuit
+        ai_transitions::trans_return,
+        ai_transitions::trans_idle, // notinit
     };
 
     func c_ai_to_funcs[static_cast<size_t>(AIState::state_count)] = {
@@ -32,14 +35,16 @@ namespace ai {
         ai_to_funcs::to_pursuit,
         ai_to_funcs::to_attack,
         ai_to_funcs::to_flee,
-        ai_to_funcs::to_return
+        ai_to_funcs::to_return,
+        ai_to_funcs::to_idle
     };
 
     std::unordered_map<AIState, std::vector<AIState>> testenemy_ai_trans = {
         {AIState::Idle, {AIState::Pursuit}},
         {AIState::Pursuit, {AIState::Attack, AIState::Return}},
         {AIState::Attack, {AIState::Pursuit}},
-        {AIState::Return, {AIState::Idle, AIState::Pursuit}}
+        {AIState::Return, {AIState::Idle, AIState::Pursuit}},
+        {AIState::NotInit, {AIState::Idle}}
     };
 
     func get_func(AIState state) {
@@ -63,8 +68,11 @@ namespace ai {
     }
 
     void do_input(GameWorld &world, unsigned int entity) {
-        assert(world.ai_c(entity).state == AIState::Pursuit);
-        ai_input::simple_flying(world, entity);
+        if (world.move_c(entity).movestate == MoveState::SimpleFlying) {
+            ai_input::simple_flying(world, entity);
+        } else if (world.move_c(entity).movestate == MoveState::Hover) {
+            ai_input::hover(world, entity);
+        }
     } 
 
     const std::map<AIType, const char*> c_ai_types = {

@@ -35,9 +35,6 @@ void actor::on_dynamic_collision(GameWorld &world, unsigned int entity) {
         // dont slide for now
         world.move_c(collider).additional_force += 200.f * result.normal;
         mc.velocity =  0.98f * mc.velocity + .02f * w_slide(mc.velocity, result.normal);
-    } else if (tag.test(static_cast<int>(Tags::Hurtbox))) {
-    } else {
-        assert (false);
     }
 }
 

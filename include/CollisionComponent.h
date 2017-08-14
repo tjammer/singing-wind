@@ -18,6 +18,7 @@ enum class DynColResponse : int {
     Actor,
     Projectile,
     HurtBox,
+    AlertBubble,
     state_count
 };
 

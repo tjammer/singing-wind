@@ -4,14 +4,21 @@
 #include "Pathfinding.h"
 #include "SkillComponent.h"
 #include "PosComponent.h"
+#include "Collision.h"
 #include "WVecMath.h"
 #include "Components.h"
+#include "AlertBubble.h"
 #include <iostream>
 
 void ai_to_funcs::to_idle(GameWorld &world, unsigned int entity) {
     auto &ac = world.ai_c(entity);
     ac.timer = 0;
     ac.state = AIState::Idle;
+
+    // spawn alert bubble
+    alert_bubble::spawn(world, entity);
+    ac.msg_data.clear();
+    std::cout << "to idle" << std::endl;
 }
 
 void ai_to_funcs::to_pursuit(GameWorld &world, unsigned int entity) {
@@ -22,6 +29,7 @@ void ai_to_funcs::to_pursuit(GameWorld &world, unsigned int entity) {
     // this needs to have the following field in pathfinding comp set
     get_path(world, entity);
     ac.state = AIState::Pursuit;
+    std::cout << "to pursuit" << std::endl;
 }
 
 void ai_to_funcs::to_attack(GameWorld &world, unsigned int entity) {
@@ -54,6 +62,9 @@ void ai_to_funcs::to_flee(GameWorld &, unsigned int ) {
 }
 
 bool ai_transitions::trans_idle(GameWorld & world, unsigned int entity) {
+    if (world.ai_c(entity).state == AIState::NotInit) {
+        return true;
+    }
     if (!world.entities()[entity].test(CPathing)) {
         std::cout << "entity " << entity << " has no pathfinding comp, cannot test idle trans" << std::endl;
         return false;
@@ -67,8 +78,22 @@ bool ai_transitions::trans_idle(GameWorld & world, unsigned int entity) {
 
 bool ai_transitions::trans_pursuit(GameWorld &world, unsigned int entity) {
     auto &ac= world.ai_c(entity);
-    // TODO: spotting an enemy
-    
+    auto &pc = world.pos_c(entity);
+
+    // check for near entities to trans out of idle
+    for (auto e = 0 ; e < (int)ac.msg_data.size() - 1; ++e) {
+        auto other = static_cast<unsigned int>(ac.msg_data[e]);
+        // check for visibility
+        auto result = cast_ray_vs_static_grid(world.grid(), pc.position, world.pos_c(other).position);
+        if (!result.hits) {
+            // send other to pursuit
+            auto &path_c = world.path_c(entity);
+            path_c.following = other;
+            world.queue_delete(static_cast<unsigned int>(ac.msg_data[ac.msg_data.size()-1]));
+            return true;
+        }
+    }
+
     // transition back from attack
     if (ac.state == AIState::Attack and world.skill_c(entity).active == SkillID::None) {
         return true;
@@ -87,4 +112,3 @@ bool ai_transitions::trans_flee(GameWorld &, unsigned int ) {
 bool ai_transitions::trans_return(GameWorld &, unsigned int ) {
     return false;
 }
-

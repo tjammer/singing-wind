@@ -15,4 +15,9 @@ namespace ai_input {
             push_value(ic.mouse, pc.path[pc.index]);
         }
     }
+
+    void hover(GameWorld &world, unsigned int entity) {
+        auto &ic = world.input_c(entity);
+        push_value(ic.mouse, WVec(200, 200));
+    }
 }

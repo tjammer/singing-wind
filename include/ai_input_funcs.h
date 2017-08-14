@@ -10,6 +10,7 @@ namespace ai_input {
     using func = std::function<void(GameWorld &, unsigned int)>;
     
     void simple_flying(GameWorld &, unsigned int);
+    void hover(GameWorld &, unsigned int);
 }
 
 #endif /* AI_INPUT_FUNCS_H */

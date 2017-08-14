@@ -19,6 +19,7 @@ namespace ai_transitions {
     bool trans_attack(GameWorld &, unsigned int);
     bool trans_flee(GameWorld &, unsigned int);
     bool trans_return(GameWorld &, unsigned int);
+    bool trans_init(GameWorld &, unsigned int);
 }
 
 #endif /* AI_STATE_TRANSITIONS_H */

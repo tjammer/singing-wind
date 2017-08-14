@@ -19,6 +19,7 @@ enum class MoveState : int {
     Flying,
     FlyingAccel,
     SimpleFlying,
+    Hover,
     state_count
 };
 
@@ -36,7 +37,8 @@ const std::map<MoveState, const char*> movestate_string = {
     {MoveState::Falling, "Falling"},
     {MoveState::Flying, "Flying"},
     {MoveState::FlyingAccel, "FlyingAccel"},
-    {MoveState::SimpleFlying, "SimpleFlying"}
+    {MoveState::SimpleFlying, "SimpleFlying"},
+    {MoveState::Hover, "Hover"}
 };
 
 enum class MoveSet : int {

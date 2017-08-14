@@ -12,6 +12,7 @@ enum class AIState : int {
     Attack,
     Flee,
     Return,
+    NotInit,
     state_count
 };
 
@@ -21,7 +22,7 @@ enum class AIType : int {
 
 struct AIComponent {
     AIType type = AIType::TestEnemy;
-    AIState state = AIState::Pursuit;
+    AIState state = AIState::NotInit;
     std::vector<int> msg_data;
     float timer = 0;
 };

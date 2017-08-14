@@ -48,7 +48,7 @@ set(INCLUDE_FILES include/Engine.h
     include/WInput.h
     include/SceneIO.h
     include/NavMesh.h
-    include/TestEnemy.h
+    include/SimpleFlyer.h
     include/InputComponent.h
     include/CollisionComponent.h
     include/PosComponent.h
@@ -64,7 +64,8 @@ set(INCLUDE_FILES include/Engine.h
     include/AIComponent.h
     include/ai_state_transitions.h
     include/ai_state_funcs.h
-    include/ai_input_funcs.h)
+    include/ai_input_funcs.h
+    include/AlertBubble.h)
 
 set(SOURCE_FILES src/main.cpp
     src/Engine.cpp 
@@ -93,7 +94,7 @@ set(SOURCE_FILES src/main.cpp
     src/WInput.cpp  
     src/SceneIO.cpp  
     src/NavMesh.cpp 
-    src/TestEnemy.cpp
+    src/SimpleFlyer.cpp
     src/InputComponent.cpp
     src/CollisionComponent.cpp
     src/Pathfinding.cpp
@@ -107,7 +108,8 @@ set(SOURCE_FILES src/main.cpp
     src/AIComponent.cpp
     src/ai_state_transitions.cpp
     src/ai_state_funcs.cpp
-    src/ai_input_funcs.cpp)
+    src/ai_input_funcs.cpp
+    src/AlertBubble.cpp)
 
 option(enable_unity_build "enable unity build for executable" OFF)
 if (enable_unity_build)
