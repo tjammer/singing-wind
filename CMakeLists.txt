@@ -120,7 +120,7 @@ if (enable_unity_build)
 endif(enable_unity_build)
 
 add_executable(singing_wind ${SOURCE_FILES} ${protosrc} ${protohdr})
-target_link_libraries(singing_wind imgui glfw glm glad protobuf triangle nanoflann openfbx)
+target_link_libraries(singing_wind imgui glfw glm glad protobuf triangle nanoflann)
 
 # at compile time
 add_custom_command(TARGET singing_wind POST_BUILD
