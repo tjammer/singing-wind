@@ -1,9 +1,11 @@
 #include "SkillComponent.h"
 #include "GameWorld.h"
 #include "Melee.h"
+#include "Lounge.h"
 #include "Components.h"
 #include <imgui.h>
 #include <algorithm>
+#include <iostream>
 
 using skill_func = std::function<void(GameWorld &world, unsigned int entity)>;
 using skill_funcs_t = std::array<skill_func, static_cast<size_t>(SkillState::state_count)>;
@@ -14,6 +16,9 @@ namespace skill {
             case SkillID::Melee : {
                 return melee_skill::funcs[static_cast<size_t>(state)];
             }
+            case SkillID::Lounge : {
+                return lounge_skill::funcs[static_cast<size_t>(state)];
+            }
             default : return nullptr;
         }
     }
@@ -22,11 +27,13 @@ namespace skill {
         auto &sc = world.skill_c(entity);
         // check if entity is even ready
         if (sc.active != SkillID::None) {
+            std::cout << "note ready" << (int)sc.active << std::endl;
             return;
         }
 
         // check if skill is in equiped list
         if (sc.skills.count(id) == 0) {
+            std::cout << "doesnt have skill" << std::endl;
             return;
         }
 
@@ -44,7 +51,7 @@ namespace skill {
 
     const std::map<SkillID, Skill> skillmap = {
         {SkillID::Melee, melee_skill::skill},
-        {SkillID::Lounge, melee_skill::skill}
+        {SkillID::Lounge, lounge_skill::skill}
     };
 
     Skill from_id(const SkillID &id) {

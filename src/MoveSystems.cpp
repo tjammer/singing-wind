@@ -7,7 +7,9 @@
 #include <unordered_map>
 #include "SimpleFlyer.h"
 #include "Melee.h"
+#include "Lounge.h"
 #include "GameWorld.h"
+#include "StatusEffectComponent.h"
 
 using accel_func = std::function<void(GameWorld &world, unsigned int entity)>;
 using trans_func = std::function<bool(GameWorld &world, unsigned int entity)>;
@@ -48,9 +50,12 @@ void still_func(GameWorld &world, unsigned int entity) {
 const accel_func special_funcs[static_cast<size_t>(SpecialMoveState::state_count)] = {
     nullptr,
     still_func,
-    still_func,
+    statuseffects::knockback_move,
     melee_skill::move_buildup,
-    melee_skill::move_channel
+    melee_skill::move_channel,
+    lounge_skill::move_buildup,
+    lounge_skill::move_channel,
+    still_func
 };
 
 std::unordered_map<MoveState, std::vector<MoveState>> protagonist_trans = {

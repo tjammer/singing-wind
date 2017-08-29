@@ -30,6 +30,8 @@ namespace statuseffects {
 
     void add_effect(GameWorld &, unsigned int entity, StatusEffect& effect);
     void delete_effect(GameWorld &, unsigned int entity, StatusEffect & effect);
+
+    void knockback_move(GameWorld &, unsigned int);
 };
 
 #endif /* STATUSEFFECTCOMPONENT_H */

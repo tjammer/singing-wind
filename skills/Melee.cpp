@@ -20,9 +20,9 @@
 void melee_skill_hurtfunc(GameWorld &world, unsigned int victim, unsigned int attacker) {
     // knockback
     auto dir = w_normalize(world.pos_c(victim).position - world.pos_c(attacker).position);
-    world.move_c(victim).velocity = dir * 200.f;
+    world.move_c(victim).velocity = dir * 400.f;
     auto kb = statuseffects::knockback();
-    kb.timer = .4f;
+    kb.timer = .6f;
     statuseffects::add_effect(world, victim, kb);
     auto hs = statuseffects::hitstun();
     hs.timer = .1f;

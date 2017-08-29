@@ -45,6 +45,11 @@ void knockback_stop(GameWorld &world, unsigned int entity) {
     }
 }
 
+void statuseffects::knockback_move(GameWorld &world, unsigned int entity) {
+    auto &mc = world.move_c(entity);
+    mc.accel.y -= c_gravity * 0.5f;
+}
+
 StatusEffect statuseffects::knockback() {
     StatusEffect out;
     out.on_start = knockback_start;

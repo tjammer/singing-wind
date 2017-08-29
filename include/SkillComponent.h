@@ -31,8 +31,8 @@ struct Skill {
     float c_time_cooldown = 1;
     SkillState skillstate = SkillState::Ready;
     SkillID id = SkillID::None;
-    float timer = 0;
     float cost = 0;
+    float timer = 0;
 };
 
 struct SkillComponent {

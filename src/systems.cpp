@@ -23,6 +23,8 @@
 #include <WVecMath.h>
 #include <algorithm>
 
+#include <iostream>
+
 void debug_draw_update(GameWorld &world, const std::vector<unsigned int> &entities) {
     WTransform zero_tf;
     WRenderer::set_mode(PLines);
@@ -184,12 +186,13 @@ void skill_update(GameWorld &world, float dt, const std::vector<unsigned int> &e
     for (const auto entity : entities) {
         auto &sc = world.skill_c(entity);
         auto &ic = world.input_c(entity);
+        std::cout << (int)sc.active << std::endl;
 
         // handle skill input
         auto begin = ic.att_melee.begin();
         auto end = ic.att_melee.end();
         if (ic.att_melee[0] and std::find(begin, end, false) != end) {
-            skill::cast(world, entity, SkillID::Melee);
+            skill::cast(world, entity, SkillID::Lounge);
         }
 
         for (auto &pair : sc.skills) {
@@ -197,7 +200,7 @@ void skill_update(GameWorld &world, float dt, const std::vector<unsigned int> &e
             assert(s.id == pair.first);
 
             // either buildup, channel or recover
-            if (s.id == sc.active and static_cast<int>(s.skillstate) > 1) {
+            if (s.id == sc.active) {
                 auto fn = skill::get_func(s.skillstate, s.id);
                 if (fn) {
                     fn(world, entity);

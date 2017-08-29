@@ -29,6 +29,9 @@ enum class SpecialMoveState : int {
     Knockback,
     MeleeBuildUp,
     MeleeChannel,
+    LoungeBuildUp,
+    LoungeChannel,
+    LoungeRecover,
     state_count
 };
 
