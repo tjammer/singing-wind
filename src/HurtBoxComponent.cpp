@@ -1,6 +1,7 @@
 #include "HurtBoxComponent.h"
 #include "GameWorld.h"
 #include "CollisionComponent.h"
+#include "TagComponent.h"
 
 #include <algorithm>
 
@@ -10,9 +11,13 @@ void hurtbox::on_dynamic_collision(GameWorld &world, const unsigned int entity) 
     
     if (std::find(hb.hit_entities.begin(), hb.hit_entities.end(), dc.collided) != hb.hit_entities.end()) {
         return;
-    } else if (dc.collided == hb.owner) {
+    // only on Actors
+    } else if (!world.tag_c(dc.collided).test(static_cast<int>(Tags::Actor))) {
         return;
-    } 
+    } else if (dc.collided == hb.owner) {
+        assert(false);
+        return;
+    }
 
     auto fn = hb.hurt_function;
     if (fn) {

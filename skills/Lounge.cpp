@@ -44,14 +44,7 @@ void lounge_skill_on_hit(GameWorld &world, unsigned int attacker, unsigned int v
 
 namespace lounge_skill {
 
-    void on_channel(GameWorld &world, unsigned int entity) {
-        auto &sc = world.skill_c(entity);
-        auto &skill = sc.skills.at(sc.active);
-        
-        if (skill.timer != skill.c_time_channel) {
-            return;
-        }
-        
+    void Skill::channel_start(GameWorld &world, unsigned int entity) {
         // set movestate for caster
         auto &mc = world.move_c(entity);
         mc.special = SpecialMoveState::LoungeChannel;
@@ -62,7 +55,7 @@ namespace lounge_skill {
         for (auto i : {CPosition, CColShape, CDynCol, CDebugDraw, CTag, CLifeTime}) {
             comps.set(i);
         }
-        
+
         world.entities()[hurtbox] = comps;
         world.name_c(hurtbox) = "lounge_skill_hurtbox";
 
@@ -86,7 +79,7 @@ namespace lounge_skill {
 
         // lifetime
         auto &lc = world.lifetime_c(hurtbox);
-        lc.timer = skill.c_time_channel;
+        lc.timer = c_time_channel;
 
         // hurtbox
         auto &hb = world.hurtbox_c(hurtbox);
@@ -95,34 +88,28 @@ namespace lounge_skill {
         hb.on_hit = lounge_skill_on_hit;
     }
 
-    void on_buildup(GameWorld &world, unsigned int entity) {
-        auto &sc = world.skill_c(entity);
-        auto &skill = sc.skills.at(sc.active);
+    void Skill::channel_end(GameWorld &world, unsigned int entity) {
+        reset_special(world, entity, SpecialMoveState::LoungeChannel);
+    }
 
-        if (skill.timer != skill.c_time_buildup) {
-            return;
-        }
+    void Skill::buildup_start(GameWorld &world, unsigned int entity) {
         // set movestate for caster
         auto &mc = world.move_c(entity);
         mc.special = SpecialMoveState::LoungeBuildUp;
     }
 
-    void on_recover(GameWorld &world, unsigned int entity) {
-        auto &sc = world.skill_c(entity);
-        auto &skill = sc.skills.at(sc.active);
+    void Skill::buildup_end(GameWorld &world, unsigned int entity) {
+        reset_special(world, entity, SpecialMoveState::LoungeBuildUp);
+    }
 
-        if (skill.timer != skill.c_time_recover) {
-            return;
-        }
+    void Skill::recover_start(GameWorld &world, unsigned int entity) {
         // set movestate for caster
         auto &mc = world.move_c(entity);
         mc.special = SpecialMoveState::LoungeRecover;
     }
 
-    void on_cooldown(GameWorld &world, unsigned int entity) {
-        if (world.move_c(entity).special == SpecialMoveState::LoungeRecover) {
-            reset_special(world, entity);
-        }
+    void Skill::recover_end(GameWorld &world, unsigned int entity) {
+        reset_special(world, entity, SpecialMoveState::LoungeRecover);
     }
 
     void move_buildup(GameWorld &world, unsigned int entity) {
@@ -145,9 +132,14 @@ namespace lounge_skill {
         auto &pc = world.pos_c(entity);
         auto &mc = world.move_c(entity);
 
-        float lounge_speed = 3500;
-        // cancel grav
-        mc.accel.y -= c_gravity;
-        mc.accel += w_rotated_deg(WVec(0, lounge_speed), pc.rotation);
+        float lounge_speed = 1200;
+        float lounge_accel = 5000;
+
+        // diminishing accel, see protagonist/walk
+        float vel = fmin(lounge_speed, w_magnitude(mc.velocity));
+        mc.accel = w_rotated_deg(WVec(0, -lounge_accel), pc.rotation);
+        mc.accel *= (1.f - exp(-pow(vel - lounge_speed, 2.f) * 0.1f/lounge_speed));
     }
 }
+
+lounge_skill::Skill::Skill() : SkillBase(0.5, 0.8, 0, 5, SkillID::Lounge) {}

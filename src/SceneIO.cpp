@@ -146,8 +146,8 @@ scene::Entity * get_pb_entity(GameWorld &game_world, unsigned int entity) {
     // skill
     if (game_world.entities().at(entity).test(CSkill)) {
         auto sc = new scene::SkillComponent;
-        for (auto &pair : game_world.skill_c(entity).skills) {
-            sc->add_skill_array(static_cast<int>(pair.first));
+        for (auto &skill : game_world.skill_c(entity).skills) {
+            sc->add_skill_array(static_cast<int>(skill->id));
         }
         pb_entity->set_allocated_skill_c(sc);
     }
@@ -295,7 +295,10 @@ void entity_to_world(const scene::Entity &pb_entity, GameWorld &game_world, unsi
         for (auto i = 0 ; i < skill_c.skill_array_size() ; ++i) {
             auto id_int = skill_c.skill_array(i);
             SkillID id = static_cast<SkillID>(id_int);
-            sc.skills[id] = skill::from_id(id);
+            auto new_skill = skill::get_new_skill(id);
+            if (new_skill) {
+                sc.skills.push_back(new_skill);
+            }
         }
     }
     // statuseffect

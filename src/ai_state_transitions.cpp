@@ -40,18 +40,16 @@ void ai_to_funcs::to_attack(GameWorld &world, unsigned int entity) {
         std::cout << "entity " << entity << " has no skill component, cannot attack" << std::endl;
     }
     auto &ac = world.ai_c(entity);
-    auto &sc = world.skill_c(entity);
 
     // transition has already set skillid in data vec
     SkillID sid = static_cast<SkillID>(ac.msg_data[0]);
-    skill::cast(world, entity, sid);
-    if (sc.active == sid) {
+    if (skill::cast(world, entity, sid)) {
         ac.timer = 0;
         ac.state = AIState::Attack;
     } else {
         assert(false);
     }
-    
+
 }
 
 void ai_to_funcs::to_return(GameWorld &world, unsigned int entity) {
@@ -108,7 +106,7 @@ bool ai_transitions::trans_pursuit(GameWorld &world, unsigned int entity) {
     }
 
     // transition back from attack
-    if (ac.state == AIState::Attack and world.skill_c(entity).active == SkillID::None) {
+    if (ac.state == AIState::Attack and world.skill_c(entity).active == nullptr) {
         return true;
     }
     return false;

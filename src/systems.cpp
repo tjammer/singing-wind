@@ -24,6 +24,7 @@
 #include <algorithm>
 
 #include <iostream>
+#include <Melee.h>
 
 void debug_draw_update(GameWorld &world, const std::vector<unsigned int> &entities) {
     WTransform zero_tf;
@@ -126,7 +127,7 @@ void move_update(GameWorld &world, float timedelta) {
     for (unsigned int entity = 0 ; entity < world.entities().size() ; ++entity) {
 
         auto &pc = world.pos_c(entity);
-        
+
         if (world.entities()[entity].test(CMove)) {
 
             auto &mc = world.move_c(entity);
@@ -146,7 +147,7 @@ void move_update(GameWorld &world, float timedelta) {
                     break;
                 }
             }
-            // if char is in special state, the correct func needs to be found 
+            // if char is in special state, the correct func needs to be found
             if (mc.special != SpecialMoveState::None) {
                 get_special_func(mc.special)(world, entity);
             } else {
@@ -186,7 +187,6 @@ void skill_update(GameWorld &world, float dt, const std::vector<unsigned int> &e
     for (const auto entity : entities) {
         auto &sc = world.skill_c(entity);
         auto &ic = world.input_c(entity);
-        std::cout << (int)sc.active << std::endl;
 
         // handle skill input
         auto begin = ic.att_melee.begin();
@@ -195,43 +195,52 @@ void skill_update(GameWorld &world, float dt, const std::vector<unsigned int> &e
             skill::cast(world, entity, SkillID::Lounge);
         }
 
-        for (auto &pair : sc.skills) {
-            auto &s = pair.second;
-            assert(s.id == pair.first);
+        for (auto &skill : sc.skills) {
+            SkillBase &s = *skill;
 
-            // either buildup, channel or recover
-            if (s.id == sc.active) {
-                auto fn = skill::get_func(s.skillstate, s.id);
-                if (fn) {
-                    fn(world, entity);
-                }
+            // check if interrupt didnt work
+            if (s.skillstate != SkillState::Ready and s.skillstate != SkillState::Cooldown) {
+                assert(sc.active->id == s.id);
             }
 
             s.timer -= dt;
 
-            // TODO: set animation hints
             switch (s.skillstate) {
                 case SkillState::BuildUp : {
-   	                if (s.timer <= 0) {
+                    if (s.timer <= 0) {
                         s.skillstate = SkillState::Channel;
                         s.timer = s.c_time_channel;
-   	                }
+                        s.buildup_end(world, entity);
+                        s.channel_start(world, entity);
+                    } else {
+                        s.buildup_tick(world, entity);
+                    }
                     break;
                 }
                 case SkillState::Channel : {
-         	        if (s.timer <= 0) {
- 	                    s.skillstate = SkillState::Recover;
- 	                    s.timer = s.c_time_recover;
- 	       	        } 
-               	    break;
-           	    }
+                    if (s.timer <= 0) {
+                        s.skillstate = SkillState::Recover;
+                        s.timer = s.c_time_recover;
+                        s.channel_end(world, entity);
+                        s.recover_start(world, entity);
+                    } else {
+                        s.channel_tick(world, entity);
+                    }
+                    break;
+                    }
                 case SkillState::Recover : {
- 	          	    if (s.timer <= 0) {
+                    if (s.timer <= 0) {
                         s.skillstate = SkillState::Cooldown;
                         s.timer = s.c_time_cooldown - s.c_time_recover;
-               	    }
-               	    break;
-           	    }
+                        s.recover_end(world, entity);
+                        // reset active skill to none
+                        assert(sc.active->id == s.id);
+                        sc.active = nullptr;
+                    } else {
+                        s.recover_tick(world, entity);
+                    }
+                    break;
+                }
                 case SkillState::Cooldown : {
                     if (s.timer <= 0) {
                         s.skillstate = SkillState::Ready;
@@ -239,9 +248,7 @@ void skill_update(GameWorld &world, float dt, const std::vector<unsigned int> &e
                     break;
                 }
                 case SkillState::Ready : {
-             	    if (sc.active == s.id) {
-                        sc.active = SkillID::None;
-                    }
+                    break;
                 }
                 default: break;
             }
@@ -253,7 +260,7 @@ void dyn_col_update(GameWorld &world, std::unordered_map<unsigned int, bool> &en
     auto &prune_sweep = world.prune_sweep();
     auto &boxes = prune_sweep.get_boxes();
     std::vector<unsigned int> to_delete;
-    
+
     for (auto &box : boxes) {
         // has dyn_col_comp
         if (entities.count(box.entity) > 0) {
@@ -272,7 +279,7 @@ void dyn_col_update(GameWorld &world, std::unordered_map<unsigned int, bool> &en
     for (const auto &pair : entities) {
         auto checked = pair.second;
         auto entity = pair.first;
-        if (!checked) {        
+        if (!checked) {
             auto &shape = world.cshape_c(entity).shape;
             const auto &pos = world.pos_c(entity).position;
             boxes.emplace_back(PSBox{pos - shape->get_radius(), pos + shape->get_radius(), entity});
@@ -280,7 +287,7 @@ void dyn_col_update(GameWorld &world, std::unordered_map<unsigned int, bool> &en
     }
     // todo remove boxes from delete list
     for (auto ent : to_delete) {
-        boxes.erase(std::remove_if(boxes.begin(), boxes.end(), [ent] (const PSBox& b) 
+        boxes.erase(std::remove_if(boxes.begin(), boxes.end(), [ent] (const PSBox& b)
                     {return b.entity == ent;}));
     }
     for (auto &b : boxes) {
@@ -308,13 +315,13 @@ void dyn_col_update(GameWorld &world, std::unordered_map<unsigned int, bool> &en
 
         auto &shape_a = world.cshape_c(a).shape;
         auto &shape_b = world.cshape_c(b).shape;
-        
+
         shape_a->transform(world.pos_c(a).global_transform);
         shape_b->transform(world.pos_c(b).global_transform);
         auto result = shape_a->collides(*shape_b);
         shape_a->transform(world.pos_c(a).global_inverse_transform);
         shape_b->transform(world.pos_c(b).global_inverse_transform);
-        
+
 
         if (result.collides) {
             auto &dc = world.dyn_col_c(a);
@@ -380,7 +387,7 @@ void ai_update(GameWorld &world, float dt, const std::vector<unsigned int> &enti
             if (ai::get_trans_func(aistate)(world, entity)) {
                 ai::get_to_func(aistate)(world, entity);
             }
-        } 
+        }
         // only pathing states have funcs, allow nullptr here
         auto fn = ai::get_func(ac.state);
         if (fn) {

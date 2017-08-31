@@ -6,7 +6,6 @@
 #define SINGING_WIND_MOVESYSTEMS_H
 
 #include "WindDefs.h"
-#include <assert.h>
 #include <functional>
 #include <map>
 #include <vector>
@@ -111,6 +110,6 @@ std::function<bool(GameWorld &world, unsigned int entity)> get_trans_func(const 
 std::function<void(GameWorld &world, unsigned int entity)> get_to_func(const MoveState &state);
 const std::vector<MoveState> & get_trans_funcs(const MoveSet &set, const MoveState &state); 
 
-void reset_special(GameWorld &, unsigned int);
+void reset_special(GameWorld &, unsigned int, SpecialMoveState);
 
 #endif //SINGING_WIND_MOVESYSTEMS_H

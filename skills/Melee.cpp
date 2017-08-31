@@ -54,14 +54,7 @@ void melee_skill::move_channel(GameWorld &world, unsigned int entity) {
     mc.accel = 1500.f * w_rotated_deg(WVec(0, -1), pc.rotation);
 }
 
-void melee_skill::on_channel(GameWorld &world, unsigned int entity) {
-    auto &sc = world.skill_c(entity);
-    auto &skill = sc.skills.at(sc.active);
-    
-    if (skill.timer != skill.c_time_channel) {
-        return;
-    }
-    
+void melee_skill::Skill::channel_start(GameWorld &world, unsigned int entity) {
     // set movestate for caster
     auto &mc = world.move_c(entity);
     mc.special = SpecialMoveState::MeleeChannel;
@@ -105,6 +98,8 @@ void melee_skill::on_channel(GameWorld &world, unsigned int entity) {
     hb.on_hit = melee_skill_on_hit;
 }
 
-void melee_skill::on_recover(GameWorld &world, unsigned int entity) {
-    reset_special(world, entity);
+void melee_skill::Skill::channel_end(GameWorld & world, unsigned int entity) {
+    reset_special(world, entity, SpecialMoveState::MeleeChannel);
 }
+
+melee_skill::Skill::Skill() : SkillBase(0.1, 0.2, 1, 2, SkillID::Melee) {}

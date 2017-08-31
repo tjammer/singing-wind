@@ -3,8 +3,7 @@
 
 #include <functional>
 #include <vector>
-#include <map>
-#include <unordered_map>
+#include <memory>
 
 class GameWorld;
 
@@ -18,38 +17,57 @@ enum class SkillState : int {
 };
 
 enum class SkillID : int {
-    None,
     Melee,
     Lounge,
     state_count
 };
 
-struct Skill {
-    float c_time_buildup = 1;
-    float c_time_channel = 1;
-    float c_time_recover = 1;
-    float c_time_cooldown = 1;
-    SkillState skillstate = SkillState::Ready;
-    SkillID id = SkillID::None;
-    float cost = 0;
-    float timer = 0;
+class SkillBase {
+    public:
+        const float c_time_buildup = 1;
+        const float c_time_channel = 1;
+        const float c_time_recover = 1;
+        const float c_time_cooldown = 1;
+        SkillState skillstate = SkillState::Ready;
+        SkillID id;
+        float cost = 0;
+        float timer = 0;
+        int frame_time = 0; // counts frames for timers
+
+        virtual void buildup_start(GameWorld &, unsigned int) {}
+        virtual void buildup_tick(GameWorld &, unsigned int) {}
+        virtual void buildup_end(GameWorld &, unsigned int) {}
+        virtual void channel_start(GameWorld &, unsigned int) {}
+        virtual void channel_tick(GameWorld &, unsigned int) {}
+        virtual void channel_end(GameWorld &, unsigned int) {}
+        virtual void recover_start(GameWorld &, unsigned int) {}
+        virtual void recover_tick(GameWorld &, unsigned int) {}
+        virtual void recover_end(GameWorld &, unsigned int) {}
+
+        virtual void move_buildup(GameWorld &, unsigned int) {}
+        virtual void move_channel(GameWorld &, unsigned int) {}
+        virtual void move_recover(GameWorld &, unsigned int) {}
+
+        SkillID get_id() const {return id;}
+    protected:
+        SkillBase(float buildup, float channel, float recover, float cooldown, SkillID id) :
+            c_time_buildup(buildup), c_time_channel(channel), c_time_recover(recover), c_time_cooldown(cooldown), id(id) {}
 };
 
 struct SkillComponent {
-    std::unordered_map<SkillID, Skill> skills;
-    SkillID active = SkillID::None;
+    std::vector<std::shared_ptr<SkillBase>> skills;
+    std::shared_ptr<SkillBase> active = nullptr;
 };
 
 namespace skill {
-    std::function<void(GameWorld &world, unsigned int entity)> get_func(const SkillState &state, const SkillID &id);
-
-    void cast(GameWorld &world, unsigned int entity, SkillID id);
+    bool can_cast(GameWorld &, unsigned int, SkillID);
+    bool cast(GameWorld &world, unsigned int entity, SkillID id);
 
     void entity_edit(GameWorld &, unsigned int);
 
     void add(GameWorld &, unsigned int);
 
-    Skill from_id(const SkillID &);
+    std::shared_ptr<SkillBase> get_new_skill(SkillID id);
 }
 
 #endif /* SKILLCOMPONENT_H */

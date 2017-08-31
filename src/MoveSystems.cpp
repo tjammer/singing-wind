@@ -96,6 +96,8 @@ const std::vector<MoveState> & get_trans_funcs (const MoveSet &set, const MoveSt
     }
 }
 
-void reset_special(GameWorld &world, unsigned int entity) {
-    world.move_c(entity).special = SpecialMoveState::None;
+void reset_special(GameWorld &world, unsigned int entity, SpecialMoveState movestate) {
+    if (world.move_c(entity).special == movestate) {
+        world.move_c(entity).special = SpecialMoveState::None;
+    }
 }

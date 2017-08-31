@@ -2,28 +2,21 @@
 #define LOUNGE_H
 
 #include "SkillComponent.h"
-#include <functional>
 
 namespace lounge_skill {
-    void on_buildup(GameWorld &, unsigned int);
-    void on_channel(GameWorld &, unsigned int);
-    void on_recover(GameWorld &, unsigned int);
-    void on_cooldown(GameWorld &, unsigned int);
-
     void move_buildup(GameWorld &, unsigned int);
     void move_channel(GameWorld &, unsigned int);
 
-    const Skill skill = {
-        .5, .3, 1, 5, SkillState::Ready, SkillID::Lounge, 0, 0
+    class Skill : public SkillBase {
+        public:
+            void buildup_start(GameWorld &, unsigned int) override;
+            void buildup_end(GameWorld &, unsigned int) override;
+            void channel_start(GameWorld &, unsigned int) override;
+            void channel_end(GameWorld &, unsigned int) override;
+            void recover_start(GameWorld &, unsigned int) override;
+            void recover_end(GameWorld &, unsigned int) override;
+            Skill();
     };
-
-    const std::array<std::function<void(GameWorld &, unsigned int)>, static_cast<size_t>(SkillState::state_count)> funcs = {{
-        nullptr, // Ready
-        lounge_skill::on_cooldown, // Cooldown
-        lounge_skill::on_buildup, // BuildUp
-        lounge_skill::on_channel, // Channel
-        nullptr // Recover
-    }};
 }
 
 #endif /* LOUNGE_H */
