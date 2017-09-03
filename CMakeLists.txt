@@ -8,7 +8,7 @@ set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG}  -fno-exceptions -W -Wall"
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2 -fno-exceptions -W -Wall -DNDEBUG -s")
 
 add_subdirectory(external)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/skills
     ${PROJECT_BINARY_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/external/include)
@@ -22,15 +22,15 @@ PROTOBUF_GENERATE_CPP(protosrc protohdr src/Scene.proto)
 set(INCLUDE_FILES include/Engine.h
     include/Editor.h
     include/BCurve.h
-    include/WindDefs.h 
-    include/WVecMath.h 
+    include/WindDefs.h
+    include/WVecMath.h
     include/Island.h
     include/EditorStates.h
     include/triangulate.h
     include/ColShape.h
     include/Collision.h
     include/ColGrid.h
-    include/GameWorld.h    
+    include/GameWorld.h
     include/Game.h
     include/Components.h
     include/entities.h
@@ -69,32 +69,32 @@ set(INCLUDE_FILES include/Engine.h
     skills/Lounge.h)
 
 set(SOURCE_FILES src/main.cpp
-    src/Engine.cpp 
-    src/Editor.cpp 
-    src/BCurve.cpp 
-    src/Island.cpp 
-    src/EditorStates.cpp 
+    src/Engine.cpp
+    src/Editor.cpp
+    src/BCurve.cpp
+    src/Island.cpp
+    src/EditorStates.cpp
     src/triangulate.cpp
-    src/ColShape.cpp 
-    src/Collision.cpp 
-    src/ColGrid.cpp  
-    src/GameWorld.cpp  
-    src/Game.cpp  
-    src/Components.cpp  
-    src/entities.cpp 
-    src/Protagonist.cpp  
-    src/systems.cpp  
-    src/Camera.cpp  
-    src/FrameTimer.cpp  
-    src/EntityEditor.cpp  
-    src/MoveSystems.cpp  
-    src/imgui_impl_glfw_gl3.cpp  
-    src/WRenderer.cpp  
-    src/WShader.cpp  
-    src/WTexture.cpp  
-    src/WInput.cpp  
-    src/SceneIO.cpp  
-    src/NavMesh.cpp 
+    src/ColShape.cpp
+    src/Collision.cpp
+    src/ColGrid.cpp
+    src/GameWorld.cpp
+    src/Game.cpp
+    src/Components.cpp
+    src/entities.cpp
+    src/Protagonist.cpp
+    src/systems.cpp
+    src/Camera.cpp
+    src/FrameTimer.cpp
+    src/EntityEditor.cpp
+    src/MoveSystems.cpp
+    src/imgui_impl_glfw_gl3.cpp
+    src/WRenderer.cpp
+    src/WShader.cpp
+    src/WTexture.cpp
+    src/WInput.cpp
+    src/SceneIO.cpp
+    src/NavMesh.cpp
     src/SimpleFlyer.cpp
     src/InputComponent.cpp
     src/CollisionComponent.cpp
@@ -111,7 +111,16 @@ set(SOURCE_FILES src/main.cpp
     src/ai_state_funcs.cpp
     src/ai_input_funcs.cpp
     src/PatrolComponent.cpp
-    skills/Lounge.cpp)
+    skills/Lounge.cpp
+    src/SceneIO_alt.cpp)
+
+set (flatbuffers_schemas 
+    ${PROJECT_SOURCE_DIR}/schemas/entity.fbs
+    ${PROJECT_SOURCE_DIR}/schemas/test2.fbs)
+
+set(FLATBUFFERS_FLATC_SCHEMA_EXTRA_ARGS "--gen-object-api")
+
+build_flatbuffers("${flatbuffers_schemas}" "${PROJECT_SOURCE_DIR}" schemas "" "${PROJECT_BINARY_DIR}" "" "")
 
 option(enable_unity_build "enable unity build for executable" OFF)
 if (enable_unity_build)
@@ -120,7 +129,8 @@ if (enable_unity_build)
 endif(enable_unity_build)
 
 add_executable(singing_wind ${SOURCE_FILES} ${protosrc} ${protohdr})
-target_link_libraries(singing_wind imgui glfw glm glad protobuf triangle nanoflann)
+add_dependencies(singing_wind schemas)
+target_link_libraries(singing_wind imgui glfw glm glad protobuf triangle nanoflann flatbuffers)
 
 # at compile time
 add_custom_command(TARGET singing_wind POST_BUILD
