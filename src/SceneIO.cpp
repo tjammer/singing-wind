@@ -5,9 +5,6 @@
 #include <fstream>
 #include <iostream>
 #include <ColShape.h>
-#include <glm/gtc/matrix_transform.hpp>
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/matrix_transform_2d.hpp>
 #include "GameWorld.h"
 #include "Editor.h"
 #include "SceneIO.h"
@@ -18,6 +15,7 @@
 #include "PosComponent.h"
 #include "SkillComponent.h"
 #include "PatrolComponent.h"
+#include "SceneIO_alt.h"
 
 scene::Entity * get_pb_entity(GameWorld &game_world, unsigned int entity) {
     using namespace std;
@@ -168,7 +166,7 @@ scene::Entity * get_pb_entity(GameWorld &game_world, unsigned int entity) {
 }
 
 bool save_entity_standalone(GameWorld &game_world, unsigned int entity) {
-    using namespace std;
+    /*using namespace std;
 
     auto pb_entity = get_pb_entity(game_world, entity);
     pb_entity->mutable_pos_c()->mutable_position()->set_x(0);
@@ -184,7 +182,8 @@ bool save_entity_standalone(GameWorld &game_world, unsigned int entity) {
         return false;
     }
     cout << "wrote to file " << filename << endl;
-    delete pb_entity;
+    delete pb_entity;*/
+    save_entity_standalone_fbs(game_world, entity);
     return true;
 }
 
@@ -199,8 +198,7 @@ void entity_to_world(const scene::Entity &pb_entity, GameWorld &game_world, unsi
         game_world.pos_c(entity).rotation = pos_c.rotation();
         game_world.pos_c(entity).position = WVec(pos_c.position().x(), pos_c.position().y());
         game_world.pos_c(entity).parent = pos_c.parent();
-        game_world.pos_c(entity).global_transform = glm::rotate(glm::translate(game_world.pos_c(pos_c.parent()).
-                global_transform, game_world.pos_c(entity).position), pos_c.rotation());
+        build_global_transform(game_world, entity);
     }
 
     // input_c
@@ -311,7 +309,7 @@ void entity_to_world(const scene::Entity &pb_entity, GameWorld &game_world, unsi
 }
 
 bool load_entity_from_filename(const std::__cxx11::string &name, GameWorld &game_world, unsigned int entity) {
-    using namespace std;
+    /*using namespace std;
 
     fstream scene_file(name, ios_base::in | ios_base::binary);
     scene::Entity pb_entity;
@@ -322,8 +320,9 @@ bool load_entity_from_filename(const std::__cxx11::string &name, GameWorld &game
     }
     pb_entity.ParseFromIstream(&scene_file);
 
-    entity_to_world(pb_entity, game_world, entity);
-
+    entity_to_world(pb_entity, game_world, entity);*/
+    std::cout << "here" << std::endl;
+    load_entity_from_filename_fbs(name, game_world, entity);
     return true;
 }
 
@@ -339,8 +338,7 @@ void scene_entity_to_world(const scene::Entity &pb_entity, GameWorld &game_world
             game_world.pos_c(entity).rotation = pos_c.rotation();
             game_world.pos_c(entity).position = WVec(pos_c.position().x(), pos_c.position().y());
             game_world.pos_c(entity).parent = pos_c.parent();
-            game_world.pos_c(entity).global_transform = glm::rotate(glm::translate(game_world.pos_c(pos_c.parent()).
-                    global_transform, game_world.pos_c(entity).position), pos_c.rotation());
+            build_global_transform(game_world, entity);
         }
         return;
     }

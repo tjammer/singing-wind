@@ -1,0 +1,21 @@
+include "entity.fbs";
+
+namespace SceneFBS;
+
+table Scene {
+    islands:[Island];
+    zoom:float;
+    entities:[EntityFBS.Entity];
+}
+
+struct Point {
+    x:float;
+    y:float;
+}
+
+table Island {
+    points:[Point];
+    ctrl_points:[Point];
+}
+
+root_type Scene;

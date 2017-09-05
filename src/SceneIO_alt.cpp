@@ -1,12 +1,9 @@
 #include <fstream>
 #include <iostream>
 #include <ColShape.h>
-#include <glm/gtc/matrix_transform.hpp>
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/matrix_transform_2d.hpp>
 #include "GameWorld.h"
 #include "Editor.h"
-#include "SceneIO.h"
+#include "SceneIO_alt.h"
 #include "Components.cpp"
 #include "InputComponent.h"
 #include "CollisionComponent.h"
@@ -14,15 +11,17 @@
 #include "PosComponent.h"
 #include "SkillComponent.h"
 #include "PatrolComponent.h"
+#include "Island.h"
 
 #include <flatbuffers/flatbuffers.h>
-#include "entity_generated.h"
+#include <scene_generated.h>
 
 
-EntityFBS::EntityT get_fb_entity(GameWorld &world, unsigned int entity) {
+std::unique_ptr<EntityFBS::EntityT> get_fb_entity(GameWorld &world, unsigned int entity) {
     using namespace std;
     using namespace EntityFBS;
-    EntityFBS::EntityT fbs_ent;
+    unique_ptr<EntityFBS::EntityT> fbs_ent_ptr = unique_ptr<EntityFBS::EntityT>(new EntityFBS::EntityT);
+    auto &fbs_ent = *fbs_ent_ptr;
     const auto &bset = world.entities().at(entity);
 
     // bitset
@@ -155,7 +154,7 @@ EntityFBS::EntityT get_fb_entity(GameWorld &world, unsigned int entity) {
         fbs_ent.patrol_c->pp->mutate_y(world.patrol_c(entity).patrol_point.y);
     }
 
-    return fbs_ent;
+    return fbs_ent_ptr;
 }
 
 bool save_entity_standalone_fbs(GameWorld &world, unsigned int entity) {
@@ -163,13 +162,266 @@ bool save_entity_standalone_fbs(GameWorld &world, unsigned int entity) {
 
     auto fbs_ent = get_fb_entity(world, entity);
     flatbuffers::FlatBufferBuilder fbb;
-    fbb.Finish(EntityFBS::Entity::Pack(fbb, &fbs_ent));
+    fbb.Finish(EntityFBS::Entity::Pack(fbb, &*fbs_ent));
 
     string entity_name = world.name_c(entity);
     string filename = "scenes/" + entity_name + ".wentfbs";
-    fstream scene_file(filename, ios_base::out | ios_base::binary);
+    ofstream scene_file(filename, ios_base::binary);
     scene_file.write(reinterpret_cast<char *>(fbb.GetBufferPointer()), fbb.GetSize());
     scene_file.close();
 
     return true;
+}
+
+void entity_to_world_fbs(const EntityFBS::EntityT& fb_ent, GameWorld &world, unsigned int entity) {
+
+    // bitset
+    world.entities()[entity] = bset(fb_ent.bitset);
+    const auto &bs = world.entities()[entity];
+
+    // pos_c
+    if (bs.test(CPosition)) {
+        auto &pos_c = fb_ent.pos_c;
+        auto &pc = world.pos_c(entity);
+
+        pc.position = WVec(pos_c->position->x(), pos_c->position->y());
+        pc.rotation = pos_c->rotation;
+        pc.parent = pos_c->parent;
+        build_global_transform(world, entity);
+    }
+
+    // move_c
+    if (bs.test(CMove)) {
+        auto &move_c = fb_ent.move_c;
+        auto &mc= world.move_c(entity);
+
+        mc.movestate = static_cast<MoveState>(move_c->movestate);
+        mc.moveset = static_cast<MoveSet>(move_c->moveset);
+    }
+
+    // input_c
+    if (bs.test(CInput)) {
+        world.input_c(entity).input_func = static_cast<InputFunc>(fb_ent.input_c);
+    }
+
+    // shape_c
+    if (bs.test(CColShape)) {
+        auto &shape_c = fb_ent.shape_c;
+        auto &sc= world.cshape_c(entity);
+
+        assert(shape_c->shape == static_cast<int>(ColShapeName::ColCapsule));
+        sc.shape = std::make_shared<ColCapsule>(ColCapsule{shape_c->radius, shape_c->length});
+    }
+
+    // static col
+    if (bs.test(CStaticCol)) {
+        world.static_col_c(entity).col_response = static_cast<StaticColResponse>(fb_ent.static_col_c);
+    }
+
+    // name
+    world.name_c(entity) = fb_ent.name;
+
+    // ground move
+    if (bs.test(CGroundMove)) {
+        auto &ground_c = fb_ent.ground_move_c;
+        auto &gc = world.ground_move_c(entity);
+
+        gc.c_accel = ground_c->accel;
+        gc.c_stop_friction = ground_c->stop_friction;
+        gc.c_turn_mod = ground_c->turn_mod;
+        gc.c_max_vel = ground_c->max_vel;
+    }
+
+    // fall_c
+    if (bs.test(CFall)) {
+        auto &fall_c = fb_ent.fall_c;
+        auto &fc = world.fall_c(entity);
+
+        fc.c_accel = fall_c->accel;
+        fc.c_turn_mod = fall_c->turn_mod;
+        fc.c_jump_height = fall_c->jump_height;
+        fc.c_max_vel = fall_c->max_vel;
+    }
+
+    // fly_c
+    if (bs.test(CFly)) {
+        auto &fly_c = fb_ent.fly_c;
+        auto &fc = world.fly_c(entity);
+
+        fc.c_lift = fly_c->lift;
+        fc.c_stall_angle = fly_c->stall_angle;
+        fc.c_max_change_angle = fly_c->stall_angle;
+        fc.c_accel_force = fly_c->accel_force;
+        fc.c_accel_time = fly_c->accel_time;
+        fc.c_push_vel = fly_c->push_vel;
+
+        fc.from = WVec(fly_c->from->x(), fly_c->from->y());
+        fc.ctrl_from = WVec(fly_c->ctrl_from->x(), fly_c->ctrl_from->y());
+        fc.ctrl_to = WVec(fly_c->ctrl_to->x(), fly_c->ctrl_to->y());
+        fc.to = WVec(fly_c->to->x(), fly_c->to->y());
+    }
+
+    // simple gly
+    if (bs.test(CSimpleFly)) {
+        auto &fly_c = fb_ent.simple_fly_c;
+        auto &fc = world.simple_fly_c(entity);
+
+        fc.c_max_vel = fly_c->max_vel;
+        fc.c_accel = fly_c->accel;
+        fc.c_near_threshold = fly_c->near_threshold;
+        fc.c_stop_coef = fly_c->stop_coef;
+    }
+
+    // dyn col
+    if (bs.test(CDynCol)) {
+        world.dyn_col_c(entity).col_response = static_cast<DynColResponse>(fb_ent.dyn_col_c);
+    }
+
+    // tag_c
+    if (bs.test(CTag)) {
+        world.tag_c(entity) = bset(fb_ent.tag_c);
+    }
+
+    // skill_c
+    if (bs.test(CSkill)) {
+        auto &sc = world.skill_c(entity);
+        sc.active = nullptr;
+        sc.skills.clear();
+        for (auto id : fb_ent.skill_c) {
+            sc.skills.push_back(skill::get_new_skill(static_cast<SkillID>(id)));
+        }
+    }
+
+    // patrol_c
+    if (bs.test(CPatrol)) {
+        world.patrol_c(entity).patrol_point = WVec(fb_ent.patrol_c->pp->x(),
+                fb_ent.patrol_c->pp->y());
+    }
+}
+
+bool load_entity_from_filename_fbs(const std::string &name, GameWorld &world, unsigned int entity) {
+    using namespace std;
+
+    fstream entity_file(name + "fbs", ios_base::in | ios_base::binary);
+
+    if (!entity_file) {
+        cout << "Entity file not found: " << name << endl;
+        return false;
+    }
+
+    // parse file
+    entity_file.seekg(0, ios::end);
+    auto size = entity_file.tellg();
+    vector<char> flatbuffer;
+    flatbuffer.resize(size);
+    entity_file.seekg(0, ios::beg);
+    entity_file.read(flatbuffer.data(), size);
+
+    auto verifier = flatbuffers::Verifier(reinterpret_cast<uint8_t *>(flatbuffer.data()), size);
+    if (!EntityFBS::VerifyEntityBuffer(verifier)) {
+        return false;
+    }
+    auto fb_ent = EntityFBS::UnPackEntity(flatbuffer.data());
+    entity_to_world_fbs(*fb_ent, world, entity);
+    return true;
+}
+
+void scene_entity_to_world_fbs(const EntityFBS::EntityT &fb_ent, GameWorld &world, unsigned int entity) {
+    std::string filename = "scenes/" + fb_ent.name + ".went";
+    std::cout << "here?" << std::endl;
+    if (fb_ent.name != "root" and load_entity_from_filename_fbs(filename, world, entity)) {
+        if (world.entities()[entity].test(CPosition)) {
+            auto &pos_c = fb_ent.pos_c;
+            auto &pc = world.pos_c(entity);
+            pc.rotation = pos_c->rotation;
+            pc.position = WVec(pos_c->position->x(), pos_c->position->y());
+            pc.parent = pos_c->parent;
+            build_global_transform(world, entity);
+        }
+    } else {
+        entity_to_world_fbs(fb_ent, world, entity);
+    }
+}
+
+bool load_scene_fbs(const std::string &name, GameWorld &world, float &zoom) {
+    using namespace std;
+
+    string filename = "scenes/" + name + ".wscnfbs";
+    fstream scene_file(filename, ios::in | ios::binary);
+
+    if (!scene_file) {
+        cout << "Scene file not found: " << filename << endl;
+        return false;
+    }
+
+    // parse file
+    scene_file.seekg(0, ios::end);
+    auto size = scene_file.tellg();
+    vector<char> flatbuffer;
+    flatbuffer.resize(size);
+    scene_file.seekg(0, ios::beg);
+    scene_file.read(flatbuffer.data(), size);
+
+    auto verifier = flatbuffers::Verifier(reinterpret_cast<uint8_t *>(flatbuffer.data()), size);
+    if (!SceneFBS::VerifySceneBuffer(verifier)) {
+        return false;
+    }
+    auto fb_scene = SceneFBS::UnPackScene(flatbuffer.data());
+
+    auto &islands = world.islands();
+    islands.clear();
+    for (auto & fb_island : fb_scene->islands) {
+        Island island;
+        for (auto &fb_point : fb_island->points) {
+            island.m_points.push_back(WVec(fb_point.x(), fb_point.y()));
+        }
+        for (auto &fb_point : fb_island->ctrl_points) {
+            island.m_ctrl_points.push_back(WVec(fb_point.x(), fb_point.y()));
+        }
+        islands.push_back(island);
+    }
+
+    world.reset_entities();
+    for (auto &fb_ent : fb_scene->entities) {
+        scene_entity_to_world_fbs(*fb_ent, world, world.create_entity());
+    }
+
+    zoom = fb_scene->zoom;
+
+    return true;
+}
+
+void save_scene_fbs(const std::string &name, GameWorld &world, float zoom) {
+    using namespace std;
+
+    const auto &islands = world.islands();
+    const auto &entities = world.entities();
+
+    SceneFBS::SceneT scene;
+    for (const auto &island : islands) {
+        scene.islands.push_back(unique_ptr<SceneFBS::IslandT>(new SceneFBS::IslandT));
+        auto &fb_island = scene.islands[scene.islands.size() - 1];
+        for (const auto &point : island.m_points) {
+            fb_island->points.push_back(SceneFBS::Point(point.x, point.y));
+        }
+        for (const auto &point : island.m_ctrl_points) {
+            fb_island->ctrl_points.push_back(SceneFBS::Point(point.x, point.y));
+        }
+    }
+    scene.zoom = zoom;
+
+    for (unsigned int entity = 0 ; entity < entities.size() ; ++entity) {
+        scene.entities.push_back(get_fb_entity(world, entity));
+    }
+
+    // save file
+    flatbuffers::FlatBufferBuilder fbb;
+    fbb.Finish(SceneFBS::Scene::Pack(fbb, &scene));
+
+    string filename = "scenes/" + name + ".wscnfbs";
+    ofstream scene_file(filename, ios_base::binary);
+    scene_file.write(reinterpret_cast<char *>(fbb.GetBufferPointer()), fbb.GetSize());
+    scene_file.close();
+
+    cout << "wrote to file: " << filename << endl;
 }

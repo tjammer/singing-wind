@@ -112,11 +112,12 @@ set(SOURCE_FILES src/main.cpp
     src/ai_input_funcs.cpp
     src/PatrolComponent.cpp
     skills/Lounge.cpp
-    src/SceneIO_alt.cpp)
+    src/SceneIO_alt.cpp
+    src/PosComponent.cpp)
 
 set (flatbuffers_schemas 
     ${PROJECT_SOURCE_DIR}/schemas/entity.fbs
-    ${PROJECT_SOURCE_DIR}/schemas/test2.fbs)
+    ${PROJECT_SOURCE_DIR}/schemas/scene.fbs)
 
 set(FLATBUFFERS_FLATC_SCHEMA_EXTRA_ARGS "--gen-object-api")
 

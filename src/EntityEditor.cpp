@@ -230,7 +230,7 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
     }
     SameLine();
     if (Button("delete entity")) {
-        delete_entity_from_scene(m_world, m_entity);
+        m_world.delete_entity_raw(m_entity);
         transition = EditorSubState(new EditorIdle);
     }
     SameLine();

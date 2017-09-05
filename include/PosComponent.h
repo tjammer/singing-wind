@@ -11,4 +11,6 @@ struct PosComponent {
     unsigned int parent = 0;
 };
 
+class GameWorld;
+void build_global_transform(GameWorld &, unsigned int);
 #endif /* POSCOMPONENT_H */

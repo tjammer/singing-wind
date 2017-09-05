@@ -9,6 +9,7 @@
 #include "SceneIO.h"
 #include "Island.h"
 #include "EntityEditor.h"
+#include "SceneIO_alt.h"
 
 #include "WRenderer.h"
 #include <imgui.h>
@@ -176,6 +177,11 @@ bool EngineEditorState::load_scene(const std::string &name) {
     m_zoom = pb_scene.zoom();
 
     update_world();
+
+    if (load_scene_fbs(name, m_game_world, m_zoom)) {
+        update_world();
+    }
+
     return true;
 }
 
@@ -212,6 +218,8 @@ void EngineEditorState::save_scene(const std::string &name) const {
         cout << "Failed to write scene." << endl;
     }
     cout << "wrote to file " << filename << endl;
+
+    save_scene_fbs(name, m_game_world, m_zoom);
 }
 
 inline void new_scene(GameWorld& world) {
