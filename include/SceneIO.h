@@ -1,25 +1,16 @@
-//
-// Created by jammer on 18/05/17.
-//
+#ifndef SCENEIO_ALT_H
+#define SCENEIO_ALT_H
+#include "entity_generated.h"
 
-#ifndef SINGING_WIND_SCENEIO_H
-#define SINGING_WIND_SCENEIO_H
-
-#include <Scene.pb.h>
-
-
-scene::Entity * get_pb_entity(GameWorld &game_world, unsigned int entity);
+class GameWorld;
 
 bool save_entity_standalone(GameWorld &game_world, unsigned int entity);
 
-void entity_to_world(const scene::Entity& entity, GameWorld &game_world, unsigned int);
+void entity_to_world(const EntityFBS::EntityT&, GameWorld &world, unsigned int entity);
 
-bool load_entity_from_filename(const std::__cxx11::string &name, GameWorld &game_world, unsigned int entity);
+bool load_entity_from_filename(const std::string &name, GameWorld &world, unsigned int entity);
 
-void delete_entity_from_scene(GameWorld &game_world, unsigned int entity);
+void save_scene_to_fb(const std::string &, GameWorld &, float zoom);
+bool load_scene_from_fb(const std::string &, GameWorld &, float &zoom);
 
-// loads entity by name and changes position
-void scene_entity_to_world(const scene::Entity& pb_entity, GameWorld &game_world, unsigned int);
-
-
-#endif //SINGING_WIND_SCENEIO_H
+#endif /* SCENEIO_ALT_H */

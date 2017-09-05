@@ -1,7 +1,3 @@
-//
-// Created by jammer on 18/05/17.
-//
-
 #include <fstream>
 #include <iostream>
 #include <ColShape.h>
@@ -15,334 +11,417 @@
 #include "PosComponent.h"
 #include "SkillComponent.h"
 #include "PatrolComponent.h"
-#include "SceneIO_alt.h"
+#include "Island.h"
 
-scene::Entity * get_pb_entity(GameWorld &game_world, unsigned int entity) {
+#include <flatbuffers/flatbuffers.h>
+#include <scene_generated.h>
+
+
+std::unique_ptr<EntityFBS::EntityT> get_fb_entity(GameWorld &world, unsigned int entity) {
     using namespace std;
-
-    scene::Entity *pb_entity = new scene::Entity;
+    using namespace EntityFBS;
+    unique_ptr<EntityFBS::EntityT> fbs_ent_ptr = unique_ptr<EntityFBS::EntityT>(new EntityFBS::EntityT);
+    auto &fbs_ent = *fbs_ent_ptr;
+    const auto &bset = world.entities().at(entity);
 
     // bitset
-    auto bset = new scene::Bitset;
-    bset->set_bitset(game_world.entities().at(entity).to_ulong());
-    pb_entity->set_allocated_bitset(bset);
+    fbs_ent.bitset = bset.to_ulong();
 
-    // pos_c
-    if (game_world.entities().at(entity).test(CPosition)) {
-        auto pos_c = new scene::PosComponent;
-        auto pos = new scene::Point;
-        pos->set_x(game_world.pos_c(entity).position.x);
-        pos->set_y(game_world.pos_c(entity).position.y);
-        pos_c->set_allocated_position(pos);
-        pos_c->set_parent(game_world.pos_c(entity).parent);
-        pos_c->set_rotation(game_world.pos_c(entity).rotation);
-        pb_entity->set_allocated_pos_c(pos_c);
+    // poc_c
+    if (bset.test(CPosition)) {
+        const auto &pos_c = world.pos_c(entity);
+        fbs_ent.pos_c = unique_ptr<PosComponentT>(new PosComponentT());
+        fbs_ent.pos_c->rotation = pos_c.rotation;
+        fbs_ent.pos_c->parent = pos_c.parent;
+        fbs_ent.pos_c->position = unique_ptr<Point>(new Point());
+        fbs_ent.pos_c->position->mutate_x(pos_c.position.x);
+        fbs_ent.pos_c->position->mutate_y(pos_c.position.y);
     }
 
     // input_c
-    if (game_world.entities().at(entity).test(CInput)) {
-        auto input_c = new scene::InputComponent;
-        input_c->set_func(static_cast<int>(game_world.input_c(entity).input_func));
-        pb_entity->set_allocated_input_c(input_c);
+    if (bset.test(CInput)) {
+        fbs_ent.input_c = static_cast<int>(world.input_c(entity).input_func);
     }
 
     // move_c
-    if (game_world.entities().at(entity).test(CMove)) {
-        auto move_c = new scene::MoveComponent;
-        move_c->set_moveset(static_cast<int>(game_world.move_c(entity).moveset));
-        move_c->set_movestate(static_cast<int>(game_world.move_c(entity).movestate));
-        move_c->set_mass(game_world.move_c(entity).mass);
-        pb_entity->set_allocated_move_c(move_c);
+    if (bset.test(CMove)) {
+        fbs_ent.move_c = unique_ptr<MoveComponentT>(new MoveComponentT);
+        fbs_ent.move_c->moveset = static_cast<int>(world.move_c(entity).moveset);
+        fbs_ent.move_c->movestate = static_cast<int>(world.move_c(entity).movestate);
+        fbs_ent.move_c->mass = world.move_c(entity).mass;
     }
 
-    // static_col_comp
-    if (game_world.entities().at(entity).test(CStaticCol)) {
-        auto static_c = new scene::StaticColComponent;
-        auto capsule = dynamic_cast<ColCapsule *>(game_world.cshape_c(entity).shape.get());
-        static_c->set_col_response(static_cast<int>(game_world.static_col_c(entity).col_response));
-        static_c->set_shape(static_cast<int>(capsule->m_type));
-        static_c->set_length(capsule->m_length);
-        static_c->set_radius(capsule->get_capsule_radius());
-        pb_entity->set_allocated_static_col_c(static_c);
+    // shape_c
+    if (bset.test(CColShape)) {
+        const auto &capsule = dynamic_cast<ColCapsule *>(world.cshape_c(entity).shape.get());
+        fbs_ent.shape_c = unique_ptr<ShapeComponentT>(new ShapeComponentT);
+        fbs_ent.shape_c->shape = static_cast<int>(capsule->m_type);
+        fbs_ent.shape_c->length = capsule->m_length;
+        fbs_ent.shape_c->radius = capsule->get_capsule_radius();
+    }
+
+    // static col
+    if (bset.test(CStaticCol)) {
+        fbs_ent.static_col_c = static_cast<int>(world.static_col_c(entity).col_response);
     }
 
     // name
-    pb_entity->set_name(game_world.name_c(entity));
+    fbs_ent.name = world.name_c(entity);
 
-    // ground move
-    if (game_world.entities().at(entity).test(CGroundMove)) {
-        auto ground_c = new scene::GroundMoveComponent;
-        ground_c->set_accel(game_world.ground_move_c(entity).c_accel);
-        ground_c->set_stop_friction(game_world.ground_move_c(entity).c_stop_friction);
-        ground_c->set_turn_mod(game_world.ground_move_c(entity).c_turn_mod);
-        ground_c->set_max_vel(game_world.ground_move_c(entity).c_max_vel);
-        pb_entity->set_allocated_ground_move_c(ground_c);
+    // gound_move_c
+    if (bset.test(CGroundMove)) {
+        const auto &gc = world.ground_move_c(entity);
+        fbs_ent.ground_move_c = unique_ptr<GroundMoveComponentT>(new GroundMoveComponentT);
+        fbs_ent.ground_move_c->accel = gc.c_accel;
+        fbs_ent.ground_move_c->turn_mod = gc.c_turn_mod;
+        fbs_ent.ground_move_c->stop_friction = gc.c_stop_friction;
+        fbs_ent.ground_move_c->max_vel = gc.c_max_vel;
     }
 
-    // jump
-    if (game_world.entities().at(entity).test(CFall)) {
-        scene::FallComponent *fall_c = new scene::FallComponent;
-        fall_c->set_turn_mod(game_world.fall_c(entity).c_turn_mod);
-        fall_c->set_accel(game_world.fall_c(entity).c_accel);
-        fall_c->set_jump_height(game_world.fall_c(entity).c_jump_height);
-        fall_c->set_max_vel(game_world.fall_c(entity).c_max_vel);
-        pb_entity->set_allocated_fall_c(fall_c);
+    // fall_c
+    if (bset.test(CFall)) {
+        const auto &fc = world.fall_c(entity);
+        fbs_ent.fall_c = unique_ptr<FallComponentT>(new FallComponentT);
+        fbs_ent.fall_c->accel = fc.c_accel;
+        fbs_ent.fall_c->turn_mod = fc.c_turn_mod;
+        fbs_ent.fall_c->jump_height = fc.c_jump_height;
+        fbs_ent.fall_c->max_vel = fc.c_max_vel;
     }
 
-    // fly
-    if (game_world.entities().at(entity).test(CFly)) {
-        auto fly_c = new scene::FlyComponent;
-        auto from = new scene::Point;
-        auto ctrl_from = new scene::Point;
-        scene::Point *ctrl_to = new scene::Point;
-        scene::Point *to = new scene::Point;
-        fly_c->set_accel_force(game_world.fly_c(entity).c_accel_force);
-        fly_c->set_accel_time(game_world.fly_c(entity).c_accel_time);
-        fly_c->set_lift(game_world.fly_c(entity).c_lift);
-        fly_c->set_max_change_angle(game_world.fly_c(entity).c_max_change_angle);
-        fly_c->set_stall_angle(game_world.fly_c(entity).c_stall_angle);
-        fly_c->set_push_vel(game_world.fly_c(entity).c_push_vel);
-        from->set_x(game_world.fly_c(entity).from.x);
-        from->set_y(game_world.fly_c(entity).from.y);
-        ctrl_from->set_x(game_world.fly_c(entity).ctrl_from.x);
-        ctrl_from->set_y(game_world.fly_c(entity).ctrl_from.y);
-        ctrl_to->set_x(game_world.fly_c(entity).ctrl_to.x);
-        ctrl_to->set_y(game_world.fly_c(entity).ctrl_to.y);
-        to->set_x(game_world.fly_c(entity).to.x);
-        to->set_y(game_world.fly_c(entity).to.y);
-        fly_c->set_allocated_from(from);
-        fly_c->set_allocated_ctrl_from(ctrl_from);
-        fly_c->set_allocated_ctrl_to(ctrl_to);
-        fly_c->set_allocated_to(to);
-        pb_entity->set_allocated_fly_c(fly_c);
+    // fly_c
+    if (bset.test(CFly)) {
+        const auto &fc = world.fly_c(entity);
+        fbs_ent.fly_c = unique_ptr<FlyComponentT>(new FlyComponentT);
+        auto &fbs_fc = fbs_ent.fly_c;
+        fbs_fc->lift = fc.c_lift;
+        fbs_fc->stall_angle = fc.c_stall_angle;
+        fbs_fc->max_change_angle = fc.c_max_change_angle;
+        fbs_fc->accel_force = fc.c_accel_force;
+        fbs_fc->accel_time = fc.c_accel_time;
+        fbs_fc->push_vel = fc.c_push_vel;
+
+        fbs_fc->to = unique_ptr<Point>(new Point);
+        fbs_fc->ctrl_to = unique_ptr<Point>(new Point);
+        fbs_fc->ctrl_from = unique_ptr<Point>(new Point);
+        fbs_fc->from = unique_ptr<Point>(new Point);
+        fbs_fc->to->mutate_x(fc.to.x);
+        fbs_fc->to->mutate_y(fc.to.y);
+        fbs_fc->ctrl_to->mutate_x(fc.ctrl_to.x);
+        fbs_fc->ctrl_to->mutate_y(fc.ctrl_to.y);
+        fbs_fc->ctrl_from->mutate_x(fc.ctrl_from.x);
+        fbs_fc->ctrl_from->mutate_y(fc.ctrl_from.y);
+        fbs_fc->from->mutate_x(fc.from.x);
+        fbs_fc->from->mutate_y(fc.from.y);
     }
 
     // simple fly
-    if (game_world.entities().at(entity).test(CSimpleFly)) {
-        auto fly_c = new scene::SimplyFlyComponent;
-        fly_c->set_max_vel(game_world.simple_fly_c(entity).c_max_vel);
-        fly_c->set_accel(game_world.simple_fly_c(entity).c_accel);
-        fly_c->set_near_threshold(game_world.simple_fly_c(entity).c_near_threshold);
-        fly_c->set_stop_coef(game_world.simple_fly_c(entity).c_stop_coef);
-        pb_entity->set_allocated_simple_fly_c(fly_c);
+    if (bset.test(CSimpleFly)) {
+        const auto &fc = world.simple_fly_c(entity);
+        fbs_ent.simple_fly_c = unique_ptr<SimpleFlyComponentT>(new SimpleFlyComponentT);
+        auto &fbc_fc = fbs_ent.simple_fly_c;
+
+        fbc_fc->max_vel = fc.c_max_vel;
+        fbc_fc->accel = fc.c_accel;
+        fbc_fc->near_threshold = fc.c_near_threshold;
+        fbc_fc->stop_coef = fc.c_stop_coef;
     }
 
-    // dyn col
-    if (game_world.entities().at(entity).test(CDynCol)) {
-        auto dc = new scene::DynColComponent;
-        dc->set_col_response(static_cast<int>(game_world.dyn_col_c(entity).col_response));
-        pb_entity->set_allocated_dyn_col_c(dc);
+    // dyn_col_c
+    if (bset.test(CDynCol)) {
+        fbs_ent.dyn_col_c = static_cast<int>(world.dyn_col_c(entity).col_response);
     }
 
     // tag
-    if (game_world.entities().at(entity).test(CTag)) {
-        auto tc = new scene::TagComponent;
-        tc->set_tags(game_world.tag_c(entity).to_ulong());
-        pb_entity->set_allocated_tag_c(tc);
+    if (bset.test(CTag)) {
+        fbs_ent.tag_c = world.tag_c(entity).to_ulong();
     }
-    // col shape?
-    // skill
-    if (game_world.entities().at(entity).test(CSkill)) {
-        auto sc = new scene::SkillComponent;
-        for (auto &skill : game_world.skill_c(entity).skills) {
-            sc->add_skill_array(static_cast<int>(skill->id));
-        }
-        pb_entity->set_allocated_skill_c(sc);
-    }
-    // statuseffect
-    // ai
-    // patrol
-    if (game_world.entities().at(entity).test(CPatrol)) {
-        auto pc = new scene::PatrolComponent;
-        auto pp = new scene::Point;
-        pp->set_x(game_world.patrol_c(entity).patrol_point.x);
-        pp->set_y(game_world.patrol_c(entity).patrol_point.y);
-        pc->set_allocated_pp(pp);
-        pb_entity->set_allocated_patrol_c(pc);
-    }
-    
 
-    return move(pb_entity);
+    // skill_c
+    if (bset.test(CSkill)) {
+        auto &skill_vec = fbs_ent.skill_c;
+        skill_vec.clear();
+
+        for (const auto &skill : world.skill_c(entity).skills) {
+            skill_vec.push_back(static_cast<int>(skill->id));
+        }
+    }
+
+    // patrol_c
+    if (bset.test(CPatrol)) {
+        fbs_ent.patrol_c = unique_ptr<PatrolComponentT>(new PatrolComponentT);
+        fbs_ent.patrol_c->pp = unique_ptr<Point>(new Point);
+        fbs_ent.patrol_c->pp->mutate_x(world.patrol_c(entity).patrol_point.x);
+        fbs_ent.patrol_c->pp->mutate_y(world.patrol_c(entity).patrol_point.y);
+    }
+
+    return fbs_ent_ptr;
 }
 
-bool save_entity_standalone(GameWorld &game_world, unsigned int entity) {
-    /*using namespace std;
+bool save_entity_standalone(GameWorld &world, unsigned int entity) {
+    using namespace std;
 
-    auto pb_entity = get_pb_entity(game_world, entity);
-    pb_entity->mutable_pos_c()->mutable_position()->set_x(0);
-    pb_entity->mutable_pos_c()->mutable_position()->set_x(0);
-    pb_entity->mutable_pos_c()->set_parent(0);
+    auto fbs_ent = get_fb_entity(world, entity);
+    flatbuffers::FlatBufferBuilder fbb;
+    fbb.Finish(EntityFBS::Entity::Pack(fbb, &*fbs_ent));
 
-    string entity_name = game_world.name_c(entity);
+    string entity_name = world.name_c(entity);
     string filename = "scenes/" + entity_name + ".went";
-    fstream  scene_file(filename, ios_base::out | ios_base::trunc | ios_base::binary);
-    if (!pb_entity->SerializeToOstream(&scene_file)) {
-        cout << "Failed to write scene." << endl;
-        delete pb_entity;
-        return false;
-    }
-    cout << "wrote to file " << filename << endl;
-    delete pb_entity;*/
-    save_entity_standalone_fbs(game_world, entity);
+    ofstream scene_file(filename, ios_base::binary);
+    scene_file.write(reinterpret_cast<char *>(fbb.GetBufferPointer()), fbb.GetSize());
+    scene_file.close();
+
     return true;
 }
 
-void entity_to_world(const scene::Entity &pb_entity, GameWorld &game_world, unsigned int entity) {
-// bitset
-    auto bitset = pb_entity.bitset();
-    game_world.entities()[entity] = bset(bitset.bitset());
+void entity_to_world(const EntityFBS::EntityT& fb_ent, GameWorld &world, unsigned int entity) {
+
+    // bitset
+    world.entities()[entity] = bset(fb_ent.bitset);
+    const auto &bs = world.entities()[entity];
 
     // pos_c
-    if (pb_entity.has_pos_c()) {
-        auto pos_c = pb_entity.pos_c();
-        game_world.pos_c(entity).rotation = pos_c.rotation();
-        game_world.pos_c(entity).position = WVec(pos_c.position().x(), pos_c.position().y());
-        game_world.pos_c(entity).parent = pos_c.parent();
-        build_global_transform(game_world, entity);
-    }
+    if (bs.test(CPosition)) {
+        auto &pos_c = fb_ent.pos_c;
+        auto &pc = world.pos_c(entity);
 
-    // input_c
-    if (pb_entity.has_input_c()) {
-        auto input_c = pb_entity.input_c();
-        game_world.input_c(entity).input_func = static_cast<InputFunc>(input_c.func());
+        pc.position = WVec(pos_c->position->x(), pos_c->position->y());
+        pc.rotation = pos_c->rotation;
+        pc.parent = pos_c->parent;
+        build_global_transform(world, entity);
     }
 
     // move_c
-    if (pb_entity.has_move_c()) {
-        auto move_c = pb_entity.move_c();
-        game_world.move_c(entity).movestate = static_cast<MoveState>(move_c.movestate());
-        game_world.move_c(entity).moveset = static_cast<MoveSet>(move_c.moveset());
-        game_world.move_c(entity).mass = move_c.mass();
+    if (bs.test(CMove)) {
+        auto &move_c = fb_ent.move_c;
+        auto &mc= world.move_c(entity);
+
+        mc.movestate = static_cast<MoveState>(move_c->movestate);
+        mc.moveset = static_cast<MoveSet>(move_c->moveset);
+        mc.mass = move_c->mass;
     }
 
-    // static_col_c
-    if (pb_entity.has_static_col_c()) {
-        auto static_c = pb_entity.static_col_c();
-        if (static_cast<ColShapeName>(static_c.shape()) != ColShapeName::ColCapsule) {
-            assert(false);
-        }
-        game_world.cshape_c(entity).shape = std::make_shared<ColCapsule>(ColCapsule{static_c.radius(), static_c.length()});
-        game_world.entities()[entity].set(CColShape);
-        game_world.static_col_c(entity).col_response = static_cast<StaticColResponse>(static_c.col_response());
+    // input_c
+    if (bs.test(CInput)) {
+        world.input_c(entity).input_func = static_cast<InputFunc>(fb_ent.input_c);
     }
 
+    // shape_c
+    if (bs.test(CColShape)) {
+        auto &shape_c = fb_ent.shape_c;
+        auto &sc= world.cshape_c(entity);
+
+        assert(shape_c->shape == static_cast<int>(ColShapeName::ColCapsule));
+        sc.shape = std::make_shared<ColCapsule>(ColCapsule{shape_c->radius, shape_c->length});
+    }
+
+    // static col
+    if (bs.test(CStaticCol)) {
+        world.static_col_c(entity).col_response = static_cast<StaticColResponse>(fb_ent.static_col_c);
+    }
 
     // name
-    game_world.name_c(entity) = pb_entity.name();
+    world.name_c(entity) = fb_ent.name;
 
     // ground move
-    if (pb_entity.has_ground_move_c()) {
-        auto ground_move_c = pb_entity.ground_move_c();
-        game_world.ground_move_c(entity).c_accel = ground_move_c.accel();
-        game_world.ground_move_c(entity).c_turn_mod = ground_move_c.turn_mod();
-        game_world.ground_move_c(entity).c_stop_friction = ground_move_c.stop_friction();
-        game_world.ground_move_c(entity).c_max_vel = ground_move_c.max_vel();
+    if (bs.test(CGroundMove)) {
+        auto &ground_c = fb_ent.ground_move_c;
+        auto &gc = world.ground_move_c(entity);
+
+        gc.c_accel = ground_c->accel;
+        gc.c_stop_friction = ground_c->stop_friction;
+        gc.c_turn_mod = ground_c->turn_mod;
+        gc.c_max_vel = ground_c->max_vel;
     }
 
-    // jump move
-    if (pb_entity.has_fall_c()) {
-        auto fall_c = pb_entity.fall_c();
-        game_world.fall_c(entity).c_accel = fall_c.accel();
-        game_world.fall_c(entity).c_turn_mod = fall_c.turn_mod();
-        game_world.fall_c(entity).c_jump_height = fall_c.jump_height();
-        game_world.fall_c(entity).c_max_vel = fall_c.max_vel();
+    // fall_c
+    if (bs.test(CFall)) {
+        auto &fall_c = fb_ent.fall_c;
+        auto &fc = world.fall_c(entity);
+
+        fc.c_accel = fall_c->accel;
+        fc.c_turn_mod = fall_c->turn_mod;
+        fc.c_jump_height = fall_c->jump_height;
+        fc.c_max_vel = fall_c->max_vel;
     }
 
-    // fly move
-    if (pb_entity.has_fly_c()) {
-        auto fly_c = pb_entity.fly_c();
-        game_world.fly_c(entity).c_lift = fly_c.lift();
-        game_world.fly_c(entity).c_stall_angle = fly_c.stall_angle();
-        game_world.fly_c(entity).c_max_change_angle = fly_c.max_change_angle();
-        game_world.fly_c(entity).c_accel_time = fly_c.accel_time();
-        game_world.fly_c(entity).c_accel_force = fly_c.accel_force();
-        game_world.fly_c(entity).c_push_vel = fly_c.push_vel();
+    // fly_c
+    if (bs.test(CFly)) {
+        auto &fly_c = fb_ent.fly_c;
+        auto &fc = world.fly_c(entity);
 
-        game_world.fly_c(entity).from = WVec(fly_c.from().x(), fly_c.from().y());
-        game_world.fly_c(entity).ctrl_from = WVec(fly_c.ctrl_from().x(), fly_c.ctrl_from().y());
-        game_world.fly_c(entity).ctrl_to = WVec(fly_c.ctrl_to().x(), fly_c.ctrl_to().y());
-        game_world.fly_c(entity).to = WVec(fly_c.to().x(), fly_c.to().y());
+        fc.c_lift = fly_c->lift;
+        fc.c_stall_angle = fly_c->stall_angle;
+        fc.c_max_change_angle = fly_c->stall_angle;
+        fc.c_accel_force = fly_c->accel_force;
+        fc.c_accel_time = fly_c->accel_time;
+        fc.c_push_vel = fly_c->push_vel;
+
+        fc.from = WVec(fly_c->from->x(), fly_c->from->y());
+        fc.ctrl_from = WVec(fly_c->ctrl_from->x(), fly_c->ctrl_from->y());
+        fc.ctrl_to = WVec(fly_c->ctrl_to->x(), fly_c->ctrl_to->y());
+        fc.to = WVec(fly_c->to->x(), fly_c->to->y());
     }
 
-    // simply fly
-    if (pb_entity.has_simple_fly_c()) {
-        auto fly_c = pb_entity.simple_fly_c();
-        game_world.simple_fly_c(entity).c_max_vel = fly_c.max_vel();
-        game_world.simple_fly_c(entity).c_accel = fly_c.accel();
-        game_world.simple_fly_c(entity).c_near_threshold = fly_c.near_threshold();
-        game_world.simple_fly_c(entity).c_stop_coef = fly_c.stop_coef();
+    // simple gly
+    if (bs.test(CSimpleFly)) {
+        auto &fly_c = fb_ent.simple_fly_c;
+        auto &fc = world.simple_fly_c(entity);
+
+        fc.c_max_vel = fly_c->max_vel;
+        fc.c_accel = fly_c->accel;
+        fc.c_near_threshold = fly_c->near_threshold;
+        fc.c_stop_coef = fly_c->stop_coef;
     }
 
     // dyn col
-    if (pb_entity.has_dyn_col_c()) {
-        auto dc = pb_entity.dyn_col_c();
-        game_world.dyn_col_c(entity).col_response = static_cast<DynColResponse>(dc.col_response());
+    if (bs.test(CDynCol)) {
+        world.dyn_col_c(entity).col_response = static_cast<DynColResponse>(fb_ent.dyn_col_c);
     }
 
-    // tag
-    if (pb_entity.has_tag_c()) {
-        auto tc = pb_entity.tag_c();
-        game_world.tag_c(entity) = bset(tc.tags());
+    // tag_c
+    if (bs.test(CTag)) {
+        world.tag_c(entity) = bset(fb_ent.tag_c);
     }
-    // col shape?
-    // skill
-    if (pb_entity.has_skill_c()) {
-        auto skill_c = pb_entity.skill_c();
-        auto &sc = game_world.skill_c(entity);
+
+    // skill_c
+    if (bs.test(CSkill)) {
+        auto &sc = world.skill_c(entity);
+        sc.active = nullptr;
         sc.skills.clear();
-        for (auto i = 0 ; i < skill_c.skill_array_size() ; ++i) {
-            auto id_int = skill_c.skill_array(i);
-            SkillID id = static_cast<SkillID>(id_int);
-            auto new_skill = skill::get_new_skill(id);
-            if (new_skill) {
-                sc.skills.push_back(new_skill);
-            }
+        for (auto id : fb_ent.skill_c) {
+            sc.skills.push_back(skill::get_new_skill(static_cast<SkillID>(id)));
         }
     }
-    // statuseffect
-    // ai
-    // patrol
-    if (pb_entity.has_patrol_c()) {
-        auto patrol_c = pb_entity.patrol_c();
-        game_world.patrol_c(entity).patrol_point = WVec(patrol_c.pp().x(), patrol_c.pp().y());
+
+    // patrol_c
+    if (bs.test(CPatrol)) {
+        world.patrol_c(entity).patrol_point = WVec(fb_ent.patrol_c->pp->x(),
+                fb_ent.patrol_c->pp->y());
     }
 }
 
-bool load_entity_from_filename(const std::__cxx11::string &name, GameWorld &game_world, unsigned int entity) {
-    /*using namespace std;
+bool load_entity_from_filename(const std::string &name, GameWorld &world, unsigned int entity) {
+    using namespace std;
 
-    fstream scene_file(name, ios_base::in | ios_base::binary);
-    scene::Entity pb_entity;
+    fstream entity_file(name, ios_base::in | ios_base::binary);
 
-    if (!scene_file) {
+    if (!entity_file) {
         cout << "Entity file not found: " << name << endl;
         return false;
     }
-    pb_entity.ParseFromIstream(&scene_file);
 
-    entity_to_world(pb_entity, game_world, entity);*/
-    std::cout << "here" << std::endl;
-    load_entity_from_filename_fbs(name, game_world, entity);
+    // parse file
+    entity_file.seekg(0, ios::end);
+    auto size = entity_file.tellg();
+    vector<char> flatbuffer;
+    flatbuffer.resize(size);
+    entity_file.seekg(0, ios::beg);
+    entity_file.read(flatbuffer.data(), size);
+
+    auto verifier = flatbuffers::Verifier(reinterpret_cast<uint8_t *>(flatbuffer.data()), size);
+    if (!EntityFBS::VerifyEntityBuffer(verifier)) {
+        return false;
+    }
+    auto fb_ent = EntityFBS::UnPackEntity(flatbuffer.data());
+    entity_to_world(*fb_ent, world, entity);
     return true;
 }
 
-void delete_entity_from_scene(GameWorld &game_world, unsigned int entity) {
-    game_world.delete_entity_raw(entity);
+void scene_entity_to_world_fbs(const EntityFBS::EntityT &fb_ent, GameWorld &world, unsigned int entity) {
+    std::string filename = "scenes/" + fb_ent.name + ".went";
+    if (fb_ent.name != "root" and load_entity_from_filename(filename, world, entity)) {
+        if (world.entities()[entity].test(CPosition)) {
+            auto &pos_c = fb_ent.pos_c;
+            auto &pc = world.pos_c(entity);
+            pc.rotation = pos_c->rotation;
+            pc.position = WVec(pos_c->position->x(), pos_c->position->y());
+            pc.parent = pos_c->parent;
+            build_global_transform(world, entity);
+        }
+    } else {
+        entity_to_world(fb_ent, world, entity);
+    }
 }
 
-void scene_entity_to_world(const scene::Entity &pb_entity, GameWorld &game_world, unsigned int entity) {
-    std::string filename = "scenes/" + pb_entity.name() + ".went";
-    if (!(pb_entity.name() == "root") and load_entity_from_filename(filename, game_world, entity)) {
-        if (pb_entity.has_pos_c()) {
-            auto pos_c = pb_entity.pos_c();
-            game_world.pos_c(entity).rotation = pos_c.rotation();
-            game_world.pos_c(entity).position = WVec(pos_c.position().x(), pos_c.position().y());
-            game_world.pos_c(entity).parent = pos_c.parent();
-            build_global_transform(game_world, entity);
-        }
-        return;
+bool load_scene_from_fb(const std::string &name, GameWorld &world, float &zoom) {
+    using namespace std;
+
+    string filename = "scenes/" + name + ".wscn";
+    fstream scene_file(filename, ios::in | ios::binary);
+
+    if (!scene_file) {
+        cout << "Scene file not found: " << filename << endl;
+        return false;
     }
 
-    // else we have to load normally from scene
-    entity_to_world(pb_entity, game_world, entity);
+    // parse file
+    scene_file.seekg(0, ios::end);
+    auto size = scene_file.tellg();
+    vector<char> flatbuffer;
+    flatbuffer.resize(size);
+    scene_file.seekg(0, ios::beg);
+    scene_file.read(flatbuffer.data(), size);
+
+    auto verifier = flatbuffers::Verifier(reinterpret_cast<uint8_t *>(flatbuffer.data()), size);
+    if (!SceneFBS::VerifySceneBuffer(verifier)) {
+        return false;
+    }
+    auto fb_scene = SceneFBS::UnPackScene(flatbuffer.data());
+
+    auto &islands = world.islands();
+    islands.clear();
+    for (auto & fb_island : fb_scene->islands) {
+        Island island;
+        for (auto &fb_point : fb_island->points) {
+            island.m_points.push_back(WVec(fb_point.x(), fb_point.y()));
+        }
+        for (auto &fb_point : fb_island->ctrl_points) {
+            island.m_ctrl_points.push_back(WVec(fb_point.x(), fb_point.y()));
+        }
+        islands.push_back(island);
+    }
+
+    world.reset_entities();
+    for (auto &fb_ent : fb_scene->entities) {
+        scene_entity_to_world_fbs(*fb_ent, world, world.create_entity());
+    }
+
+    zoom = fb_scene->zoom;
+
+    return true;
+}
+
+void save_scene_to_fb(const std::string &name, GameWorld &world, float zoom) {
+    using namespace std;
+
+    const auto &islands = world.islands();
+    const auto &entities = world.entities();
+
+    SceneFBS::SceneT scene;
+    for (const auto &island : islands) {
+        scene.islands.push_back(unique_ptr<SceneFBS::IslandT>(new SceneFBS::IslandT));
+        auto &fb_island = scene.islands[scene.islands.size() - 1];
+        for (const auto &point : island.m_points) {
+            fb_island->points.push_back(SceneFBS::Point(point.x, point.y));
+        }
+        for (const auto &point : island.m_ctrl_points) {
+            fb_island->ctrl_points.push_back(SceneFBS::Point(point.x, point.y));
+        }
+    }
+    scene.zoom = zoom;
+
+    for (unsigned int entity = 0 ; entity < entities.size() ; ++entity) {
+        scene.entities.push_back(get_fb_entity(world, entity));
+    }
+
+    // save file
+    flatbuffers::FlatBufferBuilder fbb;
+    fbb.Finish(SceneFBS::Scene::Pack(fbb, &scene));
+
+    string filename = "scenes/" + name + ".wscn";
+    ofstream scene_file(filename, ios_base::binary);
+    scene_file.write(reinterpret_cast<char *>(fbb.GetBufferPointer()), fbb.GetSize());
+    scene_file.close();
+
+    cout << "wrote to file: " << filename << endl;
 }

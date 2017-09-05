@@ -6,10 +6,9 @@
 #include "EditorStates.h"
 #include "ColShape.h"
 #include "GameWorld.h"
-#include "SceneIO.h"
 #include "Island.h"
 #include "EntityEditor.h"
-#include "SceneIO_alt.h"
+#include "SceneIO.h"
 
 #include "WRenderer.h"
 #include <imgui.h>
@@ -145,81 +144,16 @@ void EngineEditorState::update_world() {
 }
 
 bool EngineEditorState::load_scene(const std::string &name) {
-    using namespace std;
-    auto &islands = m_game_world.islands();
-
-    string filename = "scenes/" + name + ".wscn";
-    fstream scene_file(filename, ios::in | ios::binary);
-    scene::Scene pb_scene;
-    if (!scene_file) {
-        cout << "File not found." << filename << endl;
-        return false;
-    }
-    pb_scene.ParseFromIstream(&scene_file);
-    islands.clear();
-    for (auto pb_island : pb_scene.islands()) {
-        Island island;
-        for (int i = 0 ; i < pb_island.points_size() ; ++i) {
-            auto pb_point = pb_island.points(i);
-            island.m_points.push_back(WVec(pb_point.x(), pb_point.y()));
-        }
-        for (int i = 0 ; i < pb_island.ctrl_points_size() ; ++i) {
-            auto pb_point = pb_island.ctrl_points(i);
-            island.m_ctrl_points.push_back(WVec(pb_point.x(), pb_point.y()));
-        }
-        islands.push_back(island);
-    }
-    m_game_world.reset_entities();
-    for (auto pb_entity : pb_scene.entities()) {
-        scene_entity_to_world(pb_entity, m_game_world, m_game_world.create_entity());
-    }
-
-    m_zoom = pb_scene.zoom();
-
-    update_world();
-
-    if (load_scene_fbs(name, m_game_world, m_zoom)) {
+    if (load_scene_from_fb(name, m_game_world, m_zoom)) {
         update_world();
     }
+    m_state = std::unique_ptr<BaseEditorSubState>(new EditorIdle);
 
     return true;
 }
 
 void EngineEditorState::save_scene(const std::string &name) const {
-    using namespace std;
-    const auto &islands = m_game_world.islands();
-    const auto &entities = m_game_world.entities();
-
-    scene::Scene pb_scene;
-    for (const auto &island : islands) {
-        auto pb_island = pb_scene.add_islands();
-        for (const auto &point : island.m_points) {
-            auto pb_point = pb_island->add_points();
-            pb_point->set_x(point.x);
-            pb_point->set_y(point.y);
-        }
-        for (const auto &point : island.m_ctrl_points) {
-            auto pb_point = pb_island->add_ctrl_points();
-            pb_point->set_x(point.x);
-            pb_point->set_y(point.y);
-        }
-    }
-    pb_scene.set_zoom(m_zoom);
-
-    for (unsigned int i = 0 ; i < entities.size() ; ++i) {
-        auto pb_ent = pb_scene.add_entities();
-        scene::Entity *standalone_ent = get_pb_entity(m_game_world, i);
-        memcpy(pb_ent, standalone_ent, sizeof(*standalone_ent));
-    }
-
-    string filename = "scenes/" + name + ".wscn";
-    fstream  scene_file(filename, ios::out | ios::trunc | ios::binary);
-    if (!pb_scene.SerializeToOstream(&scene_file)) {
-        cout << "Failed to write scene." << endl;
-    }
-    cout << "wrote to file " << filename << endl;
-
-    save_scene_fbs(name, m_game_world, m_zoom);
+    save_scene_to_fb(name, m_game_world, m_zoom);
 }
 
 inline void new_scene(GameWorld& world) {

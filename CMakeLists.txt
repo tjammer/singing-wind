@@ -10,14 +10,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2 -fno-exceptions -W -
 add_subdirectory(external)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/skills
-    ${PROJECT_BINARY_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/external/include)
-link_directories(${PROJECT_SOURCE_DIR}/external/lib-linux)
-
-
-find_library(protobuf libprotobuf)
-find_package(Protobuf REQUIRED)
-PROTOBUF_GENERATE_CPP(protosrc protohdr src/Scene.proto)
+    ${PROJECT_BINARY_DIR})
 
 set(INCLUDE_FILES include/Engine.h
     include/Editor.h
@@ -112,7 +105,6 @@ set(SOURCE_FILES src/main.cpp
     src/ai_input_funcs.cpp
     src/PatrolComponent.cpp
     skills/Lounge.cpp
-    src/SceneIO_alt.cpp
     src/PosComponent.cpp)
 
 set (flatbuffers_schemas 
@@ -131,7 +123,7 @@ endif(enable_unity_build)
 
 add_executable(singing_wind ${SOURCE_FILES} ${protosrc} ${protohdr})
 add_dependencies(singing_wind schemas)
-target_link_libraries(singing_wind imgui glfw glm glad protobuf triangle nanoflann flatbuffers)
+target_link_libraries(singing_wind imgui glfw glm glad triangle nanoflann flatbuffers)
 
 # at compile time
 add_custom_command(TARGET singing_wind POST_BUILD
