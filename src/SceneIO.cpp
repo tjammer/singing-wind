@@ -36,6 +36,7 @@ std::unique_ptr<EntityFBS::EntityT> get_fb_entity(GameWorld &world, unsigned int
         fbs_ent.pos_c->position = unique_ptr<Point>(new Point());
         fbs_ent.pos_c->position->mutate_x(pos_c.position.x);
         fbs_ent.pos_c->position->mutate_y(pos_c.position.y);
+        fbs_ent.pos_c->direction = pos_c.direction;
     }
 
     // input_c
@@ -187,6 +188,7 @@ void entity_to_world(const EntityFBS::EntityT& fb_ent, GameWorld &world, unsigne
         pc.position = WVec(pos_c->position->x(), pos_c->position->y());
         pc.rotation = pos_c->rotation;
         pc.parent = pos_c->parent;
+        pc.direction = pos_c->direction;
         build_global_transform(world, entity);
     }
 

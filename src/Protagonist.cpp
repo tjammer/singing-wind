@@ -138,11 +138,10 @@ void protagonist::on_ground(GameWorld &world, unsigned int entity) {
     auto &ic = world.input_c(entity);
     auto &mc = world.move_c(entity);
     auto &gc = world.ground_move_c(entity);
-    auto &bset = world.entities()[entity];
 
-    if (bset.test(CInput) and ic.direction[0] and ic.direction[0] != ic.last_dir) {
+    /*if (bset.test(CInput) and ic.direction[0] and ic.direction[0] != ic.last_dir) {
         ic.last_dir = ic.direction[0];
-    }
+    }*/
 
     walk(ic, mc, gc);
     pseudo_friction(mc, gc);

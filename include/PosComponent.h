@@ -9,6 +9,7 @@ struct PosComponent {
     WTransform global_transform = WTransform();
     WTransform global_inverse_transform = WTransform();
     unsigned int parent = 0;
+    int direction = 1;
 };
 
 class GameWorld;

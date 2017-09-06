@@ -27,6 +27,7 @@ table PosComponent {
     position:Point;
     rotation:float;
     parent:uint;
+    direction:short = 1;
 }
 
 table MoveComponent {

@@ -5,6 +5,8 @@
 #include <glm/gtx/matrix_transform_2d.hpp>
 
 void build_global_transform(GameWorld &world, unsigned int entity) {
+    using namespace glm;
     auto &pc = world.pos_c(entity);
-    pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * world.pos_c(pc.parent).global_transform;
+    pc.global_transform = rotate(translate(WTransform(), pc.position), pc.rotation) * world.pos_c(pc.parent).global_transform;
+    // TODO: apply scale for direction
 }
