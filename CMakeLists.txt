@@ -107,7 +107,7 @@ set(SOURCE_FILES src/main.cpp
     skills/Lounge.cpp
     src/PosComponent.cpp)
 
-set (flatbuffers_schemas 
+set (flatbuffers_schemas
     ${PROJECT_SOURCE_DIR}/schemas/entity.fbs
     ${PROJECT_SOURCE_DIR}/schemas/scene.fbs)
 

@@ -73,7 +73,7 @@ namespace ai {
         } else if (world.move_c(entity).movestate == MoveState::Hover) {
             ai_input::hover(world, entity);
         }
-    } 
+    }
 
     const std::map<AIType, const char*> c_ai_types = {
         {AIType::TestEnemy, "TestEnemy"}
