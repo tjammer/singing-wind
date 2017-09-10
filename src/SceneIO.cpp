@@ -12,6 +12,7 @@
 #include "SkillComponent.h"
 #include "PatrolComponent.h"
 #include "Island.h"
+#include "AIComponent.h"
 
 #include <flatbuffers/flatbuffers.h>
 #include <scene_generated.h>
@@ -54,11 +55,17 @@ std::unique_ptr<EntityFBS::EntityT> get_fb_entity(GameWorld &world, unsigned int
 
     // shape_c
     if (bset.test(CColShape)) {
-        const auto &capsule = dynamic_cast<ColCapsule *>(world.cshape_c(entity).shape.get());
+        auto &type = world.cshape_c(entity).shape->m_type;
         fbs_ent.shape_c = unique_ptr<ShapeComponentT>(new ShapeComponentT);
-        fbs_ent.shape_c->shape = static_cast<int>(capsule->m_type);
-        fbs_ent.shape_c->length = capsule->m_length;
-        fbs_ent.shape_c->radius = capsule->get_capsule_radius();
+
+        if (type == ColShapeName::ColCapsule) {
+            const auto &capsule = dynamic_cast<ColCapsule *>(world.cshape_c(entity).shape.get());
+            fbs_ent.shape_c->length = capsule->m_length;
+            fbs_ent.shape_c->radius = capsule->get_capsule_radius();
+        } else if (type == ColShapeName::ColCircle) {
+            fbs_ent.shape_c->radius = world.cshape_c(entity).shape->get_radius();
+        }
+        fbs_ent.shape_c->shape = static_cast<int>(type);
     }
 
     // static col
@@ -155,6 +162,17 @@ std::unique_ptr<EntityFBS::EntityT> get_fb_entity(GameWorld &world, unsigned int
         fbs_ent.patrol_c->pp->mutate_y(world.patrol_c(entity).patrol_point.y);
     }
 
+    // ai_c
+    if (bset.test(CAI)) {
+        fbs_ent.ai_c = unique_ptr<AIComponentT>(new AIComponentT);
+        fbs_ent.ai_c->state = static_cast<int>(world.ai_c(entity).state);
+        fbs_ent.ai_c->type = static_cast<int>(world.ai_c(entity).type);
+        fbs_ent.ai_c->msg_data.clear();
+        for (auto msg : world.ai_c(entity).msg_data) {
+            fbs_ent.ai_c->msg_data.push_back(msg);
+        }
+    }
+
     return fbs_ent_ptr;
 }
 
@@ -211,9 +229,13 @@ void entity_to_world(const EntityFBS::EntityT& fb_ent, GameWorld &world, unsigne
     if (bs.test(CColShape)) {
         auto &shape_c = fb_ent.shape_c;
         auto &sc= world.cshape_c(entity);
+        auto type = static_cast<ColShapeName>(shape_c->shape);
 
-        assert(shape_c->shape == static_cast<int>(ColShapeName::ColCapsule));
-        sc.shape = std::make_shared<ColCapsule>(ColCapsule{shape_c->radius, shape_c->length});
+        if (type == ColShapeName::ColCapsule) {
+            sc.shape = std::make_shared<ColCapsule>(ColCapsule{shape_c->radius, shape_c->length});
+        } else if (type == ColShapeName::ColCircle) {
+            sc.shape = std::make_shared<ColCircle>(ColCircle{shape_c->radius});
+        } else assert(false);
     }
 
     // static col
@@ -299,6 +321,19 @@ void entity_to_world(const EntityFBS::EntityT& fb_ent, GameWorld &world, unsigne
     if (bs.test(CPatrol)) {
         world.patrol_c(entity).patrol_point = WVec(fb_ent.patrol_c->pp->x(),
                 fb_ent.patrol_c->pp->y());
+    }
+
+    // ai_c
+    if (bs.test(CAI)) {
+        auto &ac = world.ai_c(entity);
+        auto &ai_c = fb_ent.ai_c;
+
+        ac.type = static_cast<AIType>(ai_c->type);
+        ac.state = static_cast<AIState>(ai_c->state);
+        ac.msg_data.clear();
+        for (auto msg : ai_c->msg_data) {
+            ac.msg_data.push_back(msg);
+        }
     }
 }
 

@@ -21,6 +21,7 @@ table Entity {
     tag_c:ulong;
     skill_c:[int];
     patrol_c:PatrolComponent;
+    ai_c:AIComponent;
 }
 
 table PosComponent {
@@ -79,6 +80,12 @@ table SimpleFlyComponent {
 
 table PatrolComponent {
     pp:Point;
+}
+
+table AIComponent {
+    state:int;
+    type:int;
+    msg_data:[int];
 }
 
 root_type Entity;

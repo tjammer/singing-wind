@@ -199,6 +199,11 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
                     }
                     break;
                 }
+                case ColShapeName::ColCircle:{
+                    if (shape->m_type != ColShapeName::ColCircle) {
+                        shape = std::shared_ptr<ColShape>(new ColCircle(30));
+                    }
+                }
                 default: break;
             }
         }
@@ -215,6 +220,14 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
                 }
                 break;
             }
+            case ColShapeName::ColCircle: {
+                 auto circle = dynamic_cast<ColCircle*>(shape.get());
+                 float radius = shape->get_radius();
+                 if (DragFloat("radius", &radius)) {
+                     circle->set_radius(radius);
+                 }
+                 break;
+              }
             default: break;
         }
     }

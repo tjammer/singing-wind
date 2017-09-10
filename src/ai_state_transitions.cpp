@@ -113,6 +113,7 @@ bool ai_transitions::trans_pursuit(GameWorld &world, unsigned int entity) {
 }
 
 bool ai_transitions::trans_attack(GameWorld &, unsigned int ) {
+    // TODO: get attacks, and test for attack trans funcs
     return false;
 }
 

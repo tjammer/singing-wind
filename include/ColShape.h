@@ -60,6 +60,7 @@ public:
     virtual void add_gfx_lines(const WTransform &tf) override;
     virtual void transform(const WTransform &transform) override;
     virtual void reset() override;
+    void set_radius(float r) {m_radius = r;}
 
     ColCircle(float radius);
     ~ColCircle() = default;

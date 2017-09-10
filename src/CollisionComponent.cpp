@@ -33,7 +33,9 @@ std::function<void(GameWorld & world, unsigned int entity)> get_dynamic_col_resp
 
 const std::map<DynColResponse, const char*> c_dyn_col_response_string = {
     {DynColResponse::Actor, "Actor"},
-    {DynColResponse::Projectile, "Projectile"}
+    {DynColResponse::Projectile, "Projectile"},
+    {DynColResponse::HurtBox, "HurtBox"},
+    {DynColResponse::AlertBubble, "AlerBubble"}
 };
 
 auto dyn_col_responses = get_enum_string_array(c_dyn_col_response_string);

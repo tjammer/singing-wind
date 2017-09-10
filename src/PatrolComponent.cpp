@@ -29,8 +29,7 @@ namespace alert_bubble {
         auto &pc = world.pos_c(alert);
         pc.parent = entity;
         pc.position = {0, 0};
-pc.global_transform =  world.pos_c(pc.parent).global_transform * glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation);
-
+        build_global_transform(world, alert);
 
         // col shape
         auto &csc = world.cshape_c(alert);

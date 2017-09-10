@@ -9,7 +9,8 @@ const std::map<Tags, const char*> tags_string = {
     {Tags::Protagonist, "Protagonist"},
     {Tags::Enemy, "Enemy"},
     {Tags::Projectile, "Projectile"},
-    {Tags::Hurtbox, "Hurtbox"}
+    {Tags::Hurtbox, "Hurtbox"},
+    {Tags::AlertBubble, "AlertBubble"}
 };
 
 void entity_edit_tags(GameWorld &world, unsigned int entity) {
