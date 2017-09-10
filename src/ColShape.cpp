@@ -8,7 +8,7 @@
 #include <WRenderer.h>
 #include <iostream>
 
-ColTriangle::ColTriangle(const WVec &p1, const WVec &p2, const WVec &p3) {
+ColTriangle::ColTriangle(const WVec &p1, const WVec &p2, const WVec &p3) : m_rest_vertices({{p1, p2, p3}}) {
     m_vertices[0] = p1;
     m_vertices[1] = p2;
     m_vertices[2] = p3;
@@ -35,7 +35,7 @@ void ColTriangle::add_gfx_lines(const WTransform &tf) {
                 {{m_vertices[(i + 1) % m_vertices.size()].x, m_vertices[(i + 1) % m_vertices.size()].y},
                          {1, 1, 1}});
     }
-    this->transform(glm::inverse(tf));
+    this->reset();
 }
 
 WVec ColTriangle::get_support(const WVec &dir) const {
@@ -59,6 +59,11 @@ void ColTriangle::transform(const WTransform &transform) {
     }
 }
 
+void ColTriangle::reset() {
+    m_center = {0, 0};
+    m_vertices = m_rest_vertices;
+}
+
 void ColCircle::add_gfx_lines(const WTransform &tf) {
     WRenderer::set_mode(PLines);
     this->transform(tf);
@@ -73,7 +78,7 @@ void ColCircle::add_gfx_lines(const WTransform &tf) {
                   m_center.y + cos((i + 1) * angle) * m_radius},
                   {0, 1, 0}});
     }
-    this->transform(glm::inverse(tf));
+    this->reset();
 }
 
 ColCircle::ColCircle(float radius) : m_radius(radius) {
@@ -93,13 +98,19 @@ void ColCircle::transform(const WTransform &transform) {
     m_center = WVec(transform * WVec3(m_center, 1.f));
 }
 
+void ColCircle::reset() {
+    m_center = {0, 0};
+}
+
 ColResult ColShape::collides(const ColShape &other) const {
     return static_collide(*this, other);
 }
 
-ColCapsule::ColCapsule(float radius, float length) : m_length(length), m_capsule_radius(radius) {
-    m_a = WVec(m_center.x, m_center.y + length / 2.f);
-    m_b = WVec(m_center.x, m_center.y - length / 2.f);
+ColCapsule::ColCapsule(float radius, float length) : m_length(length), m_capsule_radius(radius),
+    m_rest_a(WVec(m_center.x, m_center.y + length / 2.f)),
+    m_rest_b(WVec(m_center.x, m_center.y - length / 2.f)) {
+    m_a = m_rest_a;
+    m_b = m_rest_b;
     m_radius = length / 2.f + radius;
     m_type = ColShapeName ::ColCapsule;
 }
@@ -128,6 +139,12 @@ void ColCapsule::transform(const WTransform &transform) {
     m_b = WVec(transform * WVec3(m_b, 1));
 }
 
+void ColCapsule::reset() {
+    m_center = {0, 0};
+    m_a = m_rest_a;
+    m_b = m_rest_b;
+}
+
 void ColCapsule::add_gfx_lines(const WTransform &tf) {
     WRenderer::set_mode(PLines);
     this->transform(tf);
@@ -140,7 +157,7 @@ void ColCapsule::add_gfx_lines(const WTransform &tf) {
         WRenderer::add_primitive_vertex({{s2.x, s2.y},
                                          {1,    1, 1}});
     }
-    this->transform(glm::inverse(tf));
+    this->reset();
 }
 
 void ColCapsule::set_length(float length) {
@@ -166,4 +183,8 @@ WVec ColPoint::get_support(const WVec &) const {
 
 void ColPoint::transform(const WTransform &transform) {
     m_center = WVec(transform * WVec3(m_center, 1));
+}
+
+void ColPoint::reset() {
+    m_center = {0, 0};
 }

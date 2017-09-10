@@ -72,9 +72,9 @@ void melee_skill::Skill::channel_start(GameWorld &world, unsigned int entity) {
     // pos
     auto &pc = world.pos_c(hurtbox);
     pc.parent = entity;
-    pc.position = WVec(0, -35);
+    pc.position = WVec(30, -35);
     pc.rotation = 0;
-    pc.global_transform =  world.pos_c(pc.parent).global_transform * glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation);
+    build_global_transform(world, hurtbox);
     // col shape
     auto &csc = world.cshape_c(hurtbox);
     csc.shape = std::shared_ptr<ColShape>(new ColCapsule(35, 15));

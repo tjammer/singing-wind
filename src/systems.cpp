@@ -45,10 +45,7 @@ void static_col_update(GameWorld &world, const std::vector<unsigned int> &entiti
     for (const auto entity : entities) {
         // position
         auto &transform = world.pos_c(entity).global_transform;
-        auto &inverse = world.pos_c(entity).global_inverse_transform;
         auto &pos = world.pos_c(entity).position;
-        auto &rot = world.pos_c(entity).rotation;
-        auto parent = world.pos_c(entity).parent;
 
         // collision
         auto &result = world.static_col_c(entity).col_result;
@@ -69,7 +66,7 @@ void static_col_update(GameWorld &world, const std::vector<unsigned int> &entiti
                 }
             }
         }
-        shape->transform(inverse);
+        shape->reset();
 
         if (result.collides && result.epa_it < 21) {
             auto move_back = result.normal * -result.depth;
@@ -86,8 +83,7 @@ void static_col_update(GameWorld &world, const std::vector<unsigned int> &entiti
 
             // slide movement and collide again
             //circle to world
-            transform = glm::rotate(glm::translate(WTransform(), pos), rot) * world.pos_c(parent).global_transform;
-            inverse = glm::inverse(transform);
+            build_global_transform(world, entity);
             shape->transform(transform);
 
             ColResult second_result;
@@ -100,14 +96,13 @@ void static_col_update(GameWorld &world, const std::vector<unsigned int> &entiti
                     }
                 }
             }
-            shape->transform(inverse);
+            shape->reset();
 
             if (second_result.collides) {
                 WVec correction = find_directed_overlap(second_result, WVec(-move_back.y, move_back.x));
                 pos += correction;
 
-                transform = glm::rotate(glm::translate(WTransform(), pos), rot) * world.pos_c(parent).global_transform;
-                inverse = glm::inverse(transform);
+                build_global_transform(world, entity);
             }
 
             // call back
@@ -161,8 +156,7 @@ void move_update(GameWorld &world, float timedelta) {
             mc.time_fac = 1;
         }
 
-        pc.global_transform =  world.pos_c(pc.parent).global_transform * glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation);
-        pc.global_inverse_transform = glm::inverse(pc.global_transform);
+        build_global_transform(world, entity);
     }
 }
 
@@ -192,7 +186,7 @@ void skill_update(GameWorld &world, float dt, const std::vector<unsigned int> &e
         auto begin = ic.att_melee.begin();
         auto end = ic.att_melee.end();
         if (ic.att_melee[0] and std::find(begin, end, false) != end) {
-            skill::cast(world, entity, SkillID::Lounge);
+            skill::cast(world, entity, SkillID::Melee);
         }
 
         for (auto &skill : sc.skills) {
@@ -269,7 +263,7 @@ void dyn_col_update(GameWorld &world, std::unordered_map<unsigned int, bool> &en
             shape->transform(world.pos_c(box.entity).global_transform);
             box.mins = shape->m_center - shape->get_radius();
             box.maxs = shape->m_center + shape->get_radius();
-            shape->transform(world.pos_c(box.entity).global_inverse_transform);
+            shape->reset();
         } else {
             // todo move to delete list
             to_delete.push_back(box.entity);
@@ -319,9 +313,8 @@ void dyn_col_update(GameWorld &world, std::unordered_map<unsigned int, bool> &en
         shape_a->transform(world.pos_c(a).global_transform);
         shape_b->transform(world.pos_c(b).global_transform);
         auto result = shape_a->collides(*shape_b);
-        shape_a->transform(world.pos_c(a).global_inverse_transform);
-        shape_b->transform(world.pos_c(b).global_inverse_transform);
-
+        shape_a->reset();
+        shape_b->reset();
 
         if (result.collides) {
             auto &dc = world.dyn_col_c(a);

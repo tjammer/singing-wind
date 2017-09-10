@@ -27,6 +27,7 @@ public:
     virtual ColResult collides(const ColShape &other) const;
     virtual void add_gfx_lines(const WTransform &transform) = 0;
     virtual void transform(const WTransform &transform) = 0;
+    virtual void reset() = 0;
 
     // in local space
     WVec m_center;
@@ -41,12 +42,15 @@ public:
     float get_radius() const override {return m_radius;}
     virtual void add_gfx_lines(const WTransform &tf) override;
     virtual void transform(const WTransform &transform) override;
+    virtual void reset() override;
+
     ColTriangle(const WVec &p1, const WVec &p2, const WVec &p3);
     ~ColTriangle() = default;
 
 private:
     std::array<WVec, 3> m_vertices;
     float m_radius;
+    const std::array<WVec, 3> m_rest_vertices;
 };
 
 class ColCircle : public ColShape {
@@ -55,6 +59,7 @@ public:
     float get_radius() const override {return m_radius;}
     virtual void add_gfx_lines(const WTransform &tf) override;
     virtual void transform(const WTransform &transform) override;
+    virtual void reset() override;
 
     ColCircle(float radius);
     ~ColCircle() = default;
@@ -69,6 +74,7 @@ public:
     float get_radius() const override {return m_radius;}
     virtual void add_gfx_lines(const WTransform &tf) override;
     virtual void transform(const WTransform &transform) override;
+    virtual void reset() override;
 
     ColCapsule(float radius, float length);
     ~ColCapsule() = default;
@@ -83,6 +89,8 @@ private:
     float m_capsule_radius;
     WVec m_a;
     WVec m_b;
+    const WVec m_rest_a;
+    const WVec m_rest_b;
 };
 
 class ColPoint : public ColShape {
@@ -91,6 +99,7 @@ public:
     float get_radius() const override {return 0;}
     virtual void add_gfx_lines(const WTransform &) override {};
     virtual void transform(const WTransform &transform) override;
+    virtual void reset() override;
 
     ColPoint();
     ~ColPoint() = default;

@@ -74,6 +74,7 @@ namespace skill {
             // TODO: save also skill data
             // save skill bitset to array
             sc.skills.clear();
+            sc.active = nullptr;
             for (size_t i = 0 ; i < static_cast<size_t>(SkillID::state_count) ; ++i) {
                 if (ss.test(i)) {
                     SkillID id = static_cast<SkillID>(i);

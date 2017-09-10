@@ -54,7 +54,7 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
     // base information
     Text("id:");
     SameLine(100);
-    Text(to_string(m_entity).c_str());
+    Text("%s", to_string(m_entity).c_str());
 
     string &_name = m_world.name_c(m_entity);
     vector<char> entity_name(_name.begin(), _name.end());
@@ -72,7 +72,7 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
             CheckboxFlags(pair.second, &flags, 1 << static_cast<int>(pair.first));
         }
         comps = bset(flags);
-        Text(comps.to_string().c_str());
+        Text("%s", comps.to_string().c_str());
     }
 
     // position
@@ -90,6 +90,8 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
         if (InputInt("parent", &parent)) {
             pc.parent = (unsigned int) parent;
             pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * m_world.pos_c(pc.parent).global_transform;
+        }
+        if (DragInt("direction", &pc.direction, 2, -1, 1)) {
         }
     }
 
