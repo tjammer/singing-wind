@@ -124,8 +124,10 @@ namespace lounge_skill {
         pc.rotation += copysignf(fmin(fc.c_max_change_angle, abs(mouse_angle)), mouse_angle);
         pc.rotation = std::remainder(pc.rotation, (float)M_PI * 2.f);
 
-        mc.velocity = {0, 0};
-        mc.accel = {0, 0};
+        // cancel gravity
+        mc.accel.y -= c_gravity;
+        // slow caster down
+        mc.accel -= w_normalize(mc.velocity) * w_magnitude(mc.velocity) * 0.7f;
     }
 
     void move_channel(GameWorld &world, unsigned int entity) {

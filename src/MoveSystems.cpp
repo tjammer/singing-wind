@@ -47,6 +47,10 @@ void still_func(GameWorld &world, unsigned int entity) {
     mc.accel = {0, 0};
 }
 
+void void_func(GameWorld &, unsigned int ) {
+
+}
+
 const accel_func special_funcs[static_cast<size_t>(SpecialMoveState::state_count)] = {
     nullptr,
     still_func,
@@ -55,7 +59,7 @@ const accel_func special_funcs[static_cast<size_t>(SpecialMoveState::state_count
     melee_skill::move_channel,
     lounge_skill::move_buildup,
     lounge_skill::move_channel,
-    still_func
+    void_func // lounge_recover
 };
 
 std::unordered_map<MoveState, std::vector<MoveState>> protagonist_trans = {
