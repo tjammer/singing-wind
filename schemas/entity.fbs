@@ -76,6 +76,7 @@ table SimpleFlyComponent {
     accel:float;
     near_threshold:float;
     stop_coef:float;
+    max_change_angle:float;
 }
 
 table PatrolComponent {
