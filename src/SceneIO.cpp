@@ -275,7 +275,7 @@ void entity_to_world(const EntityFBS::EntityT& fb_ent, GameWorld &world, unsigne
 
         fc.c_lift = fly_c->lift;
         fc.c_stall_angle = fly_c->stall_angle;
-        fc.c_max_change_angle = fly_c->stall_angle;
+        fc.c_max_change_angle = fly_c->max_change_angle;
         fc.c_accel_force = fly_c->accel_force;
         fc.c_accel_time = fly_c->accel_time;
         fc.c_push_vel = fly_c->push_vel;
