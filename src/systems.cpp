@@ -17,8 +17,6 @@
 #include "StatusEffectComponent.h"
 #include "AIComponent.h"
 
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/matrix_transform_2d.hpp>
 #include <WRenderer.h>
 #include <WVecMath.h>
 #include <algorithm>

@@ -14,9 +14,6 @@
 #include "Components.h"
 #include "StatusEffectComponent.h"
 
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/matrix_transform_2d.hpp>
-
 void melee_skill_hurtfunc(GameWorld &world, unsigned int victim, unsigned int attacker) {
     // knockback
     auto dir = w_normalize(world.pos_c(victim).position - world.pos_c(attacker).position);

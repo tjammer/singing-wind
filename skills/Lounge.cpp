@@ -14,10 +14,6 @@
 #include "Components.h"
 #include "StatusEffectComponent.h"
 
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/matrix_transform_2d.hpp>
-#include "StatusEffectComponent.h"
-
 void lounge_skill_hurtfunc(GameWorld &world, unsigned int victim, unsigned int attacker) {
     // knockback
     auto dir = w_normalize(world.pos_c(victim).position - world.pos_c(attacker).position);
@@ -64,7 +60,7 @@ namespace lounge_skill {
         pc.parent = entity;
         pc.position = WVec(0, 0);
         pc.rotation = 0;
-        pc.global_transform =  world.pos_c(pc.parent).global_transform * glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation);
+        build_global_transform(world, hurtbox);
         // col shape
         auto &csc = world.cshape_c(hurtbox);
         csc.shape = world.cshape_c(entity).shape;
