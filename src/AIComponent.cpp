@@ -79,7 +79,17 @@ namespace ai {
         {AIType::TestEnemy, "TestEnemy"}
     };
 
-    auto ai_types = get_enum_string_array(c_ai_types);
+    const std::map<AIState, const char*> c_ai_states = {
+        {AIState::Idle, "Idle"},
+        {AIState::Pursuit, "Pursuit"},
+        {AIState::Attack, "Attack"},
+        {AIState::Flee, "Flee"},
+        {AIState::Return, "Return"},
+        {AIState::NotInit, "NotInit"}
+    };
+
+    const auto ai_types = get_enum_string_array(c_ai_types);
+    const auto ai_states = get_enum_string_array(c_ai_states);
 
     void entity_edit(GameWorld &world, unsigned int entity) {
         using namespace ImGui;
@@ -88,6 +98,10 @@ namespace ai {
             int type = static_cast<int>(ac.type);
             if (Combo("type", &type, ai_types.data(), ai_types.size())) {
                 ac.type = static_cast<AIType>(type);
+            }
+            int state = static_cast<int>(ac.state);
+            if (Combo("state", &state, ai_states.data(), ai_states.size())) {
+                ac.state = static_cast<AIState>(state);
             }
         }
     }

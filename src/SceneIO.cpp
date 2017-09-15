@@ -368,6 +368,8 @@ bool load_entity_from_filename(const std::string &name, GameWorld &world, unsign
 
 void scene_entity_to_world_fbs(const EntityFBS::EntityT &fb_ent, GameWorld &world, unsigned int entity) {
     std::string filename = "scenes/" + fb_ent.name + ".went";
+    // TODO: this needs to be done with attributes maybe
+    // for now this works
     if (fb_ent.name != "root" and load_entity_from_filename(filename, world, entity)) {
         if (world.entities()[entity].test(CPosition)) {
             auto &pos_c = fb_ent.pos_c;
@@ -376,6 +378,10 @@ void scene_entity_to_world_fbs(const EntityFBS::EntityT &fb_ent, GameWorld &worl
             pc.position = WVec(pos_c->position->x(), pos_c->position->y());
             pc.parent = pos_c->parent;
             build_global_transform(world, entity);
+        }
+        if (world.entities()[entity].test(CPatrol)) {
+            world.patrol_c(entity).patrol_point = WVec(fb_ent.patrol_c->pp->x(),
+                    fb_ent.patrol_c->pp->y());
         }
     } else {
         entity_to_world(fb_ent, world, entity);
