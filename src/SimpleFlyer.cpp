@@ -18,25 +18,23 @@ void simpleflyer::simple_flying(GameWorld &world, unsigned int entity) {
     auto &fc = world.simple_fly_c(entity);
     auto &pc = world.pos_c(entity);
     auto &mc = world.move_c(entity);
-    
+
     auto dir = w_normalize(ic.mouse[0] - pc.position);
     // rotate
     auto mouse = WVec(glm::inverse(pc.global_transform) * WVec3(ic.mouse[0], 1));
     // see src/Protagonist angle_up
-    float mouse_angle = atan2f(mouse.x, -mouse.y);
-    pc.rotation += copysignf(fmin(fc.c_max_change_angle, abs(mouse_angle)), mouse_angle);
+    //float mouse_angle = atan2f(mouse.x, -mouse.y);
+    auto vel = w_normalize(mc.velocity);
+    auto steering = dir - vel;
+
+    auto angle =  w_angle_to_vec(w_rotated_deg(WVec(0, -1), pc.rotation), mc.velocity);
+    pc.rotation += copysignf(fmin(fc.c_max_change_angle, abs(angle)), angle);
     pc.rotation = std::remainder(pc.rotation, (float)M_PI * 2.f);
-    // cancel gravity
-    mc.accel.y = 0;
-    float distance = w_magnitude(ic.mouse[0] - pc.position);
-    if (distance > fc.c_near_threshold) {
-        // accel if not already max vel
-        if (w_magnitude(mc.velocity) >= fc.c_max_vel) {
-            mc.velocity = w_normalize(mc.velocity) * fc.c_max_vel * 0.5f + dir * fc.c_max_vel * 0.5f;
-        }
-        mc.accel += fc.c_accel * dir;
-    } else {
-        mc.accel -= fc.c_stop_coef * mc.velocity;
+    mc.velocity = w_magnitude(mc.velocity) * w_rotated_deg(WVec(0, -1), pc.rotation);
+
+    mc.accel = (vel + steering) * fc.c_accel;
+    if (w_magnitude(mc.velocity) > fc.c_max_vel) {
+        mc.velocity = vel * fc.c_max_vel;
     }
 }
 
@@ -66,7 +64,7 @@ void simpleflyer::hover(GameWorld &world, unsigned int entity) {
     // rotate
     pc.rotation += copysignf(fmin(fc.c_max_change_angle, abs(pc.rotation)), pc.rotation - (float)M_PI);
     pc.rotation = std::remainder(pc.rotation, (float)M_PI * 2.f);
-    
+
     // hover
     // mitigate gravity
     mc.accel.y *= 0.0f;

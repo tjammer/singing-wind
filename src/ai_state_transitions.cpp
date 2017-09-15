@@ -123,7 +123,7 @@ bool ai_transitions::trans_flee(GameWorld &, unsigned int ) {
 
 bool ai_transitions::trans_return(GameWorld &world, unsigned int entity) {
     auto &ac = world.ai_c(entity);
-    if (ac.msg_data[0] > 10) {
+    if (ac.msg_data[0] > 30) {
         return true;
     }
     return false;
