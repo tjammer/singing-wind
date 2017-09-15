@@ -166,12 +166,14 @@ std::unique_ptr<EntityFBS::EntityT> get_fb_entity(GameWorld &world, unsigned int
     // ai_c
     if (bset.test(CAI)) {
         fbs_ent.ai_c = unique_ptr<AIComponentT>(new AIComponentT);
-        fbs_ent.ai_c->state = static_cast<int>(world.ai_c(entity).state);
+        // this saves ai state as notinit, so we got no
+        // problems with temp objects like hurtboxes and so on
+        fbs_ent.ai_c->state = static_cast<int>(AIState::NotInit);
         fbs_ent.ai_c->type = static_cast<int>(world.ai_c(entity).type);
-        fbs_ent.ai_c->msg_data.clear();
-        for (auto msg : world.ai_c(entity).msg_data) {
-            fbs_ent.ai_c->msg_data.push_back(msg);
-        }
+        // fbs_ent.ai_c->msg_data.clear();
+        // for (auto msg : world.ai_c(entity).msg_data) {
+        //     fbs_ent.ai_c->msg_data.push_back(msg);
+        // }
     }
 
     return fbs_ent_ptr;
@@ -186,11 +188,36 @@ bool save_entity_standalone(GameWorld &world, unsigned int entity) {
 
     string entity_name = world.name_c(entity);
     string filename = "scenes/" + entity_name + ".went";
-    ofstream scene_file(filename, ios_base::binary);
-    scene_file.write(reinterpret_cast<char *>(fbb.GetBufferPointer()), fbb.GetSize());
-    scene_file.close();
+    ofstream entity_file(filename, ios_base::binary);
+    entity_file.write(reinterpret_cast<char *>(fbb.GetBufferPointer()), fbb.GetSize());
+    entity_file.close();
 
     return true;
+}
+
+// saves only pos, name and bitset, rest is loaded from hdd
+void save_entity_scene(GameWorld &world, unsigned int entity) {
+    using namespace std;
+    using namespace EntityFBS;
+    unique_ptr<EntityFBS::EntityT> fbs_ent_ptr = unique_ptr<EntityFBS::EntityT>(new EntityFBS::EntityT);
+    auto &fbs_ent = *fbs_ent_ptr;
+    const auto &bset = world.entities().at(entity);
+
+    // bitset
+    fbs_ent.bitset = bset.to_ulong();
+
+    // poc_c
+    if (bset.test(CPosition)) {
+        const auto &pos_c = world.pos_c(entity);
+        fbs_ent.pos_c = unique_ptr<PosComponentT>(new PosComponentT());
+        fbs_ent.pos_c->rotation = pos_c.rotation;
+        fbs_ent.pos_c->parent = pos_c.parent;
+        fbs_ent.pos_c->position = unique_ptr<Point>(new Point());
+        fbs_ent.pos_c->position->mutate_x(pos_c.position.x);
+        fbs_ent.pos_c->position->mutate_y(pos_c.position.y);
+        fbs_ent.pos_c->direction = pos_c.direction;
+    }
+    fbs_ent.name = world.name_c(entity);
 }
 
 void entity_to_world(const EntityFBS::EntityT& fb_ent, GameWorld &world, unsigned int entity) {
@@ -369,7 +396,8 @@ bool load_entity_from_filename(const std::string &name, GameWorld &world, unsign
 void scene_entity_to_world_fbs(const EntityFBS::EntityT &fb_ent, GameWorld &world, unsigned int entity) {
     std::string filename = "scenes/" + fb_ent.name + ".went";
     // TODO: this needs to be done with attributes maybe
-    // for now this works
+    // first loading from filename and then adding
+    // position component and setting patrol to pos if necessary
     if (fb_ent.name != "root" and load_entity_from_filename(filename, world, entity)) {
         if (world.entities()[entity].test(CPosition)) {
             auto &pos_c = fb_ent.pos_c;
@@ -377,13 +405,14 @@ void scene_entity_to_world_fbs(const EntityFBS::EntityT &fb_ent, GameWorld &worl
             pc.rotation = pos_c->rotation;
             pc.position = WVec(pos_c->position->x(), pos_c->position->y());
             pc.parent = pos_c->parent;
+            //pc.direction = pos_c->direction;
             build_global_transform(world, entity);
         }
         if (world.entities()[entity].test(CPatrol)) {
             world.patrol_c(entity).patrol_point = WVec(fb_ent.patrol_c->pp->x(),
                     fb_ent.patrol_c->pp->y());
         }
-    } else {
+    } else if (fb_ent.name == "root") {
         entity_to_world(fb_ent, world, entity);
     }
 }
@@ -456,7 +485,9 @@ void save_scene_to_fb(const std::string &name, GameWorld &world, float zoom) {
     scene.zoom = zoom;
 
     for (unsigned int entity = 0 ; entity < entities.size() ; ++entity) {
-        scene.entities.push_back(get_fb_entity(world, entity));
+        if (world.pos_c(entity).parent == 0) {
+            scene.entities.push_back(get_fb_entity(world, entity));
+        }
     }
 
     // save file
