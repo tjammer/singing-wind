@@ -111,19 +111,14 @@ namespace lounge_skill {
     void move_buildup(GameWorld &world, unsigned int entity) {
         auto &pc = world.pos_c(entity);
         auto &ic = world.input_c(entity);
-        auto &fc = world.fly_c(entity);
         auto &mc = world.move_c(entity);
 
-        auto mouse = WVec(glm::inverse(pc.global_transform) * WVec3(ic.mouse[0], 1));
-        // see src/Protagonist angle_up
-        float mouse_angle = atan2f(mouse.x, -mouse.y);
-        pc.rotation += copysignf(fmin(fc.c_max_change_angle, abs(mouse_angle)), mouse_angle);
-        pc.rotation = std::remainder(pc.rotation, (float)M_PI * 2.f);
+        rotate_to(ic.mouse[0], 0.08f, pc);
 
         // cancel gravity
         mc.accel.y -= c_gravity;
         // slow caster down
-        mc.accel -= w_normalize(mc.velocity) * w_magnitude(mc.velocity) * 0.7f;
+        mc.accel -= w_normalize(mc.velocity) * w_magnitude(mc.velocity) * 0.4f;
     }
 
     void move_channel(GameWorld &world, unsigned int entity) {
@@ -135,7 +130,7 @@ namespace lounge_skill {
 
         // diminishing accel, see protagonist/walk
         float vel = fmin(lounge_speed, w_magnitude(mc.velocity));
-        mc.accel = w_rotated_deg(WVec(0, -lounge_accel), pc.rotation);
+        mc.accel = w_rotated_deg(WVec(0, -lounge_accel), pc.rotation * pc.direction);
         mc.accel *= (1.f - exp(-pow(vel - lounge_speed, 2.f) * 0.1f/lounge_speed));
     }
 }

@@ -20,17 +20,13 @@ void simpleflyer::simple_flying(GameWorld &world, unsigned int entity) {
     auto &mc = world.move_c(entity);
 
     auto dir = w_normalize(ic.mouse[0] - pc.position);
-    // rotate
-    auto mouse = WVec(glm::inverse(pc.global_transform) * WVec3(ic.mouse[0], 1));
-    // see src/Protagonist angle_up
-    //float mouse_angle = atan2f(mouse.x, -mouse.y);
     auto vel = w_normalize(mc.velocity);
     auto steering = dir - vel;
 
-    auto angle =  w_angle_to_vec(w_rotated_deg(WVec(0, -1), pc.rotation), mc.velocity);
-    pc.rotation += copysignf(fmin(fc.c_max_change_angle, abs(angle)), angle);
-    pc.rotation = std::remainder(pc.rotation, (float)M_PI * 2.f);
-    mc.velocity = w_magnitude(mc.velocity) * w_rotated_deg(WVec(0, -1), pc.rotation);
+    auto angle =  w_angle_to_vec(w_rotated_deg(WVec(0, -1), pc.rotation * pc.direction), mc.velocity);
+    rotate_angle(angle * pc.direction, fc.c_max_change_angle, pc);
+
+    mc.velocity = w_magnitude(mc.velocity) * w_rotated_deg(WVec(0, -1), pc.rotation * pc.direction);
 
     mc.accel = (vel + steering) * fc.c_accel;
     if (w_magnitude(mc.velocity) > fc.c_max_vel) {

@@ -13,4 +13,6 @@ struct PosComponent {
 
 class GameWorld;
 void build_global_transform(GameWorld &, unsigned int);
+void rotate_to(const WVec& to, float max_angle, PosComponent& pc);
+void rotate_angle(float angle, float max_angle, PosComponent& pc);
 #endif /* POSCOMPONENT_H */
