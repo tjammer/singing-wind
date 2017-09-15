@@ -11,7 +11,9 @@
 #include "PosComponent.h"
 
 void Camera::update(GameWorld &game_world) {
-    m_center = game_world.pos_c(m_entity_to_follow).position;
+    if (game_world.entities().size() >= m_entity_to_follow - 1) {
+        m_center = game_world.pos_c(m_entity_to_follow).position;
+    }
     update();
 }
 

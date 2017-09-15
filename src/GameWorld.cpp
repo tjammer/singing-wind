@@ -33,25 +33,25 @@ class GameWorld::impl {
     std::vector<bset> m_entities;
 
         // components
-        std::unordered_map<unsigned int, PosComponent> m_pos_c;
-        std::unordered_map<unsigned int, DebugComponent> m_debug_c;
-        std::unordered_map<unsigned int, InputComponent> m_input_c;
-        std::unordered_map<unsigned int, MoveComponent> m_move_c;
-        std::unordered_map<unsigned int, StaticColComponent> m_static_col_c;
-        std::unordered_map<unsigned int, GroundMoveComponent> m_ground_move_c;
-        std::unordered_map<unsigned int, FallComponent> m_fall_c;
-        std::unordered_map<unsigned int, FlyComponent> m_fly_c;
-        std::unordered_map<unsigned int, PathingComponent> m_path_c;
-        std::unordered_map<unsigned int, SimpleFlyComponent> m_simple_fly_c;
-        std::unordered_map<unsigned int, SkillComponent> m_skill_c;
-        std::unordered_map<unsigned int, DynamicColComponent> m_dyn_c;
-        std::unordered_map<unsigned int, TagComponent> m_tag_c;
-        std::unordered_map<unsigned int, ColShapeComponent> m_cshape_c;
-        std::unordered_map<unsigned int, LifeTimeComponent> m_lifetime_c;
-        std::unordered_map<unsigned int, HurtBoxComponent> m_hurtbox_c;
-        std::unordered_map<unsigned int, StatusEffectComponent> m_statuseffect_c;
-        std::unordered_map<unsigned int, AIComponent> m_ai_c;
-        std::unordered_map<unsigned int, PatrolComponent> m_patrol_c;
+        std::vector<PosComponent> m_pos_c;
+        std::vector<DebugComponent> m_debug_c;
+        std::vector<InputComponent> m_input_c;
+        std::vector<MoveComponent> m_move_c;
+        std::vector<StaticColComponent> m_static_col_c;
+        std::vector<GroundMoveComponent> m_ground_move_c;
+        std::vector<FallComponent> m_fall_c;
+        std::vector<FlyComponent> m_fly_c;
+        std::vector<PathingComponent> m_path_c;
+        std::vector<SimpleFlyComponent> m_simple_fly_c;
+        std::vector<SkillComponent> m_skill_c;
+        std::vector<DynamicColComponent> m_dyn_c;
+        std::vector<TagComponent> m_tag_c;
+        std::vector<ColShapeComponent> m_cshape_c;
+        std::vector<LifeTimeComponent> m_lifetime_c;
+        std::vector<HurtBoxComponent> m_hurtbox_c;
+        std::vector<StatusEffectComponent> m_statuseffect_c;
+        std::vector<AIComponent> m_ai_c;
+        std::vector<PatrolComponent> m_patrol_c;
         std::vector<NameComponent> m_name_c;
 
 
@@ -135,7 +135,26 @@ unsigned int GameWorld::create_entity() {
 
     // each component needs to be resized
     pimpl->m_entities.push_back(0);
-    pimpl->m_name_c.push_back(NameComponent());
+    pimpl->m_name_c.emplace_back(NameComponent());
+    pimpl->m_pos_c.emplace_back(PosComponent());
+    pimpl->m_debug_c.emplace_back(DebugComponent());
+    pimpl->m_input_c.emplace_back(InputComponent());
+    pimpl->m_move_c.emplace_back(MoveComponent());
+    pimpl->m_static_col_c.emplace_back(StaticColComponent());
+    pimpl->m_ground_move_c.emplace_back(GroundMoveComponent());
+    pimpl->m_fall_c.emplace_back(FallComponent());
+    pimpl->m_fly_c.emplace_back(FlyComponent());
+    pimpl->m_path_c.emplace_back(PathingComponent());
+    pimpl->m_simple_fly_c.emplace_back(SimpleFlyComponent());
+    pimpl->m_skill_c.emplace_back(SkillComponent());
+    pimpl->m_dyn_c.emplace_back(DynamicColComponent());
+    pimpl->m_tag_c.emplace_back(TagComponent());
+    pimpl->m_cshape_c.emplace_back(ColShapeComponent());
+    pimpl->m_lifetime_c.emplace_back(LifeTimeComponent());
+    pimpl->m_hurtbox_c.emplace_back(HurtBoxComponent());
+    pimpl->m_statuseffect_c.emplace_back(StatusEffectComponent());
+    pimpl->m_ai_c.emplace_back(AIComponent());
+    pimpl->m_patrol_c.emplace_back(PatrolComponent());
 
     return entity;
 }
@@ -161,11 +180,6 @@ void GameWorld::find_entities_fixed() {
         if (has_component(ent, c_input_components)) {
             pimpl->m_input_ents.push_back(i);
         }
-
-        // every entity has to update pos
-        /*if (has_component(ent, c_move_components)) {
-            pimpl->m_move_ents.push_back(i);
-        }*/
 
         if (has_component(ent, c_ground_move_components)) {
             pimpl->m_ground_move_ents.push_back(i);
@@ -227,27 +241,28 @@ unsigned int GameWorld::load_entity(const std::string &name) {
 void GameWorld::reset_entities() {
    pimpl->m_entities.clear();
 
-    // components
-    pimpl->m_pos_c.clear();
-    pimpl->m_debug_c.clear();
-    pimpl->m_input_c.clear();
-    pimpl->m_move_c.clear();
-    pimpl->m_static_col_c.clear();
-    pimpl->m_ground_move_c.clear();
-    pimpl->m_fall_c.clear();
-    pimpl->m_fly_c.clear();
-    pimpl->m_name_c.clear();
-    pimpl->m_path_c.clear();
-    pimpl->m_simple_fly_c.clear();
-    pimpl->m_skill_c.clear();
-    pimpl->m_dyn_c.clear();
-    pimpl->m_tag_c.clear();
-    pimpl->m_cshape_c.clear();
-    pimpl->m_lifetime_c.clear();
-    pimpl->m_hurtbox_c.clear();
-    pimpl->m_statuseffect_c.clear();
-    pimpl->m_ai_c.clear();
-    pimpl->m_patrol_c.clear();
+   // not needed rlly
+   // components
+   pimpl->m_pos_c.clear();
+   pimpl->m_debug_c.clear();
+   pimpl->m_input_c.clear();
+   pimpl->m_move_c.clear();
+   pimpl->m_static_col_c.clear();
+   pimpl->m_ground_move_c.clear();
+   pimpl->m_fall_c.clear();
+   pimpl->m_fly_c.clear();
+   pimpl->m_name_c.clear();
+   pimpl->m_path_c.clear();
+   pimpl->m_simple_fly_c.clear();
+   pimpl->m_skill_c.clear();
+   pimpl->m_dyn_c.clear();
+   pimpl->m_tag_c.clear();
+   pimpl->m_cshape_c.clear();
+   pimpl->m_lifetime_c.clear();
+   pimpl->m_hurtbox_c.clear();
+   pimpl->m_statuseffect_c.clear();
+   pimpl->m_ai_c.clear();
+   pimpl->m_patrol_c.clear();
 }
 
 void GameWorld::reset_islands() {
@@ -259,27 +274,8 @@ void GameWorld::create_root() {
 }
 
 void GameWorld::delete_entity_raw(unsigned int entity) {
-    pimpl->m_pos_c.erase(entity);
-    pimpl->m_debug_c.erase(entity);
-    pimpl->m_input_c.erase(entity);
-    pimpl->m_move_c.erase(entity);
-    pimpl->m_static_col_c.erase(entity);
-    pimpl->m_ground_move_c.erase(entity);
-    pimpl->m_fall_c.erase(entity);
-    pimpl->m_fly_c.erase(entity);
     pimpl->m_entities[entity].reset();
-    pimpl->m_path_c.erase(entity);
-    pimpl->m_simple_fly_c.erase(entity);
-    pimpl->m_skill_c.erase(entity);
-    pimpl->m_dyn_c.erase(entity);
-    pimpl->m_tag_c.erase(entity);
-    pimpl->m_cshape_c.erase(entity);
     assert(pimpl->m_entities[entity].none());
-    pimpl->m_lifetime_c.erase(entity);
-    pimpl->m_hurtbox_c.erase(entity);
-    pimpl->m_statuseffect_c.erase(entity);
-    pimpl->m_ai_c.erase(entity);
-    pimpl->m_patrol_c.erase(entity);
 }
 
 void GameWorld::impl::delete_entitites(GameWorld &world) {
