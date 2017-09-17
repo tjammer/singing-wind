@@ -40,10 +40,9 @@ inline float w_angle_to_vec(const WVec &v, const WVec &to) {
     return atan2(w_cross(v, to), w_dot(v, to));
 }
 
-inline WVec w_rotated_deg(const WVec &v, float angle) {
-    float rad_angle = static_cast<float>(angle);
+inline WVec w_rotated(const WVec &v, float angle) {
     float v_angle = atan2(v.y, v.x);
-    return WVec(cos(v_angle + rad_angle), sin(v_angle + rad_angle)) * w_magnitude(v);
+    return WVec(cos(v_angle + angle), sin(v_angle + angle)) * w_magnitude(v);
 }
 
 inline WVec w_tangent(const WVec &v) {

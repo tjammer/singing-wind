@@ -23,10 +23,10 @@ void simpleflyer::simple_flying(GameWorld &world, unsigned int entity) {
     auto vel = w_normalize(mc.velocity);
     auto steering = dir - vel;
 
-    auto angle =  w_angle_to_vec(w_rotated_deg(WVec(0, -1), pc.rotation * pc.direction), mc.velocity);
+    auto angle =  w_angle_to_vec(w_rotated(WVec(0, -1), pc.rotation * pc.direction), mc.velocity);
     rotate_angle(angle * pc.direction, fc.c_max_change_angle, pc);
 
-    mc.velocity = w_magnitude(mc.velocity) * w_rotated_deg(WVec(0, -1), pc.rotation * pc.direction);
+    mc.velocity = w_magnitude(mc.velocity) * w_rotated(WVec(0, -1), pc.rotation * pc.direction);
 
     mc.accel = (vel + steering) * fc.c_accel;
     if (w_magnitude(mc.velocity) > fc.c_max_vel) {

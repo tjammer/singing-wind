@@ -42,14 +42,14 @@ void ai_to_funcs::to_attack(GameWorld &world, unsigned int entity) {
     auto &ac = world.ai_c(entity);
 
     // transition has already set skillid in data vec
-    SkillID sid = static_cast<SkillID>(ac.msg_data[0]);
+    /*SkillID sid = static_cast<SkillID>(ac.msg_data[0]);
     if (skill::cast(world, entity, sid)) {
         ac.timer = 0;
         ac.state = AIState::Attack;
     } else {
         assert(false);
-    }
-
+    }*/
+    push_value(world.input_c(entity).att_melee, true);
 }
 
 void ai_to_funcs::to_return(GameWorld &world, unsigned int entity) {
@@ -107,13 +107,19 @@ bool ai_transitions::trans_pursuit(GameWorld &world, unsigned int entity) {
 
     // transition back from attack
     if (ac.state == AIState::Attack and world.skill_c(entity).active == nullptr) {
+        std::cout << "finished with skill" << std::endl;
         return true;
     }
     return false;
 }
 
-bool ai_transitions::trans_attack(GameWorld &, unsigned int ) {
-    // TODO: get attacks, and test for attack trans funcs
+bool ai_transitions::trans_attack(GameWorld &world, unsigned int entity) {
+    auto &sc = world.skill_c(entity);
+    for (auto &skill : sc.skills) {
+        if (ai_skill_attack_transitions::trans_attack(world, entity, static_cast<int>(skill->id))) {
+            return true;
+        }
+    }
     return false;
 }
 
@@ -127,4 +133,37 @@ bool ai_transitions::trans_return(GameWorld &world, unsigned int entity) {
         return true;
     }
     return false;
+}
+
+namespace ai_skill_attack_transitions {
+    bool trans_lounge(GameWorld &world, unsigned int entity) {
+        const auto &pathc = world.path_c(entity);
+        const auto &pc = world.pos_c(entity);
+        auto &ac = world.ai_c(entity);
+
+        const float min_attack_distance = 600;
+        const float min_attack_angle = 0.3;
+        // can see
+        if (pathc.following > 0 and pathc.index == 0) {
+            auto diff = world.pos_c(pathc.following).position - pc.position;
+            auto distance = w_magnitude(pc.position - world.pos_c(pathc.following).position);
+            auto angle = w_angle_to_vec(diff, w_rotated(WVec(0, -1), pc.rotation * pc.direction));
+            // could hit
+            if (distance < min_attack_distance and angle < min_attack_angle) {
+                if (skill::can_cast(world, entity, SkillID::Lounge)) {
+                    ac.msg_data.clear();
+                    ac.msg_data.push_back(static_cast<int>(SkillID::Lounge));
+                    std::cout << "attacking" << std::endl;
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    bool trans_attack(GameWorld &world, unsigned int entity, int skill_id_) {
+        auto skill_id = static_cast<SkillID>(skill_id_);
+        assert(skill_id == SkillID::Lounge);
+        return trans_lounge(world, entity);
+    }
 }

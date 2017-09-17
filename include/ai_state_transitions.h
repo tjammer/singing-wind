@@ -22,4 +22,7 @@ namespace ai_transitions {
     bool trans_init(GameWorld &, unsigned int);
 }
 
+namespace ai_skill_attack_transitions {
+    bool trans_attack(GameWorld &, unsigned int, int skill_id);
+}
 #endif /* AI_STATE_TRANSITIONS_H */

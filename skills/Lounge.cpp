@@ -125,13 +125,15 @@ namespace lounge_skill {
         auto &pc = world.pos_c(entity);
         auto &mc = world.move_c(entity);
 
-        float lounge_speed = 1200;
+        float lounge_speed = 1500;
         float lounge_accel = 5000;
 
         // diminishing accel, see protagonist/walk
         float vel = fmin(lounge_speed, w_magnitude(mc.velocity));
-        mc.accel = w_rotated_deg(WVec(0, -lounge_accel), pc.rotation * pc.direction);
+        mc.accel = w_rotated(WVec(0, -lounge_accel), pc.rotation * pc.direction);
         mc.accel *= (1.f - exp(-pow(vel - lounge_speed, 2.f) * 0.1f/lounge_speed));
+
+        // TODO: steer to 
     }
 }
 

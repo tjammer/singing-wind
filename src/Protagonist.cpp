@@ -92,7 +92,7 @@ inline void fly(GameWorld & world, unsigned int entity) {
     auto &fc = world.fly_c(entity);
 
     auto air_dir = w_normalize(mc.velocity);
-    auto glide_dir = w_rotated_deg(WVec(0, -1), pc.rotation * pc.direction);
+    auto glide_dir = w_rotated(WVec(0, -1), pc.rotation * pc.direction);
     auto angle = w_angle_to_vec(air_dir, glide_dir);
 
     float vel_mag = w_magnitude(mc.velocity);
@@ -207,7 +207,7 @@ void ::protagonist::to_flying_accel(GameWorld &world, unsigned int entity) {
         float mouse_angle = angle_up_from_local_mouse_deg(mouse);
         pc.rotation += copysignf(fmin(fc.c_max_change_angle, abs(mouse_angle)), mouse_angle);
         pc.rotation = std::remainder(pc.rotation, (float)M_PI * 2.f);
-        mc.velocity = world.fly_c(entity).c_push_vel * 1.0f * w_rotated_deg(WVec(0, -1), pc.rotation);
+        mc.velocity = world.fly_c(entity).c_push_vel * 1.0f * w_rotated(WVec(0, -1), pc.rotation);
         pc.rotation = w_angle_to_vec(WVec(0, -1), mc.velocity);
     }
     fc.timer = 0;
@@ -230,7 +230,7 @@ void ::protagonist::flying_accel(GameWorld &world, unsigned int entity) {
 
     fly(world, entity);
 
-    auto glide_dir = w_rotated_deg(WVec(0, -1), pc.rotation * pc.direction);
+    auto glide_dir = w_rotated(WVec(0, -1), pc.rotation * pc.direction);
 
     mc.accel += glide_dir * fc.c_accel_force * time_frac;
 }

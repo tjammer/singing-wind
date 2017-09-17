@@ -5,6 +5,9 @@
 #include "Pathfinding.h"
 #include "PatrolComponent.h"
 #include "WVecMath.h"
+#include "SkillComponent.h"
+#include "AIComponent.h"
+#include "PosComponent.h"
 
 namespace ai_input {
 
@@ -21,5 +24,12 @@ namespace ai_input {
         auto &ic = world.input_c(entity);
         auto &pc = world.patrol_c(entity);
         push_value(ic.mouse, pc.patrol_point);
+    }
+
+    void attack(GameWorld &world, unsigned int entity) {
+        auto &ac = world.ai_c(entity);
+        assert(ac.msg_data[0] == (int)(SkillID::Lounge));
+        auto &ic = world.input_c(entity);
+        push_value(ic.mouse, world.pos_c(world.path_c(entity).following).position);
     }
 }

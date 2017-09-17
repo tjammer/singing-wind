@@ -48,7 +48,7 @@ void melee_skill::move_channel(GameWorld &world, unsigned int entity) {
     const auto &pc = world.pos_c(entity);
     auto &mc = world.move_c(entity);
 
-    mc.accel = 1500.f * w_rotated_deg(WVec(0, -1), pc.rotation);
+    mc.accel = 1500.f * w_rotated(WVec(0, -1), pc.rotation);
 }
 
 void melee_skill::Skill::channel_start(GameWorld &world, unsigned int entity) {
