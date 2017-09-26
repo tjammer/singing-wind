@@ -9,6 +9,7 @@
 #include "WVecMath.h"
 #include "Components.h"
 #include "PatrolComponent.h"
+
 #include <iostream>
 
 void ai_to_funcs::to_idle(GameWorld &world, unsigned int entity) {
@@ -19,7 +20,6 @@ void ai_to_funcs::to_idle(GameWorld &world, unsigned int entity) {
     // spawn alert bubble
     alert_bubble::spawn(world, entity);
     ac.msg_data.clear();
-    std::cout << "to idle" << std::endl;
 }
 
 void ai_to_funcs::to_pursuit(GameWorld &world, unsigned int entity) {
@@ -32,7 +32,6 @@ void ai_to_funcs::to_pursuit(GameWorld &world, unsigned int entity) {
     // this needs to have the following field in pathfinding comp set
     get_path(world, entity);
     ac.state = AIState::Pursuit;
-    std::cout << "to pursuit" << std::endl;
 }
 
 void ai_to_funcs::to_attack(GameWorld &world, unsigned int entity) {
@@ -64,7 +63,6 @@ void ai_to_funcs::to_return(GameWorld &world, unsigned int entity) {
     push_value(ic.mouse, pc.patrol_point);
     get_path(world, entity);
     ac.state = AIState::Return;
-    std::cout << "to return" << std::endl;
 }
 
 void ai_to_funcs::to_flee(GameWorld &, unsigned int ) {

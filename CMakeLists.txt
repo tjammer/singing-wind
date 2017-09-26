@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.4)
 project(singing_wind)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -59,7 +59,8 @@ set(INCLUDE_FILES include/Engine.h
     include/ai_state_funcs.h
     include/ai_input_funcs.h
     include/PatrolComponent.h
-    skills/Lounge.h)
+    skills/Lounge.h
+    include/steering.h)
 
 set(SOURCE_FILES src/main.cpp
     src/Engine.cpp
@@ -105,7 +106,8 @@ set(SOURCE_FILES src/main.cpp
     src/ai_input_funcs.cpp
     src/PatrolComponent.cpp
     skills/Lounge.cpp
-    src/PosComponent.cpp)
+    src/PosComponent.cpp
+    src/steering.cpp)
 
 set (flatbuffers_schemas
     ${PROJECT_SOURCE_DIR}/schemas/entity.fbs

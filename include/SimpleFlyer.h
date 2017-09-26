@@ -5,7 +5,7 @@ class GameWorld;
 
 namespace simpleflyer {
     void on_static_collision(GameWorld &world, unsigned int entity);
-    
+
     void to_simple_flying(GameWorld &world, unsigned int entity);
     void simple_flying(GameWorld &world, unsigned int entity);
     bool transition_simple_flying(GameWorld &world, unsigned int entity);

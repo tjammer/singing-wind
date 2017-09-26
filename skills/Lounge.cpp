@@ -22,19 +22,14 @@ void lounge_skill_hurtfunc(GameWorld &world, unsigned int victim, unsigned int a
     kb.timer = .4f;
     statuseffects::add_effect(world, victim, kb);
     auto hs = statuseffects::hitstun();
-    hs.timer = .1f;
+    hs.timer = .05f;
     statuseffects::add_effect(world, victim, hs);
     // TODO: damage
 }
 
 void lounge_skill_on_hit(GameWorld &world, unsigned int attacker, unsigned int victim) {
-    auto dir = w_normalize(world.pos_c(attacker).position - world.pos_c(victim).position);
-    world.move_c(attacker).velocity = dir * 1000.f;
-    auto kb = statuseffects::knockback();
-    kb.timer = .1f;
-    statuseffects::add_effect(world, attacker, kb);
     auto hs = statuseffects::hitstun();
-    hs.timer = .1f;
+    hs.timer = .05f;
     statuseffects::add_effect(world, attacker, hs);
 }
 
@@ -56,14 +51,15 @@ namespace lounge_skill {
         world.name_c(hurtbox) = "lounge_skill_hurtbox";
 
         // pos
+        float radius = world.cshape_c(entity).shape->get_radius();
         auto &pc = world.pos_c(hurtbox);
         pc.parent = entity;
-        pc.position = WVec(0, 0);
+        pc.position = WVec(0, -radius * 0.3f);
         pc.rotation = 0;
         build_global_transform(world, hurtbox);
         // col shape
         auto &csc = world.cshape_c(hurtbox);
-        csc.shape = world.cshape_c(entity).shape;
+        csc.shape = std::shared_ptr<ColShape>(new ColCapsule(radius * 1.2f, radius * 0.7f));
 
         // tags
         auto &tc = world.tag_c(hurtbox);
@@ -80,6 +76,7 @@ namespace lounge_skill {
         // hurtbox
         auto &hb = world.hurtbox_c(hurtbox);
         hb.owner = entity;
+        hb.hit_entities.clear();
         hb.hurt_function = lounge_skill_hurtfunc;
         hb.on_hit = lounge_skill_on_hit;
     }
@@ -124,16 +121,28 @@ namespace lounge_skill {
     void move_channel(GameWorld &world, unsigned int entity) {
         auto &pc = world.pos_c(entity);
         auto &mc = world.move_c(entity);
+        auto &ic = world.input_c(entity);
 
-        float lounge_speed = 1500;
+        float lounge_speed = 2000;
         float lounge_accel = 5000;
+        float change_angle = 0.08;
 
-        // diminishing accel, see protagonist/walk
-        float vel = fmin(lounge_speed, w_magnitude(mc.velocity));
-        mc.accel = w_rotated(WVec(0, -lounge_accel), pc.rotation * pc.direction);
-        mc.accel *= (1.f - exp(-pow(vel - lounge_speed, 2.f) * 0.1f/lounge_speed));
+        auto vel = w_normalize(mc.velocity);
+        // normal accel
+        mc.accel = vel * lounge_accel;
 
-        // TODO: steer to 
+        auto dir = w_normalize(ic.mouse[0] - pc.position);
+        // when target before actor, steer towards
+        if (dot(dir, vel) > 0.5) {
+            // use portion of dir perpend. to vel
+            auto tangent = w_tangent(vel);
+            mc.accel += tangent * dot(tangent, dir) * lounge_accel;
+        }
+
+        auto angle =  w_angle_to_vec(w_rotated(WVec(0, -1), pc.rotation * pc.direction), mc.velocity);
+        rotate_angle(angle * pc.direction, change_angle, pc);
+
+        mc.velocity = fmin(w_magnitude(mc.velocity), lounge_speed) * w_rotated(WVec(0, -1), pc.rotation * pc.direction);
     }
 }
 
