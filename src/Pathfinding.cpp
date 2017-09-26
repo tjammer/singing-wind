@@ -5,9 +5,7 @@
 #include "PosComponent.h"
 #include "InputComponent.h"
 #include "WVecMath.h"
-#include "WRenderer.h"
 #include "Components.h"
-#include <iostream>
 #include <imgui.h>
 
 template <class pair>
@@ -127,12 +125,6 @@ void get_path_fly(const WVec &from, const WVec &to, GameWorld &world, PathingCom
                 node.x -= fmin(pc.c_padding, spaces.left / 2);
             }
         }
-    }
-
-    WRenderer::set_mode(PLines);
-    for (size_t i = 0 ; i < pc.path.size() - 1 ; ++i) {
-        WRenderer::add_primitive_vertex({{pc.path[i].x, pc.path[i].y}, {1, 0, 0}});
-        WRenderer::add_primitive_vertex({{pc.path[i+1].x, pc.path[i+1].y}, {1, 0, 0}});
     }
 }
 

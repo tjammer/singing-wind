@@ -7,6 +7,7 @@
 
 #include "Engine.h"
 #include "Camera.h"
+#include "EditorDraw.h"
 #include <unordered_map>
 
 const float c_point_size = 5;
@@ -57,6 +58,9 @@ private:
     // zoom
     float m_zoom = 1.f;
     Camera m_camera;
+
+    // debug draw
+    EditorDrawSet debug_drawset = 0;
 
 };
 

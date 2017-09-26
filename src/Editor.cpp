@@ -23,6 +23,7 @@ void EngineEditorState::draw() {
         return;
     }
     m_state->draw(m_game_world);
+    drawables::draw(debug_drawset, m_game_world);
 }
 
 EngineEditorState::EngineEditorState(const std::string &scene_name, GameWorld &game_world)
@@ -196,6 +197,7 @@ bool EngineEditorState::main_menu() {
                 m_state = EditorSubState(new NavMeshIdle());
                 rtn = true;
             }
+            drawables::menu(debug_drawset);
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
@@ -214,7 +216,7 @@ bool EngineEditorState::main_menu() {
             // load new entity to move mode
             auto new_ent = m_game_world.load_entity(ent_name);
             double mpos[2] = {m_mouse.x, m_mouse.y};
-            m_state = std::move(EditorSubState(new EntityMove(m_game_world, new_ent, m_camera.unproject_mouse(mpos))));
+            m_state = EditorSubState(new EntityMove(m_game_world, new_ent, m_camera.unproject_mouse(mpos)));
             ImGui::CloseCurrentPopup();
         }
         ImGui::EndPopup();

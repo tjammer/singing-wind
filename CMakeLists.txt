@@ -60,7 +60,8 @@ set(INCLUDE_FILES include/Engine.h
     include/ai_input_funcs.h
     include/PatrolComponent.h
     skills/Lounge.h
-    include/steering.h)
+    include/steering.h
+    include/EditorDraw.h)
 
 set(SOURCE_FILES src/main.cpp
     src/Engine.cpp
@@ -107,7 +108,8 @@ set(SOURCE_FILES src/main.cpp
     src/PatrolComponent.cpp
     skills/Lounge.cpp
     src/PosComponent.cpp
-    src/steering.cpp)
+    src/steering.cpp
+    src/EditorDraw.cpp)
 
 set (flatbuffers_schemas
     ${PROJECT_SOURCE_DIR}/schemas/entity.fbs
