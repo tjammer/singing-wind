@@ -38,16 +38,8 @@ void ai_to_funcs::to_attack(GameWorld &world, unsigned int entity) {
     if (!world.entities()[entity].test(CSkill)) {
         std::cout << "entity " << entity << " has no skill component, cannot attack" << std::endl;
     }
-    auto &ac = world.ai_c(entity);
 
-    // transition has already set skillid in data vec
-    /*SkillID sid = static_cast<SkillID>(ac.msg_data[0]);
-    if (skill::cast(world, entity, sid)) {
-        ac.timer = 0;
-        ac.state = AIState::Attack;
-    } else {
-        assert(false);
-    }*/
+    // input is simulated instead of starting attack right here
     push_value(world.input_c(entity).att_melee, true);
 }
 

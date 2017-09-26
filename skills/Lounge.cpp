@@ -27,7 +27,7 @@ void lounge_skill_hurtfunc(GameWorld &world, unsigned int victim, unsigned int a
     // TODO: damage
 }
 
-void lounge_skill_on_hit(GameWorld &world, unsigned int attacker, unsigned int victim) {
+void lounge_skill_on_hit(GameWorld &world, unsigned int attacker, unsigned int) {
     auto hs = statuseffects::hitstun();
     hs.timer = .05f;
     statuseffects::add_effect(world, attacker, hs);
