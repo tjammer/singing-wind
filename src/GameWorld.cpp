@@ -176,6 +176,9 @@ void GameWorld::find_entities_fixed() {
 
     for (unsigned int i = 0 ; i < pimpl->m_entities.size() ; ++i) {
         auto ent = pimpl->m_entities[i];
+        if (ent.none()) {
+            continue;
+        }
 
         if (has_component(ent, c_input_components)) {
             pimpl->m_input_ents.push_back(i);
