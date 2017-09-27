@@ -71,7 +71,7 @@ bool ai_transitions::trans_idle(GameWorld & world, unsigned int entity) {
         return false;
     }
     const auto &pc = world.path_c(entity);
-    if (pc.path.size() > 0 and w_magnitude(pc.path[0] - world.pos_c(entity).position) < pc.c_padding) {
+    if (pc.path.size() > 0 and w_magnitude(pc.path[0] - world.pos_c(entity).global_position) < pc.c_padding) {
         return true;
     }
     return false;
@@ -85,7 +85,7 @@ bool ai_transitions::trans_pursuit(GameWorld &world, unsigned int entity) {
     for (auto e = 0 ; e < (int)ac.msg_data.size() - 1; ++e) {
         auto other = static_cast<unsigned int>(ac.msg_data[e]);
         // check for visibility
-        auto result = cast_ray_vs_static_grid(world.grid(), pc.position, world.pos_c(other).position);
+        auto result = cast_ray_vs_static_grid(world.grid(), pc.global_position, world.pos_c(other).global_position);
         if (!result.hits) {
             // send other to pursuit
             auto &path_c = world.path_c(entity);
@@ -135,8 +135,8 @@ namespace ai_skill_attack_transitions {
         const float min_attack_angle = 0.3;
         // can see
         if (pathc.following > 0 and pathc.index == 0) {
-            auto diff = world.pos_c(pathc.following).position - pc.position;
-            auto distance = w_magnitude(pc.position - world.pos_c(pathc.following).position);
+            auto diff = world.pos_c(pathc.following).global_position - pc.global_position;
+            auto distance = w_magnitude(pc.global_position - world.pos_c(pathc.following).global_position);
             auto angle = w_angle_to_vec(diff, w_rotated(WVec(0, -1), pc.rotation * pc.direction));
             // could hit
             if (distance < min_attack_distance and angle < min_attack_angle) {

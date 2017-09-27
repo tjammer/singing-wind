@@ -11,9 +11,9 @@
 void ai_funcs::pursuit_func(GameWorld &world, unsigned int entity) {
     assert(world.entities()[entity].test(CPathing));
     auto &pc = world.path_c(entity);
-    auto &pos = world.pos_c(entity).position;
+    auto &pos = world.pos_c(entity).global_position;
     assert(pc.following > 0);
-    auto &follow = world.pos_c(pc.following).position;
+    auto &follow = world.pos_c(pc.following).global_position;
 
     while (pc.index > 0) {
         auto result = cast_ray_vs_static_grid(world.grid(), pos, pc.path[pc.index - 1]);
@@ -42,7 +42,7 @@ void ai_funcs::pursuit_func(GameWorld &world, unsigned int entity) {
 void ai_funcs::return_func(GameWorld &world, unsigned int entity) {
    assert(world.entities()[entity].test(CPathing));
     auto &pc = world.path_c(entity);
-    auto &pos = world.pos_c(entity).position;
+    auto &pos = world.pos_c(entity).global_position;
     assert(pc.following == 0);
     const auto &follow = world.patrol_c(entity).patrol_point;
 

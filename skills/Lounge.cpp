@@ -16,7 +16,7 @@
 
 void lounge_skill_hurtfunc(GameWorld &world, unsigned int victim, unsigned int attacker) {
     // knockback
-    auto dir = w_normalize(world.pos_c(victim).position - world.pos_c(attacker).position);
+    auto dir = w_normalize(world.pos_c(victim).global_position - world.pos_c(attacker).global_position);
     world.move_c(victim).velocity = dir * 1000.f;
     auto kb = statuseffects::knockback();
     kb.timer = .4f;
@@ -131,7 +131,7 @@ namespace lounge_skill {
         // normal accel
         mc.accel = vel * lounge_accel;
 
-        auto dir = w_normalize(ic.mouse[0] - pc.position);
+        auto dir = w_normalize(ic.mouse[0] - pc.global_position);
         // when target before actor, steer towards
         if (dot(dir, vel) > 0.5) {
             // use portion of dir perpend. to vel

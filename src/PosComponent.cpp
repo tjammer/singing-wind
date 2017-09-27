@@ -9,6 +9,7 @@ void build_global_transform(GameWorld &world, unsigned int entity) {
     auto &pc = world.pos_c(entity);
     assert (abs(pc.direction) == 1);
     pc.global_transform = world.pos_c(pc.parent).global_transform * rotate(scale(translate(WTransform(), pc.position), WVec(pc.direction, 1)), pc.rotation);
+    pc.global_position = WVec(pc.global_transform * WVec3(0.f, 0.f, 1.f));
 }
 
 void rotate_angle(float angle, float max_angle, PosComponent &pc) {

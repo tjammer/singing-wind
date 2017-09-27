@@ -141,10 +141,10 @@ void get_path(GameWorld &world, unsigned int entity) {
             assert(false); break;
         }
         case PathingType::Fly : {
-            auto &pos = world.pos_c(entity).position;
+            auto &pos = world.pos_c(entity).global_position;
             WVec follow;
             if (pc.following != 0) {
-                follow = world.pos_c(pc.following).position;
+                follow = world.pos_c(pc.following).global_position;
             } else {
                 follow = world.input_c(entity).mouse[0];
             }

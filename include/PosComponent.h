@@ -5,6 +5,7 @@
 
 struct PosComponent {
     WVec position = {0, 0};
+    WVec global_position = {0, 0};
     float rotation = 0.f;
     WTransform global_transform = WTransform();
     unsigned int parent = 0;

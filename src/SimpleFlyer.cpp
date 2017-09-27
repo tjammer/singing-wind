@@ -19,7 +19,7 @@ void simpleflyer::simple_flying(GameWorld &world, unsigned int entity) {
     auto &pc = world.pos_c(entity);
     auto &mc = world.move_c(entity);
 
-    auto dir = w_normalize(ic.mouse[0] - pc.position);
+    auto dir = w_normalize(ic.mouse[0] - pc.global_position);
     auto vel = w_normalize(mc.velocity);
     auto steering = dir - vel;
 
@@ -64,7 +64,7 @@ void simpleflyer::hover(GameWorld &world, unsigned int entity) {
     // hover
     // mitigate gravity
     mc.accel.y *= 0.0f;
-    mc.accel.y += c_gravity * .01f * (ic.mouse[0].y - pc.position.y);
+    mc.accel.y += c_gravity * .01f * (ic.mouse[0].y - pc.global_position.y);
 
     mc.accel.x -= fc.c_stop_coef * mc.velocity.x;
     if (abs(mc.velocity.y) > 130) {

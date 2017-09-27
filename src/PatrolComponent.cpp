@@ -75,7 +75,7 @@ namespace patrol {
                 patrol_c.patrol_point = {pp[0], pp[1]};
             }
             if (Button("set point here")) {
-                patrol_c.patrol_point = pc.position;
+                patrol_c.patrol_point = pc.global_position;
             }
         }
     }

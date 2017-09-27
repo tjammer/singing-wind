@@ -16,7 +16,7 @@
 
 void melee_skill_hurtfunc(GameWorld &world, unsigned int victim, unsigned int attacker) {
     // knockback
-    auto dir = w_normalize(world.pos_c(victim).position - world.pos_c(attacker).position);
+    auto dir = w_normalize(world.pos_c(victim).global_position - world.pos_c(attacker).global_position);
     world.move_c(victim).velocity = dir * 400.f;
     auto kb = statuseffects::knockback();
     kb.timer = .6f;
@@ -28,7 +28,7 @@ void melee_skill_hurtfunc(GameWorld &world, unsigned int victim, unsigned int at
 }
 
 void melee_skill_on_hit(GameWorld &world, unsigned int attacker, unsigned int victim) {
-    auto dir = w_normalize(world.pos_c(attacker).position - world.pos_c(victim).position);
+    auto dir = w_normalize(world.pos_c(attacker).global_position - world.pos_c(victim).global_position);
     world.move_c(attacker).velocity = dir * 200.f;
     auto kb = statuseffects::knockback();
     kb.timer = .1f;
