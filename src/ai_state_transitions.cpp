@@ -131,7 +131,7 @@ namespace ai_skill_attack_transitions {
         const auto &pc = world.pos_c(entity);
         auto &ac = world.ai_c(entity);
 
-        const float min_attack_distance = 600;
+        const float min_attack_distance = 400;
         const float min_attack_angle = 0.3;
         // can see
         if (pathc.following > 0 and pathc.index == 0) {

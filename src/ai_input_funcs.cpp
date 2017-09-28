@@ -30,6 +30,6 @@ namespace ai_input {
         auto &ac = world.ai_c(entity);
         assert(ac.msg_data[0] == (int)(SkillID::Lounge));
         auto &ic = world.input_c(entity);
-        push_value(ic.mouse, world.pos_c(world.path_c(entity).following).global_position + world.move_c(entity).velocity * 1.f / 60.f);
+        push_value(ic.mouse, world.pos_c(world.path_c(entity).following).global_position);
     }
 }

@@ -13,6 +13,7 @@
 #include "WVecMath.h"
 #include "Components.h"
 #include "StatusEffectComponent.h"
+#include "steering.h"
 
 void lounge_skill_hurtfunc(GameWorld &world, unsigned int victim, unsigned int attacker) {
     // knockback
@@ -110,12 +111,12 @@ namespace lounge_skill {
         auto &ic = world.input_c(entity);
         auto &mc = world.move_c(entity);
 
-        rotate_to(ic.mouse[0], 0.08f, pc);
+        rotate_to(ic.mouse[0], 0.5f, pc);
 
         // cancel gravity
         mc.accel.y -= c_gravity;
         // slow caster down
-        mc.accel -= w_normalize(mc.velocity) * w_magnitude(mc.velocity) * 0.4f;
+        mc.accel -= w_normalize(mc.velocity) * w_magnitude(mc.velocity) * 0.9f;
     }
 
     void move_channel(GameWorld &world, unsigned int entity) {
@@ -124,25 +125,25 @@ namespace lounge_skill {
         auto &ic = world.input_c(entity);
 
         float lounge_speed = 2000;
-        float lounge_accel = 5000;
-        float change_angle = 0.08;
+        float lounge_accel = 7000;
+        float change_angle = 0.02;
 
         auto vel = w_normalize(mc.velocity);
         // normal accel
-        mc.accel = vel * lounge_accel;
+        mc.accel = w_rotated(WVec(0, -1), pc.rotation * pc.direction) * lounge_accel;
 
         auto dir = w_normalize(ic.mouse[0] - pc.global_position);
         // when target before actor, steer towards
-        if (dot(dir, vel) > 0.5) {
-            // use portion of dir perpend. to vel
-            auto tangent = w_tangent(vel);
-            mc.accel += tangent * dot(tangent, dir) * lounge_accel;
+        if (dot(dir, w_rotated(WVec(0, -1), pc.rotation * pc.direction)) > 0) {
+            auto angle =  w_angle_to_vec(w_rotated(WVec(0, -1), pc.rotation * pc.direction), dir);
+            rotate_angle(angle * pc.direction, change_angle, pc);
+
+            // steer
+            mc.accel = dir * lounge_accel;
         }
 
-        auto angle =  w_angle_to_vec(w_rotated(WVec(0, -1), pc.rotation * pc.direction), mc.velocity);
-        rotate_angle(angle * pc.direction, change_angle, pc);
+        mc.velocity = fmin(w_magnitude(mc.velocity), lounge_speed) * vel;
 
-        mc.velocity = fmin(w_magnitude(mc.velocity), lounge_speed) * w_rotated(WVec(0, -1), pc.rotation * pc.direction);
     }
 }
 
