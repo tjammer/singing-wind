@@ -456,6 +456,7 @@ bool load_scene_from_fb(const std::string &name, GameWorld &world, float &zoom) 
     }
 
     world.reset_entities();
+    std::cout << fb_scene->entities.size() << std::endl;
     for (auto &fb_ent : fb_scene->entities) {
         scene_entity_to_world_fbs(*fb_ent, world, world.create_entity());
     }
@@ -485,7 +486,7 @@ void save_scene_to_fb(const std::string &name, GameWorld &world, float zoom) {
     scene.zoom = zoom;
 
     for (unsigned int entity = 0 ; entity < entities.size() ; ++entity) {
-        if (world.pos_c(entity).parent == 0) {
+        if (world.pos_c(entity).parent == 0 && entities[entity].any()) {
             scene.entities.push_back(get_fb_entity(world, entity));
         }
     }
