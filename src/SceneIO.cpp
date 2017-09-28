@@ -456,7 +456,6 @@ bool load_scene_from_fb(const std::string &name, GameWorld &world, float &zoom) 
     }
 
     world.reset_entities();
-    std::cout << fb_scene->entities.size() << std::endl;
     for (auto &fb_ent : fb_scene->entities) {
         scene_entity_to_world_fbs(*fb_ent, world, world.create_entity());
     }
