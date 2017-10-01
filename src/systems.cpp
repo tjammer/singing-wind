@@ -149,26 +149,11 @@ void move_update(GameWorld &world, float timedelta) {
             pc.position += motion;
             mc.additional_force = {0, 0};
             mc.time_fac = 1;
+
+            mc.timer += dt;
         }
 
         build_global_transform(world, entity);
-    }
-}
-
-
-void ground_move_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities) {
-    for (const auto entity : entities) {
-
-        auto &gc = world.ground_move_c(entity);
-        gc.air_time += dt;
-    }
-}
-
-void fly_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities) {
-    for (const auto entity : entities) {
-
-        auto &fc = world.fly_c(entity);
-        fc.timer += dt;
     }
 }
 

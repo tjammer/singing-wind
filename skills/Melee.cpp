@@ -37,7 +37,7 @@ void melee_skill_on_hit(GameWorld &world, unsigned int attacker, unsigned int vi
     hs.timer = .1f;
     statuseffects::add_effect(world, attacker, hs);
 
-    world.fly_c(attacker).timer = -0.5f;
+    world.move_c(attacker).timer = -0.5f;
 }
 
 void melee_skill::move_buildup(GameWorld &, unsigned int ) {

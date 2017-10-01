@@ -113,8 +113,6 @@ void GameWorld::step_fixed(float dt) {
     dyn_col_update(*this, pimpl->m_dyn_col_ents);
 
     // house keeping systems
-    ground_move_update(*this, dt,pimpl-> m_ground_move_ents);
-    fly_update(*this, dt, pimpl->m_fly_ents);
     skill_update(*this, dt, pimpl->m_skill_ents);
     lifetime_update(*this, dt, pimpl->m_lifetime_ents);
     statuseffect_update(*this, dt, pimpl->m_statuseffect_ents);
@@ -164,8 +162,6 @@ void GameWorld::find_entities_fixed() {
 
     pimpl->m_input_ents.clear();
     //pimpl->m_move_ents.clear();
-    pimpl->m_ground_move_ents.clear();
-    pimpl->m_fly_ents.clear();
     pimpl->m_static_col_ents.clear();
     pimpl->m_path_ents.clear();
     pimpl->m_skill_ents.clear();
@@ -182,14 +178,6 @@ void GameWorld::find_entities_fixed() {
 
         if (has_component(ent, c_input_components)) {
             pimpl->m_input_ents.push_back(i);
-        }
-
-        if (has_component(ent, c_ground_move_components)) {
-            pimpl->m_ground_move_ents.push_back(i);
-        }
-
-        if (has_component(ent, c_fly_components)) {
-            pimpl->m_fly_ents.push_back(i);
         }
 
         if (has_component(ent, c_static_col_components)) {

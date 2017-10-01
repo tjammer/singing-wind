@@ -202,7 +202,7 @@ void ::protagonist::to_flying_accel(GameWorld &world, unsigned int entity) {
     clear_arr(ic.wings, true);
     mc.movestate = MoveState::FlyingAccel;
     // can get set after skill hit or so
-    if (fc.timer < 0) {
+    if (mc.timer < 0) {
         auto mouse = WVec(glm::inverse(pc.global_transform) * WVec3(ic.mouse[0], 1));
         float mouse_angle = angle_up_from_local_mouse_deg(mouse);
         pc.rotation += copysignf(fmin(fc.c_max_change_angle, abs(mouse_angle)), mouse_angle);
@@ -210,7 +210,7 @@ void ::protagonist::to_flying_accel(GameWorld &world, unsigned int entity) {
         mc.velocity = world.fly_c(entity).c_push_vel * 1.0f * w_rotated(WVec(0, -1), pc.rotation);
         pc.rotation = w_angle_to_vec(WVec(0, -1), mc.velocity);
     }
-    fc.timer = 0;
+    mc.timer = 0;
 }
 
 void ::protagonist::flying_accel(GameWorld &world, unsigned int entity) {
@@ -219,12 +219,12 @@ void ::protagonist::flying_accel(GameWorld &world, unsigned int entity) {
     auto &mc = world.move_c(entity);
     auto &fc = world.fly_c(entity);
 
-    if (!ic.wings[0] or fc.timer >= fc.c_accel_time) {
+    if (!ic.wings[0] or mc.timer >= fc.c_accel_time) {
         mc.movestate = MoveState ::Flying;
         return;
     }
     BCurve curve = {fc.from, fc.ctrl_from, fc.ctrl_to, fc.to};
-    float time_frac = curve.eval(fc.timer / fc.c_accel_time).y;
+    float time_frac = curve.eval(mc.timer / fc.c_accel_time).y;
 
     rotate_to(ic.mouse[0], fc.c_max_change_angle, pc);
 
@@ -246,10 +246,9 @@ bool protagonist::transition_ground(GameWorld &world, unsigned int entity) {
 
 bool protagonist::transistion_falling(GameWorld &world, unsigned int entity) {
     const auto &mc = world.move_c(entity);
-    const auto &gc = world.ground_move_c(entity);
     auto &ic = world.input_c(entity);
 
-    if (mc.movestate == MoveState::OnGround and gc.air_time > c_jump_tolerance) {
+    if (mc.movestate == MoveState::OnGround and mc.timer > c_jump_tolerance) {
         return true;
     } else if (mc.movestate == MoveState::Flying) {
         if (ic.jump[0] and std::find(ic.jump.begin(), ic.jump.end(), false) != ic.jump.end()) {

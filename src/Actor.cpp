@@ -10,11 +10,10 @@
 
 void actor::on_static_collision(GameWorld &world, unsigned int entity) {
     auto &mc = world.move_c(entity);
-    auto &gc = world.ground_move_c(entity);
     const auto &result = world.static_col_c(entity).col_result;
 
     if (w_dot(WVec(0, 1), result.normal) > c_max_floor_angle) {
-        gc.air_time = 0;
+        mc.timer = 0;
         mc.velocity.y = w_slide(mc.velocity, result.normal).y * 0.5f;
     }
     else {

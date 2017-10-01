@@ -62,13 +62,13 @@ struct MoveComponent {
     SpecialMoveState special = SpecialMoveState::None;
     float mass = 1;
     float time_fac = 1;
+    float timer = 0;
 };
 
 struct GroundMoveComponent {
     float c_accel = 1000;
     float c_stop_friction = 8;
     float c_turn_mod = 4;
-    float air_time = 0;
     float c_max_vel = 100;
 };
 
@@ -87,7 +87,6 @@ struct FlyComponent {
     float c_accel_time = 0.7f;
     float c_drag = 0.0026;
     float c_push_vel = 500.f;
-    float timer = 0;
 
     // bcurve for acceling
     WVec from = {0.000, 0.000};
@@ -108,7 +107,7 @@ std::function<void(GameWorld &world, unsigned int entity)> get_accel_func(const 
 std::function<void(GameWorld &world, unsigned int entity)> get_special_func(const SpecialMoveState &state);
 std::function<bool(GameWorld &world, unsigned int entity)> get_trans_func(const MoveState &trans);
 std::function<void(GameWorld &world, unsigned int entity)> get_to_func(const MoveState &state);
-const std::vector<MoveState> & get_trans_funcs(const MoveSet &set, const MoveState &state); 
+const std::vector<MoveState> & get_trans_funcs(const MoveSet &set, const MoveState &state);
 
 void reset_special(GameWorld &, unsigned int, SpecialMoveState);
 
