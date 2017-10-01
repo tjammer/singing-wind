@@ -110,5 +110,6 @@ std::function<void(GameWorld &world, unsigned int entity)> get_to_func(const Mov
 const std::vector<MoveState> & get_trans_funcs(const MoveSet &set, const MoveState &state);
 
 void reset_special(GameWorld &, unsigned int, SpecialMoveState);
+void interrupt(GameWorld &, unsigned int);
 
 #endif //SINGING_WIND_MOVESYSTEMS_H

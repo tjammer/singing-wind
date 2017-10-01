@@ -68,6 +68,8 @@ namespace skill {
     void add(GameWorld &, unsigned int);
 
     std::shared_ptr<SkillBase> get_new_skill(SkillID id);
+
+    void reset(GameWorld&, unsigned int);
 }
 
 #endif /* SKILLCOMPONENT_H */

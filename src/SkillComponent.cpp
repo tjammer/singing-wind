@@ -95,4 +95,13 @@ namespace skill {
         }
         return nullptr;
     }
+
+    void reset(GameWorld &world, unsigned int entity) {
+        auto &sc = world.skill_c(entity);
+        if (sc.active and sc.active->skillstate != SkillState::Cooldown) {
+            sc.active->skillstate = SkillState::Cooldown;
+            sc.active->timer = sc.active->c_time_cooldown;
+            sc.active = nullptr;
+        }
+    }
 }

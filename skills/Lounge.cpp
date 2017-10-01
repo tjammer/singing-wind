@@ -17,6 +17,7 @@
 
 void lounge_skill_hurtfunc(GameWorld &world, unsigned int victim, unsigned int attacker) {
     // knockback
+    interrupt(world, victim);
     auto dir = w_normalize(world.pos_c(victim).global_position - world.pos_c(attacker).global_position);
     world.move_c(victim).velocity = dir * 1000.f;
     auto kb = statuseffects::knockback();

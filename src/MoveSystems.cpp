@@ -10,6 +10,7 @@
 #include "Lounge.h"
 #include "GameWorld.h"
 #include "StatusEffectComponent.h"
+#include "SkillComponent.h"
 
 using accel_func = std::function<void(GameWorld &world, unsigned int entity)>;
 using trans_func = std::function<bool(GameWorld &world, unsigned int entity)>;
@@ -71,7 +72,8 @@ std::unordered_map<MoveState, std::vector<MoveState>> protagonist_trans = {
 
 std::unordered_map<MoveState, std::vector<MoveState>> testenemy_trans = {
     {MoveState::SimpleFlying, {MoveState::Hover}},
-    {MoveState::Hover, {MoveState::SimpleFlying}}
+    {MoveState::Hover, {MoveState::SimpleFlying}},
+    {MoveState::Falling, {MoveState::SimpleFlying}}
 };
 
 std::unordered_map<MoveState, std::vector<MoveState>> empty_trans = {};
@@ -104,4 +106,13 @@ void reset_special(GameWorld &world, unsigned int entity, SpecialMoveState moves
     if (world.move_c(entity).special == movestate) {
         world.move_c(entity).special = SpecialMoveState::None;
     }
+}
+
+void interrupt(GameWorld &world, unsigned int entity) {
+    // TODO: reset skill, reset movement
+    auto &mc = world.move_c(entity);
+    mc.timer = 0;
+    mc.movestate = MoveState::Falling;
+    reset_special(world, entity, SpecialMoveState::None);
+    skill::reset(world, entity);
 }
