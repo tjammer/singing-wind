@@ -115,10 +115,13 @@ void protagonist::falling(GameWorld &world, unsigned int entity) {
     auto &ic = world.input_c(entity);
     auto &mc = world.move_c(entity);
     auto &fc = world.fall_c(entity);
+    auto &pc = world.pos_c(entity);
 
     walk(ic, mc, fc);
 
     drag_x(mc);
+
+    rotate_angle(-pc.rotation, mc.c_max_change_angle / 2.0f, pc);
 }
 
 void ::protagonist::to_ground(GameWorld &world, unsigned int entity) {
@@ -183,9 +186,9 @@ void ::protagonist::to_flying(GameWorld &world, unsigned int entity) {
 void ::protagonist::flying(GameWorld &world, unsigned int entity) {
     auto &pc = world.pos_c(entity);
     auto &ic = world.input_c(entity);
-    auto &fc = world.fly_c(entity);
+    auto &mc = world.move_c(entity);
 
-    rotate_to(ic.mouse[0], fc.c_max_change_angle, pc);
+    rotate_to(ic.mouse[0], mc.c_max_change_angle, pc);
 
     fly(world, entity);
 }
@@ -195,7 +198,6 @@ void ::protagonist::to_flying_accel(GameWorld &world, unsigned int entity) {
         return;
     }
     auto &mc = world.move_c(entity);
-    auto &fc = world.fly_c(entity);
     auto &pc = world.pos_c(entity);
     auto &ic = world.input_c(entity);
 
@@ -205,7 +207,7 @@ void ::protagonist::to_flying_accel(GameWorld &world, unsigned int entity) {
     if (mc.timer < 0) {
         auto mouse = WVec(glm::inverse(pc.global_transform) * WVec3(ic.mouse[0], 1));
         float mouse_angle = angle_up_from_local_mouse_deg(mouse);
-        pc.rotation += copysignf(fmin(fc.c_max_change_angle, abs(mouse_angle)), mouse_angle);
+        pc.rotation += copysignf(fmin(mc.c_max_change_angle, abs(mouse_angle)), mouse_angle);
         pc.rotation = std::remainder(pc.rotation, (float)M_PI * 2.f);
         mc.velocity = world.fly_c(entity).c_push_vel * 1.0f * w_rotated(WVec(0, -1), pc.rotation);
         pc.rotation = w_angle_to_vec(WVec(0, -1), mc.velocity);
@@ -226,7 +228,7 @@ void ::protagonist::flying_accel(GameWorld &world, unsigned int entity) {
     BCurve curve = {fc.from, fc.ctrl_from, fc.ctrl_to, fc.to};
     float time_frac = curve.eval(mc.timer / fc.c_accel_time).y;
 
-    rotate_to(ic.mouse[0], fc.c_max_change_angle, pc);
+    rotate_to(ic.mouse[0], mc.c_max_change_angle, pc);
 
     fly(world, entity);
 

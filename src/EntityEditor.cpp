@@ -114,6 +114,7 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
         if (Combo("MoveSet", &moveset, moveset_names.data(), moveset_names.size())) {
             mc.moveset = static_cast<MoveSet>(moveset);
         }
+        DragFloat("max turn angle", &mc.c_max_change_angle, .0001f, 0.0f, 0.0f, "%.5f");
         if (DragFloat("mass", &mc.mass)) {}
     }
 
@@ -143,7 +144,7 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
         if (DragFloat("max vel", &gc.c_max_vel)) {}
     }
     // jump
-    if (m_world.entities()[m_entity].test(CFall) and CollapsingHeader("jumping")) {
+    if (m_world.entities()[m_entity].test(CFall) and CollapsingHeader("falling")) {
         auto &jc = m_world.fall_c(m_entity);
         if (DragFloat("accel", &jc.c_accel)) {}
         if (DragFloat("jump height", &jc.c_jump_height)) {}
@@ -155,7 +156,6 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
         auto &fc = m_world.fly_c(m_entity);
         if (DragFloat("lift", &fc.c_lift, .0001f, 0.0f, 0.0f, "%.5f")) {}
         if (DragFloat("stall angle", &fc.c_stall_angle)) {}
-        if (DragFloat("max angle change", &fc.c_max_change_angle)) {}
         if (DragFloat("accel force", &fc.c_accel_force)) {}
         if (DragFloat("accel time", &fc.c_accel_time)) {}
         if (DragFloat("drag", &fc.c_drag, .0001f, 0.0f, 0.0f, "%.5f")) {}
@@ -177,7 +177,6 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
         DragFloat("accel", &fc.c_accel);
         DragFloat("near threshold", &fc.c_near_threshold);
         DragFloat("stop coeff", &fc.c_stop_coef);
-        DragFloat("max turn angle", &fc.c_max_change_angle, .0001f, 0.0f, 0.0f, "%.5f");
     }
     // skill
     skill::entity_edit(m_world, m_entity);

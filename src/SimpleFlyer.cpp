@@ -24,7 +24,7 @@ void simpleflyer::simple_flying(GameWorld &world, unsigned int entity) {
     auto steering = dir - vel;
 
     auto angle =  w_angle_to_vec(w_rotated(WVec(0, -1), pc.rotation * pc.direction), mc.velocity);
-    rotate_angle(angle * pc.direction, fc.c_max_change_angle, pc);
+    rotate_angle(angle * pc.direction, mc.c_max_change_angle, pc);
 
     mc.velocity = w_magnitude(mc.velocity) * w_rotated(WVec(0, -1), pc.rotation * pc.direction);
 
@@ -58,7 +58,7 @@ void simpleflyer::hover(GameWorld &world, unsigned int entity) {
     auto &ic = world.input_c(entity);
 
     // rotate
-    pc.rotation += copysignf(fmin(fc.c_max_change_angle, abs(pc.rotation)), pc.rotation - (float)M_PI);
+    pc.rotation += copysignf(fmin(mc.c_max_change_angle, abs(pc.rotation)), pc.rotation - (float)M_PI);
     pc.rotation = std::remainder(pc.rotation, (float)M_PI * 2.f);
 
     // hover

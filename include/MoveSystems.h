@@ -62,6 +62,8 @@ struct MoveComponent {
     SpecialMoveState special = SpecialMoveState::None;
     float mass = 1;
     float time_fac = 1;
+
+    float c_max_change_angle = 0.08;
     float timer = 0;
 };
 
@@ -82,7 +84,6 @@ struct FallComponent {
 struct FlyComponent {
     float c_lift = 0.0055;
     float c_stall_angle = 0.26;
-    float c_max_change_angle = 4;
     float c_accel_force = 1000;
     float c_accel_time = 0.7f;
     float c_drag = 0.0026;
@@ -100,7 +101,6 @@ struct SimpleFlyComponent {
     float c_accel = 1000;
     float c_near_threshold = 10;
     float c_stop_coef = 0.04;
-    float c_max_change_angle = 0.06;
 };
 
 std::function<void(GameWorld &world, unsigned int entity)> get_accel_func(const MoveState &state);

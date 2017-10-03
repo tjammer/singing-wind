@@ -51,6 +51,7 @@ std::unique_ptr<EntityFBS::EntityT> get_fb_entity(GameWorld &world, unsigned int
         fbs_ent.move_c->moveset = static_cast<int>(world.move_c(entity).moveset);
         fbs_ent.move_c->movestate = static_cast<int>(world.move_c(entity).movestate);
         fbs_ent.move_c->mass = world.move_c(entity).mass;
+        fbs_ent.move_c->max_change_angle = world.move_c(entity).c_max_change_angle;
     }
 
     // shape_c
@@ -103,7 +104,6 @@ std::unique_ptr<EntityFBS::EntityT> get_fb_entity(GameWorld &world, unsigned int
         auto &fbs_fc = fbs_ent.fly_c;
         fbs_fc->lift = fc.c_lift;
         fbs_fc->stall_angle = fc.c_stall_angle;
-        fbs_fc->max_change_angle = fc.c_max_change_angle;
         fbs_fc->accel_force = fc.c_accel_force;
         fbs_fc->accel_time = fc.c_accel_time;
         fbs_fc->push_vel = fc.c_push_vel;
@@ -132,7 +132,6 @@ std::unique_ptr<EntityFBS::EntityT> get_fb_entity(GameWorld &world, unsigned int
         fbc_fc->accel = fc.c_accel;
         fbc_fc->near_threshold = fc.c_near_threshold;
         fbc_fc->stop_coef = fc.c_stop_coef;
-        fbc_fc->max_change_angle = fc.c_max_change_angle;
     }
 
     // dyn_col_c
@@ -246,6 +245,7 @@ void entity_to_world(const EntityFBS::EntityT& fb_ent, GameWorld &world, unsigne
         mc.movestate = static_cast<MoveState>(move_c->movestate);
         mc.moveset = static_cast<MoveSet>(move_c->moveset);
         mc.mass = move_c->mass;
+        mc.c_max_change_angle = move_c->max_change_angle;
     }
 
     // input_c
@@ -303,7 +303,6 @@ void entity_to_world(const EntityFBS::EntityT& fb_ent, GameWorld &world, unsigne
 
         fc.c_lift = fly_c->lift;
         fc.c_stall_angle = fly_c->stall_angle;
-        fc.c_max_change_angle = fly_c->max_change_angle;
         fc.c_accel_force = fly_c->accel_force;
         fc.c_accel_time = fly_c->accel_time;
         fc.c_push_vel = fly_c->push_vel;
@@ -323,7 +322,6 @@ void entity_to_world(const EntityFBS::EntityT& fb_ent, GameWorld &world, unsigne
         fc.c_accel = fly_c->accel;
         fc.c_near_threshold = fly_c->near_threshold;
         fc.c_stop_coef = fly_c->stop_coef;
-        fc.c_max_change_angle = fly_c->max_change_angle;
     }
 
     // dyn col

@@ -35,6 +35,7 @@ table MoveComponent {
     movestate:int;
     moveset:int;
     mass:float;
+    max_change_angle:float;
 }
 
 table ShapeComponent {
@@ -60,7 +61,7 @@ table FallComponent {
 table FlyComponent {
     lift:float;
     stall_angle:float;
-    max_change_angle:float;
+    max_change_angle:float (deprecated);
     accel_force:float;
     accel_time:float;
     push_vel:float;
@@ -76,7 +77,7 @@ table SimpleFlyComponent {
     accel:float;
     near_threshold:float;
     stop_coef:float;
-    max_change_angle:float;
+    max_change_angle:float (deprecated);
 }
 
 table PatrolComponent {
