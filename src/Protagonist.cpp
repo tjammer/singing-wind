@@ -9,10 +9,6 @@
 #include "Components.h"
 #include "InputComponent.h"
 #include "CollisionComponent.h"
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/matrix_transform_2d.hpp>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include <WInput.h>
 #include <WVecMath.h>
 #include "BCurve.h"
@@ -70,15 +66,14 @@ inline float calc_drag(float angle, float vel_mag, float drag) {
     return drag_coeff * expf(-powf(angle - c_half_pi, 2.f) * 1.4f);
 }
 
-inline float calc_lift(float angle, float vel_mag, FlyComponent &fc) {
+inline float calc_lift(float angle, float vel_mag, const FlyComponent &fc) {
     if (angle < 0) {
         return -calc_lift(-angle, vel_mag, fc);
     }
     assert(angle >= 0);
-    if (angle < fc.c_stall_angle || abs(fmod(angle + (float)M_PI, (float)M_PI)) < fc.c_stall_angle) {
-        return fc.c_lift * sin(angle * c_half_pi / fc.c_stall_angle);
-    }
-    return fc.c_lift * cos((angle - fc.c_stall_angle) * c_half_pi / (c_half_pi - fc.c_stall_angle));
+    // damps lift for high angles to make going backwards difficult
+    float lift =  fc.c_lift / expf(angle / (float)M_PI);
+    return lift * cos((angle - fc.c_stall_angle) * c_half_pi / (c_half_pi - fc.c_stall_angle));
 }
 
 // get angle from mouse to player in degrees (for smfl), zero is up
@@ -86,14 +81,22 @@ inline float angle_up_from_local_mouse_deg(const WVec &mouse) {
     return atan2f(mouse.x, -mouse.y);
 };
 
-inline void fly(GameWorld & world, unsigned int entity) {
-    auto &pc = world.pos_c(entity);
-    auto &mc = world.move_c(entity);
-    auto &fc = world.fly_c(entity);
+const WVec c_accel_angle_coords[4] = {{0, 1}, {0, 0}, {1, 1}, {1, 0}};
 
+const BCurve c_accel_angle_curve = {
+    c_accel_angle_coords[0],
+    c_accel_angle_coords[1],
+    c_accel_angle_coords[2],
+    c_accel_angle_coords[3]};
+
+inline WVec calc_accel_angle(const PosComponent &pc) {
+    float fac = pc.rotation / (float)M_PI;
+    float additional_rot = c_accel_angle_curve.eval(fac).y * (float)M_PI / 2.f;
+    return w_rotated(WVec{0, -1}, (pc.rotation - additional_rot) * pc.direction);
+}
+
+inline void fly(MoveComponent &mc, float angle, const FlyComponent &fc, float strength=1.0f) {
     auto air_dir = w_normalize(mc.velocity);
-    auto glide_dir = w_rotated(WVec(0, -1), pc.rotation * pc.direction);
-    auto angle = w_angle_to_vec(air_dir, glide_dir);
 
     float vel_mag = w_magnitude(mc.velocity);
     float vel_squared = powf(vel_mag, 2);
@@ -102,8 +105,8 @@ inline void fly(GameWorld & world, unsigned int entity) {
     // account, only flat mass
     mc.accel.y -= c_gravity * (1 - mc.mass);
 
-    mc.accel -= air_dir * vel_squared * calc_drag(abs(angle), vel_mag, fc.c_drag);
-    mc.accel -= w_tangent(air_dir) * vel_squared * calc_lift(angle, vel_mag, fc);
+    mc.accel -= air_dir * vel_squared * calc_drag(abs(angle), vel_mag, fc.c_drag) * strength;
+    mc.accel -= w_tangent(air_dir) * vel_squared * calc_lift(angle, vel_mag, fc) * strength;
 }
 
 void ::protagonist::to_falling(GameWorld &world, unsigned int entity) {
@@ -172,12 +175,7 @@ void ::protagonist::to_flying(GameWorld &world, unsigned int entity) {
     // if coming from ground push
     if (mc.movestate == MoveState::OnGround) {
         mc.velocity.y = -world.fly_c(entity).c_push_vel;
-    }
-    // rotate player in direction of movement
-    pc.rotation = w_angle_to_vec(WVec(0, -1), mc.velocity);
-    if (mc.velocity.x < 0) {
-        pc.rotation *= -1;
-        pc.direction = -1;
+        pc.rotation = (float)M_PI / 4.f;
     }
 
     mc.movestate = MoveState::Flying;
@@ -187,10 +185,13 @@ void ::protagonist::flying(GameWorld &world, unsigned int entity) {
     auto &pc = world.pos_c(entity);
     auto &ic = world.input_c(entity);
     auto &mc = world.move_c(entity);
+    auto &fc = world.fly_c(entity);
 
     rotate_to(ic.mouse[0], mc.c_max_change_angle, pc);
 
-    fly(world, entity);
+    auto glide_dir = w_rotated(WVec(0, -1), pc.rotation * pc.direction);
+    auto angle = w_angle_to_vec(mc.velocity, glide_dir);
+    fly(mc, angle, fc);
 }
 
 void ::protagonist::to_flying_accel(GameWorld &world, unsigned int entity) {
@@ -230,11 +231,11 @@ void ::protagonist::flying_accel(GameWorld &world, unsigned int entity) {
 
     rotate_to(ic.mouse[0], mc.c_max_change_angle, pc);
 
-    fly(world, entity);
-
     auto glide_dir = w_rotated(WVec(0, -1), pc.rotation * pc.direction);
+    auto angle = w_angle_to_vec(mc.velocity, glide_dir);
+    fly(mc, angle, fc, 0.8f); 
 
-    mc.accel += glide_dir * fc.c_accel_force * time_frac;
+    mc.accel += calc_accel_angle(pc) * fc.c_accel_force * time_frac;
 }
 
 bool protagonist::transition_ground(GameWorld &world, unsigned int entity) {
