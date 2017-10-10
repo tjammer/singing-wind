@@ -125,8 +125,8 @@ namespace lounge_skill {
         auto &mc = world.move_c(entity);
         auto &ic = world.input_c(entity);
 
-        float lounge_speed = 2000;
-        float lounge_accel = 7000;
+        float lounge_speed = 1200;
+        float lounge_accel = 4000;
         float change_angle = 0.02;
 
         auto vel = w_normalize(mc.velocity);
@@ -148,4 +148,4 @@ namespace lounge_skill {
     }
 }
 
-lounge_skill::Skill::Skill() : SkillBase(0.5, 0.8, 0, 5, SkillID::Lounge) {}
+lounge_skill::Skill::Skill() : SkillBase(0.8, 1.2, 0, 5, SkillID::Lounge) {}
