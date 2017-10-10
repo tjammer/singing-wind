@@ -5,8 +5,6 @@
 #include "CollisionComponent.h"
 #include "TagComponent.h"
 #include "PosComponent.h"
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/matrix_transform_2d.hpp>
 
 void actor::on_static_collision(GameWorld &world, unsigned int entity) {
     auto &mc = world.move_c(entity);
@@ -22,7 +20,7 @@ void actor::on_static_collision(GameWorld &world, unsigned int entity) {
 }
 
 void actor::on_dynamic_collision(GameWorld &world, unsigned int entity) {
-    const auto &collider = world.dyn_col_c(entity).collided; 
+    const auto &collider = world.dyn_col_c(entity).collided;
     const auto &result = world.dyn_col_c(entity).col_result;
     auto &mc = world.move_c(entity);
     auto &pc = world.pos_c(entity);

@@ -261,7 +261,7 @@ void GameWorld::reset_islands() {
 }
 
 void GameWorld::create_root() {
-    Entities::create_root(*this, {0, 0}, 0);
+    Entities::create_root(*this);
 }
 
 void GameWorld::delete_entity_raw(unsigned int entity) {

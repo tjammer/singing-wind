@@ -21,10 +21,6 @@
 #include "SkillComponent.h"
 #include "PatrolComponent.h"
 
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/matrix_transform_2d.hpp>
-
-
 auto moveset_names = get_enum_string_array(moveset_string);
 auto movestate_names = get_enum_string_array(movestate_string);
 const char* const colshape_names = {"Triangle\0Circle\0Capsule\0\0"};
@@ -81,15 +77,16 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
         float data[2] = {pc.position.x, pc.position.y};
         if (DragFloat2("position", data)) {
             pc.position.x = data[0];
-            pc.position.y = data[1];pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * m_world.pos_c(pc.parent).global_transform;
+            pc.position.y = data[1];
+            build_global_transform(m_world, m_entity);
         }
         if (DragFloat("rotation", &pc.rotation)) {
-            pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * m_world.pos_c(pc.parent).global_transform;
+            build_global_transform(m_world, m_entity);
         }
         int parent = pc.parent;
         if (InputInt("parent", &parent)) {
             pc.parent = (unsigned int) parent;
-            pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * m_world.pos_c(pc.parent).global_transform;
+            build_global_transform(m_world, m_entity);
         }
         if (DragInt("direction", &pc.direction, 2, -1, 1)) {
         }
@@ -280,7 +277,7 @@ EditorSubState EntityMove::cancel() {
     auto &pc = m_world.pos_c(m_entity);
 
     pc.position += m_diff;
-    pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * m_world.pos_c(pc.parent).global_transform;
+    build_global_transform(m_world, m_entity);
 
     return EditorSubState(new EntityIdle(m_world, m_entity));
 }
@@ -300,7 +297,7 @@ EditorSubState EntityMove::update(const WVec &mpos) {
     BaseEditorSubState::update(mpos);
 
     pc.position -= diff;
-    pc.global_transform = glm::rotate(glm::translate(WTransform(), pc.position), pc.rotation) * m_world.pos_c(pc.parent).global_transform;
+    build_global_transform(m_world, m_entity);
 
     return nullptr;
 }

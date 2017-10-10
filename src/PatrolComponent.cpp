@@ -10,9 +10,6 @@
 #include "AIComponent.h"
 #include <imgui.h>
 
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/matrix_transform_2d.hpp>
-
 namespace alert_bubble {
     void spawn(GameWorld &world, unsigned int entity) {
         

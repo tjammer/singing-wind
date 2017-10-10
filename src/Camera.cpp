@@ -20,7 +20,7 @@ void Camera::update(GameWorld &game_world) {
 WVec Camera::unproject_mouse(double *pos) {
     auto viewport = WRenderer::get_viewport();
     WVec mouse = glm::unProject(glm::vec3(pos[0], pos[1], 0), glm::translate(glm::tvec3<float>(-m_center.x, -m_center.y, 0)), m_projection, glm::vec4(0, 0, viewport.x, viewport.y));
-    return std::move(mouse);
+    return mouse;
 }
 
 void Camera::update(const WVec &offset, float zoom) {
