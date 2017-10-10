@@ -10,7 +10,7 @@
 class GameWorld;
 
 namespace Entities {
-    unsigned int create_root(GameWorld &game_world, const WVec &position, unsigned int parent);
+    unsigned int create_root(GameWorld &game_world);
 }
 
 #endif //SINGING_WIND_ENTITIES_H
