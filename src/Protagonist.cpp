@@ -81,7 +81,7 @@ inline float angle_up_from_local_mouse_deg(const WVec &mouse) {
     return atan2f(mouse.x, -mouse.y);
 };
 
-const WVec c_accel_angle_coords[4] = {{0, 1}, {0, 0}, {1, 1}, {1, 0}};
+const WVec c_accel_angle_coords[4] = {{0, 1}, {0, 0.25}, {1, 1.25}, {1, 0}};
 
 const BCurve c_accel_angle_curve = {
     c_accel_angle_coords[0],
@@ -233,7 +233,7 @@ void ::protagonist::flying_accel(GameWorld &world, unsigned int entity) {
 
     auto glide_dir = w_rotated(WVec(0, -1), pc.rotation * pc.direction);
     auto angle = w_angle_to_vec(mc.velocity, glide_dir);
-    fly(mc, angle, fc, 0.8f); 
+    fly(mc, angle, fc, 0.75f);
 
     mc.accel += calc_accel_angle(pc) * fc.c_accel_force * time_frac;
 }

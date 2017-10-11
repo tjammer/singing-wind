@@ -48,7 +48,7 @@ void melee_skill::move_channel(GameWorld &world, unsigned int entity) {
     const auto &pc = world.pos_c(entity);
     auto &mc = world.move_c(entity);
 
-    mc.accel = 1500.f * w_rotated(WVec(0, -1), pc.rotation);
+    mc.accel = 1500.f * w_rotated(WVec(0, -1), pc.rotation * pc.direction);
 }
 
 void melee_skill::Skill::channel_start(GameWorld &world, unsigned int entity) {
@@ -62,19 +62,19 @@ void melee_skill::Skill::channel_start(GameWorld &world, unsigned int entity) {
     for (auto i : {CPosition, CColShape, CDynCol, CDebugDraw, CTag, CLifeTime}) {
         comps.set(i);
     }
-    
+
     world.entities()[hurtbox] = comps;
     world.name_c(hurtbox) = "melee_skill_hurtbox";
 
     // pos
     auto &pc = world.pos_c(hurtbox);
     pc.parent = entity;
-    pc.position = WVec(30, -35);
+    pc.position = WVec(10, -35);
     pc.rotation = 0;
     build_global_transform(world, hurtbox);
     // col shape
     auto &csc = world.cshape_c(hurtbox);
-    csc.shape = std::shared_ptr<ColShape>(new ColCapsule(35, 15));
+    csc.shape = std::shared_ptr<ColShape>(new ColCapsule(45, 25));
 
     // tags
     auto &tc = world.tag_c(hurtbox);
