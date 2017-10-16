@@ -107,6 +107,7 @@ std::unique_ptr<EntityFBS::EntityT> get_fb_entity(GameWorld &world, unsigned int
         fbs_fc->accel_force = fc.c_accel_force;
         fbs_fc->accel_time = fc.c_accel_time;
         fbs_fc->push_vel = fc.c_push_vel;
+        fbs_fc->drag = fc.c_drag;
 
         fbs_fc->to = unique_ptr<Point>(new Point);
         fbs_fc->ctrl_to = unique_ptr<Point>(new Point);
@@ -306,6 +307,7 @@ void entity_to_world(const EntityFBS::EntityT& fb_ent, GameWorld &world, unsigne
         fc.c_accel_force = fly_c->accel_force;
         fc.c_accel_time = fly_c->accel_time;
         fc.c_push_vel = fly_c->push_vel;
+        fc.c_drag = fly_c->drag;
 
         fc.from = WVec(fly_c->from->x(), fly_c->from->y());
         fc.ctrl_from = WVec(fly_c->ctrl_from->x(), fly_c->ctrl_from->y());

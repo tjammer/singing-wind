@@ -81,7 +81,7 @@ inline float angle_up_from_local_mouse_deg(const WVec &mouse) {
     return atan2f(mouse.x, -mouse.y);
 };
 
-const WVec c_accel_angle_coords[4] = {{0, 1}, {0, 0.25}, {1, 1.25}, {1, 0}};
+const WVec c_accel_angle_coords[4] = {{0, 1}, {0, 0}, {1, 1}, {1, 0}};
 
 const BCurve c_accel_angle_curve = {
     c_accel_angle_coords[0],

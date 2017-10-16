@@ -70,6 +70,8 @@ table FlyComponent {
     ctrl_from:Point;
     ctrl_to:Point;
     to:Point;
+    
+    drag:float = 0.0026;
 }
 
 table SimpleFlyComponent {
