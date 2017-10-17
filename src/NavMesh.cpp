@@ -11,6 +11,55 @@
 #include <ColShape.h>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
+#include <nanoflann.hpp>
+
+class NavTree::impl {
+public:
+    struct NavCloud {
+        std::vector<NavNode> nodes;
+
+        // Must return the number of data points
+        inline size_t kdtree_get_point_count() const { return nodes.size(); }
+
+        // Returns the distance between the vector "p1[0:size-1]" and the data point with index "idx_p2" stored in the class:
+        inline float kdtree_distance(const float *p1, const size_t idx_p2, size_t /*size*/) const
+        {
+            const float d0=p1[0]-nodes[idx_p2].x;
+            const float d1=p1[1]-nodes[idx_p2].y;
+            return abs(d0)+abs(d1);
+        }
+
+        // Returns the dim'th component of the idx'th point in the class:
+        // Since this is inlined and the "dim" argument is typically an immediate value, the
+        //  "if/else's" are actually solved at compile time.
+        inline float kdtree_get_pt(const size_t idx, int dim) const
+        {
+            if (dim==0) return nodes[idx].x;
+            else return nodes[idx].y;
+        }
+
+        // Optional bounding-box computation: return false to default to a standard bbox computation loop.
+        //   Return true if the BBOX was already computed by the class and returned in "bb" so it can be avoided to redo it again.
+        //   Look at bb.size() to find out the expected dimensionality (e.g. 2 or 3 for point clouds)
+        template <class BBOX>
+        bool kdtree_get_bbox(BBOX& /*bb*/) const { return false; }
+    };
+    typedef nanoflann::KDTreeSingleIndexAdaptor<nanoflann::L1_Adaptor<float, NavCloud> , NavCloud, 2> KDTree;
+    NavCloud m_cloud;
+    KDTree m_kd_tree;
+
+    impl();
+};
+
+NavTree::impl::impl() : m_cloud(), m_kd_tree(2, m_cloud, nanoflann::KDTreeSingleIndexAdaptorParams(5)) {}
+
+NavTree::NavTree() : pimpl(std::make_unique<impl>()) {}
+
+NavTree::~NavTree() {}
+
+const std::vector<NavNode>& NavTree::get_nodes() const {
+    return pimpl->m_cloud.nodes;}
+
 
 std::unordered_map<NavNode, std::vector<NavLink>> walkable_from_tri(std::array<WVec, 3> tri, const StaticGrid &grid) {
     std::unordered_map<NavNode, std::vector<NavLink>> graph;
@@ -42,13 +91,6 @@ std::unordered_map<NavNode, std::vector<NavLink>> walkable_from_tri(std::array<W
     }
     return graph;
 }
-
-/*void fly_path_search(const WVec &from, const WVec &to, NavMesh &mesh) {
-    const NavNode & node = mesh.get_nearest(from);
-    const NavNode & _to = mesh.get_nearest(to);
-    if (a_star_search(mesh.m_graph, node, _to, mesh.m_path)) {
-    }
-}*/
 
 NavMesh build_navmesh(const std::vector<Island> &m_islands, StaticGrid &grid) {
     NavMesh mesh;
@@ -212,29 +254,20 @@ NavLink::NavLink(const NavNode &to, const NavNode &from)
 }
 
 
-NavTree::NavTree() : m_cloud(), m_kd_tree(2, m_cloud, nanoflann::KDTreeSingleIndexAdaptorParams(5)) {
-}
 
 void NavTree::rebuild(const std::vector<NavNode> &nodes) {
-    m_cloud.nodes = nodes;
-    m_kd_tree.buildIndex();
+    pimpl->m_cloud.nodes = nodes;
+    pimpl->m_kd_tree.buildIndex();
 }
 
 std::vector<size_t> NavTree::get_nearest_indices(const WVec &pos) {
     float query_pt[2] = {pos.x, pos.y};
-    size_t n = m_cloud.nodes.size();
+    size_t n = pimpl->m_cloud.nodes.size();
 
     std::vector<size_t>   ret_index(n);
     std::vector<float> out_dist_sqr(n);
 
-    m_kd_tree.knnSearch(&query_pt[0], n, ret_index.data(), out_dist_sqr.data());
-    //std::vector<NavNode> out;
-    //out.reserve(n);
-    //for (auto i : ret_index) {
-    //    out.push_back(m_cloud.nodes[i]);
-    //}
-    //assert(out[0] == m_cloud.nodes[ret_index[0]]);
-    //return out;
+    pimpl->m_kd_tree.knnSearch(&query_pt[0], n, ret_index.data(), out_dist_sqr.data());
     return ret_index;
 }
 

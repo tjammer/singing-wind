@@ -8,8 +8,20 @@
 #include "Island.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
-#include <nanoflann.hpp>
+#include <memory>
 #include <unordered_map>
+
+// for the rewrite:
+// will have different navmeshs, will be build from criteria:
+// only on floor?
+// walls?
+// ceilings?
+// how to treat level-bridges
+// function for level-bridges, boolstruct for rest?
+// float for spacing of nodes
+// pathfinding struct has enum to call correct node
+// sufficient for now; path could store link-type
+// node-type
 
 class StaticGrid;
 
@@ -51,44 +63,14 @@ typedef std::unordered_map<NavNode, std::vector<NavLink>> NavGraph;
 
 struct NavTree {
     NavTree();
-    ~NavTree() = default;
+    ~NavTree();
 
     void rebuild(const std::vector<NavNode>& nodes);
     std::vector<size_t> get_nearest_indices(const WVec &pos);
-    const std::vector<NavNode> &get_nodes() const {return m_cloud.nodes;}
+    const std::vector<NavNode> &get_nodes() const;
 private:
-    struct NavCloud {
-        std::vector<NavNode> nodes;
-
-        // Must return the number of data points
-        inline size_t kdtree_get_point_count() const { return nodes.size(); }
-
-        // Returns the distance between the vector "p1[0:size-1]" and the data point with index "idx_p2" stored in the class:
-        inline float kdtree_distance(const float *p1, const size_t idx_p2, size_t /*size*/) const
-        {
-            const float d0=p1[0]-nodes[idx_p2].x;
-            const float d1=p1[1]-nodes[idx_p2].y;
-            return abs(d0)+abs(d1);
-        }
-
-        // Returns the dim'th component of the idx'th point in the class:
-        // Since this is inlined and the "dim" argument is typically an immediate value, the
-        //  "if/else's" are actually solved at compile time.
-        inline float kdtree_get_pt(const size_t idx, int dim) const
-        {
-            if (dim==0) return nodes[idx].x;
-            else return nodes[idx].y;
-        }
-
-        // Optional bounding-box computation: return false to default to a standard bbox computation loop.
-        //   Return true if the BBOX was already computed by the class and returned in "bb" so it can be avoided to redo it again.
-        //   Look at bb.size() to find out the expected dimensionality (e.g. 2 or 3 for point clouds)
-        template <class BBOX>
-        bool kdtree_get_bbox(BBOX& /*bb*/) const { return false; }
-    };
-    typedef nanoflann::KDTreeSingleIndexAdaptor<nanoflann::L1_Adaptor<float, NavCloud> , NavCloud, 2> KDTree;
-    NavCloud m_cloud;
-    KDTree m_kd_tree;
+    class impl;
+    std::unique_ptr<impl> pimpl;
 };
 
 struct NodeSpace {
