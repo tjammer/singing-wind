@@ -134,10 +134,7 @@ LinkType find_link_type(const NavLink &link) {
 
     if (abs(dy) > dx) {
         // fall or jump
-        if (dy < 0) {
-            return LinkType::JumpUp;
-        }
-        return LinkType::Drop;
+        return LinkType::Fly;
     }
     // along
     return LinkType::JumpAlong;

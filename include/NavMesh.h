@@ -5,9 +5,10 @@
 #ifndef SINGING_WIND_NAVMESH_H
 #define SINGING_WIND_NAVMESH_H
 
-#include "Island.h"
+#include "WindDefs.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
+#include <vector>
 #include <memory>
 #include <unordered_map>
 
@@ -23,13 +24,20 @@
 // sufficient for now; path could store link-type
 // node-type
 
+class Island;
 class StaticGrid;
+class GameWorld;
 
 enum class LinkType : int {
     Walk,
-    JumpUp,
-    Drop,
+    Fly,
     JumpAlong
+};
+
+enum class NodeType : int {
+    Ground,
+    Wall,
+    Ceiling
 };
 
 typedef glm::tvec2<int> NavNodeBase;
@@ -108,5 +116,18 @@ inline float heuristic(const NavNode &from, const NavNode &to) {
 
 void build_levels_connections(NavMesh &mesh, StaticGrid &grid);
 void build_node_space(NavMesh &mesh, StaticGrid &grid);
+
+struct NavMeshCreationConfig {
+    std::bitset<3> walkable_nodes;
+    std::bitset<3> walkable_links;
+};
+
+const auto c_fly_nodes = std::bitset<3>{}.set();
+const auto c_fly_links = std::bitset<3>{}.set();
+const auto c_platform_nodes = std::bitset<3>{}.set(static_cast<int>(NodeType::Ground));
+const auto c_platform_links = std::bitset<3>{}.set(static_cast<int>(LinkType::Walk));
+
+// world cannot be const due to StaticGrid
+NavMesh create_navmesh(GameWorld &world, const NavMeshCreationConfig &config);
 
 #endif //SINGING_WIND_NAVMESH_H
