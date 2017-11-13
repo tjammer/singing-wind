@@ -49,7 +49,6 @@ set(INCLUDE_FILES include/Engine.h
     include/TagComponent.h
     include/CPruneSweep.h
     include/Actor.h
-    skills/Melee.h
     include/HurtBoxComponent.h
     include/LifeTimeComponent.h
     include/StatusEffectComponent.h
@@ -58,9 +57,12 @@ set(INCLUDE_FILES include/Engine.h
     include/ai_state_funcs.h
     include/ai_input_funcs.h
     include/PatrolComponent.h
-    skills/Lounge.h
     include/steering.h
-    include/EditorDraw.h)
+    include/EditorDraw.h
+    # skills
+    skills/Melee.h
+    skills/Lounge.h
+    )
 
 set(SOURCE_FILES src/main.cpp
     src/Engine.cpp
@@ -97,7 +99,6 @@ set(SOURCE_FILES src/main.cpp
     src/CPruneSweep.cpp
     src/TagComponent.cpp
     src/Actor.cpp
-    skills/Melee.cpp
     src/HurtBoxComponent.cpp
     src/StatusEffectComponent.cpp
     src/AIComponent.cpp
@@ -105,10 +106,13 @@ set(SOURCE_FILES src/main.cpp
     src/ai_state_funcs.cpp
     src/ai_input_funcs.cpp
     src/PatrolComponent.cpp
-    skills/Lounge.cpp
     src/PosComponent.cpp
     src/steering.cpp
-    src/EditorDraw.cpp)
+    src/EditorDraw.cpp
+    # skills
+    skills/Melee.cpp
+    skills/Lounge.cpp
+    )
 
 set (flatbuffers_schemas
     ${PROJECT_SOURCE_DIR}/schemas/entity.fbs

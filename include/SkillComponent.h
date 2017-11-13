@@ -57,6 +57,7 @@ class SkillBase {
 struct SkillComponent {
     std::vector<std::shared_ptr<SkillBase>> skills;
     std::shared_ptr<SkillBase> active = nullptr;
+    std::vector<int> skill_data;
 };
 
 namespace skill {
