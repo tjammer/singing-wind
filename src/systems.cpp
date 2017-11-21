@@ -119,8 +119,8 @@ void move_update(GameWorld &world, float timedelta) {
         auto &pc = world.pos_c(entity);
 
         if (world.entities()[entity].test(CMove)) {
-
             auto &mc = world.move_c(entity);
+            assert(mc.moveset);
 
             auto old_accel = mc.accel;
             auto dt = timedelta * mc.time_fac;
@@ -131,17 +131,16 @@ void move_update(GameWorld &world, float timedelta) {
             mc.velocity += old_accel * dt;
 
             // check transistions
-            for (MoveState m: get_trans_funcs(mc.moveset, mc.movestate)) {
-                if (get_trans_func(m)(world, entity)) {
-                    get_to_func(m)(world, entity);
-                    break;
-                }
+            auto transition = mc.moveset->transition(world, entity);
+            if (transition) {
+                transition->enter(world, entity);
+                mc.movestate = std::move(transition);
             }
             // if char is in special state, the correct func needs to be found
-            if (mc.special != SpecialMoveState::None) {
-                get_special_func(mc.special)(world, entity);
+            if (mc.special_movestate) {
+                mc.special_movestate->accel(world, entity);
             } else {
-                get_accel_func(mc.movestate)(world, entity);
+                mc.movestate->accel(world, entity);
             }
 
             mc.velocity += dt * (mc.accel - old_accel) / 2.0f;

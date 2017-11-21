@@ -68,9 +68,9 @@ namespace ai {
     }
 
     void do_input(GameWorld &world, unsigned int entity) {
-        if (world.move_c(entity).movestate == MoveState::SimpleFlying) {
+        if (world.move_c(entity).movestate->name() == MoveStateName::SimpleFlying) {
             ai_input::simple_flying(world, entity);
-        } else if (world.move_c(entity).movestate == MoveState::Hover) {
+        } else if (world.move_c(entity).movestate->name() == MoveStateName::Hover) {
             ai_input::hover(world, entity);
         } else if (world.ai_c(entity).state == AIState::Attack) {
             ai_input::attack(world, entity);

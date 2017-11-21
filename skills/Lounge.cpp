@@ -40,7 +40,8 @@ namespace lounge_skill {
     void Skill::channel_start(GameWorld &world, unsigned int entity) {
         // set movestate for caster
         auto &mc = world.move_c(entity);
-        mc.special = SpecialMoveState::LoungeChannel;
+        //mc.special = SpecialMoveState::LoungeChannel;
+        assert(false);
 
         // create hurtbox
         auto hurtbox = world.create_entity();
@@ -84,27 +85,29 @@ namespace lounge_skill {
     }
 
     void Skill::channel_end(GameWorld &world, unsigned int entity) {
-        reset_special(world, entity, SpecialMoveState::LoungeChannel);
+        reset_special(world, entity, TimedMoveStateName::LoungeChannel);
     }
 
     void Skill::buildup_start(GameWorld &world, unsigned int entity) {
         // set movestate for caster
         auto &mc = world.move_c(entity);
-        mc.special = SpecialMoveState::LoungeBuildUp;
+        //mc.special = SpecialMoveState::LoungeBuildUp;
+        assert(false);
     }
 
     void Skill::buildup_end(GameWorld &world, unsigned int entity) {
-        reset_special(world, entity, SpecialMoveState::LoungeBuildUp);
+        reset_special(world, entity, TimedMoveStateName::LoungeBuildUp);
     }
 
     void Skill::recover_start(GameWorld &world, unsigned int entity) {
         // set movestate for caster
         auto &mc = world.move_c(entity);
-        mc.special = SpecialMoveState::LoungeRecover;
+        //mc.special = SpecialMoveState::LoungeRecover;
+        assert(false);
     }
 
     void Skill::recover_end(GameWorld &world, unsigned int entity) {
-        reset_special(world, entity, SpecialMoveState::LoungeRecover);
+        reset_special(world, entity, TimedMoveStateName::LoungeRecover);
     }
 
     void move_buildup(GameWorld &world, unsigned int entity) {

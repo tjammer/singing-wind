@@ -54,7 +54,8 @@ void melee_skill::move_channel(GameWorld &world, unsigned int entity) {
 void melee_skill::Skill::channel_start(GameWorld &world, unsigned int entity) {
     // set movestate for caster
     auto &mc = world.move_c(entity);
-    mc.special = SpecialMoveState::MeleeChannel;
+    //mc.special = SpecialMoveState::MeleeChannel;
+    assert(false);
 
     // create hurtbox
     auto hurtbox = world.create_entity();
@@ -96,7 +97,7 @@ void melee_skill::Skill::channel_start(GameWorld &world, unsigned int entity) {
 }
 
 void melee_skill::Skill::channel_end(GameWorld & world, unsigned int entity) {
-    reset_special(world, entity, SpecialMoveState::MeleeChannel);
+    reset_special(world, entity, TimedMoveStateName::MeleeChannel);
 }
 
 melee_skill::Skill::Skill() : SkillBase(0.1, 0.2, 1, 2, SkillID::Melee) {}

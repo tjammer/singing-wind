@@ -13,7 +13,7 @@ void simpleflyer::on_static_collision(GameWorld &world, unsigned int entity) {
     mc.velocity = w_slide(mc.velocity, result.normal);
 }
 
-void simpleflyer::simple_flying(GameWorld &world, unsigned int entity) {
+void SimpleFlyingMove::accel(GameWorld &world, unsigned int entity) {
     auto &ic = world.input_c(entity);
     auto &fc = world.simple_fly_c(entity);
     auto &pc = world.pos_c(entity);
@@ -34,24 +34,24 @@ void simpleflyer::simple_flying(GameWorld &world, unsigned int entity) {
     }
 }
 
-void simpleflyer::to_simple_flying(GameWorld &world, unsigned int entity) {
-    auto &mc = world.move_c(entity);
-    mc.movestate = MoveState::SimpleFlying;
+void SimpleFlyingMove::enter(GameWorld &world, unsigned int entity) {
 }
 
-bool simpleflyer::transition_simple_flying(GameWorld &world, unsigned int entity) {
+MoveStateName SimpleFlyingMove::name() {
+    return MoveStateName::SimpleFlying;
+}
+
+bool SimpleFlyingMove::transition(GameWorld &world, unsigned int entity) {
     if (world.ai_c(entity).state == AIState::Pursuit) {
         return true;
     }
     return false;
 }
 
-void simpleflyer::to_hover(GameWorld &world, unsigned int entity) {
-    auto &mc = world.move_c(entity);
-    mc.movestate = MoveState::Hover;
+void HoverMove::enter(GameWorld &world, unsigned int entity) {
 }
 
-void simpleflyer::hover(GameWorld &world, unsigned int entity) {
+void HoverMove::accel(GameWorld &world, unsigned int entity) {
     auto &mc = world.move_c(entity);
     auto &pc = world.pos_c(entity);
     auto &fc = world.simple_fly_c(entity);
@@ -72,9 +72,51 @@ void simpleflyer::hover(GameWorld &world, unsigned int entity) {
     }
 }
 
-bool simpleflyer::transition_hover(GameWorld &world, unsigned int entity) {
+MoveStateName HoverMove::name() {
+    return MoveStateName::Hover;
+}
+
+bool HoverMove::transition(GameWorld &world, unsigned int entity) {
     if (world.ai_c(entity).state == AIState::Idle) {
         return true;
     }
     return false;
+}
+
+std::unique_ptr<MoveState> SimpleFlyerMoveSet::transition(GameWorld &world, unsigned int entity) {
+    auto &mc = world.move_c(entity);
+
+    if (!mc.movestate) {
+        return from_undefined(world, entity);
+    }
+
+    switch(mc.movestate->name()) {
+        case MoveStateName::SimpleFlying : {
+                                               if (SimpleFlyingMove::transition(world, entity)) {
+                                                   return std::make_unique<HoverMove>();
+                                               }
+                                               break;
+                                           }
+        case MoveStateName::Hover : {
+                                        if (HoverMove::transition(world, entity)) {
+                                            return std::make_unique<SimpleFlyingMove>();
+                                            break;
+                                        }
+                                    }
+        default : {
+                      return from_undefined(world, entity);
+                      break;
+                  }
+    }
+    return nullptr;
+}
+
+void SimpleFlyerMoveSet::init(GameWorld &world, unsigned int entity) {
+    auto &mc = world.move_c(entity);
+    mc.movestate = from_undefined(world, entity);
+    mc.special_movestate = nullptr;
+}
+
+std::unique_ptr<MoveState> SimpleFlyerMoveSet::from_undefined(GameWorld &, unsigned int) {
+    return std::make_unique<HoverMove>();
 }

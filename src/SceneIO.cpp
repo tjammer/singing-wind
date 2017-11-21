@@ -48,8 +48,8 @@ std::unique_ptr<EntityFBS::EntityT> get_fb_entity(GameWorld &world, unsigned int
     // move_c
     if (bset.test(CMove)) {
         fbs_ent.move_c = unique_ptr<MoveComponentT>(new MoveComponentT);
-        fbs_ent.move_c->moveset = static_cast<int>(world.move_c(entity).moveset);
-        fbs_ent.move_c->movestate = static_cast<int>(world.move_c(entity).movestate);
+        fbs_ent.move_c->moveset = static_cast<int>(world.move_c(entity).moveset->name());
+        fbs_ent.move_c->movestate = static_cast<int>(world.move_c(entity).movestate->name());
         fbs_ent.move_c->mass = world.move_c(entity).mass;
         fbs_ent.move_c->max_change_angle = world.move_c(entity).c_max_change_angle;
     }
@@ -243,8 +243,9 @@ void entity_to_world(const EntityFBS::EntityT& fb_ent, GameWorld &world, unsigne
         auto &move_c = fb_ent.move_c;
         auto &mc= world.move_c(entity);
 
-        mc.movestate = static_cast<MoveState>(move_c->movestate);
-        mc.moveset = static_cast<MoveSet>(move_c->moveset);
+        //mc.movestate = static_cast<MoveStateName>(move_c->movestate);
+        //mc.moveset = static_cast<MoveSetName>(move_c->moveset);
+        init_moveset(world, entity, static_cast<MoveSetName>(move_c->moveset));
         mc.mass = move_c->mass;
         mc.c_max_change_angle = move_c->max_change_angle;
     }

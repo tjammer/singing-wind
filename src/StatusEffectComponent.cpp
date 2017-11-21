@@ -35,14 +35,16 @@ namespace statuseffects {
 
 void knockback_start(GameWorld &world, unsigned int entity) {
     auto &mc = world.move_c(entity);
-    mc.special = SpecialMoveState::Knockback;
+    //mc.special = SpecialMoveState::Knockback;
+    assert(false);
 }
 
 void knockback_stop(GameWorld &world, unsigned int entity) {
     auto &mc = world.move_c(entity);
-    if (mc.special == SpecialMoveState::Knockback) {
-        mc.special = SpecialMoveState::None;
-    }
+    //if (mc.special == SpecialMoveState::Knockback) {
+    //    mc.special = SpecialMoveState::None;
+    //}
+    assert(false);
 }
 
 void statuseffects::knockback_move(GameWorld &world, unsigned int entity) {

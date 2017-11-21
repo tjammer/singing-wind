@@ -6,13 +6,13 @@
 #define SINGING_WIND_MOVESYSTEMS_H
 
 #include "WindDefs.h"
-#include <functional>
 #include <map>
 #include <vector>
+#include <memory>
 
 class GameWorld;
 
-enum class MoveState : int {
+enum class MoveStateName : int {
     OnGround,
     Falling,
     Flying,
@@ -22,7 +22,7 @@ enum class MoveState : int {
     state_count
 };
 
-enum class SpecialMoveState : int {
+enum class TimedMoveStateName : int {
     None,
     Still,
     Knockback,
@@ -34,32 +34,54 @@ enum class SpecialMoveState : int {
     state_count
 };
 
-const std::map<MoveState, const char*> movestate_string = {
-    {MoveState::OnGround, "OnGround"},
-    {MoveState::Falling, "Falling"},
-    {MoveState::Flying, "Flying"},
-    {MoveState::FlyingAccel, "FlyingAccel"},
-    {MoveState::SimpleFlying, "SimpleFlying"},
-    {MoveState::Hover, "Hover"}
+const std::map<MoveStateName, const char*> movestate_string = {
+    {MoveStateName::OnGround, "OnGround"},
+    {MoveStateName::Falling, "Falling"},
+    {MoveStateName::Flying, "Flying"},
+    {MoveStateName::FlyingAccel, "FlyingAccel"},
+    {MoveStateName::SimpleFlying, "SimpleFlying"},
+    {MoveStateName::Hover, "Hover"}
 };
 
-enum class MoveSet : int {
+class MoveState {
+public:
+    virtual void enter(GameWorld &, unsigned int) = 0;
+    virtual void accel(GameWorld &, unsigned int) = 0;
+    virtual MoveStateName name() = 0;
+    // static transition func
+};
+
+class TimedMoveState {
+public:
+    virtual void enter(GameWorld &, unsigned int) = 0;
+    virtual void accel(GameWorld &, unsigned int) = 0;
+    virtual TimedMoveStateName name() = 0;
+};
+
+enum class MoveSetName : int {
     Protagonist,
     TestEnemy,
 };
-const std::map<MoveSet, const char*> moveset_string = {
-    {MoveSet::Protagonist, "Protagonist"},
-    {MoveSet::TestEnemy, "TestEnemy"},
+
+const std::map<MoveSetName, const char*> moveset_string = {
+    {MoveSetName::Protagonist, "Protagonist"},
+    {MoveSetName::TestEnemy, "TestEnemy"},
 };
 
+class MoveSet {
+public:
+    virtual std::unique_ptr<MoveState> transition(GameWorld &, unsigned int) = 0;
+    virtual void init(GameWorld &, unsigned int) = 0;
+    virtual MoveSetName name() = 0;
+};
 
 struct MoveComponent {
     WVec velocity = {0, 0};
     WVec accel = {0, 0};
     WVec additional_force = {0, 0};
-    MoveState movestate;
-    MoveSet moveset;
-    SpecialMoveState special = SpecialMoveState::None;
+    std::unique_ptr<MoveState> movestate = nullptr;
+    std::unique_ptr<MoveSet> moveset = nullptr;
+    std::unique_ptr<TimedMoveState> special_movestate = nullptr;
     float mass = 1;
     float time_fac = 1;
 
@@ -103,13 +125,8 @@ struct SimpleFlyComponent {
     float c_stop_coef = 0.04;
 };
 
-std::function<void(GameWorld &world, unsigned int entity)> get_accel_func(const MoveState &state);
-std::function<void(GameWorld &world, unsigned int entity)> get_special_func(const SpecialMoveState &state);
-std::function<bool(GameWorld &world, unsigned int entity)> get_trans_func(const MoveState &trans);
-std::function<void(GameWorld &world, unsigned int entity)> get_to_func(const MoveState &state);
-const std::vector<MoveState> & get_trans_funcs(const MoveSet &set, const MoveState &state);
-
-void reset_special(GameWorld &, unsigned int, SpecialMoveState);
+void reset_special(GameWorld &, unsigned int, TimedMoveStateName);
 void interrupt(GameWorld &, unsigned int);
+void init_moveset(GameWorld &, unsigned int, MoveSetName);
 
 #endif //SINGING_WIND_MOVESYSTEMS_H

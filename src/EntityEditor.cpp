@@ -103,13 +103,13 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
         if (DragFloat2("accel", data)) {
             mc.accel = {data[0], data[1]};
         }
-        int movestate = static_cast<int>(mc.movestate);
+        int movestate = static_cast<int>(mc.movestate->name());
         if (Combo("MoveState", &movestate, movestate_names.data(), movestate_names.size())) {
-            mc.movestate = static_cast<MoveState>(movestate);
+            //mc.movestate = static_cast<MoveStateName>(movestate);
         }
-        int moveset = static_cast<int>(mc.moveset);
+        int moveset = static_cast<int>(mc.moveset->name());
         if (Combo("MoveSet", &moveset, moveset_names.data(), moveset_names.size())) {
-            mc.moveset = static_cast<MoveSet>(moveset);
+            init_moveset(m_world, m_entity, static_cast<MoveSetName>(moveset));
         }
         DragFloat("max turn angle", &mc.c_max_change_angle, .0001f, 0.0f, 0.0f, "%.5f");
         if (DragFloat("mass", &mc.mass)) {}
