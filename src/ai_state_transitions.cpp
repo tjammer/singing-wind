@@ -106,7 +106,7 @@ bool ai_transitions::trans_pursuit(GameWorld &world, unsigned int entity) {
 bool ai_transitions::trans_attack(GameWorld &world, unsigned int entity) {
     auto &sc = world.skill_c(entity);
     for (auto &skill : sc.skills) {
-        if (ai_skill_attack_transitions::trans_attack(world, entity, static_cast<int>(skill->id))) {
+        if (ai_skill_attack_transitions::trans_attack(world, entity, static_cast<int>(skill->get_id()))) {
             return true;
         }
     }

@@ -26,11 +26,10 @@ enum class TimedMoveStateName : int {
     None,
     Still,
     Knockback,
-    MeleeBuildUp,
-    MeleeChannel,
-    LoungeBuildUp,
-    LoungeChannel,
-    LoungeRecover,
+    MeleeAttack,
+    MeleeCast,
+    LoungeCast,
+    LoungeAttack,
     state_count
 };
 
@@ -55,7 +54,14 @@ class TimedMoveState {
 public:
     virtual void enter(GameWorld &, unsigned int) = 0;
     virtual void accel(GameWorld &, unsigned int) = 0;
-    virtual TimedMoveStateName name() = 0;
+    virtual void leave(GameWorld &, unsigned int) = 0;
+    virtual std::unique_ptr<TimedMoveState> next() = 0;
+    TimedMoveStateName name() {return m_name;}
+    float timer;
+protected:
+    TimedMoveState(TimedMoveStateName name, float timer) : timer(timer), m_name(name) {}
+private:
+    TimedMoveStateName m_name;
 };
 
 enum class MoveSetName : int {

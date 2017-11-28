@@ -130,16 +130,24 @@ void move_update(GameWorld &world, float timedelta) {
 
             mc.velocity += old_accel * dt;
 
-            // check transistions
-            auto transition = mc.moveset->transition(world, entity);
-            if (transition) {
-                transition->enter(world, entity);
-                mc.movestate = std::move(transition);
-            }
             // if char is in special state, the correct func needs to be found
             if (mc.special_movestate) {
                 mc.special_movestate->accel(world, entity);
+                mc.special_movestate->timer -= dt;
+                if(mc.special_movestate->timer <= 0) {
+                    mc.special_movestate->leave(world, entity);
+                    mc.special_movestate = mc.special_movestate->next();
+                    if (mc.special_movestate) {
+                        mc.special_movestate->enter(world, entity);
+                    }
+                }
             } else {
+                // check transistions
+                auto transition = mc.moveset->transition(world, entity);
+                if (transition) {
+                    transition->enter(world, entity);
+                    mc.movestate = std::move(transition);
+                }
                 mc.movestate->accel(world, entity);
             }
 
@@ -165,65 +173,25 @@ void skill_update(GameWorld &world, float dt, const std::vector<unsigned int> &e
         auto begin = ic.att_melee.begin();
         auto end = ic.att_melee.end();
         if (ic.att_melee[0] and std::find(begin, end, false) != end) {
-            skill::cast(world, entity, SkillID::Lounge);
+            skill::cast(world, entity, SkillID::Melee);
         }
 
         for (auto &skill : sc.skills) {
-            SkillBase &s = *skill;
 
-            // check if interrupt didnt work
-            if (s.skillstate != SkillState::Ready and s.skillstate != SkillState::Cooldown) {
-                assert(sc.active->id == s.id);
+            if (skill->state == SkillState::Ready) {
+                continue;
             }
-
-            s.timer -= dt;
-
-            switch (s.skillstate) {
-                case SkillState::BuildUp : {
-                    if (s.timer <= 0) {
-                        s.skillstate = SkillState::Channel;
-                        s.timer = s.c_time_channel;
-                        s.buildup_end(world, entity);
-                        s.channel_start(world, entity);
-                    } else {
-                        s.buildup_tick(world, entity);
-                    }
-                    break;
+            skill->timer -= dt;
+            if (skill->timer <= 0) {
+                if (skill->state == SkillState::Active) {
+                    // to cooldown
+                    skill->timer = skill->get_t_cooldown();
+                    skill->state = SkillState::Cooldown;
+                    sc.active = nullptr;
+                } else { //should be cooldown
+                    // to ready
+                    skill->state = SkillState::Ready;
                 }
-                case SkillState::Channel : {
-                    if (s.timer <= 0) {
-                        s.skillstate = SkillState::Recover;
-                        s.timer = s.c_time_recover;
-                        s.channel_end(world, entity);
-                        s.recover_start(world, entity);
-                    } else {
-                        s.channel_tick(world, entity);
-                    }
-                    break;
-                    }
-                case SkillState::Recover : {
-                    if (s.timer <= 0) {
-                        s.skillstate = SkillState::Cooldown;
-                        s.timer = s.c_time_cooldown - s.c_time_recover;
-                        s.recover_end(world, entity);
-                        // reset active skill to none
-                        assert(sc.active->id == s.id);
-                        sc.active = nullptr;
-                    } else {
-                        s.recover_tick(world, entity);
-                    }
-                    break;
-                }
-                case SkillState::Cooldown : {
-                    if (s.timer <= 0) {
-                        s.skillstate = SkillState::Ready;
-                    }
-                    break;
-                }
-                case SkillState::Ready : {
-                    break;
-                }
-                default: break;
             }
         }
     }

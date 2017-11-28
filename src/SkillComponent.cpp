@@ -6,9 +6,6 @@
 #include <imgui.h>
 #include <algorithm>
 
-using skill_func = std::function<void(GameWorld &world, unsigned int entity)>;
-using skill_funcs_t = std::array<skill_func, static_cast<size_t>(SkillState::state_count)>;
-
 namespace skill {
     bool can_cast(GameWorld &world, unsigned int entity, SkillID id) {
         auto &sc = world.skill_c(entity);
@@ -19,13 +16,13 @@ namespace skill {
 
         // check if skill is in equiped list
         auto skill_iterator = std::find_if(sc.skills.begin(), sc.skills.end(),
-                [id] (const std::shared_ptr<SkillBase> &ts) {return ts->id == id;});
+                [id] (const std::shared_ptr<BaseSkill> &ts) {return ts->get_id() == id;});
         if (skill_iterator == sc.skills.end()) {
             return false;
         }
 
         // check if skill is off cooldown
-        if ((*skill_iterator)->skillstate != SkillState::Ready) {
+        if ((*skill_iterator)->state != SkillState::Ready) {
             return false;
         }
         return true;
@@ -38,14 +35,15 @@ namespace skill {
         }
         auto &sc = world.skill_c(entity);
         auto skill_iterator = std::find_if(sc.skills.begin(), sc.skills.end(),
-                [id] (const std::shared_ptr<SkillBase> &ts) {return ts->id == id;});
+                [id] (const std::shared_ptr<BaseSkill> &ts) {return ts->get_id() == id;});
 
         // can now activate skill
         auto &skill = *skill_iterator;
         sc.active = skill;
-        skill->skillstate = SkillState::BuildUp;
-        skill->timer = skill->c_time_buildup;
-        skill->buildup_start(world, entity);
+        skill->state = SkillState::Active;
+        skill->set_special(world, entity);
+        world.move_c(entity).special_movestate->enter(world, entity);
+        skill->timer = skill->get_t_active();
 
         return true;
     }
@@ -65,7 +63,7 @@ namespace skill {
             skillset ss = 0;
             unsigned long skill_flag = 0;
             for (const auto &skill : sc.skills) {
-                skill_flag |= (1 << static_cast<int>(skill->id));
+                skill_flag |= (1 << static_cast<int>(skill->get_id()));
             }
             for (auto &pair : skillid_string) {
                 CheckboxFlags(pair.second, &skill_flag, 1 << static_cast<int>(pair.first));
@@ -87,20 +85,19 @@ namespace skill {
         }
     }
 
-    std::shared_ptr<SkillBase> get_new_skill(SkillID id) {
+    std::shared_ptr<BaseSkill> get_new_skill(SkillID id) {
         switch (id) {
-            case SkillID::Melee : return std::shared_ptr<SkillBase>(new melee_skill::Skill());
-            case SkillID::Lounge : return std::shared_ptr<SkillBase>(new lounge_skill::Skill());
-            case SkillID::state_count : return nullptr;
+            case SkillID::Melee : return std::make_shared<MeleeSkill>(); break;
+            case SkillID::Lounge : return std::make_shared<LoungeSkill>(); break;
+            default : return nullptr;
         }
         return nullptr;
     }
 
     void reset(GameWorld &world, unsigned int entity) {
         auto &sc = world.skill_c(entity);
-        if (sc.active and sc.active->skillstate != SkillState::Cooldown) {
-            sc.active->skillstate = SkillState::Cooldown;
-            sc.active->timer = sc.active->c_time_cooldown;
+        if (sc.active and sc.active->state != SkillState::Cooldown) {
+            sc.active->state = SkillState::Cooldown;
             sc.active = nullptr;
         }
     }

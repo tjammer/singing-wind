@@ -6,24 +6,8 @@
 #include "Protagonist.h"
 #include <unordered_map>
 #include "SimpleFlyer.h"
-#include "Melee.h"
-#include "Lounge.h"
-#include "GameWorld.h"
-#include "StatusEffectComponent.h"
 #include "SkillComponent.h"
-
-std::unordered_map<MoveStateName, std::vector<MoveStateName>> protagonist_trans = {
-    {MoveStateName::OnGround, {MoveStateName::Falling, MoveStateName::Flying}},
-    {MoveStateName::Falling, {MoveStateName::OnGround, MoveStateName::Flying}},
-    {MoveStateName::Flying, {MoveStateName::FlyingAccel, MoveStateName::OnGround, MoveStateName::Falling}},
-    {MoveStateName::FlyingAccel, {MoveStateName::OnGround}}
-};
-
-std::unordered_map<MoveStateName, std::vector<MoveStateName>> testenemy_trans = {
-    {MoveStateName::SimpleFlying, {MoveStateName::Hover}},
-    {MoveStateName::Hover, {MoveStateName::SimpleFlying}},
-    {MoveStateName::Falling, {MoveStateName::SimpleFlying}}
-};
+#include "GameWorld.h"
 
 void reset_special(GameWorld &world, unsigned int entity, TimedMoveStateName movestate) {
     if (world.move_c(entity).special_movestate == nullptr) {

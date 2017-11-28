@@ -10,10 +10,7 @@ class GameWorld;
 enum class SkillState : int {
     Ready,
     Cooldown,
-    BuildUp,
-    Channel,
-    Recover,
-    state_count
+    Active
 };
 
 enum class SkillID : int {
@@ -22,54 +19,38 @@ enum class SkillID : int {
     state_count
 };
 
-class SkillBase {
-    public:
-        const float c_time_buildup = 1;
-        const float c_time_channel = 1;
-        const float c_time_recover = 1;
-        const float c_time_cooldown = 1;
-        SkillState skillstate = SkillState::Ready;
-        SkillID id;
-        float cost = 0;
-        float timer = 0;
-        int frame_time = 0; // counts frames for timers
+class BaseSkill {
+public:
+    float timer;
+    SkillID get_id() const {return id;}
+    float get_cost() const {return cost;}
+    float get_t_active() const {return t_active;}
+    float get_t_cooldown() const {return t_cooldown;}
+    SkillState state = SkillState::Ready;
+    virtual void set_special(GameWorld &, unsigned int) = 0; // sets correct timedmovestate
+protected:
+    BaseSkill(SkillID id, float active, float cooldown, float cost=0) :
+        id(id), cost(cost), t_active(active), t_cooldown(cooldown) {}
 
-        virtual void buildup_start(GameWorld &, unsigned int) {}
-        virtual void buildup_tick(GameWorld &, unsigned int) {}
-        virtual void buildup_end(GameWorld &, unsigned int) {}
-        virtual void channel_start(GameWorld &, unsigned int) {}
-        virtual void channel_tick(GameWorld &, unsigned int) {}
-        virtual void channel_end(GameWorld &, unsigned int) {}
-        virtual void recover_start(GameWorld &, unsigned int) {}
-        virtual void recover_tick(GameWorld &, unsigned int) {}
-        virtual void recover_end(GameWorld &, unsigned int) {}
-
-        virtual void move_buildup(GameWorld &, unsigned int) {}
-        virtual void move_channel(GameWorld &, unsigned int) {}
-        virtual void move_recover(GameWorld &, unsigned int) {}
-
-        SkillID get_id() const {return id;}
-    protected:
-        SkillBase(float buildup, float channel, float recover, float cooldown, SkillID id) :
-            c_time_buildup(buildup), c_time_channel(channel), c_time_recover(recover), c_time_cooldown(cooldown), id(id) {}
+private:
+    SkillID id;
+    float cost;
+    float t_active;
+    float t_cooldown;
 };
 
 struct SkillComponent {
-    std::vector<std::shared_ptr<SkillBase>> skills;
-    std::shared_ptr<SkillBase> active = nullptr;
+    std::vector<std::shared_ptr<BaseSkill>> skills;
+    std::shared_ptr<BaseSkill> active = nullptr;
     std::vector<int> skill_data;
 };
 
 namespace skill {
     bool can_cast(GameWorld &, unsigned int, SkillID);
     bool cast(GameWorld &world, unsigned int entity, SkillID id);
-
     void entity_edit(GameWorld &, unsigned int);
-
     void add(GameWorld &, unsigned int);
-
-    std::shared_ptr<SkillBase> get_new_skill(SkillID id);
-
+    std::shared_ptr<BaseSkill> get_new_skill(SkillID id);
     void reset(GameWorld&, unsigned int);
 }
 

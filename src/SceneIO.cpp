@@ -151,7 +151,7 @@ std::unique_ptr<EntityFBS::EntityT> get_fb_entity(GameWorld &world, unsigned int
         skill_vec.clear();
 
         for (const auto &skill : world.skill_c(entity).skills) {
-            skill_vec.push_back(static_cast<int>(skill->id));
+            skill_vec.push_back(static_cast<int>(skill->get_id()));
         }
     }
 

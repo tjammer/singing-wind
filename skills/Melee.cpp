@@ -40,23 +40,14 @@ void melee_skill_on_hit(GameWorld &world, unsigned int attacker, unsigned int vi
     world.move_c(attacker).timer = -0.5f;
 }
 
-void melee_skill::move_buildup(GameWorld &, unsigned int ) {
-
-}
-
-void melee_skill::move_channel(GameWorld &world, unsigned int entity) {
+void MeleeAttackMove::accel(GameWorld &world, unsigned int entity) {
     const auto &pc = world.pos_c(entity);
     auto &mc = world.move_c(entity);
 
     mc.accel = 1500.f * w_rotated(WVec(0, -1), pc.rotation * pc.direction);
 }
 
-void melee_skill::Skill::channel_start(GameWorld &world, unsigned int entity) {
-    // set movestate for caster
-    auto &mc = world.move_c(entity);
-    //mc.special = SpecialMoveState::MeleeChannel;
-    assert(false);
-
+void MeleeAttackMove::enter(GameWorld &world, unsigned int entity) {
     // create hurtbox
     auto hurtbox = world.create_entity();
     bset comps;
@@ -96,8 +87,6 @@ void melee_skill::Skill::channel_start(GameWorld &world, unsigned int entity) {
     hb.on_hit = melee_skill_on_hit;
 }
 
-void melee_skill::Skill::channel_end(GameWorld & world, unsigned int entity) {
-    reset_special(world, entity, TimedMoveStateName::MeleeChannel);
+void MeleeSkill::set_special(GameWorld &world, unsigned int entity) {
+    world.move_c(entity).special_movestate = std::make_unique<MeleeCastMove>();
 }
-
-melee_skill::Skill::Skill() : SkillBase(0.1, 0.2, 1, 2, SkillID::Melee) {}

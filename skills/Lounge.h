@@ -2,21 +2,29 @@
 #define LOUNGE_H
 
 #include "SkillComponent.h"
+#include "MoveSystems.h"
 
-namespace lounge_skill {
-    void move_buildup(GameWorld &, unsigned int);
-    void move_channel(GameWorld &, unsigned int);
+class LoungeAttackMove : public TimedMoveState {
+public:
+    void enter(GameWorld &, unsigned int) override;
+    void accel(GameWorld &, unsigned int) override;
+    void leave(GameWorld &, unsigned int) override {}
+    std::unique_ptr<TimedMoveState> next() override {return nullptr;}
+    LoungeAttackMove() : TimedMoveState(TimedMoveStateName::LoungeAttack, 1.3) {}
+};
 
-    class Skill : public SkillBase {
-        public:
-            void buildup_start(GameWorld &, unsigned int) override;
-            void buildup_end(GameWorld &, unsigned int) override;
-            void channel_start(GameWorld &, unsigned int) override;
-            void channel_end(GameWorld &, unsigned int) override;
-            void recover_start(GameWorld &, unsigned int) override;
-            void recover_end(GameWorld &, unsigned int) override;
-            Skill();
-    };
-}
+class LoungeCastMove : public TimedMoveState {
+public:
+    void enter(GameWorld &, unsigned int) override {}
+    void accel(GameWorld &, unsigned int) override;
+    void leave(GameWorld &, unsigned int) override {}
+    std::unique_ptr<TimedMoveState> next() override {return std::make_unique<LoungeAttackMove>();}
+    LoungeCastMove() : TimedMoveState(TimedMoveStateName::LoungeCast, 1.2) {}
+};
 
+class LoungeSkill : public BaseSkill {
+public:
+    void set_special(GameWorld &, unsigned int) override;
+    LoungeSkill() : BaseSkill(SkillID::Lounge, 2.5, 5) {}
+};
 #endif /* LOUNGE_H */
