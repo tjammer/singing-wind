@@ -173,7 +173,7 @@ void skill_update(GameWorld &world, float dt, const std::vector<unsigned int> &e
         auto begin = ic.att_melee.begin();
         auto end = ic.att_melee.end();
         if (ic.att_melee[0] and std::find(begin, end, false) != end) {
-            skill::cast(world, entity, SkillID::Melee);
+            skill::cast(world, entity, SkillID::Lounge);
         }
 
         for (auto &skill : sc.skills) {

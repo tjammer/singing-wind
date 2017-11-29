@@ -10,7 +10,7 @@ public:
     void accel(GameWorld &, unsigned int) override;
     void leave(GameWorld &, unsigned int) override {}
     std::unique_ptr<TimedMoveState> next() override {return nullptr;}
-    LoungeAttackMove() : TimedMoveState(TimedMoveStateName::LoungeAttack, 1.3) {}
+    LoungeAttackMove() : TimedMoveState(TimedMoveStateName::LoungeAttack, 1.6) {}
 };
 
 class LoungeCastMove : public TimedMoveState {
@@ -25,6 +25,6 @@ public:
 class LoungeSkill : public BaseSkill {
 public:
     void set_special(GameWorld &, unsigned int) override;
-    LoungeSkill() : BaseSkill(SkillID::Lounge, 2.5, 5) {}
+    LoungeSkill() : BaseSkill(SkillID::Lounge, 2.8, 5) {}
 };
 #endif /* LOUNGE_H */

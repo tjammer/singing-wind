@@ -82,7 +82,7 @@ void LoungeCastMove::accel(GameWorld &world, unsigned int entity) {
     auto &ic = world.input_c(entity);
     auto &mc = world.move_c(entity);
 
-    rotate_to(ic.mouse[0], 0.5f, pc);
+    rotate_to(ic.mouse[0], mc.c_max_change_angle * 1.5f, pc);
 
     // cancel gravity
     mc.accel.y -= c_gravity;
@@ -95,9 +95,9 @@ void LoungeAttackMove::accel(GameWorld &world, unsigned int entity) {
     auto &mc = world.move_c(entity);
     auto &ic = world.input_c(entity);
 
-    float lounge_speed = 1200;
-    float lounge_accel = 4000;
-    float change_angle = 0.02;
+    float lounge_speed = 1000;
+    float lounge_accel = 3500;
+    float change_angle = mc.c_max_change_angle * 0.5f;
 
     auto vel = w_normalize(mc.velocity);
     // normal accel
