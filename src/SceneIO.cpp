@@ -168,7 +168,7 @@ std::unique_ptr<EntityFBS::EntityT> get_fb_entity(GameWorld &world, unsigned int
         fbs_ent.ai_c = unique_ptr<AIComponentT>(new AIComponentT);
         // this saves ai state as notinit, so we got no
         // problems with temp objects like hurtboxes and so on
-        fbs_ent.ai_c->state = static_cast<int>(AIState::NotInit);
+        fbs_ent.ai_c->state = static_cast<int>(AIStateName::NotInit);
         fbs_ent.ai_c->type = static_cast<int>(world.ai_c(entity).type);
         // fbs_ent.ai_c->msg_data.clear();
         // for (auto msg : world.ai_c(entity).msg_data) {
@@ -359,7 +359,7 @@ void entity_to_world(const EntityFBS::EntityT& fb_ent, GameWorld &world, unsigne
         auto &ai_c = fb_ent.ai_c;
 
         ac.type = static_cast<AIType>(ai_c->type);
-        ac.state = static_cast<AIState>(ai_c->state);
+        ac.state = static_cast<AIStateName>(ai_c->state);
         ac.msg_data.clear();
         for (auto msg : ai_c->msg_data) {
             ac.msg_data.push_back(msg);

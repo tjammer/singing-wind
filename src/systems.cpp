@@ -323,7 +323,7 @@ void ai_update(GameWorld &world, float dt, const std::vector<unsigned int> &enti
         auto &ac = world.ai_c(entity);
         ac.timer += dt;
 
-        for (AIState aistate : ai::get_trans_states(ac.type, ac.state)) {
+        for (AIStateName aistate : ai::get_trans_states(ac.type, ac.state)) {
             if (ai::get_trans_func(aistate)(world, entity)) {
                 ai::get_to_func(aistate)(world, entity);
             }

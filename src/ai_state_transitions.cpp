@@ -15,7 +15,7 @@
 void ai_to_funcs::to_idle(GameWorld &world, unsigned int entity) {
     auto &ac = world.ai_c(entity);
     ac.timer = 0;
-    ac.state = AIState::Idle;
+    ac.state = AIStateName::Idle;
 
     // spawn alert bubble
     alert_bubble::spawn(world, entity);
@@ -31,7 +31,7 @@ void ai_to_funcs::to_pursuit(GameWorld &world, unsigned int entity) {
     // set new path
     // this needs to have the following field in pathfinding comp set
     get_path(world, entity);
-    ac.state = AIState::Pursuit;
+    ac.state = AIStateName::Pursuit;
 }
 
 void ai_to_funcs::to_attack(GameWorld &world, unsigned int entity) {
@@ -54,7 +54,7 @@ void ai_to_funcs::to_return(GameWorld &world, unsigned int entity) {
     // set new path
     push_value(ic.mouse, pc.patrol_point);
     get_path(world, entity);
-    ac.state = AIState::Return;
+    ac.state = AIStateName::Return;
 }
 
 void ai_to_funcs::to_flee(GameWorld &, unsigned int ) {
@@ -63,7 +63,7 @@ void ai_to_funcs::to_flee(GameWorld &, unsigned int ) {
 }
 
 bool ai_transitions::trans_idle(GameWorld & world, unsigned int entity) {
-    if (world.ai_c(entity).state == AIState::NotInit) {
+    if (world.ai_c(entity).state == AIStateName::NotInit) {
         return true;
     }
     if (!world.entities()[entity].test(CPathing)) {
@@ -96,7 +96,7 @@ bool ai_transitions::trans_pursuit(GameWorld &world, unsigned int entity) {
     }
 
     // transition back from attack
-    if (ac.state == AIState::Attack and world.skill_c(entity).active == nullptr) {
+    if (ac.state == AIStateName::Attack and world.skill_c(entity).active == nullptr) {
         std::cout << "finished with skill" << std::endl;
         return true;
     }

@@ -3,10 +3,11 @@
 
 #include <functional>
 #include <vector>
+#include <memory>
 
 class GameWorld;
 
-enum class AIState : int {
+enum class AIStateName : int {
     Idle,
     Pursuit,
     Attack,
@@ -20,9 +21,18 @@ enum class AIType : int {
     TestEnemy
 };
 
+class AIState {
+public:
+    virtual void enter(GameWorld &, unsigned int) = 0;
+    virtual void tick(GameWorld &, unsigned int) = 0;
+    virtual void leave(GameWorld &, unsigned int) = 0;
+    virtual AIStateName name() = 0;
+    std::unique_ptr<AIState> transition(GameWorld &, unsigned int);
+};
+
 struct AIComponent {
     AIType type = AIType::TestEnemy;
-    AIState state = AIState::NotInit;
+    AIStateName state = AIStateName::NotInit;
     std::vector<int> msg_data;
     float timer = 0;
 };
@@ -32,10 +42,10 @@ namespace ai {
     using func = std::function<void(GameWorld&, unsigned int)>;
     using trans_func = std::function<bool(GameWorld &, unsigned int)>;
 
-    func get_func(AIState);
-    trans_func get_trans_func(AIState);
-    func get_to_func(AIState);
-    const std::vector<AIState> & get_trans_states(const AIType &, const AIState &);
+    func get_func(AIStateName);
+    trans_func get_trans_func(AIStateName);
+    func get_to_func(AIStateName);
+    const std::vector<AIStateName> & get_trans_states(const AIType &, const AIStateName &);
 
     void do_input(GameWorld &, unsigned int);
 

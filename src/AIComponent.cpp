@@ -12,7 +12,7 @@
 namespace ai {
 
     // maybe not needed for now
-    const func c_ai_funcs[static_cast<size_t>(AIState::state_count)] = {
+    const func c_ai_funcs[static_cast<size_t>(AIStateName::state_count)] = {
         ai_funcs::idle_func,
         ai_funcs::pursuit_func,
         nullptr,
@@ -21,7 +21,7 @@ namespace ai {
         nullptr
     };
 
-    trans_func c_ai_transitions[static_cast<size_t>(AIState::state_count)] = {
+    trans_func c_ai_transitions[static_cast<size_t>(AIStateName::state_count)] = {
         ai_transitions::trans_idle,
         ai_transitions::trans_pursuit,
         ai_transitions::trans_attack,
@@ -30,7 +30,7 @@ namespace ai {
         ai_transitions::trans_idle, // notinit
     };
 
-    func c_ai_to_funcs[static_cast<size_t>(AIState::state_count)] = {
+    func c_ai_to_funcs[static_cast<size_t>(AIStateName::state_count)] = {
         ai_to_funcs::to_idle,
         ai_to_funcs::to_pursuit,
         ai_to_funcs::to_attack,
@@ -39,27 +39,27 @@ namespace ai {
         ai_to_funcs::to_idle
     };
 
-    std::unordered_map<AIState, std::vector<AIState>> testenemy_ai_trans = {
-        {AIState::Idle, {AIState::Pursuit}},
-        {AIState::Pursuit, {AIState::Attack, AIState::Return}},
-        {AIState::Attack, {AIState::Pursuit}},
-        {AIState::Return, {AIState::Idle, AIState::Pursuit}},
-        {AIState::NotInit, {AIState::Idle}}
+    std::unordered_map<AIStateName, std::vector<AIStateName>> testenemy_ai_trans = {
+        {AIStateName::Idle, {AIStateName::Pursuit}},
+        {AIStateName::Pursuit, {AIStateName::Attack, AIStateName::Return}},
+        {AIStateName::Attack, {AIStateName::Pursuit}},
+        {AIStateName::Return, {AIStateName::Idle, AIStateName::Pursuit}},
+        {AIStateName::NotInit, {AIStateName::Idle}}
     };
 
-    func get_func(AIState state) {
+    func get_func(AIStateName state) {
         return c_ai_funcs[static_cast<size_t>(state)];
     }
 
-    trans_func get_trans_func(AIState state) {
+    trans_func get_trans_func(AIStateName state) {
         return c_ai_transitions[static_cast<size_t>(state)];
     }
 
-    func get_to_func(AIState state) {
+    func get_to_func(AIStateName state) {
         return c_ai_to_funcs[static_cast<size_t>(state)];
     }
 
-    const std::vector<AIState> & get_trans_states(const AIType &type, const AIState &state) {
+    const std::vector<AIStateName> & get_trans_states(const AIType &type, const AIStateName &state) {
         switch (type) {
             case AIType::TestEnemy : return testenemy_ai_trans[state];
         }
@@ -72,7 +72,7 @@ namespace ai {
             ai_input::simple_flying(world, entity);
         } else if (world.move_c(entity).movestate->name() == MoveStateName::Hover) {
             ai_input::hover(world, entity);
-        } else if (world.ai_c(entity).state == AIState::Attack) {
+        } else if (world.ai_c(entity).state == AIStateName::Attack) {
             ai_input::attack(world, entity);
         }
     }
@@ -81,13 +81,13 @@ namespace ai {
         {AIType::TestEnemy, "TestEnemy"}
     };
 
-    const std::map<AIState, const char*> c_ai_states = {
-        {AIState::Idle, "Idle"},
-        {AIState::Pursuit, "Pursuit"},
-        {AIState::Attack, "Attack"},
-        {AIState::Flee, "Flee"},
-        {AIState::Return, "Return"},
-        {AIState::NotInit, "NotInit"}
+    const std::map<AIStateName, const char*> c_ai_states = {
+        {AIStateName::Idle, "Idle"},
+        {AIStateName::Pursuit, "Pursuit"},
+        {AIStateName::Attack, "Attack"},
+        {AIStateName::Flee, "Flee"},
+        {AIStateName::Return, "Return"},
+        {AIStateName::NotInit, "NotInit"}
     };
 
     const auto ai_types = get_enum_string_array(c_ai_types);
@@ -103,7 +103,7 @@ namespace ai {
             }
             int state = static_cast<int>(ac.state);
             if (Combo("state", &state, ai_states.data(), ai_states.size())) {
-                ac.state = static_cast<AIState>(state);
+                ac.state = static_cast<AIStateName>(state);
             }
         }
     }
