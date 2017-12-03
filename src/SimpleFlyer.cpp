@@ -19,7 +19,7 @@ void SimpleFlyingMove::accel(GameWorld &world, unsigned int entity) {
     auto &pc = world.pos_c(entity);
     auto &mc = world.move_c(entity);
 
-    auto dir = w_normalize(ic.mouse[0] - pc.global_position);
+    auto dir = w_normalize(ic.mouse.get() - pc.global_position);
     auto vel = w_normalize(mc.velocity);
     auto steering = dir - vel;
 
@@ -64,7 +64,7 @@ void HoverMove::accel(GameWorld &world, unsigned int entity) {
     // hover
     // mitigate gravity
     mc.accel.y *= 0.0f;
-    mc.accel.y += c_gravity * .01f * (ic.mouse[0].y - pc.global_position.y);
+    mc.accel.y += c_gravity * .01f * (ic.mouse.get().y - pc.global_position.y);
 
     mc.accel.x -= fc.c_stop_coef * mc.velocity.x;
     if (abs(mc.velocity.y) > 130) {
@@ -92,21 +92,21 @@ std::unique_ptr<MoveState> SimpleFlyerMoveSet::transition(GameWorld &world, unsi
 
     switch(mc.movestate->name()) {
         case MoveStateName::SimpleFlying : {
-                                               if (SimpleFlyingMove::transition(world, entity)) {
-                                                   return std::make_unique<HoverMove>();
-                                               }
-                                               break;
-                                           }
+            if (SimpleFlyingMove::transition(world, entity)) {
+                return std::make_unique<HoverMove>();
+            }
+            break;
+        }
         case MoveStateName::Hover : {
-                                        if (HoverMove::transition(world, entity)) {
-                                            return std::make_unique<SimpleFlyingMove>();
-                                            break;
-                                        }
-                                    }
+            if (HoverMove::transition(world, entity)) {
+                return std::make_unique<SimpleFlyingMove>();
+                break;
+            }
+        }
         default : {
-                      return from_undefined(world, entity);
-                      break;
-                  }
+            return from_undefined(world, entity);
+            break;
+        }
     }
     return nullptr;
 }

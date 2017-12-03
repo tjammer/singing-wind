@@ -146,7 +146,7 @@ void get_path(GameWorld &world, unsigned int entity) {
             if (pc.following != 0) {
                 follow = world.pos_c(pc.following).global_position;
             } else {
-                follow = world.input_c(entity).mouse[0];
+                follow = world.input_c(entity).mouse.get();
             }
             get_path_fly(pos, follow, world, pc);
             pc.index = pc.path.size() - 1;

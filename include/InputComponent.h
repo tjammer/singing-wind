@@ -2,10 +2,11 @@
 #define CINPUT_H
 
 #include "WindDefs.h"
+#include "input_buffer.h"
+#include "SkillComponent.h"
 
 #include <map>
-#include <deque>
-#include <functional>
+#include <array>
 
 class GameWorld;
 
@@ -22,14 +23,12 @@ const std::map<InputFunc, const char*> inputfunc_string = {
 };
 
 struct InputComponent {
-    std::deque<int> direction = std::deque<int>(c_input_buffer_length);
-    std::deque<bool> jump = std::deque<bool>(c_input_buffer_length);
-    std::deque<WVec> mouse = std::deque<WVec>(c_input_buffer_length);
-    std::deque<bool> wings = std::deque<bool>(c_input_buffer_length);
-    std::deque<bool> att_melee = std::deque<bool>(c_input_buffer_length);
+    input_buffer<int, c_input_buffer_length> direction;
+    input_buffer<bool, c_input_buffer_length> jump;
+    input_buffer<WVec, c_input_buffer_length> mouse;
+    input_buffer<bool, c_input_buffer_length> wings;
+    std::array<input_buffer<bool, c_input_buffer_length>, c_skill_slots> attacks;
     InputFunc input_func;
 };
-
-std::function<void(GameWorld &world, unsigned int entity)> get_input_func(const InputFunc&);
 
 #endif /* CINPUT_H */

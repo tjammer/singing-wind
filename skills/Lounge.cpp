@@ -82,7 +82,7 @@ void LoungeCastMove::accel(GameWorld &world, unsigned int entity) {
     auto &ic = world.input_c(entity);
     auto &mc = world.move_c(entity);
 
-    rotate_to(ic.mouse[0], mc.c_max_change_angle * 1.5f, pc);
+    rotate_to(ic.mouse.get(), mc.c_max_change_angle * 1.5f, pc);
 
     // cancel gravity
     mc.accel.y -= c_gravity;
@@ -103,7 +103,7 @@ void LoungeAttackMove::accel(GameWorld &world, unsigned int entity) {
     // normal accel
     mc.accel = w_rotated(WVec(0, -1), pc.rotation * pc.direction) * lounge_accel;
 
-    auto dir = w_normalize(ic.mouse[0] - pc.global_position);
+    auto dir = w_normalize(ic.mouse.get() - pc.global_position);
     // when target before actor, steer towards
     if (dot(dir, w_rotated(WVec(0, -1), pc.rotation * pc.direction)) > 0) {
         auto angle =  w_angle_to_vec(w_rotated(WVec(0, -1), pc.rotation * pc.direction), dir);

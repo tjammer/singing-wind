@@ -59,6 +59,7 @@ set(INCLUDE_FILES include/Engine.h
     include/PatrolComponent.h
     include/steering.h
     include/EditorDraw.h
+    include/input_buffer.h
     # skills
     skills/Melee.h
     skills/Lounge.h

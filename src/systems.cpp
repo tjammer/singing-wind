@@ -181,9 +181,7 @@ void skill_update(GameWorld &world, float dt, const std::vector<unsigned int> &e
         auto &ic = world.input_c(entity);
 
         // handle skill input
-        auto begin = ic.att_melee.begin();
-        auto end = ic.att_melee.end();
-        if (ic.att_melee[0] and std::find(begin, end, false) != end) {
+        if (ic.attacks[0].just_added(true)) {
             skill::cast(world, entity, SkillID::Lounge);
         }
 
