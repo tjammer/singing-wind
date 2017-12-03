@@ -99,7 +99,7 @@ public:
 
 private:
     class impl;
-    std::unique_ptr<impl> pimpl;    
+    std::unique_ptr<impl> pimpl;
 
     void find_entities_fixed();
     void find_entities_draw();

@@ -168,8 +168,9 @@ std::unique_ptr<EntityFBS::EntityT> get_fb_entity(GameWorld &world, unsigned int
         fbs_ent.ai_c = unique_ptr<AIComponentT>(new AIComponentT);
         // this saves ai state as notinit, so we got no
         // problems with temp objects like hurtboxes and so on
-        fbs_ent.ai_c->state = static_cast<int>(AIStateName::NotInit);
-        fbs_ent.ai_c->type = static_cast<int>(world.ai_c(entity).type);
+        assert(false);
+        //fbs_ent.ai_c->state = static_cast<int>(AIStateName::NotInit);
+        //fbs_ent.ai_c->type = static_cast<int>(world.ai_c(entity).type);
         // fbs_ent.ai_c->msg_data.clear();
         // for (auto msg : world.ai_c(entity).msg_data) {
         //     fbs_ent.ai_c->msg_data.push_back(msg);
@@ -243,8 +244,6 @@ void entity_to_world(const EntityFBS::EntityT& fb_ent, GameWorld &world, unsigne
         auto &move_c = fb_ent.move_c;
         auto &mc= world.move_c(entity);
 
-        //mc.movestate = static_cast<MoveStateName>(move_c->movestate);
-        //mc.moveset = static_cast<MoveSetName>(move_c->moveset);
         init_moveset(world, entity, static_cast<MoveSetName>(move_c->moveset));
         mc.mass = move_c->mass;
         mc.c_max_change_angle = move_c->max_change_angle;
@@ -355,15 +354,10 @@ void entity_to_world(const EntityFBS::EntityT& fb_ent, GameWorld &world, unsigne
 
     // ai_c
     if (bs.test(CAI)) {
-        auto &ac = world.ai_c(entity);
+        //auto &ac = world.ai_c(entity);
         auto &ai_c = fb_ent.ai_c;
 
-        ac.type = static_cast<AIType>(ai_c->type);
-        ac.state = static_cast<AIStateName>(ai_c->state);
-        ac.msg_data.clear();
-        for (auto msg : ai_c->msg_data) {
-            ac.msg_data.push_back(msg);
-        }
+        ai::init_ai_type(world, entity, static_cast<AITypeName>(ai_c->type));
     }
 }
 

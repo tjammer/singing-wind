@@ -39,6 +39,8 @@ private:
     float t_cooldown;
 };
 
+const unsigned int c_skill_slots= 4;
+
 struct SkillComponent {
     std::vector<std::shared_ptr<BaseSkill>> skills;
     std::shared_ptr<BaseSkill> active = nullptr;

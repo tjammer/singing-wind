@@ -16,6 +16,7 @@
 #include "LifeTimeComponent.h"
 #include "StatusEffectComponent.h"
 #include "AIComponent.h"
+#include "Protagonist.h"
 
 #include <WRenderer.h>
 #include <WVecMath.h>
@@ -109,7 +110,17 @@ void static_col_update(GameWorld &world, const std::vector<unsigned int> &entiti
 void input_update(GameWorld &world, const std::vector<unsigned int> &entities) {
     for (const auto entity : entities) {
         auto &ic = world.input_c(entity);
-        get_input_func(ic.input_func)(world, entity);
+        switch (ic.input_func) {
+            case InputFunc::Protagonist : {
+                protagonist::handle_inputs(world, entity);
+                break;
+            }
+            case InputFunc::AI : {
+                world.ai_c(entity).state->do_input(world, entity);
+                break;
+            }
+            default : break;
+        }
     }
 }
 
@@ -321,17 +332,14 @@ void statuseffect_update(GameWorld &world, float dt, const std::vector<unsigned 
 void ai_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities) {
     for (const auto &entity : entities) {
         auto &ac = world.ai_c(entity);
-        ac.timer += dt;
 
-        for (AIStateName aistate : ai::get_trans_states(ac.type, ac.state)) {
-            if (ai::get_trans_func(aistate)(world, entity)) {
-                ai::get_to_func(aistate)(world, entity);
-            }
+        assert(ac.type);
+        auto transition = ac.type->transition(world, entity);
+        if (transition) {
+            ac.state->leave(world, entity);
+            ac.state = std::move(transition);
+            ac.state->enter(world, entity);
         }
-        // only pathing states have funcs, allow nullptr here
-        auto fn = ai::get_func(ac.state);
-        if (fn) {
-            fn(world, entity);
-        }
+        ac.state->tick(world, entity, dt);
     }
 }

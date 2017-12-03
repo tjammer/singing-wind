@@ -50,13 +50,15 @@ namespace alert_bubble {
         }
         // test if was updated -> still in idle
         auto &pc = world.pos_c(entity);
-        auto &parent_ac = world.ai_c(pc.parent);
-        if (world.ai_c(pc.parent).msg_data.size() > 0) {
-            // last entry is alert bubble entity
-            parent_ac.msg_data.pop_back();
-        }
-        parent_ac.msg_data.push_back(static_cast<unsigned int>(dc.collided));
-        parent_ac.msg_data.push_back(static_cast<unsigned int>(entity));
+        //auto &parent_ac = world.ai_c(pc.parent);
+        // TODO: rewrite this
+        assert(false);
+        //if (world.ai_c(pc.parent).msg_data.size() > 0) {
+        //    // last entry is alert bubble entity
+        //    parent_ac.msg_data.pop_back();
+        //}
+        //parent_ac.msg_data.push_back(static_cast<unsigned int>(dc.collided));
+        //parent_ac.msg_data.push_back(static_cast<unsigned int>(entity));
     }
 }
 

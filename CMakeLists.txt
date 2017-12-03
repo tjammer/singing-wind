@@ -92,7 +92,6 @@ set(SOURCE_FILES src/main.cpp
     src/SceneIO.cpp
     src/NavMesh.cpp
     src/SimpleFlyer.cpp
-    src/InputComponent.cpp
     src/CollisionComponent.cpp
     src/Pathfinding.cpp
     src/SkillComponent.cpp

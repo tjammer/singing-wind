@@ -11,34 +11,6 @@
 
 namespace ai {
 
-    // maybe not needed for now
-    const func c_ai_funcs[static_cast<size_t>(AIStateName::state_count)] = {
-        ai_funcs::idle_func,
-        ai_funcs::pursuit_func,
-        nullptr,
-        nullptr,
-        ai_funcs::return_func,
-        nullptr
-    };
-
-    trans_func c_ai_transitions[static_cast<size_t>(AIStateName::state_count)] = {
-        ai_transitions::trans_idle,
-        ai_transitions::trans_pursuit,
-        ai_transitions::trans_attack,
-        ai_transitions::trans_flee,
-        ai_transitions::trans_return,
-        ai_transitions::trans_idle, // notinit
-    };
-
-    func c_ai_to_funcs[static_cast<size_t>(AIStateName::state_count)] = {
-        ai_to_funcs::to_idle,
-        ai_to_funcs::to_pursuit,
-        ai_to_funcs::to_attack,
-        ai_to_funcs::to_flee,
-        ai_to_funcs::to_return,
-        ai_to_funcs::to_idle
-    };
-
     std::unordered_map<AIStateName, std::vector<AIStateName>> testenemy_ai_trans = {
         {AIStateName::Idle, {AIStateName::Pursuit}},
         {AIStateName::Pursuit, {AIStateName::Attack, AIStateName::Return}},
@@ -47,38 +19,26 @@ namespace ai {
         {AIStateName::NotInit, {AIStateName::Idle}}
     };
 
-    func get_func(AIStateName state) {
-        return c_ai_funcs[static_cast<size_t>(state)];
-    }
-
-    trans_func get_trans_func(AIStateName state) {
-        return c_ai_transitions[static_cast<size_t>(state)];
-    }
-
-    func get_to_func(AIStateName state) {
-        return c_ai_to_funcs[static_cast<size_t>(state)];
-    }
-
-    const std::vector<AIStateName> & get_trans_states(const AIType &type, const AIStateName &state) {
+    const std::vector<AIStateName> & get_trans_states(const AITypeName &type, const AIStateName &state) {
         switch (type) {
-            case AIType::TestEnemy : return testenemy_ai_trans[state];
+            case AITypeName::TestEnemy : return testenemy_ai_trans[state];
         }
         assert(false);
         return testenemy_ai_trans[state];
     }
 
-    void do_input(GameWorld &world, unsigned int entity) {
-        if (world.move_c(entity).movestate->name() == MoveStateName::SimpleFlying) {
-            ai_input::simple_flying(world, entity);
-        } else if (world.move_c(entity).movestate->name() == MoveStateName::Hover) {
-            ai_input::hover(world, entity);
-        } else if (world.ai_c(entity).state == AIStateName::Attack) {
-            ai_input::attack(world, entity);
-        }
-    }
+//    void do_input(GameWorld &world, unsigned int entity) {
+//        if (world.move_c(entity).movestate->name() == MoveStateName::SimpleFlying) {
+//            ai_input::simple_flying(world, entity);
+//        } else if (world.move_c(entity).movestate->name() == MoveStateName::Hover) {
+//            ai_input::hover(world, entity);
+//        } else if (world.ai_c(entity).state == AIStateName::Attack) {
+//            ai_input::attack(world, entity);
+//        }
+//    }
 
-    const std::map<AIType, const char*> c_ai_types = {
-        {AIType::TestEnemy, "TestEnemy"}
+    const std::map<AITypeName, const char*> c_ai_types = {
+        {AITypeName::TestEnemy, "TestEnemy"}
     };
 
     const std::map<AIStateName, const char*> c_ai_states = {
@@ -97,15 +57,20 @@ namespace ai {
         using namespace ImGui;
         if (world.entities()[entity].test(CAI) and CollapsingHeader("ai")) {
             auto &ac = world.ai_c(entity);
-            int type = static_cast<int>(ac.type);
+            int type = static_cast<int>(ac.state->name());
             if (Combo("type", &type, ai_types.data(), ai_types.size())) {
-                ac.type = static_cast<AIType>(type);
+                ai::init_ai_type(world, entity, static_cast<AITypeName>(type));
             }
-            int state = static_cast<int>(ac.state);
-            if (Combo("state", &state, ai_states.data(), ai_states.size())) {
-                ac.state = static_cast<AIStateName>(state);
-            }
+           // int state = static_cast<int>(ac.state);
+           // if (Combo("state", &state, ai_states.data(), ai_states.size())) {
+           //     ac.state = static_cast<AIStateName>(state);
+           // }
         }
+    }
+
+    void init_ai_type(GameWorld &, unsigned int, AITypeName) {
+        // TODO: bring AIComp into sane state and ensure no pointer are dropped
+        assert(false);
     }
 }
 

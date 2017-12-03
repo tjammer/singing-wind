@@ -42,7 +42,7 @@ MoveStateName SimpleFlyingMove::name() {
 }
 
 bool SimpleFlyingMove::transition(GameWorld &world, unsigned int entity) {
-    if (world.ai_c(entity).state == AIStateName::Pursuit) {
+    if (world.ai_c(entity).state->name() == AIStateName::Pursuit) {
         return true;
     }
     return false;
@@ -77,7 +77,7 @@ MoveStateName HoverMove::name() {
 }
 
 bool HoverMove::transition(GameWorld &world, unsigned int entity) {
-    if (world.ai_c(entity).state == AIStateName::Idle) {
+    if (world.ai_c(entity).state->name() == AIStateName::Idle) {
         return true;
     }
     return false;
