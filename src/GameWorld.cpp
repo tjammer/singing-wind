@@ -55,7 +55,7 @@ class GameWorld::impl {
         std::vector<NameComponent> m_name_c;
 
 
-    StaticGrid m_grid;
+    HashGrid m_grid;
     PruneSweeper m_prune_sweep;
     std::vector<Island> m_islands;
     NavMesh m_navmesh;
@@ -279,7 +279,7 @@ void GameWorld::queue_delete(unsigned int entity) {
     pimpl->m_to_delete.push_back(entity);
 }
 
-StaticGrid& GameWorld::grid() {
+HashGrid& GameWorld::grid() {
     return pimpl->m_grid;
 }
 

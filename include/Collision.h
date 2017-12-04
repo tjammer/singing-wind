@@ -65,8 +65,8 @@ ColResult static_collide(const ColShape &a, const ColShape &b);
 
 RayCastResult cast_ray_vs_shape(const WVec &p, const ColShape &b, const WVec &dir);
 
-class StaticGrid;
-RayCastResult cast_ray_vs_static_grid(StaticGrid &grid,const WVec &from, const WVec &to);
+class HashGrid;
+RayCastResult cast_ray_vs_static_grid(HashGrid &grid,const WVec &from, const WVec &to);
 
 float find_normal_epa(const ColShape &a, const ColShape &b, Simplex &s, WVec &normal, int&);
 

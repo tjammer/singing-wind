@@ -25,7 +25,7 @@
 // node-type
 
 class Island;
-class StaticGrid;
+class HashGrid;
 class GameWorld;
 
 enum class LinkType : int {
@@ -95,7 +95,7 @@ struct NavMesh {
     void build_tree();
 
     NavNode get_nearest(const WVec &pos);
-    NavNode get_nearest_visible(const WVec &pos, StaticGrid &grid);
+    NavNode get_nearest_visible(const WVec &pos, HashGrid &grid);
 
     // for reusage
     std::unordered_map<NavNode, NavNode> m_path;
@@ -108,14 +108,14 @@ private:
     NavTree m_tree;
 };
 
-NavMesh build_navmesh(const std::vector<Island> &m_islands, StaticGrid &gridmesh);
+NavMesh build_navmesh(const std::vector<Island> &m_islands, HashGrid &gridmesh);
 
 inline float heuristic(const NavNode &from, const NavNode &to) {
     return abs(from.x - to.x) + abs(from.y - to.y);
 }
 
-void build_levels_connections(NavMesh &mesh, StaticGrid &grid);
-void build_node_space(NavMesh &mesh, StaticGrid &grid);
+void build_levels_connections(NavMesh &mesh, HashGrid &grid);
+void build_node_space(NavMesh &mesh, HashGrid &grid);
 
 struct NavMeshCreationConfig {
     std::bitset<3> walkable_nodes;
@@ -127,7 +127,7 @@ const auto c_fly_links = std::bitset<3>{}.set();
 const auto c_platform_nodes = std::bitset<3>{}.set(static_cast<int>(NodeType::Ground));
 const auto c_platform_links = std::bitset<3>{}.set(static_cast<int>(LinkType::Walk));
 
-// world cannot be const due to StaticGrid
+// world cannot be const due to HashGrid
 NavMesh create_navmesh(GameWorld &world, const NavMeshCreationConfig &config);
 
 #endif //SINGING_WIND_NAVMESH_H

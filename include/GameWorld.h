@@ -29,7 +29,7 @@ struct HurtBoxComponent;
 struct StatusEffectComponent;
 struct AIComponent;
 struct PatrolComponent;
-class StaticGrid;
+class HashGrid;
 class PruneSweeper;
 struct NavMesh;
 class Island;
@@ -92,7 +92,7 @@ public:
     void delete_entity_raw(unsigned int entity);
 
     // getters
-    StaticGrid &grid();
+    HashGrid &grid();
     NavMesh &navmesh();
     PruneSweeper &prune_sweep();
     std::vector<Island> &islands();

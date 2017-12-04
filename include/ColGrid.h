@@ -13,7 +13,7 @@
 
 class ColShape;
 
-class StaticGrid {
+class HashGrid {
 public:
     void add_object(std::shared_ptr<ColShape> shape);
     void clear();
@@ -23,8 +23,8 @@ public:
 
     unsigned int get_size() const {return m_cell_size;}
 
-    StaticGrid();
-    ~StaticGrid() = default;
+    HashGrid();
+    ~HashGrid() = default;
 
 private:
     unsigned int m_cell_size;
