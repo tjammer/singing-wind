@@ -9,6 +9,7 @@
 #include <vector>
 #include <memory>
 #include "WindDefs.h"
+#include "ColGrid.h"
 
 struct GLFWwindow;
 struct PosComponent;
@@ -29,7 +30,6 @@ struct HurtBoxComponent;
 struct StatusEffectComponent;
 struct AIComponent;
 struct PatrolComponent;
-class HashGrid;
 class PruneSweeper;
 struct NavMesh;
 class Island;
@@ -92,7 +92,7 @@ public:
     void delete_entity_raw(unsigned int entity);
 
     // getters
-    HashGrid &grid();
+    HashGrid<StaticTriangle> &grid();
     NavMesh &navmesh();
     PruneSweeper &prune_sweep();
     std::vector<Island> &islands();

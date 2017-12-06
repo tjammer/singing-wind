@@ -55,7 +55,7 @@ class GameWorld::impl {
         std::vector<NameComponent> m_name_c;
 
 
-    HashGrid m_grid;
+    HashGrid<StaticTriangle> m_grid;
     PruneSweeper m_prune_sweep;
     std::vector<Island> m_islands;
     NavMesh m_navmesh;
@@ -87,7 +87,8 @@ void GameWorld::update_world() {
             auto p1 = WVec(pos_c(0).global_transform * WVec3(triangles[i*3], 1));
             auto p2 = WVec(pos_c(0).global_transform * WVec3(triangles[i*3+1], 1));
             auto p3 = WVec(pos_c(0).global_transform * WVec3(triangles[i*3+2], 1));
-            grid().add_object(std::shared_ptr<ColShape>(new ColTriangle(p1, p2, p3)));
+            auto tri = std::make_shared<ColTriangle>(p1, p2, p3);
+            grid().add_object(StaticTriangle{tri->m_center, tri->get_radius(), tri, i});
         }
     }
 
@@ -279,7 +280,7 @@ void GameWorld::queue_delete(unsigned int entity) {
     pimpl->m_to_delete.push_back(entity);
 }
 
-HashGrid& GameWorld::grid() {
+HashGrid<StaticTriangle>& GameWorld::grid() {
     return pimpl->m_grid;
 }
 

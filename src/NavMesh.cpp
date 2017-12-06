@@ -61,7 +61,7 @@ const std::vector<NavNode>& NavTree::get_nodes() const {
     return pimpl->m_cloud.nodes;}
 
 
-std::unordered_map<NavNode, std::vector<NavLink>> walkable_from_tri(std::array<WVec, 3> tri, const HashGrid &grid) {
+std::unordered_map<NavNode, std::vector<NavLink>> walkable_from_tri(std::array<WVec, 3> tri, const HashGrid<StaticTriangle> &grid) {
     std::unordered_map<NavNode, std::vector<NavLink>> graph;
     std::vector<NavNode> nodes;
     for (auto i = 0 ; i < 3 ; ++i) {
@@ -73,8 +73,8 @@ std::unordered_map<NavNode, std::vector<NavLink>> walkable_from_tri(std::array<W
 
             auto col_p = ColPoint();
             col_p.transform(glm::translate(WTransform(), point));
-            for (const auto &shape : grid.get_objects()) {
-                auto res = shape->collides(col_p);
+            for (const auto &tri : grid.get_objects()) {
+                auto res = tri.shape->collides(col_p);
                 if (res.collides) {
                     result.collides = true;
                 }
@@ -92,7 +92,7 @@ std::unordered_map<NavNode, std::vector<NavLink>> walkable_from_tri(std::array<W
     return graph;
 }
 
-NavMesh build_navmesh(const std::vector<Island> &m_islands, HashGrid &grid) {
+NavMesh build_navmesh(const std::vector<Island> &m_islands, HashGrid<StaticTriangle> &grid) {
     NavMesh mesh;
     std::vector<WVec> triangles;
     for (const auto &island : m_islands) {
@@ -140,7 +140,7 @@ LinkType find_link_type(const NavLink &link) {
     return LinkType::JumpAlong;
 }
 
-void find_shortest_links(unsigned int l1, unsigned int l2, NavMesh &mesh, HashGrid &grid) {
+void find_shortest_links(unsigned int l1, unsigned int l2, NavMesh &mesh, HashGrid<StaticTriangle> &grid) {
     struct Match {
         float dist = std::numeric_limits<float>::max();
         NavNode node;
@@ -192,7 +192,7 @@ void find_shortest_links(unsigned int l1, unsigned int l2, NavMesh &mesh, HashGr
     }
 }
 
-void build_levels_connections(NavMesh &mesh, HashGrid &grid) {
+void build_levels_connections(NavMesh &mesh, HashGrid<StaticTriangle> &grid) {
     // first add level to nodes
     unsigned int level = 0;
     std::set<NavNode> visited;
@@ -219,7 +219,7 @@ void build_levels_connections(NavMesh &mesh, HashGrid &grid) {
     }
 }
 
-void build_node_space(NavMesh &mesh, HashGrid &grid) {
+void build_node_space(NavMesh &mesh, HashGrid<StaticTriangle> &grid) {
     float check_height = 10000;
     for (auto &pair : mesh.m_graph) {
         NodeSpace ns;
@@ -281,7 +281,7 @@ NavNode NavMesh::get_nearest(const WVec &pos) {
     return m_tree.get_nodes()[m_tree.get_nearest_indices(pos)[0]];
 }
 
-NavNode NavMesh::get_nearest_visible(const WVec &pos, HashGrid &grid) {
+NavNode NavMesh::get_nearest_visible(const WVec &pos, HashGrid<StaticTriangle> &grid) {
     // get four nearest
     auto inds = m_tree.get_nearest_indices(pos);
     const auto &nodes = m_tree.get_nodes();

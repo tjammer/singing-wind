@@ -6,6 +6,7 @@
 #define SINGING_WIND_COLLISION_H
 
 #include "WindDefs.h"
+#include "ColGrid.h"
 #include <vector>
 
 class ColShape;
@@ -65,8 +66,7 @@ ColResult static_collide(const ColShape &a, const ColShape &b);
 
 RayCastResult cast_ray_vs_shape(const WVec &p, const ColShape &b, const WVec &dir);
 
-class HashGrid;
-RayCastResult cast_ray_vs_static_grid(HashGrid &grid,const WVec &from, const WVec &to);
+RayCastResult cast_ray_vs_static_grid(HashGrid<StaticTriangle> &grid,const WVec &from, const WVec &to);
 
 float find_normal_epa(const ColShape &a, const ColShape &b, Simplex &s, WVec &normal, int&);
 

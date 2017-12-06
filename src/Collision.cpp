@@ -370,9 +370,9 @@ inline float pymod(float a, float b) {
     return fmod(b + fmod(a, b), b);
 }
 
-RayCastResult cast_ray_vs_static_grid(HashGrid &grid, const WVec &from, const WVec &to) {
+RayCastResult cast_ray_vs_static_grid(HashGrid<StaticTriangle> &grid, const WVec &from, const WVec &to) {
     //http://www.cs.yorku.ca/~amana/research/grid.pdf
-    std::set<std::shared_ptr<ColShape>> tested;
+    std::set<unsigned int> tested;
 
     auto dir = w_normalize(to - from);
 
@@ -397,16 +397,16 @@ RayCastResult cast_ray_vs_static_grid(HashGrid &grid, const WVec &from, const WV
 
         auto colliders = grid.get_colliders_of_point(pos);
         // check collision
-        for (const auto &shape: colliders) {
-            if (tested.count(shape)) {
+        for (const auto &tri: colliders) {
+            if (tested.count(tri.id)) {
                 continue;
             }
-            auto res = cast_ray_vs_shape(from, *shape, -dir);
+            auto res = cast_ray_vs_shape(from, *tri.shape, -dir);
             if (res.hit_parameter < result.hit_parameter) {
                 assert(res.hits);
                 result = res;
             }
-            tested.insert(shape);
+            tested.insert(tri.id);
         }
         if (result.hits) {
             if (result.hit_parameter > w_magnitude(to - from)) {
