@@ -3,8 +3,8 @@
 
 #include <array>
 
-template <class T, unsigned int size>
-class input_buffer{
+template <typename T, unsigned int size>
+class input_buffer {
 public:
     input_buffer() : m_size(size) {}
 
