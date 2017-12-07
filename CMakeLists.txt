@@ -74,7 +74,6 @@ set(SOURCE_FILES src/main.cpp
     src/triangulate.cpp
     src/ColShape.cpp
     src/Collision.cpp
-    src/ColGrid.cpp
     src/GameWorld.cpp
     src/Game.cpp
     src/Components.cpp
