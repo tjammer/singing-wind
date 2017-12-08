@@ -9,7 +9,6 @@
 #include <vector>
 #include <memory>
 #include "WindDefs.h"
-#include "ColGrid.h"
 
 struct GLFWwindow;
 struct PosComponent;
@@ -32,6 +31,10 @@ struct AIComponent;
 struct PatrolComponent;
 struct NavMesh;
 class Island;
+template<typename t>
+class HashGrid;
+struct StaticTriangle;
+struct DynamicEntity;
 using NameComponent = std::string;
 using TagComponent = bset;
 

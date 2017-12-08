@@ -6,14 +6,16 @@
 #define SINGING_WIND_COLGRID_H
 
 #include "WindDefs.h"
+#include "WVecMath.h"
 #include "ColShape.h"
-#include <unordered_map>
+#include <array>
 #include <set>
 #include <memory>
 #include <vector>
 
 const int P1 = 73856093;
 const int P2 = 19349663;
+const int c_num_buckets = 1024;
 
 struct StaticTriangle {
     WVec center;
@@ -27,6 +29,11 @@ struct DynamicEntity {
     float radius;
     unsigned int entity;
 };
+
+template<typename grid_object>
+inline bool overlap(const WVec& center, float radius, const grid_object &b) {
+    return w_magnitude(center - b.center) < radius + b.radius;
+}
 
 template <typename grid_object>
 class HashGrid {
@@ -45,7 +52,9 @@ public:
     }
 
     void clear() {
-        m_buckets = std::unordered_map<int, std::vector<size_t>>();
+        for (auto &vec : m_buckets) {
+            vec.clear();
+        }
         m_objects.clear();
     }
 
@@ -58,6 +67,7 @@ public:
             }
         }
         for (auto i : indices) {
+            if (overlap(center, radius, m_objects[i]))
             colliders.push_back(m_objects[i]);
         }
         return colliders;
@@ -71,6 +81,7 @@ public:
         std::vector<grid_object> colliders;
         auto id = get_id(p);
         for (auto i : m_buckets[id]) {
+            if (overlap(p, 0, m_objects[i]))
             colliders.push_back(m_objects[i]);
         }
         return colliders;
@@ -89,6 +100,7 @@ public:
             }
         }
         for (auto i : indices) {
+            if (overlap(object.center, object.radius, m_objects[i]))
             colliders.push_back(m_objects[i]);
         }
 
@@ -104,12 +116,16 @@ public:
 private:
     unsigned int m_cell_size;
     std::vector<grid_object> m_objects;
-    std::unordered_map<int, std::vector<size_t>> m_buckets;
+    std::array<std::vector<size_t>, c_num_buckets> m_buckets;
 
     int get_id(const WVec &v) const {
         int x = static_cast<int>(v.x / m_cell_size);
         int y = static_cast<int>(v.y / m_cell_size);
-        return x * P1 ^ y * P2;
+        int id = (x * P1 ^ y * P2) % c_num_buckets;
+        if (id < 0) {
+            id += c_num_buckets;
+        }
+        return id;
     }
 
     std::set<int> get_ids_for_object(const WVec &center, float radius) const {

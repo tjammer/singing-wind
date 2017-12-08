@@ -6,10 +6,14 @@
 #define SINGING_WIND_COLLISION_H
 
 #include "WindDefs.h"
-#include "ColGrid.h"
 #include <vector>
 
 class ColShape;
+class ColTriangle;
+template<typename t>
+class HashGrid;
+struct StaticTriangle;
+struct DynamicEntity;
 
 struct ColResult {
     bool collides = false;
