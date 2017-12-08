@@ -30,7 +30,6 @@ struct HurtBoxComponent;
 struct StatusEffectComponent;
 struct AIComponent;
 struct PatrolComponent;
-class PruneSweeper;
 struct NavMesh;
 class Island;
 using NameComponent = std::string;
@@ -93,8 +92,8 @@ public:
 
     // getters
     HashGrid<StaticTriangle> &grid();
+    HashGrid<DynamicEntity> &dynamic_grid();
     NavMesh &navmesh();
-    PruneSweeper &prune_sweep();
     std::vector<Island> &islands();
 
 private:

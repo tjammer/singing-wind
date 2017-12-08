@@ -14,7 +14,6 @@
 #include "CollisionComponent.h"
 #include "ColShape.h"
 #include "ColGrid.h"
-#include "CPruneSweep.h"
 #include "MoveSystems.h"
 #include "Pathfinding.h"
 #include "SkillComponent.h"
@@ -56,7 +55,7 @@ class GameWorld::impl {
 
 
     HashGrid<StaticTriangle> m_grid;
-    PruneSweeper m_prune_sweep;
+    HashGrid<DynamicEntity> m_dynamic_grid;
     std::vector<Island> m_islands;
     NavMesh m_navmesh;
 
@@ -68,7 +67,7 @@ class GameWorld::impl {
     std::vector<unsigned int> m_static_col_ents;
     std::vector<unsigned int> m_path_ents;
     std::vector<unsigned int> m_skill_ents;
-    std::unordered_map<unsigned int, bool> m_dyn_col_ents;
+    std::vector<unsigned int> m_dyn_col_ents;
     std::vector<unsigned int> m_lifetime_ents;
     std::vector<unsigned int> m_statuseffect_ents;
     std::vector<unsigned int> m_ai_ents;
@@ -194,7 +193,7 @@ void GameWorld::find_entities_fixed() {
         }
 
         if (has_component(ent, c_dyn_col_components)) {
-            pimpl->m_dyn_col_ents[i] = false;
+            pimpl->m_dyn_col_ents.push_back(i);
         }
 
         if (has_component(ent, c_lifetime_components)) {
@@ -284,8 +283,8 @@ HashGrid<StaticTriangle>& GameWorld::grid() {
     return pimpl->m_grid;
 }
 
-PruneSweeper& GameWorld::prune_sweep() {
-    return pimpl->m_prune_sweep;
+HashGrid<DynamicEntity>& GameWorld::dynamic_grid() {
+    return pimpl->m_dynamic_grid;
 }
 
 NavMesh& GameWorld::navmesh() {

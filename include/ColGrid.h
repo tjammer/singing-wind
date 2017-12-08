@@ -18,13 +18,24 @@ const int P2 = 19349663;
 struct StaticTriangle {
     WVec center;
     float radius;
-    std::shared_ptr<ColShape> shape;
+    std::shared_ptr<ColTriangle> shape;
     unsigned int id;
+};
+
+struct DynamicEntity {
+    WVec center;
+    float radius;
+    unsigned int entity;
 };
 
 template <typename grid_object>
 class HashGrid {
 public:
+    HashGrid(unsigned int size=static_cast<unsigned int>(c_line_triangulate_split * 1.5f)) :
+        m_cell_size(size) {
+    }
+    ~HashGrid() = default;
+
     void add_object(grid_object object) {
         size_t pos = m_objects.size();
         auto ids = get_ids_for_object(object.center, object.radius);
@@ -38,7 +49,7 @@ public:
         m_objects.clear();
     }
 
-    std::vector<grid_object> find_colliders(const WVec &center, float radius) {
+    std::vector<grid_object> find_colliders_in_radius(const WVec &center, float radius) {
         std::vector<grid_object> colliders;
         std::set<size_t> indices;
         for (const auto &id : get_ids_for_object(center, radius)) {
@@ -67,10 +78,28 @@ public:
 
     unsigned int get_size() const {return m_cell_size;}
 
-    HashGrid() {
-        m_cell_size = static_cast<unsigned int>(c_line_triangulate_split * 1.5f);
+    std::vector<grid_object> insert_and_find_colliders(grid_object object) {
+        auto ids = get_ids_for_object(object.center, object.radius);
+        std::vector<grid_object> colliders;
+
+        std::set<size_t> indices;
+        for (const auto &id : ids) {
+            for (size_t i : m_buckets[id]) {
+                indices.insert(i);
+            }
+        }
+        for (auto i : indices) {
+            colliders.push_back(m_objects[i]);
+        }
+
+        // actually add
+        size_t pos = m_objects.size();
+        m_objects.push_back(std::move(object));
+        for (auto id : ids)
+            m_buckets[id].push_back(pos);
+
+        return colliders;
     }
-    ~HashGrid() = default;
 
 private:
     unsigned int m_cell_size;

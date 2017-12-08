@@ -65,6 +65,7 @@ private:
 ColResult static_collide(const ColShape &a, const ColShape &b);
 
 RayCastResult cast_ray_vs_shape(const WVec &p, const ColShape &b, const WVec &dir);
+RayCastResult cast_ray_vs_triangle(const WVec &p, const ColTriangle &b, const WVec &dir);
 
 RayCastResult cast_ray_vs_static_grid(HashGrid<StaticTriangle> &grid,const WVec &from, const WVec &to);
 

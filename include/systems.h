@@ -8,7 +8,6 @@
 #include "Components.h"
 #include "WindDefs.h"
 #include <vector>
-#include <unordered_map>
 
 class GameWorld;
 
@@ -31,11 +30,10 @@ const bset c_skill_components{(1 << CSkill) | (1 << CInput)};
 void skill_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities);
 
 const bset c_dyn_col_components{(1 << CPosition) | (1 << CDynCol) | (1 << CColShape)};
-void dyn_col_update(GameWorld &world, std::unordered_map<unsigned int, bool> &entities);
+void dyn_col_update(GameWorld &world, std::vector<unsigned int> &entities);
 
 const bset c_lifetime_components{(1 << CLifeTime)};
 void lifetime_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities);
-
 const bset c_statuseffect_components{(1 << CStatusEffect)};
 void statuseffect_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities);
 
