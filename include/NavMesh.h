@@ -97,7 +97,7 @@ struct NavMesh {
     void build_tree();
 
     NavNode get_nearest(const WVec &pos);
-    NavNode get_nearest_visible(const WVec &pos, HashGrid<StaticTriangle> &grid);
+    NavNode get_nearest_visible(const WVec &pos, const HashGrid<StaticTriangle> &grid);
 
     // for reusage
     std::unordered_map<NavNode, NavNode> m_path;
@@ -110,14 +110,14 @@ private:
     NavTree m_tree;
 };
 
-NavMesh build_navmesh(const std::vector<Island> &m_islands, HashGrid<StaticTriangle> &gridmesh);
+NavMesh build_navmesh(const std::vector<Island> &m_islands, const HashGrid<StaticTriangle> &gridmesh);
 
 inline float heuristic(const NavNode &from, const NavNode &to) {
     return abs(from.x - to.x) + abs(from.y - to.y);
 }
 
-void build_levels_connections(NavMesh &mesh, HashGrid<StaticTriangle> &grid);
-void build_node_space(NavMesh &mesh, HashGrid<StaticTriangle> &grid);
+void build_levels_connections(NavMesh &mesh, const HashGrid<StaticTriangle> &grid);
+void build_node_space(NavMesh &mesh, const HashGrid<StaticTriangle> &grid);
 
 struct NavMeshCreationConfig {
     std::bitset<3> walkable_nodes;

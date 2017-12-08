@@ -58,7 +58,7 @@ public:
         m_objects.clear();
     }
 
-    std::vector<grid_object> find_colliders_in_radius(const WVec &center, float radius) {
+    std::vector<grid_object> find_colliders_in_radius(const WVec &center, float radius) const {
         std::vector<grid_object> colliders;
         std::set<size_t> indices;
         for (const auto &id : get_ids_for_object(center, radius)) {
@@ -77,7 +77,7 @@ public:
         return m_objects;
     }
 
-    std::vector<grid_object> get_colliders_of_point(const WVec &p) {
+    std::vector<grid_object> get_colliders_of_point(const WVec &p) const {
         std::vector<grid_object> colliders;
         auto id = get_id(p);
         for (auto i : m_buckets[id]) {

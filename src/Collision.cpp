@@ -370,7 +370,7 @@ inline float pymod(float a, float b) {
     return fmod(b + fmod(a, b), b);
 }
 
-RayCastResult cast_ray_vs_static_grid(HashGrid<StaticTriangle> &grid, const WVec &from, const WVec &to) {
+RayCastResult cast_ray_vs_static_grid(const HashGrid<StaticTriangle> &grid, const WVec &from, const WVec &to) {
     //http://www.cs.yorku.ca/~amana/research/grid.pdf
     std::set<unsigned int> tested;
 
