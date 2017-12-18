@@ -60,6 +60,8 @@ set(INCLUDE_FILES include/Engine.h
     include/steering.h
     include/EditorDraw.h
     include/input_buffer.h
+    include/WBehaviourTreeBuilder.h
+    include/WBehaviourTree.h
     # skills
     skills/Melee.h
     skills/Lounge.h
