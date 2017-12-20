@@ -7,11 +7,7 @@ set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG}  -fno-exceptions -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2 -fno-exceptions -Wall -DNDEBUG -s")
 
 add_subdirectory(external)
-include(engine/engine.cmake)
-include(gameplay/gameplay.cmake)
-set(SOURCE_FILES
-    ${ENGINE_SOURCE}
-    ${GAMEPLAY_SOURCE})
+include(src/files.cmake)
 
 option(enable_unity_build "enable unity build for executable" OFF)
 if (enable_unity_build)

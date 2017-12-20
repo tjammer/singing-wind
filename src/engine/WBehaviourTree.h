@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <array>
+#include <assert.h>
 
 namespace behaviour_tree {
 #include "WBehaviourTreeBuilder.h"
@@ -53,7 +54,7 @@ public:
         m_child = node;
     }
 
-private:
+protected:
     std::shared_ptr<Behaviour> m_child;
 };
 
