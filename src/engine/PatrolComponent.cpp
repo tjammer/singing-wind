@@ -49,7 +49,7 @@ namespace alert_bubble {
             return;
         }
         // test if was updated -> still in idle
-        auto &pc = world.pos_c(entity);
+        //auto &pc = world.pos_c(entity);
         //auto &parent_ac = world.ai_c(pc.parent);
         // TODO: rewrite this
         assert(false);
