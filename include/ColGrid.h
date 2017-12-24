@@ -70,7 +70,7 @@ public:
             if (overlap(center, radius, m_objects[i]))
             colliders.push_back(m_objects[i]);
         }
-        return colliders;
+        return std::move(colliders);
     }
 
     std::vector<grid_object> get_objects() const {
@@ -84,7 +84,7 @@ public:
             if (overlap(p, 0, m_objects[i]))
             colliders.push_back(m_objects[i]);
         }
-        return colliders;
+        return std::move(colliders);
     }
 
     unsigned int get_size() const {return m_cell_size;}
@@ -110,7 +110,7 @@ public:
         for (auto id : ids)
             m_buckets[id].push_back(pos);
 
-        return colliders;
+        return std::move(colliders);
     }
 
 private:
