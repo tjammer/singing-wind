@@ -16,6 +16,7 @@ if (enable_unity_build)
 endif(enable_unity_build)
 
 include_directories(${PROJECT_BINARY_DIR})
+include_directories(${PROJECT_SOURCE_DIR}/include)
 
 if (WIN32)
     set(CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc -static-libstdc++ -Wl,-Bstatic -lstdc++ -lpthread")
