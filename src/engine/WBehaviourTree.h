@@ -114,6 +114,7 @@ private:
 };
 
 using BehaviourTreeBuilder = WBehaviourTreeBuilder<Selector>;
+using BehaviourTree = Selector;
 
 }
 

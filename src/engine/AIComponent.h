@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+#include "WBehaviourTree.h"
 
 class GameWorld;
 
@@ -39,6 +40,7 @@ public:
 struct AIComponent {
     std::unique_ptr<AIType> type;
     std::unique_ptr<AIState> state;
+    behaviour_tree::BehaviourTree btree;
 };
 
 namespace ai {
