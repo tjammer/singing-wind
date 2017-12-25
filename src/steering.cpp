@@ -1,23 +1,37 @@
 #include "steering.h"
 #include "WVecMath.h"
-#include "GameWorld.h"
-#include "MoveSystems.h"
 
-WVec seek(const WVec& direction, GameWorld &world, unsigned int entity) {
-    assert(w_magnitude(direction) == 1);
-    auto &mc = world.move_c(entity);
-    auto velocity = w_normalize(mc.velocity);
-    return direction - velocity;
+SteeringBuilder::SteeringBuilder(const WVec& self_pos, const WVec& self_vel) :
+            m_pos(self_pos), m_vel(w_normalize(self_vel)) {}
+
+SteeringBuilder& SteeringBuilder::seek(const WVec &pos) {
+    auto dir = w_normalize(pos - m_pos);
+    m_seek += dir - m_vel;
+    return *this;
 }
 
-WVec flee(const WVec& direction, GameWorld &world, unsigned int entity) {
-    return -seek(direction, world, entity);
+SteeringBuilder& SteeringBuilder::flee(const WVec &pos) {
+    auto dir = w_normalize(pos - m_pos);
+    m_seek -= dir - m_vel;
+    return *this;
 }
 
-WVec arrive_velocity(const WVec& unnormed_direction, const WVec& unnormed_velocity, float arrive_radius) {
-    auto direction = w_normalize(unnormed_direction);
-    auto distance = w_magnitude(unnormed_direction);
+SteeringBuilder& SteeringBuilder::arrive(const WVec &pos, float radius) {
+    auto dir = w_normalize(pos - m_pos);
+    auto distance = w_magnitude(pos - m_pos);
+    auto desired = dir * w_magnitude(m_vel) * distance / radius;
+    m_seek += desired - m_vel;
+    return *this;
+}
 
-    auto desired = direction * w_magnitude(unnormed_velocity) * distance / arrive_radius;
-    return desired - unnormed_velocity;
+SteeringBuilder& SteeringBuilder::flock(const WVec &pos) {
+    auto dir = w_normalize(pos - m_pos);
+    m_separate -= dir;
+    m_flock_count++;
+
+    return *this;
+}
+
+WVec SteeringBuilder::end(float force) {
+    return w_normalize(m_seek) + w_normalize(m_separate / (float)m_flock_count) * force;
 }
