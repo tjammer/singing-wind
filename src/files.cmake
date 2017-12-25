@@ -34,13 +34,10 @@ set(SOURCE_FILES
     src/EntityEditor.cpp
     src/PosComponent.cpp
     src/TagComponent.cpp
-    src/ai_input_funcs.cpp
-    src/ai_state_funcs.cpp
     src/SkillComponent.cpp
     src/HurtBoxComponent.cpp
     src/CollisionComponent.cpp
     src/imgui_impl_glfw_gl3.cpp
-    src/ai_state_transitions.cpp
     src/StatusEffectComponent.cpp
     src/PatrolComponent.cpp
     src/AIComponent.cpp
