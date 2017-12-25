@@ -4,6 +4,7 @@
 #include "PosComponent.h"
 #include "TagComponent.h"
 #include "Pathfinding.h"
+#include "Collision.h"
 
 behaviour_tree::Status EnemyInRange::update() {
     using namespace behaviour_tree;
@@ -13,7 +14,11 @@ behaviour_tree::Status EnemyInRange::update() {
     for (auto &col : colliders) {
         if (m_world.tag_c(col.entity).test(static_cast<int>(Tags::Protagonist))) {
             m_path_c.following = col.entity;
-            return Status::Success;
+            auto cast_result = cast_ray_vs_static_grid(
+                    m_world.grid(), pos, col.center);
+            if (!cast_result.hits) {
+                return Status::Success;
+            }
         }
     }
     
