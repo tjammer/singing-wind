@@ -114,7 +114,16 @@ private:
 };
 
 using BehaviourTreeBuilder = WBehaviourTreeBuilder<Selector>;
-using BehaviourTree = Selector;
+
+enum class AITreeType;
+class BehaviourTree : public Selector {
+public:
+    BehaviourTree(AITreeType type=static_cast<AITreeType>(0)) :
+        m_type(type) {}
+    AITreeType type() const {return m_type;}
+private:
+    AITreeType m_type;
+};
 
 }
 

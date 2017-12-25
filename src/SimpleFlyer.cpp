@@ -42,7 +42,8 @@ MoveStateName SimpleFlyingMove::name() {
 }
 
 bool SimpleFlyingMove::transition(GameWorld &world, unsigned int entity) {
-    if (world.ai_c(entity).state->name() == AIStateName::Pursuit) {
+    // idea is that starts simpleflying if jump is pressed
+    if (world.input_c(entity).jump.get()) {
         return true;
     }
     return false;
@@ -77,7 +78,7 @@ MoveStateName HoverMove::name() {
 }
 
 bool HoverMove::transition(GameWorld &world, unsigned int entity) {
-    if (world.ai_c(entity).state->name() == AIStateName::Idle) {
+    if (!world.input_c(entity).jump.get()) {
         return true;
     }
     return false;

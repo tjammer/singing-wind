@@ -7,7 +7,7 @@
 
 class GameWorld;
 
-enum class AIStateName : int {
+enum class AIState : int {
     Idle,
     Pursuit,
     Attack,
@@ -17,29 +17,12 @@ enum class AIStateName : int {
     state_count
 };
 
-enum class AITypeName : int {
+enum class AITreeType : int {
+    None,
     TestEnemy
 };
 
-class AIState {
-public:
-    virtual void enter(GameWorld &, unsigned int) = 0;
-    virtual void tick(GameWorld &, unsigned int, float dt) = 0;
-    virtual void leave(GameWorld &, unsigned int) = 0;
-    virtual void do_input(GameWorld&, unsigned int) = 0;
-    virtual AIStateName name() = 0;
-};
-
-class AIType {
-public:
-    virtual std::unique_ptr<AIState> transition(GameWorld &, unsigned int) = 0;
-    virtual void init(GameWorld &, unsigned int) = 0;
-    virtual AIStateName name() = 0;
-};
-
 struct AIComponent {
-    std::unique_ptr<AIType> type;
-    std::unique_ptr<AIState> state;
     behaviour_tree::BehaviourTree btree;
 };
 
@@ -49,7 +32,7 @@ namespace ai {
     const float c_flee_time = 10.f;
 
     void entity_edit(GameWorld &, unsigned int);
-    void init_ai_type(GameWorld &, unsigned int, AITypeName);
+    void init_ai_type(GameWorld &, unsigned int, AITreeType);
 }
 
 #endif /* AICOMPONENT_H */

@@ -357,7 +357,7 @@ void entity_to_world(const EntityFBS::EntityT& fb_ent, GameWorld &world, unsigne
         //auto &ac = world.ai_c(entity);
         auto &ai_c = fb_ent.ai_c;
 
-        ai::init_ai_type(world, entity, static_cast<AITypeName>(ai_c->type));
+        ai::init_ai_type(world, entity, static_cast<AITreeType>(ai_c->type));
     }
 }
 

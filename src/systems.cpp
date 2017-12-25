@@ -116,7 +116,8 @@ void input_update(GameWorld &world, const std::vector<unsigned int> &entities) {
                 break;
             }
             case InputFunc::AI : {
-                world.ai_c(entity).state->do_input(world, entity);
+                                     // should set in tree function
+                // world.ai_c(entity).state->do_input(world, entity);
                 break;
             }
             default : break;
@@ -285,14 +286,6 @@ void statuseffect_update(GameWorld &world, float dt, const std::vector<unsigned 
 void ai_update(GameWorld &world, float dt, const std::vector<unsigned int> &entities) {
     for (const auto &entity : entities) {
         auto &ac = world.ai_c(entity);
-
-        assert(ac.type);
-        auto transition = ac.type->transition(world, entity);
-        if (transition) {
-            ac.state->leave(world, entity);
-            ac.state = std::move(transition);
-            ac.state->enter(world, entity);
-        }
-        ac.state->tick(world, entity, dt);
+        ac.btree.tick();
     }
 }
