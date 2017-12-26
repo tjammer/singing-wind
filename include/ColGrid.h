@@ -142,5 +142,8 @@ private:
     }
 };
 
+using StaticGrid = HashGrid<StaticTriangle>;
+using DynGrid = HashGrid<DynamicEntity>;
+
 
 #endif //SINGING_WIND_COLGRID_H
