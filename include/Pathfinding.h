@@ -9,7 +9,6 @@
 
 struct NavLink;
 struct NavMesh;
-class StaticGrid;
 struct NavNode;
 typedef std::unordered_map<NavNode, std::vector<NavLink>> NavGraph;
 class GameWorld;
