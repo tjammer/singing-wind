@@ -23,7 +23,7 @@ public:
 
     virtual Status update() = 0;
     virtual void enter() {}
-    virtual void terminate(Status) {}
+    virtual void leave(Status) {}
 
     Status tick() {
         if (m_status != Status::Running) {
@@ -31,7 +31,7 @@ public:
         }
         m_status = update();
         if (m_status != Status::Running) {
-            terminate(m_status);
+            leave(m_status);
         }
         return m_status;
     }
@@ -113,8 +113,6 @@ private:
     size_t m_current;
 };
 
-using BehaviourTreeBuilder = WBehaviourTreeBuilder<Selector>;
-
 enum class AITreeType;
 class BehaviourTree : public Selector {
 public:
@@ -124,6 +122,8 @@ public:
 private:
     AITreeType m_type;
 };
+
+using BehaviourTreeBuilder = WBehaviourTreeBuilder<BehaviourTree>;
 
 }
 

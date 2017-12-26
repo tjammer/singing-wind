@@ -24,9 +24,13 @@ private:
     std::shared_ptr<behaviour_type> m_leaf_behaviour; // the raw behavior we're constructing
 };
 
+template <class parent_type, class decorator_type>
+class WDecoratorBuilder;
+template <class parent_type, class composite_type>
+class WCompositeBuilder;
 
 template <class parent_type, class composite_type>
-class WCompositeBuilder {
+class WCompositeBuilder : public std::enable_shared_from_this<WCompositeBuilder<parent_type, composite_type>> {
     public:
     // constructor
     WCompositeBuilder(std::shared_ptr<parent_type> parent, std::shared_ptr<composite_type> comp) :
@@ -36,14 +40,24 @@ class WCompositeBuilder {
         WLeafBuilder<WCompositeBuilder, node_type> node(param_types... params) {
             auto node = std::make_shared<node_type>(params...);
             m_composite->add_child(node);
-            return WLeafBuilder<WCompositeBuilder, node_type>(std::make_shared<WCompositeBuilder>(this), node);
+            return WLeafBuilder<WCompositeBuilder, node_type>(
+                    this->enable_shared_from_this(), node);
         }
 
     template <class other_composite_type, typename... param_types>
         WCompositeBuilder<WCompositeBuilder, other_composite_type> composite(param_types... params) {
             auto node = std::make_shared<other_composite_type>(params...);
             m_composite->add_child(node);
-            return WCompositeBuilder<WCompositeBuilder, other_composite_type>(std::make_shared<WCompositeBuilder>(this), node);
+            return WCompositeBuilder<WCompositeBuilder, other_composite_type>(
+                    this->enable_shared_from_this(), node);
+        }
+
+    template <class decorator_type, typename... param_types>
+        WDecoratorBuilder<WCompositeBuilder, decorator_type> decorator(param_types... params) {
+            auto node = std::make_shared<decorator_type>(params...);
+            m_composite->add_child(node);
+            return WDecoratorBuilder<WCompositeBuilder, decorator_type>(
+                    this->shared_from_this(), node);
         }
 
     parent_type& end(void) {
@@ -57,16 +71,17 @@ class WCompositeBuilder {
 
 
 template <class parent_type, class decorator_type>
-class WDecoratorBuilder {
+class WDecoratorBuilder : public std::enable_shared_from_this<WDecoratorBuilder<parent_type, decorator_type>> {
 public:
-    WDecoratorBuilder(parent_type* parent, decorator_type decor);
+    WDecoratorBuilder(std::shared_ptr<parent_type> parent, std::shared_ptr<decorator_type> decor) :
+        m_parent(parent), m_decorator(decor) {}
 
     template <class node_type, typename... param_types>
         WLeafBuilder<WDecoratorBuilder, node_type> node(param_types... params) {
             auto node = std::make_shared<node_type>(params...);
             m_decorator->set_child(node);
             return WLeafBuilder<WDecoratorBuilder, node_type>(
-                    std::make_shared<WDecoratorBuilder>(this), node);
+                    this->enable_shared_from_this(), node);
         }
 
     template <class composite_type, typename... param_types>
@@ -74,7 +89,7 @@ public:
             auto node = std::make_shared<composite_type>(params...);
             m_decorator->set_child(node);
             return WCompositeBuilder<WDecoratorBuilder, composite_type>(
-                    std::make_shared<WDecoratorBuilder>(this), node);
+                    this->enable_shared_from_this(), node);
     }
 
     template <class other_decorator_type, typename... param_types>
@@ -82,7 +97,7 @@ public:
             auto node = std::make_shared<other_decorator_type>(params...);
             m_decorator->set_child(node);
             return WDecoratorBuilder<WDecoratorBuilder, other_decorator_type>(
-                    std::make_shared<WDecoratorBuilder>(this), node);
+                    this->enable_shared_from_this(), node);
         }
 
     parent_type& end(void) {
@@ -94,40 +109,46 @@ private:
     std::shared_ptr<decorator_type> m_decorator;
 };
 
+template <class selector_type>
+class WBehaviourTreeBuilder;
 
 template <class selector_type>
-class WBehaviourTreeBuilder {
+class WBehaviourTreeBuilder : public std::enable_shared_from_this<WBehaviourTreeBuilder<selector_type>> {
 public:
+    WBehaviourTreeBuilder() {
+        m_root = std::make_shared<selector_type>();
+    }
+
     template <class node_type, typename... param_types>
         WLeafBuilder<WBehaviourTreeBuilder, node_type> node(param_types... params) {
             auto node = std::make_shared<node_type>(params...);
-            m_root.add_child(node);
+            m_root->add_child(node);
             return WLeafBuilder<WBehaviourTreeBuilder, node_type>(
-                    std::make_shared<WBehaviourTreeBuilder>(this), node);
+                    this->shared_from_this(), node);
         }
 
     template <class composite_type, typename... param_types>
         WCompositeBuilder<WBehaviourTreeBuilder, composite_type> composite(param_types... params) {
             auto node = std::make_shared<composite_type>(params...);
-            m_root.add_child(node);
+            m_root->add_child(node);
             return WCompositeBuilder<WBehaviourTreeBuilder, composite_type>(
-                    std::make_shared<WBehaviourTreeBuilder>(this), node);
+                    this->shared_from_this(), node);
         }
 
     template <class decorator_type, typename... param_types>
         WDecoratorBuilder<WBehaviourTreeBuilder, decorator_type> decorator(param_types... params) {
             auto node = std::make_shared<decorator_type>(params...);
-            m_root.add_child(node);
+            m_root->add_child(node);
             return WDecoratorBuilder<WBehaviourTreeBuilder, decorator_type>(
-                    std::make_shared<WBehaviourTreeBuilder>(this), node);
+                    this->shared_from_this(), node);
         }
 
     selector_type end(void) {
-        return m_root;
+        return *m_root;
     }
 
 private:
-    selector_type m_root;
+    std::shared_ptr<selector_type> m_root;
 };
 
 #endif /* WBEHAVIOURTREEBUILDER_H */
