@@ -94,7 +94,7 @@ void GameWorld::update_world() {
     pimpl->m_navmesh = build_navmesh(islands(), grid());
 }
 
-GameWorld::GameWorld() : pimpl(std::make_unique<impl>()) {
+GameWorld::GameWorld() : pimpl(std::make_shared<impl>()) {
 }
 
 void GameWorld::draw() {
