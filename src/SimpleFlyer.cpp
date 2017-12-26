@@ -5,7 +5,7 @@
 #include "InputComponent.h"
 #include "CollisionComponent.h"
 #include "MoveSystems.h"
-#include "AIComponent.h"
+#include "steering.h"
 
 void simpleflyer::on_static_collision(GameWorld &world, unsigned int entity) {
     auto &mc = world.move_c(entity);
@@ -19,18 +19,19 @@ void SimpleFlyingMove::accel(GameWorld &world, unsigned int entity) {
     auto &pc = world.pos_c(entity);
     auto &mc = world.move_c(entity);
 
-    auto dir = w_normalize(ic.mouse.get() - pc.global_position);
-    auto vel = w_normalize(mc.velocity);
-    auto steering = dir - vel;
+    mc.accel = SteeringBuilder(pc.global_position, mc.velocity)
+        .arrive(ic.mouse.get(), 50)
+        .end(fc.c_accel);
 
     auto angle =  w_angle_to_vec(w_rotated(WVec(0, -1), pc.rotation * pc.direction), mc.velocity);
     rotate_angle(angle * pc.direction, mc.c_max_change_angle, pc);
 
-    mc.velocity = w_magnitude(mc.velocity) * w_rotated(WVec(0, -1), pc.rotation * pc.direction);
+    // rotate like this for now
+    // mc.velocity = w_magnitude(mc.velocity) * w_rotated(WVec(0, -1), pc.rotation * pc.direction);
 
-    mc.accel = (vel + steering) * fc.c_accel;
+    // this should eventually be done with proper drag
     if (w_magnitude(mc.velocity) > fc.c_max_vel) {
-        mc.velocity = vel * fc.c_max_vel;
+        mc.velocity = w_normalize(mc.velocity) * fc.c_max_vel;
     }
 }
 
