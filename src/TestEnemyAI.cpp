@@ -1,8 +1,7 @@
 #include "TestEnemyAI.h"
 #include "GameWorld.h"
 #include "Pathfinding.h"
-#include "EnemyInRange.h"
-#include "RepeatUntilFail.h"
+#include "Behaviours.h"
 
 behaviour_tree::BehaviourTree get_tree(GameWorld &world, unsigned int entity) {
     using namespace behaviour_tree;

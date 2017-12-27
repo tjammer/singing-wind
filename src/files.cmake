@@ -46,4 +46,5 @@ set(SOURCE_FILES
     src/NTimes.cpp
     src/EnemyInRange.cpp
     src/TestEnemyAI.cpp
+    src/GoToEnemy.cpp
     )
