@@ -287,11 +287,11 @@ HashGrid<DynamicEntity>& GameWorld::dynamic_grid() const {
     return pimpl->m_dynamic_grid;
 }
 
-NavMesh& GameWorld::navmesh() {
+NavMesh& GameWorld::navmesh() const {
     return pimpl->m_navmesh;
 }
 
-std::vector<Island>& GameWorld::islands() {
+std::vector<Island>& GameWorld::islands() const {
     return pimpl->m_islands;
 }
 

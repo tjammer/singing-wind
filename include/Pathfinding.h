@@ -28,9 +28,14 @@ struct PathingComponent {
     float c_max_mh_dist = 10000;
 };
 
+enum class PathfindingStatus {
+    Success,
+    Failure
+};
+
 void get_path(GameWorld &, unsigned int);
 
-int a_star_search(NavMesh &mesh, const NavNode &start, const NavNode &goal, PathingComponent &pc);
+PathfindingStatus a_star_search(const NavMesh &mesh, const NavNode &start, const NavNode &goal, PathingComponent &pc);
 
 void entity_edit_pathfind(GameWorld &world, unsigned int entity);
 

@@ -96,8 +96,8 @@ public:
     // getters
     HashGrid<StaticTriangle> &grid() const;
     HashGrid<DynamicEntity> &dynamic_grid() const;
-    NavMesh &navmesh();
-    std::vector<Island> &islands();
+    NavMesh &navmesh() const;
+    std::vector<Island> &islands() const;
 
 private:
     class impl;

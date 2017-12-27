@@ -76,7 +76,7 @@ struct NavTree {
     ~NavTree();
 
     void rebuild(const std::vector<NavNode>& nodes);
-    std::vector<size_t> get_nearest_indices(const WVec &pos);
+    std::vector<size_t> get_nearest_indices(const WVec &pos) const;
     const std::vector<NavNode> &get_nodes() const;
 private:
     class impl;
@@ -96,12 +96,12 @@ struct NavMesh {
     std::unordered_map<NavNode, NodeSpace> m_space;
     void build_tree();
 
-    NavNode get_nearest(const WVec &pos);
-    NavNode get_nearest_visible(const WVec &pos, const HashGrid<StaticTriangle> &grid);
+    NavNode get_nearest(const WVec &pos) const;
+    NavNode get_nearest_visible(const WVec &pos, const HashGrid<StaticTriangle> &grid) const;
 
     // for reusage
-    std::unordered_map<NavNode, NavNode> m_path;
-    std::unordered_map<NavNode, float> m_cost;
+    // std::unordered_map<NavNode, NavNode> m_path;
+    // std::unordered_map<NavNode, float> m_cost;
 
     NavMesh() = default;
     NavMesh(const NavMesh &other);

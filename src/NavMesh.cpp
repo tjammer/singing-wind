@@ -257,7 +257,7 @@ void NavTree::rebuild(const std::vector<NavNode> &nodes) {
     pimpl->m_kd_tree.buildIndex();
 }
 
-std::vector<size_t> NavTree::get_nearest_indices(const WVec &pos) {
+std::vector<size_t> NavTree::get_nearest_indices(const WVec &pos) const {
     float query_pt[2] = {pos.x, pos.y};
     size_t n = pimpl->m_cloud.nodes.size();
 
@@ -277,11 +277,11 @@ void NavMesh::build_tree() {
     m_tree.rebuild(nodes);
 }
 
-NavNode NavMesh::get_nearest(const WVec &pos) {
+NavNode NavMesh::get_nearest(const WVec &pos) const {
     return m_tree.get_nodes()[m_tree.get_nearest_indices(pos)[0]];
 }
 
-NavNode NavMesh::get_nearest_visible(const WVec &pos, const HashGrid<StaticTriangle> &grid) {
+NavNode NavMesh::get_nearest_visible(const WVec &pos, const HashGrid<StaticTriangle> &grid) const {
     // get four nearest
     auto inds = m_tree.get_nearest_indices(pos);
     const auto &nodes = m_tree.get_nodes();

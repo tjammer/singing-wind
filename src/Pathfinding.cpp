@@ -27,20 +27,22 @@ void construct_path(const std::unordered_map<NavNode, NavNode>& mesh_path, Pathi
     }
 }
 
-int a_star_search(NavMesh &mesh, const NavNode &start, const NavNode &goal, PathingComponent &pc) {
+PathfindingStatus a_star_search(const NavMesh &mesh, const NavNode &start, const NavNode &goal, PathingComponent &pc) {
     using namespace std;
     // todo: put in max_dist cutoff and construct path before returning
 
-    mesh.m_path.clear();
-    mesh.m_cost.clear();
+    // mesh.m_path.clear();
+    // mesh.m_cost.clear();
+    std::unordered_map<NavNode, NavNode> path;
+    std::unordered_map<NavNode, float> cost;
 
     typedef pair<float, NavNode> PQElement;
     typedef priority_queue<PQElement, vector<PQElement>, PQCompare<PQElement>> PQueue;
     PQueue frontier;
     frontier.emplace(0, start);
 
-    mesh.m_path[start] = start;
-    mesh.m_cost[start] = 0;
+    path[start] = start;
+    cost[start] = 0;
 
     float min_heuristic = std::numeric_limits<float>::max();
     NavNode min_heur_node = start;
@@ -50,14 +52,14 @@ int a_star_search(NavMesh &mesh, const NavNode &start, const NavNode &goal, Path
         frontier.pop();
 
         if (current == goal) {
-            construct_path(mesh.m_path, pc, goal);
-            return 1;
+            construct_path(path, pc, goal);
+            return PathfindingStatus::Success;
         }
 
         for (const auto &link : mesh.m_graph.at(current)) {
-            float new_cost = mesh.m_cost[current] + link.cost;
-            if (!mesh.m_cost.count(link.to) || new_cost < mesh.m_cost[link.to]) {
-                mesh.m_cost[link.to] = new_cost;
+            float new_cost = cost[current] + link.cost;
+            if (!cost.count(link.to) || new_cost < cost[link.to]) {
+                cost[link.to] = new_cost;
                 auto heur = heuristic(link.to, goal);
 
                 if (heur >= pc.c_max_mh_dist) {
@@ -71,28 +73,31 @@ int a_star_search(NavMesh &mesh, const NavNode &start, const NavNode &goal, Path
 
                 float priority = new_cost + heur;
                 frontier.emplace(priority, link.to);
-                mesh.m_path[link.to] = current;
+                path[link.to] = current;
             }
         }
     }
-    construct_path(mesh.m_path, pc, min_heur_node);
-    return 0;
+    // construct_path(mesh.m_path, pc, min_heur_node);
+    return PathfindingStatus::Failure;
 }
 
-void get_path_fly(const WVec &from, const WVec &to, GameWorld &world, PathingComponent &pc) {
+void get_path_fly(const WVec &from, const WVec &to, const GameWorld &world, PathingComponent &pc) {
     // first of all check if there is direct visiblity
-    auto result = cast_ray_vs_static_grid(world.grid(), from, to);
-    if (!result.hits) {
-        pc.path.clear();
-        pc.path.push_back(to);
-        return;
-    }
+    //auto result = cast_ray_vs_static_grid(world.grid(), from, to);
+    //if (!result.hits) {
+    //    pc.path.clear();
+    //    pc.path.push_back(to);
+    //    return;
+    //}
 
     // need to find real path
-    auto &mesh = world.navmesh();
+    const auto &mesh = world.navmesh();
     auto node_from = mesh.get_nearest_visible(from, world.grid());
     auto node_to = mesh.get_nearest_visible(to, world.grid());
-    a_star_search(mesh, node_from, node_to, pc);
+    auto result = a_star_search(mesh, node_from, node_to, pc);
+    if (result == PathfindingStatus::Failure) {
+        return result;
+    }
 
     // smooth path
     auto &node = pc.path[0];
@@ -126,6 +131,8 @@ void get_path_fly(const WVec &from, const WVec &to, GameWorld &world, PathingCom
             }
         }
     }
+    pc.index = pc.path.size() - 1;
+    return PathfindingStatus::Success;
 }
 
 void get_path_platform(const WVec &, const WVec &, NavMesh &, PathingComponent &) {}
@@ -149,7 +156,6 @@ void get_path(GameWorld &world, unsigned int entity) {
                 follow = world.input_c(entity).mouse.get();
             }
             get_path_fly(pos, follow, world, pc);
-            pc.index = pc.path.size() - 1;
             break;
         }
     }
