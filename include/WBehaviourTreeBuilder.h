@@ -41,7 +41,7 @@ class WCompositeBuilder : public std::enable_shared_from_this<WCompositeBuilder<
             auto node = std::make_shared<node_type>(params...);
             m_composite->add_child(node);
             return WLeafBuilder<WCompositeBuilder, node_type>(
-                    this->enable_shared_from_this(), node);
+                    this->shared_from_this(), node);
         }
 
     template <class other_composite_type, typename... param_types>
@@ -49,7 +49,7 @@ class WCompositeBuilder : public std::enable_shared_from_this<WCompositeBuilder<
             auto node = std::make_shared<other_composite_type>(params...);
             m_composite->add_child(node);
             return WCompositeBuilder<WCompositeBuilder, other_composite_type>(
-                    this->enable_shared_from_this(), node);
+                    this->shared_from_this(), node);
         }
 
     template <class decorator_type, typename... param_types>
@@ -81,7 +81,7 @@ public:
             auto node = std::make_shared<node_type>(params...);
             m_decorator->set_child(node);
             return WLeafBuilder<WDecoratorBuilder, node_type>(
-                    this->enable_shared_from_this(), node);
+                    this->shared_from_this(), node);
         }
 
     template <class composite_type, typename... param_types>
@@ -89,7 +89,7 @@ public:
             auto node = std::make_shared<composite_type>(params...);
             m_decorator->set_child(node);
             return WCompositeBuilder<WDecoratorBuilder, composite_type>(
-                    this->enable_shared_from_this(), node);
+                    this->shared_from_this(), node);
     }
 
     template <class other_decorator_type, typename... param_types>
@@ -97,7 +97,7 @@ public:
             auto node = std::make_shared<other_decorator_type>(params...);
             m_decorator->set_child(node);
             return WDecoratorBuilder<WDecoratorBuilder, other_decorator_type>(
-                    this->enable_shared_from_this(), node);
+                    this->shared_from_this(), node);
         }
 
     parent_type& end(void) {
