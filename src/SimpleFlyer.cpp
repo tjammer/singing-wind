@@ -19,20 +19,21 @@ void SimpleFlyingMove::accel(GameWorld &world, unsigned int entity) {
     auto &pc = world.pos_c(entity);
     auto &mc = world.move_c(entity);
 
-    mc.accel = SteeringBuilder(pc.global_position, mc.velocity)
-        .arrive(ic.mouse.get(), 50)
-        .end(fc.c_accel);
+    // seeking
+    if (ic.direction.get() == 0) {
+        mc.accel = SteeringBuilder(pc.global_position, mc.velocity, fc.c_max_vel)
+            .seek(ic.mouse.get())
+            .end(fc.c_accel);
+    } else if (ic.direction.get() == 1) { // arriving
+        mc.accel = SteeringBuilder(pc.global_position, mc.velocity, fc.c_max_vel)
+            .arrive(ic.mouse.get(), fc.c_arrive_radius)
+            .end(fc.c_accel);
+    } else {
+        assert(false);
+    }
 
     auto angle =  w_angle_to_vec(w_rotated(WVec(0, -1), pc.rotation * pc.direction), mc.velocity);
     rotate_angle(angle * pc.direction, mc.c_max_change_angle, pc);
-
-    // rotate like this for now
-    // mc.velocity = w_magnitude(mc.velocity) * w_rotated(WVec(0, -1), pc.rotation * pc.direction);
-
-    // this should eventually be done with proper drag
-    if (w_magnitude(mc.velocity) > fc.c_max_vel) {
-        mc.velocity = w_normalize(mc.velocity) * fc.c_max_vel;
-    }
 }
 
 void SimpleFlyingMove::enter(GameWorld &world, unsigned int entity) {
@@ -44,7 +45,7 @@ MoveStateName SimpleFlyingMove::name() {
 
 bool SimpleFlyingMove::transition(GameWorld &world, unsigned int entity) {
     // idea is that starts simpleflying if jump is pressed
-    if (world.input_c(entity).jump.get()) {
+    if (!world.input_c(entity).jump.get()) {
         return true;
     }
     return false;
@@ -79,7 +80,7 @@ MoveStateName HoverMove::name() {
 }
 
 bool HoverMove::transition(GameWorld &world, unsigned int entity) {
-    if (!world.input_c(entity).jump.get()) {
+    if (world.input_c(entity).jump.get()) {
         return true;
     }
     return false;

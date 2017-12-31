@@ -3,12 +3,15 @@
 #include "Pathfinding.h"
 #include "Behaviours.h"
 
-behaviour_tree::BehaviourTree get_tree(GameWorld &world, unsigned int entity) {
+behaviour_tree::BehaviourTree testenemy::get_tree(GameWorld &world, unsigned int entity) {
     using namespace behaviour_tree;
     auto tree = BehaviourTreeBuilder()
-        .node<EnemyInRange>(world, entity, 300, world.path_c(entity))
+        .decorator<Inverter>()
+            .node<EnemyInRange>(world, entity, 300)
+            .end()
+            // TODO: maybe do nothing?
         .end()
-        .decorator<RepeatUntilFail>()
+        .node<GoToEnemy>(world, entity, 500)
         .end()
     .end();
 

@@ -127,7 +127,7 @@ struct FlyComponent {
 struct SimpleFlyComponent {
     float c_max_vel = 500;
     float c_accel = 1000;
-    float c_near_threshold = 10;
+    float c_arrive_radius = 200;
     float c_stop_coef = 0.04;
 };
 

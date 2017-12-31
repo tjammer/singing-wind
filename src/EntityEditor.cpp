@@ -172,7 +172,7 @@ EditorSubState EntityIdle::update(const WVec &mpos) {
         auto &fc = m_world.simple_fly_c(m_entity);
         DragFloat("max vel", &fc.c_max_vel);
         DragFloat("accel", &fc.c_accel);
-        DragFloat("near threshold", &fc.c_near_threshold);
+        DragFloat("near threshold", &fc.c_arrive_radius);
         DragFloat("stop coeff", &fc.c_stop_coef);
     }
     // skill

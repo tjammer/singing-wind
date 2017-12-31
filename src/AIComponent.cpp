@@ -4,7 +4,7 @@
 #include "MoveSystems.h"
 #include "EntityEditor.h"
 #include <imgui.h>
-#include <unordered_map>
+#include "TestEnemyAI.h"
 
 namespace ai {
     const std::map<AITreeType, const char*> c_ai_types = {
@@ -29,9 +29,9 @@ namespace ai {
         }
     }
 
-    void init_ai_type(GameWorld &, unsigned int, AITreeType) {
+    void init_ai_type(GameWorld &world, unsigned int entity, AITreeType) {
         // TODO: bring AIComp into sane state and ensure no pointer are dropped
-        assert(false);
+        world.ai_c(entity).btree = testenemy::get_tree(world, entity);
     }
 }
 

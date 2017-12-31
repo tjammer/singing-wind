@@ -131,7 +131,7 @@ std::unique_ptr<EntityFBS::EntityT> get_fb_entity(GameWorld &world, unsigned int
 
         fbc_fc->max_vel = fc.c_max_vel;
         fbc_fc->accel = fc.c_accel;
-        fbc_fc->near_threshold = fc.c_near_threshold;
+        fbc_fc->near_threshold = fc.c_arrive_radius;
         fbc_fc->stop_coef = fc.c_stop_coef;
     }
 
@@ -322,7 +322,7 @@ void entity_to_world(const EntityFBS::EntityT& fb_ent, GameWorld &world, unsigne
 
         fc.c_max_vel = fly_c->max_vel;
         fc.c_accel = fly_c->accel;
-        fc.c_near_threshold = fly_c->near_threshold;
+        fc.c_arrive_radius = fly_c->near_threshold;
         fc.c_stop_coef = fly_c->stop_coef;
     }
 
