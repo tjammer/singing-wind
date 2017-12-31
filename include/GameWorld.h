@@ -9,6 +9,8 @@
 #include <vector>
 #include <memory>
 #include "WindDefs.h"
+#include "ColGrid.h"
+#include "NavMesh.h"
 
 struct GLFWwindow;
 struct PosComponent;
@@ -31,10 +33,6 @@ struct AIComponent;
 struct PatrolComponent;
 struct NavMesh;
 class Island;
-template<typename t>
-class HashGrid;
-struct StaticTriangle;
-struct DynamicEntity;
 using NameComponent = std::string;
 using TagComponent = bset;
 
@@ -56,28 +54,49 @@ public:
     void draw();
 
     std::vector<bset>& entities();
+    std::vector<bset> const& entities() const;
 
         // components
-        PosComponent& pos_c(unsigned int entity) const;
-        DebugComponent &debug_c(unsigned int entity) const;
-        InputComponent &input_c(unsigned int entity) const;
-        MoveComponent &move_c(unsigned int entity) const;
-        StaticColComponent &static_col_c(unsigned int entity) const;
-        GroundMoveComponent &ground_move_c(unsigned int entity) const;
-        FallComponent &fall_c(unsigned int entity) const;
-        FlyComponent &fly_c(unsigned int entity) const;
-        PathingComponent &path_c(unsigned int entity) const;
-        NameComponent &name_c(unsigned int entity) const;
-        SimpleFlyComponent &simple_fly_c(unsigned int entity) const;
-        SkillComponent &skill_c(unsigned int entity) const;
-        DynamicColComponent &dyn_col_c(unsigned int entity) const;
-        TagComponent &tag_c(unsigned int entity) const;
-        ColShapeComponent &cshape_c(unsigned int entity) const;
-        LifeTimeComponent &lifetime_c(unsigned int entity) const;
-        HurtBoxComponent &hurtbox_c(unsigned int entity) const;
-        StatusEffectComponent &statuseffect_c(unsigned int entity) const;
-        AIComponent &ai_c(unsigned int entity) const;
-        PatrolComponent &patrol_c(unsigned int entity) const;
+        PosComponent& pos_c(unsigned int entity);
+        PosComponent const &pos_c(unsigned int entity) const;
+        DebugComponent &debug_c(unsigned int entity);
+        DebugComponent const &debug_c(unsigned int entity) const;
+        InputComponent &input_c(unsigned int entity);
+        InputComponent const &input_c(unsigned int entity) const;
+        MoveComponent &move_c(unsigned int entity);
+        MoveComponent const &move_c(unsigned int entity) const;
+        StaticColComponent &static_col_c(unsigned int entity);
+        StaticColComponent const &static_col_c(unsigned int entity) const;
+        GroundMoveComponent &ground_move_c(unsigned int entity);
+        GroundMoveComponent const &ground_move_c(unsigned int entity) const;
+        FallComponent &fall_c(unsigned int entity);
+        FallComponent const &fall_c(unsigned int entity) const;
+        FlyComponent &fly_c(unsigned int entity);
+        FlyComponent const &fly_c(unsigned int entity) const;
+        PathingComponent &path_c(unsigned int entity);
+        PathingComponent const &path_c(unsigned int entity) const;
+        NameComponent &name_c(unsigned int entity);
+        NameComponent const &name_c(unsigned int entity) const;
+        SimpleFlyComponent &simple_fly_c(unsigned int entity);
+        SimpleFlyComponent const &simple_fly_c(unsigned int entity) const;
+        SkillComponent &skill_c(unsigned int entity);
+        SkillComponent const &skill_c(unsigned int entity) const;
+        DynamicColComponent &dyn_col_c(unsigned int entity);
+        DynamicColComponent const &dyn_col_c(unsigned int entity) const;
+        TagComponent &tag_c(unsigned int entity);
+        TagComponent const &tag_c(unsigned int entity) const;
+        ColShapeComponent &cshape_c(unsigned int entity);
+        ColShapeComponent const &cshape_c(unsigned int entity) const;
+        LifeTimeComponent &lifetime_c(unsigned int entity);
+        LifeTimeComponent const &lifetime_c(unsigned int entity) const;
+        HurtBoxComponent &hurtbox_c(unsigned int entity);
+        HurtBoxComponent const &hurtbox_c(unsigned int entity) const;
+        StatusEffectComponent &statuseffect_c(unsigned int entity);
+        StatusEffectComponent const &statuseffect_c(unsigned int entity) const;
+        AIComponent &ai_c(unsigned int entity);
+        AIComponent const &ai_c(unsigned int entity) const;
+        PatrolComponent &patrol_c(unsigned int entity);
+        PatrolComponent const &patrol_c(unsigned int entity) const;
 
     void reset_entities();
     void reset_islands();
@@ -94,14 +113,18 @@ public:
     void delete_entity_raw(unsigned int entity);
 
     // getters
-    HashGrid<StaticTriangle> &grid() const;
-    HashGrid<DynamicEntity> &dynamic_grid() const;
-    NavMesh &navmesh() const;
-    std::vector<Island> &islands() const;
+    HashGrid<StaticTriangle> &grid();
+    HashGrid<StaticTriangle> const&grid() const;
+    HashGrid<DynamicEntity> &dynamic_grid();
+    HashGrid<DynamicEntity> const&dynamic_grid() const;
+    NavMesh &navmesh();
+    NavMesh const&navmesh() const;
+    std::vector<Island> &islands();
+    std::vector<Island> const&islands() const;
 
 private:
     class impl;
-    std::shared_ptr<impl> pimpl;
+    std::unique_ptr<impl> pimpl;
 
     void find_entities_fixed();
     void find_entities_draw();

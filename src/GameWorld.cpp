@@ -94,7 +94,7 @@ void GameWorld::update_world() {
     pimpl->m_navmesh = build_navmesh(islands(), grid());
 }
 
-GameWorld::GameWorld() : pimpl(std::make_shared<impl>()) {
+GameWorld::GameWorld() : pimpl(std::make_unique<impl>()) {
 }
 
 void GameWorld::draw() {
@@ -279,19 +279,27 @@ void GameWorld::queue_delete(unsigned int entity) {
     pimpl->m_to_delete.push_back(entity);
 }
 
-HashGrid<StaticTriangle>& GameWorld::grid() const {
+HashGrid<StaticTriangle>& GameWorld::grid() {
     return pimpl->m_grid;
 }
 
-HashGrid<DynamicEntity>& GameWorld::dynamic_grid() const {
+HashGrid<StaticTriangle> const& GameWorld::grid() const {
+    return pimpl->m_grid;
+}
+
+HashGrid<DynamicEntity>& GameWorld::dynamic_grid() {
     return pimpl->m_dynamic_grid;
 }
 
-NavMesh& GameWorld::navmesh() const {
+NavMesh& GameWorld::navmesh() {
     return pimpl->m_navmesh;
 }
 
-std::vector<Island>& GameWorld::islands() const {
+NavMesh const& GameWorld::navmesh() const {
+    return pimpl->m_navmesh;
+}
+
+std::vector<Island>& GameWorld::islands() {
     return pimpl->m_islands;
 }
 
@@ -300,82 +308,82 @@ std::vector<bset>& GameWorld::entities() {
     return pimpl->m_entities;
 }
 
-PosComponent& GameWorld::pos_c(unsigned int entity) const {
+PosComponent& GameWorld::pos_c(unsigned int entity) {
     return pimpl->m_pos_c[entity];
 }
 
-DebugComponent& GameWorld::debug_c(unsigned int entity) const {
+DebugComponent& GameWorld::debug_c(unsigned int entity) {
     return pimpl->m_debug_c[entity];
 }
 
-InputComponent & GameWorld::input_c(unsigned int entity) const {
+InputComponent & GameWorld::input_c(unsigned int entity) {
     return pimpl->m_input_c[entity];
 }
 
-MoveComponent & GameWorld::move_c(unsigned int entity) const {
+MoveComponent & GameWorld::move_c(unsigned int entity) {
     return pimpl->m_move_c[entity];
 }
 
-StaticColComponent & GameWorld::static_col_c(unsigned int entity) const {
+StaticColComponent & GameWorld::static_col_c(unsigned int entity) {
     return pimpl->m_static_col_c[entity];
 }
 
-GroundMoveComponent & GameWorld::ground_move_c(unsigned int entity) const {
+GroundMoveComponent & GameWorld::ground_move_c(unsigned int entity) {
     return pimpl->m_ground_move_c[entity];
 }
 
-FallComponent & GameWorld::fall_c(unsigned int entity) const {
+FallComponent & GameWorld::fall_c(unsigned int entity) {
     return pimpl->m_fall_c[entity];
 }
 
-FlyComponent & GameWorld::fly_c(unsigned int entity) const {
+FlyComponent & GameWorld::fly_c(unsigned int entity) {
     return pimpl->m_fly_c[entity];
 }
 
-PathingComponent & GameWorld::path_c(unsigned int entity) const {
+PathingComponent & GameWorld::path_c(unsigned int entity) {
     return pimpl->m_path_c[entity];
 }
 
-NameComponent & GameWorld::name_c(unsigned int entity) const {
+NameComponent & GameWorld::name_c(unsigned int entity) {
     return pimpl->m_name_c[entity];
 }
 
-SimpleFlyComponent & GameWorld::simple_fly_c(unsigned int entity) const {
+SimpleFlyComponent & GameWorld::simple_fly_c(unsigned int entity) {
     return pimpl->m_simple_fly_c[entity];
 }
 
-SkillComponent & GameWorld::skill_c(unsigned int entity) const {
+SkillComponent & GameWorld::skill_c(unsigned int entity) {
     return pimpl->m_skill_c[entity];
 }
 
-DynamicColComponent & GameWorld::dyn_col_c(unsigned int entity) const {
+DynamicColComponent & GameWorld::dyn_col_c(unsigned int entity) {
     return pimpl->m_dyn_c[entity];
 }
 
-TagComponent & GameWorld::tag_c(unsigned int entity) const {
+TagComponent & GameWorld::tag_c(unsigned int entity) {
     return pimpl->m_tag_c[entity];
 }
 
-ColShapeComponent & GameWorld::cshape_c(unsigned int entity) const {
+ColShapeComponent & GameWorld::cshape_c(unsigned int entity) {
     return pimpl->m_cshape_c[entity];
 }
 
-LifeTimeComponent & GameWorld::lifetime_c(unsigned int entity) const {
+LifeTimeComponent & GameWorld::lifetime_c(unsigned int entity) {
     return pimpl->m_lifetime_c[entity];
 }
 
-HurtBoxComponent & GameWorld::hurtbox_c(unsigned int entity) const {
+HurtBoxComponent & GameWorld::hurtbox_c(unsigned int entity) {
     return pimpl->m_hurtbox_c[entity];
 }
 
-StatusEffectComponent & GameWorld::statuseffect_c(unsigned int entity) const {
+StatusEffectComponent & GameWorld::statuseffect_c(unsigned int entity) {
     return pimpl->m_statuseffect_c[entity];
 }
 
-AIComponent & GameWorld::ai_c(unsigned int entity) const {
+AIComponent & GameWorld::ai_c(unsigned int entity) {
     return pimpl->m_ai_c[entity];
 }
 
-PatrolComponent & GameWorld::patrol_c(unsigned int entity) const {
+PatrolComponent & GameWorld::patrol_c(unsigned int entity) {
     return pimpl->m_patrol_c[entity];
 }
