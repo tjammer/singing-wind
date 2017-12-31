@@ -9,17 +9,16 @@ struct PathingComponent;
 
 class GoToEnemy : public behaviour_tree::Behaviour {
     public:
-        GoToEnemy(const GameWorld &world, unsigned int entity, float radius, PathingComponent &path_c) :
-            m_world(world), m_entity(entity), m_radius(radius), m_path_c(path_c) {}
+        GoToEnemy(GameWorld &, unsigned int, float);
         void enter() override;
         behaviour_tree::Status update() override;
+        void leave(behaviour_tree::Status) override;
 
     private:
         PathfindingStatus m_status;
-        const GameWorld &m_world;
+        GameWorld &m_world;
         unsigned int m_entity;
         float m_radius;
-        PathingComponent &m_path_c;
 };
 
 
