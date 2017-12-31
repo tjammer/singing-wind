@@ -26,7 +26,7 @@ if (UNIX)
     add_executable(singing_wind ${SOURCE_FILES} ${protosrc} ${protohdr})
 endif()
 add_dependencies(singing_wind schemas)
-target_link_libraries(singing_wind imgui glfw glm glad triangle nanoflann flatbuffers)
+target_link_libraries(singing_wind imgui glfw glm glad triangle nanoflann flatbuffers stb_image)
 
 # at compile time
 add_custom_command(TARGET singing_wind POST_BUILD
