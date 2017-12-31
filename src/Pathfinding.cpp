@@ -7,6 +7,7 @@
 #include "WVecMath.h"
 #include "Components.h"
 #include <imgui.h>
+#include <queue>
 
 template <class pair>
 struct PQCompare {
@@ -81,14 +82,15 @@ PathfindingStatus a_star_search(const NavMesh &mesh, const NavNode &start, const
     return PathfindingStatus::Failure;
 }
 
-void get_path_fly(const WVec &from, const WVec &to, const GameWorld &world, PathingComponent &pc) {
+PathfindingStatus get_path(const WVec &from, const WVec &to, const GameWorld &world, PathingComponent &pc) {
     // first of all check if there is direct visiblity
-    //auto result = cast_ray_vs_static_grid(world.grid(), from, to);
-    //if (!result.hits) {
-    //    pc.path.clear();
-    //    pc.path.push_back(to);
-    //    return;
-    //}
+    auto direct_sight = cast_ray_vs_static_grid(world.grid(), from, to);
+    if (!direct_sight.hits) {
+        pc.path.clear();
+        pc.path.push_back(to);
+        pc.index = pc.path.size() - 1;
+        return PathfindingStatus::Success;
+    }
 
     // need to find real path
     const auto &mesh = world.navmesh();
@@ -138,28 +140,17 @@ void get_path_fly(const WVec &from, const WVec &to, const GameWorld &world, Path
 void get_path_platform(const WVec &, const WVec &, NavMesh &, PathingComponent &) {}
 void get_path_jump(const WVec &, const WVec &, NavMesh &, PathingComponent &) {}
 
-void get_path(GameWorld &world, unsigned int entity) {
-    auto &pc = world.path_c(entity);
-    switch (pc.p_type) {
-        case PathingType::Platform : {
-            assert(false); break;
-        }
-        case PathingType::Jump : {
-            assert(false); break;
-        }
-        case PathingType::Fly : {
-            auto &pos = world.pos_c(entity).global_position;
-            WVec follow;
-            if (pc.following != 0) {
-                follow = world.pos_c(pc.following).global_position;
-            } else {
-                follow = world.input_c(entity).mouse.get();
-            }
-            get_path_fly(pos, follow, world, pc);
-            break;
-        }
-    }
-}
+// PathfindingStatus get_path(GameWorld &world, unsigned int entity) {
+//     auto &pc = world.path_c(entity);
+//     auto &pos = world.pos_c(entity).global_position;
+//     WVec follow;
+//     if (pc.following != 0) {
+//         follow = world.pos_c(pc.following).global_position;
+//     } else {
+//         follow = world.input_c(entity).mouse.get();
+//     }
+//     return get_path_fly(pos, follow, world, pc);
+// }
 
 void entity_edit_pathfind(GameWorld &world, unsigned int entity) {
     using namespace ImGui;
