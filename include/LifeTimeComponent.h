@@ -5,10 +5,10 @@
 
 class GameWorld;
 
-struct LifeTimeComponent {
-    float timer;
-    std::function<void(GameWorld &, const unsigned int&)> delete_func = nullptr;
+struct LifeTimeComponent
+{
+  float timer;
+  std::function<void(GameWorld&, const unsigned int&)> delete_func = nullptr;
 };
-
 
 #endif /* LIFETIMECOMPONENT_H */

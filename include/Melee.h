@@ -4,27 +4,42 @@
 #include "SkillComponent.h"
 #include "MoveSystems.h"
 
-class MeleeAttackMove : public TimedMoveState {
+class MeleeAttackMove : public TimedMoveState
+{
 public:
-    void enter(GameWorld &, unsigned int) override;
-    void accel(GameWorld &, unsigned int) override;
-    void leave(GameWorld &, unsigned int) override {}
-    std::unique_ptr<TimedMoveState> next() override {return nullptr;}
-    MeleeAttackMove() : TimedMoveState(TimedMoveStateName::MeleeAttack, 0.4) {}
+  void enter(GameWorld&, unsigned int) override;
+  void accel(GameWorld&, unsigned int) override;
+  void leave(GameWorld&, unsigned int) override {}
+  std::unique_ptr<TimedMoveState> next() override { return nullptr; }
+  MeleeAttackMove()
+    : TimedMoveState(TimedMoveStateName::MeleeAttack, 0.4)
+  {
+  }
 };
 
-class MeleeCastMove : public TimedMoveState {
+class MeleeCastMove : public TimedMoveState
+{
 public:
-    void enter(GameWorld &, unsigned int) override {}
-    void accel(GameWorld &, unsigned int) override {}
-    void leave(GameWorld &, unsigned int) override {}
-    std::unique_ptr<TimedMoveState> next() override {return std::make_unique<MeleeAttackMove>();}
-    MeleeCastMove() : TimedMoveState(TimedMoveStateName::MeleeCast, 0.2) {}
+  void enter(GameWorld&, unsigned int) override {}
+  void accel(GameWorld&, unsigned int) override {}
+  void leave(GameWorld&, unsigned int) override {}
+  std::unique_ptr<TimedMoveState> next() override
+  {
+    return std::make_unique<MeleeAttackMove>();
+  }
+  MeleeCastMove()
+    : TimedMoveState(TimedMoveStateName::MeleeCast, 0.2)
+  {
+  }
 };
 
-class MeleeSkill : public BaseSkill {
+class MeleeSkill : public BaseSkill
+{
 public:
-    void set_special(GameWorld &, unsigned int) override;
-    MeleeSkill() : BaseSkill(SkillID::Melee, .6, 2) {}
+  void set_special(GameWorld&, unsigned int) override;
+  MeleeSkill()
+    : BaseSkill(SkillID::Melee, .6, 2)
+  {
+  }
 };
 #endif /* PROTAGONISTMELEE_H */

@@ -10,15 +10,20 @@
 #include "WindDefs.h"
 
 namespace WInput {
-    void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-    bool is_key_pressed(int key);
+void
+key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+bool
+is_key_pressed(int key);
 
-    void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
-    bool is_mouse_button_pressed(int button);
+void
+mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+bool
+is_mouse_button_pressed(int button);
 
-    void set_mouse(const WVec &mouse);
-    WVec get_mouse_pos();
+void
+set_mouse(const WVec& mouse);
+WVec
+get_mouse_pos();
 }
 
-
-#endif //SINGING_WIND_WINPUT_H
+#endif // SINGING_WIND_WINPUT_H

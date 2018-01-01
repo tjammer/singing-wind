@@ -10,28 +10,39 @@
 #include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
 
-struct PrimitiveVertex {
-    float position[2];
-    float color[3];
+struct PrimitiveVertex
+{
+  float position[2];
+  float color[3];
 };
 
-enum PrimitiveStyle {
-    PLines,
-    PQuads
+enum PrimitiveStyle
+{
+  PLines,
+  PQuads
 };
 
 namespace WRenderer {
-    void init(GLFWwindow *window);
-    void shutdown();
-    void reset();
-    void add_primitive_vertex(const PrimitiveVertex &vert);
-    void render_array();
-    unsigned int get_vao();
-    void set_mode(int mode);
-    void set_camera(const glm::tmat4x4<float>& transform);
-    glm::tmat4x4<float>& get_camera();
-    const glm::tvec2<int>& get_viewport();
+void
+init(GLFWwindow* window);
+void
+shutdown();
+void
+reset();
+void
+add_primitive_vertex(const PrimitiveVertex& vert);
+void
+render_array();
+unsigned int
+get_vao();
+void
+set_mode(int mode);
+void
+set_camera(const glm::tmat4x4<float>& transform);
+glm::tmat4x4<float>&
+get_camera();
+const glm::tvec2<int>&
+get_viewport();
 }
 
-
-#endif //GLFW33_WRENDERER_H
+#endif // GLFW33_WRENDERER_H

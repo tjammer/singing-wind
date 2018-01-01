@@ -11,28 +11,28 @@
 #include "FrameTimer.h"
 
 // the game state of the engine FSM
-class Game : public EngineState {
+class Game : public EngineState
+{
 public:
-    void cleanup() override {};
-    void unpause() override;
+  void cleanup() override{};
+  void unpause() override;
 
-    void update(Engine& engine) override;
-    void draw() override;
+  void update(Engine& engine) override;
+  void draw() override;
 
-    Game();
-    ~Game() = default;
+  Game();
+  ~Game() = default;
 
-    bool m_paused = false;
+  bool m_paused = false;
 
-    GameWorld &get_world() {return m_game_world;};
+  GameWorld& get_world() { return m_game_world; };
 
 private:
-    GameWorld m_game_world;
-    Camera m_camera;
-    FrameTimer m_timer;
+  GameWorld m_game_world;
+  Camera m_camera;
+  FrameTimer m_timer;
 
-    void update_camera_follow();
+  void update_camera_follow();
 };
 
-
-#endif //SINGING_WIND_GAME_H
+#endif // SINGING_WIND_GAME_H

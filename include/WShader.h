@@ -8,18 +8,18 @@
 #include <glad/glad.h>
 #include <string>
 
-class WShader {
+class WShader
+{
 public:
-    WShader(const std::string& vertex_file, const std::string& fragment_file);
-    WShader() = default;
-    ~WShader() = default;
+  WShader(const std::string& vertex_file, const std::string& fragment_file);
+  WShader() = default;
+  ~WShader() = default;
 
-    void use();
-    GLuint get_program() const {return m_shader;}
+  void use();
+  GLuint get_program() const { return m_shader; }
 
 private:
-    GLuint m_shader;
+  GLuint m_shader;
 };
 
-
-#endif //GLFW33_WSHADER_H
+#endif // GLFW33_WSHADER_H

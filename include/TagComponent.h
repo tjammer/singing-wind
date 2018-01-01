@@ -7,16 +7,18 @@ class GameWorld;
 
 using TagComponent = bset;
 
-enum class Tags : int {
-    Actor,
-    Protagonist,
-    Enemy,
-    Projectile,
-    Hurtbox,
-    AlertBubble
+enum class Tags : int
+{
+  Actor,
+  Protagonist,
+  Enemy,
+  Projectile,
+  Hurtbox,
+  AlertBubble
 };
 
 // for editor
-void entity_edit_tags(GameWorld&, unsigned int entity);
+void
+entity_edit_tags(GameWorld&, unsigned int entity);
 
 #endif /* TAGCOMPONENT_H */

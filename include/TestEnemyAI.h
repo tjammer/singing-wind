@@ -6,8 +6,8 @@
 class GameWorld;
 
 namespace testenemy {
-    behaviour_tree::BehaviourTree get_tree(GameWorld&, unsigned int);
+behaviour_tree::BehaviourTree
+get_tree(GameWorld&, unsigned int);
 };
-
 
 #endif /* TESTENEMYAI_H */

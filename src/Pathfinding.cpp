@@ -1,144 +1,167 @@
 #include "Pathfinding.h"
-#include "NavMesh.h"
 #include "Collision.h"
-#include "GameWorld.h"
-#include "PosComponent.h"
-#include "InputComponent.h"
-#include "WVecMath.h"
 #include "Components.h"
+#include "GameWorld.h"
+#include "InputComponent.h"
+#include "NavMesh.h"
+#include "PosComponent.h"
+#include "WVecMath.h"
 #include <imgui.h>
 #include <queue>
 
-template <class pair>
-struct PQCompare {
-    inline bool operator()( const pair& lhs, const pair& rhs ) {
-        return lhs.first > rhs.first;
-    };
+template<class pair>
+struct PQCompare
+{
+  inline bool operator()(const pair& lhs, const pair& rhs)
+  {
+    return lhs.first > rhs.first;
+  };
 };
 
-void construct_path(const std::unordered_map<NavNode, NavNode>& mesh_path, PathingComponent &pc, const NavNode &min_heur_node) {
+void
+construct_path(const std::unordered_map<NavNode, NavNode>& mesh_path,
+               PathingComponent& pc,
+               const NavNode& min_heur_node)
+{
+  pc.path.clear();
+  NavNode current = min_heur_node;
+  NavNode next = mesh_path.at(min_heur_node);
+  pc.path.push_back(WVec{ current.x, current.y });
+  while (next != current) {
+    pc.path.push_back(WVec{ next.x, next.y });
+    current = next;
+    next = mesh_path.at(current);
+  }
+}
+
+PathfindingStatus
+a_star_search(const NavMesh& mesh,
+              const NavNode& start,
+              const NavNode& goal,
+              PathingComponent& pc)
+{
+  using namespace std;
+  // todo: put in max_dist cutoff and construct path before returning
+
+  // mesh.m_path.clear();
+  // mesh.m_cost.clear();
+  std::unordered_map<NavNode, NavNode> path;
+  std::unordered_map<NavNode, float> cost;
+
+  typedef pair<float, NavNode> PQElement;
+  typedef priority_queue<PQElement, vector<PQElement>, PQCompare<PQElement>>
+    PQueue;
+  PQueue frontier;
+  frontier.emplace(0, start);
+
+  path[start] = start;
+  cost[start] = 0;
+
+  float min_heuristic = std::numeric_limits<float>::max();
+  NavNode min_heur_node = start;
+
+  while (!frontier.empty()) {
+    auto current = frontier.top().second;
+    frontier.pop();
+
+    if (current == goal) {
+      construct_path(path, pc, goal);
+      return PathfindingStatus::Success;
+    }
+
+    for (const auto& link : mesh.m_graph.at(current)) {
+      float new_cost = cost[current] + link.cost;
+      if (!cost.count(link.to) || new_cost < cost[link.to]) {
+        cost[link.to] = new_cost;
+        auto heur = heuristic(link.to, goal);
+
+        if (heur >= pc.c_max_mh_dist) {
+          continue;
+        }
+
+        if (heur < min_heuristic) {
+          min_heuristic = heur;
+          min_heur_node = link.to;
+        }
+
+        float priority = new_cost + heur;
+        frontier.emplace(priority, link.to);
+        path[link.to] = current;
+      }
+    }
+  }
+  // construct_path(mesh.m_path, pc, min_heur_node);
+  return PathfindingStatus::Failure;
+}
+
+PathfindingStatus
+get_path(const WVec& from,
+         const WVec& to,
+         const GameWorld& world,
+         PathingComponent& pc)
+{
+  // first of all check if there is direct visiblity
+  auto direct_sight = cast_ray_vs_static_grid(world.grid(), from, to);
+  if (!direct_sight.hits) {
     pc.path.clear();
-    NavNode current = min_heur_node;
-    NavNode next = mesh_path.at(min_heur_node);
-    pc.path.push_back(WVec{current.x, current.y});
-    while (next != current) {
-        pc.path.push_back(WVec{next.x, next.y});
-        current = next;
-        next = mesh_path.at(current);
-    }
-}
+    pc.path.push_back(to);
+    pc.index = pc.path.size() - 1;
+    return PathfindingStatus::Success;
+  }
 
-PathfindingStatus a_star_search(const NavMesh &mesh, const NavNode &start, const NavNode &goal, PathingComponent &pc) {
-    using namespace std;
-    // todo: put in max_dist cutoff and construct path before returning
+  // need to find real path
+  const auto& mesh = world.navmesh();
+  auto node_from = mesh.get_nearest_visible(from, world.grid());
+  auto node_to = mesh.get_nearest_visible(to, world.grid());
+  auto result = a_star_search(mesh, node_from, node_to, pc);
+  if (result == PathfindingStatus::Failure) {
+    return result;
+  }
 
-    // mesh.m_path.clear();
-    // mesh.m_cost.clear();
-    std::unordered_map<NavNode, NavNode> path;
-    std::unordered_map<NavNode, float> cost;
+  // smooth path
+  auto& node = pc.path[0];
+  auto& spaces = mesh.m_space.at(node);
 
-    typedef pair<float, NavNode> PQElement;
-    typedef priority_queue<PQElement, vector<PQElement>, PQCompare<PQElement>> PQueue;
-    PQueue frontier;
-    frontier.emplace(0, start);
+  node.y -= fmin(pc.c_padding, spaces.up / 2);
+  if (spaces.right < pc.c_padding) {
+    node.x -= fmin(pc.c_padding, spaces.right / 2);
+  }
+  if (spaces.left < pc.c_padding) {
+    node.x += fmin(pc.c_padding, spaces.left / 2);
+  }
 
-    path[start] = start;
-    cost[start] = 0;
-
-    float min_heuristic = std::numeric_limits<float>::max();
-    NavNode min_heur_node = start;
-
-    while (!frontier.empty()) {
-        auto current = frontier.top().second;
-        frontier.pop();
-
-        if (current == goal) {
-            construct_path(path, pc, goal);
-            return PathfindingStatus::Success;
-        }
-
-        for (const auto &link : mesh.m_graph.at(current)) {
-            float new_cost = cost[current] + link.cost;
-            if (!cost.count(link.to) || new_cost < cost[link.to]) {
-                cost[link.to] = new_cost;
-                auto heur = heuristic(link.to, goal);
-
-                if (heur >= pc.c_max_mh_dist) {
-                    continue;
-                }
-
-                if (heur < min_heuristic) {
-                    min_heuristic = heur;
-                    min_heur_node = link.to;
-                }
-
-                float priority = new_cost + heur;
-                frontier.emplace(priority, link.to);
-                path[link.to] = current;
-            }
-        }
-    }
-    // construct_path(mesh.m_path, pc, min_heur_node);
-    return PathfindingStatus::Failure;
-}
-
-PathfindingStatus get_path(const WVec &from, const WVec &to, const GameWorld &world, PathingComponent &pc) {
-    // first of all check if there is direct visiblity
-    auto direct_sight = cast_ray_vs_static_grid(world.grid(), from, to);
-    if (!direct_sight.hits) {
-        pc.path.clear();
-        pc.path.push_back(to);
-        pc.index = pc.path.size() - 1;
-        return PathfindingStatus::Success;
-    }
-
-    // need to find real path
-    const auto &mesh = world.navmesh();
-    auto node_from = mesh.get_nearest_visible(from, world.grid());
-    auto node_to = mesh.get_nearest_visible(to, world.grid());
-    auto result = a_star_search(mesh, node_from, node_to, pc);
-    if (result == PathfindingStatus::Failure) {
-        return result;
-    }
-
-    // smooth path
-    auto &node = pc.path[0];
-    auto &spaces = mesh.m_space.at(node);
+  for (size_t i = 1; i < pc.path.size(); ++i) {
+    auto& node = pc.path[i];
+    auto& spaces = mesh.m_space.at(node);
 
     node.y -= fmin(pc.c_padding, spaces.up / 2);
     if (spaces.right < pc.c_padding) {
-    node.x -= fmin(pc.c_padding, spaces.right / 2);
+      node.x -= fmin(pc.c_padding, spaces.right / 2);
     }
     if (spaces.left < pc.c_padding) {
-    node.x += fmin(pc.c_padding, spaces.left / 2);
+      node.x += fmin(pc.c_padding, spaces.left / 2);
     }
-
-    for (size_t i = 1 ; i < pc.path.size() ; ++i) {
-        auto &node = pc.path[i];
-        auto &spaces = mesh.m_space.at(node);
-
-        node.y -= fmin(pc.c_padding, spaces.up / 2);
-        if (spaces.right < pc.c_padding) {
-        node.x -= fmin(pc.c_padding, spaces.right / 2);
-        }
-        if (spaces.left < pc.c_padding) {
-        node.x += fmin(pc.c_padding, spaces.left / 2);
-        }
-        auto diff = pc.path[i-1] - node;
-        if (diff.y > 0 and abs(diff.y) > abs(diff.x)) {
-            if (diff.x > 0.f) {
-                node.x += fmin(pc.c_padding, spaces.right / 2);
-            } else if (diff.x < 0.f) {
-                node.x -= fmin(pc.c_padding, spaces.left / 2);
-            }
-        }
+    auto diff = pc.path[i - 1] - node;
+    if (diff.y > 0 and abs(diff.y) > abs(diff.x)) {
+      if (diff.x > 0.f) {
+        node.x += fmin(pc.c_padding, spaces.right / 2);
+      } else if (diff.x < 0.f) {
+        node.x -= fmin(pc.c_padding, spaces.left / 2);
+      }
     }
-    pc.index = pc.path.size() - 1;
-    return PathfindingStatus::Success;
+  }
+  pc.index = pc.path.size() - 1;
+  return PathfindingStatus::Success;
 }
 
-void get_path_platform(const WVec &, const WVec &, NavMesh &, PathingComponent &) {}
-void get_path_jump(const WVec &, const WVec &, NavMesh &, PathingComponent &) {}
+void
+get_path_platform(const WVec&, const WVec&, NavMesh&, PathingComponent&)
+{
+}
+void
+get_path_jump(const WVec&, const WVec&, NavMesh&, PathingComponent&)
+{
+}
 
 // PathfindingStatus get_path(GameWorld &world, unsigned int entity) {
 //     auto &pc = world.path_c(entity);
@@ -152,12 +175,16 @@ void get_path_jump(const WVec &, const WVec &, NavMesh &, PathingComponent &) {}
 //     return get_path_fly(pos, follow, world, pc);
 // }
 
-void entity_edit_pathfind(GameWorld &world, unsigned int entity) {
-    using namespace ImGui;
-    if (world.entities()[entity].test(CPathing) and CollapsingHeader("pathing")) {
-        auto &pc = world.path_c(entity);
+void
+entity_edit_pathfind(GameWorld& world, unsigned int entity)
+{
+  using namespace ImGui;
+  if (world.entities()[entity].test(CPathing) and CollapsingHeader("pathing")) {
+    auto& pc = world.path_c(entity);
 
-        if (DragFloat("max mh dist", &pc.c_max_mh_dist)) {}
-        if (DragFloat("padding", &pc.c_padding)) {}
+    if (DragFloat("max mh dist", &pc.c_max_mh_dist)) {
     }
+    if (DragFloat("padding", &pc.c_padding)) {
+    }
+  }
 }

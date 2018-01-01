@@ -10,7 +10,8 @@
 class GameWorld;
 
 namespace Entities {
-    unsigned int create_root(GameWorld &game_world);
+unsigned int
+create_root(GameWorld& game_world);
 }
 
-#endif //SINGING_WIND_ENTITIES_H
+#endif // SINGING_WIND_ENTITIES_H

@@ -10,122 +10,127 @@ namespace behaviour_tree {
 
 const int c_composite_max_children = 5;
 
-enum class Status {
-    Success,
-    Failure,
-    Running,
-    NotInit
+enum class Status
+{
+  Success,
+  Failure,
+  Running,
+  NotInit
 };
 
-class Behaviour {
+class Behaviour
+{
 public:
-    Behaviour() : m_status(Status::NotInit) {}
+  Behaviour()
+    : m_status(Status::NotInit)
+  {
+  }
 
-    virtual Status update() = 0;
-    virtual void enter() {}
-    virtual void leave(Status) {}
+  virtual Status update() = 0;
+  virtual void enter() {}
+  virtual void leave(Status) {}
 
-    Status tick() {
-        if (m_status != Status::Running) {
-            enter();
-        }
-        m_status = update();
-        if (m_status != Status::Running) {
-            leave(m_status);
-        }
-        return m_status;
+  Status tick()
+  {
+    if (m_status != Status::Running) {
+      enter();
     }
-
-    void reset() {
-        m_status = Status::NotInit;
+    m_status = update();
+    if (m_status != Status::Running) {
+      leave(m_status);
     }
+    return m_status;
+  }
 
-    Status status() const {
-        return m_status;
-    }
+  void reset() { m_status = Status::NotInit; }
+
+  Status status() const { return m_status; }
 
 private:
-    Status m_status;
+  Status m_status;
 };
 
-class Decorator : public Behaviour {
+class Decorator : public Behaviour
+{
 public:
-    void set_child(std::shared_ptr<Behaviour> node) {
-        m_child = node;
-    }
+  void set_child(std::shared_ptr<Behaviour> node) { m_child = node; }
 
 protected:
-    std::shared_ptr<Behaviour> m_child;
+  std::shared_ptr<Behaviour> m_child;
 };
 
-class Composite : public Behaviour {
+class Composite : public Behaviour
+{
 public:
-    void add_child(std::shared_ptr<Behaviour> node) {
-        assert(m_nchildren < c_composite_max_children);
-        m_children[m_nchildren] = node;
-        m_nchildren++;
-    }
+  void add_child(std::shared_ptr<Behaviour> node)
+  {
+    assert(m_nchildren < c_composite_max_children);
+    m_children[m_nchildren] = node;
+    m_nchildren++;
+  }
 
 protected:
-    std::array<std::shared_ptr<Behaviour>, c_composite_max_children> m_children;
-    size_t m_nchildren = 0;
+  std::array<std::shared_ptr<Behaviour>, c_composite_max_children> m_children;
+  size_t m_nchildren = 0;
 };
 
-class Sequence : public Composite {
+class Sequence : public Composite
+{
 public:
-    void enter() override {
-        m_current = 0;
-    }
+  void enter() override { m_current = 0; }
 
-    Status update() override {
-        while (m_current < m_nchildren) {
-            auto status = m_children[m_current]->tick();
-            if (status != Status::Success) {
-                return status;
-            }
-            m_current++;
-        }
-        return Status::Success;
+  Status update() override
+  {
+    while (m_current < m_nchildren) {
+      auto status = m_children[m_current]->tick();
+      if (status != Status::Success) {
+        return status;
+      }
+      m_current++;
     }
+    return Status::Success;
+  }
 
 private:
-    size_t m_current;
+  size_t m_current;
 };
 
-class Selector : public Composite {
+class Selector : public Composite
+{
 public:
-    void enter() override {
-        m_current = 0;
-    }
+  void enter() override { m_current = 0; }
 
-    Status update() override {
-        while (m_current < m_nchildren) {
-            auto status = m_children[m_current]->tick();
-            if (status != Status::Failure) {
-                return status;
-            }
-            m_current++;
-        }
-        return Status::Failure;
+  Status update() override
+  {
+    while (m_current < m_nchildren) {
+      auto status = m_children[m_current]->tick();
+      if (status != Status::Failure) {
+        return status;
+      }
+      m_current++;
     }
+    return Status::Failure;
+  }
 
 private:
-    size_t m_current;
+  size_t m_current;
 };
 
 enum class AITreeType;
-class BehaviourTree : public Selector {
+class BehaviourTree : public Selector
+{
 public:
-    BehaviourTree(AITreeType type=static_cast<AITreeType>(0)) :
-        m_type(type) {}
-    AITreeType type() const {return m_type;}
+  BehaviourTree(AITreeType type = static_cast<AITreeType>(0))
+    : m_type(type)
+  {
+  }
+  AITreeType type() const { return m_type; }
+
 private:
-    AITreeType m_type;
+  AITreeType m_type;
 };
 
 using BehaviourTreeBuilder = WBehaviourTreeBuilder<BehaviourTree>;
-
 }
-
 
 #endif /* WBEHAVIOURTREE_H */

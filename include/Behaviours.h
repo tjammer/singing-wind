@@ -7,5 +7,4 @@
 #include "GoToEnemy.h"
 #include "Inverter.h"
 
-
 #endif /* BEHAVIOURS_H */

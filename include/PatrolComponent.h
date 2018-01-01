@@ -3,19 +3,23 @@
 
 #include "WindDefs.h"
 
-struct PatrolComponent {
-    WVec patrol_point;
+struct PatrolComponent
+{
+  WVec patrol_point;
 };
 
 class GameWorld;
 
 namespace alert_bubble {
-    void spawn(GameWorld &, unsigned int);
-    void on_dynamic_collision(GameWorld &, unsigned int);
+void
+spawn(GameWorld&, unsigned int);
+void
+on_dynamic_collision(GameWorld&, unsigned int);
 }
 
 namespace patrol {
-    void entity_edit(GameWorld &, unsigned int);
+void
+entity_edit(GameWorld&, unsigned int);
 }
 
 #endif /* PATROLCOMPONENT_H */

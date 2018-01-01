@@ -12,103 +12,109 @@ const float c_line_triangulate_split = 250.f;
 
 struct ColResult;
 
-enum class ColShapeName {
-    ColTriangle,
-    ColCircle,
-    ColCapsule,
-    ColBase,
-    ColPoint
+enum class ColShapeName
+{
+  ColTriangle,
+  ColCircle,
+  ColCapsule,
+  ColBase,
+  ColPoint
 };
 
-class ColShape {
+class ColShape
+{
 public:
-    virtual WVec get_support(const WVec &dir) const = 0;
-    virtual float get_radius() const = 0;
-    virtual ColResult collides(const ColShape &other) const;
-    virtual void add_gfx_lines(const WTransform &transform) = 0;
-    virtual void transform(const WTransform &transform) = 0;
-    virtual void reset() = 0;
+  virtual WVec get_support(const WVec& dir) const = 0;
+  virtual float get_radius() const = 0;
+  virtual ColResult collides(const ColShape& other) const;
+  virtual void add_gfx_lines(const WTransform& transform) = 0;
+  virtual void transform(const WTransform& transform) = 0;
+  virtual void reset() = 0;
 
-    // in local space
-    WVec m_center;
-    bool m_highlight = false;
+  // in local space
+  WVec m_center;
+  bool m_highlight = false;
 
-    ColShapeName m_type = ColShapeName ::ColBase;
+  ColShapeName m_type = ColShapeName::ColBase;
 };
 
-class ColTriangle : public ColShape {
+class ColTriangle : public ColShape
+{
 public:
-    WVec get_support(const WVec &dir) const override;
-    float get_radius() const override {return m_radius;}
-    virtual void add_gfx_lines(const WTransform &tf) override;
-    virtual void transform(const WTransform &transform) override;
-    virtual void reset() override;
+  WVec get_support(const WVec& dir) const override;
+  float get_radius() const override { return m_radius; }
+  virtual void add_gfx_lines(const WTransform& tf) override;
+  virtual void transform(const WTransform& transform) override;
+  virtual void reset() override;
 
-    ColTriangle(const WVec &p1, const WVec &p2, const WVec &p3);
-    ~ColTriangle() = default;
+  ColTriangle(const WVec& p1, const WVec& p2, const WVec& p3);
+  ~ColTriangle() = default;
 
 private:
-    std::array<WVec, 3> m_vertices;
-    float m_radius;
-    const std::array<WVec, 3> m_rest_vertices;
+  std::array<WVec, 3> m_vertices;
+  float m_radius;
+  const std::array<WVec, 3> m_rest_vertices;
 };
 
-class ColCircle : public ColShape {
+class ColCircle : public ColShape
+{
 public:
-    WVec get_support(const WVec &dir) const override;
-    float get_radius() const override {return m_radius;}
-    virtual void add_gfx_lines(const WTransform &tf) override;
-    virtual void transform(const WTransform &transform) override;
-    virtual void reset() override;
-    void set_radius(float r) {m_radius = r;}
+  WVec get_support(const WVec& dir) const override;
+  float get_radius() const override { return m_radius; }
+  virtual void add_gfx_lines(const WTransform& tf) override;
+  virtual void transform(const WTransform& transform) override;
+  virtual void reset() override;
+  void set_radius(float r) { m_radius = r; }
 
-    ColCircle(float radius);
-    ~ColCircle() = default;
+  ColCircle(float radius);
+  ~ColCircle() = default;
 
 private:
-    float m_radius;
+  float m_radius;
 };
 
-class ColCapsule : public ColShape {
+class ColCapsule : public ColShape
+{
 public:
-    WVec get_support(const WVec &dir) const override;
-    float get_radius() const override {return m_radius;}
-    virtual void add_gfx_lines(const WTransform &tf) override;
-    virtual void transform(const WTransform &transform) override;
-    virtual void reset() override;
+  WVec get_support(const WVec& dir) const override;
+  float get_radius() const override { return m_radius; }
+  virtual void add_gfx_lines(const WTransform& tf) override;
+  virtual void transform(const WTransform& transform) override;
+  virtual void reset() override;
 
-    ColCapsule(float radius, float length);
-    ~ColCapsule() = default;
+  ColCapsule(float radius, float length);
+  ~ColCapsule() = default;
 
-    float get_capsule_radius() const {return m_capsule_radius;}
-    void set_length(float length);
-    void set_capsule_radius(float radius);
+  float get_capsule_radius() const { return m_capsule_radius; }
+  void set_length(float length);
+  void set_capsule_radius(float radius);
 
-    float m_radius;
-    float m_length;
+  float m_radius;
+  float m_length;
+
 private:
-    float m_capsule_radius;
-    WVec m_a;
-    WVec m_b;
-    const WVec m_rest_a;
-    const WVec m_rest_b;
+  float m_capsule_radius;
+  WVec m_a;
+  WVec m_b;
+  const WVec m_rest_a;
+  const WVec m_rest_b;
 };
 
-class ColPoint : public ColShape {
+class ColPoint : public ColShape
+{
 public:
-    WVec get_support(const WVec &dir) const override;
-    float get_radius() const override {return 0;}
-    virtual void add_gfx_lines(const WTransform &) override {};
-    virtual void transform(const WTransform &transform) override;
-    virtual void reset() override;
+  WVec get_support(const WVec& dir) const override;
+  float get_radius() const override { return 0; }
+  virtual void add_gfx_lines(const WTransform&) override{};
+  virtual void transform(const WTransform& transform) override;
+  virtual void reset() override;
 
-    ColPoint();
-    ~ColPoint() = default;
+  ColPoint();
+  ~ColPoint() = default;
 
-    // in local space
-    WVec m_center;
-    bool m_highlight = false;
+  // in local space
+  WVec m_center;
+  bool m_highlight = false;
 };
 
-
-#endif //SINGING_WIND_COLSHAPE_H
+#endif // SINGING_WIND_COLSHAPE_H
