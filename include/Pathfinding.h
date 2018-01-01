@@ -23,6 +23,7 @@ struct PathingComponent {
     unsigned int following = 1; // if 0, needs extra PatrolComp
     std::vector<WVec> path;
     std::vector<unsigned int> flock;
+    WVec cohesion{0,0};
     size_t index = 0;
     float c_padding = 20;
     float c_max_mh_dist = 10000;

@@ -11,7 +11,7 @@ behaviour_tree::BehaviourTree testenemy::get_tree(GameWorld &world, unsigned int
             .end()
             // TODO: maybe do nothing?
         .end()
-        .node<GoToEnemy>(world, entity, 500)
+        .node<GoToEnemy>(world, entity)
         .end()
     .end();
 

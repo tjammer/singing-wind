@@ -9,7 +9,7 @@ struct PathingComponent;
 
 class GoToEnemy : public behaviour_tree::Behaviour {
     public:
-        GoToEnemy(GameWorld &, unsigned int, float);
+        GoToEnemy(GameWorld &, unsigned int);
         void enter() override;
         behaviour_tree::Status update() override;
         void leave(behaviour_tree::Status) override;

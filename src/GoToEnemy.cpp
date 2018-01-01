@@ -7,8 +7,9 @@
 #include "WVecMath.h"
 #include "InputComponent.h"
 #include "MoveSystems.h"
+#include "TagComponent.h"
 
-GoToEnemy::GoToEnemy(GameWorld &world, unsigned int entity, float radius) : m_world(world), m_entity(entity), m_radius(radius) {
+GoToEnemy::GoToEnemy(GameWorld &world, unsigned int entity) : m_world(world), m_entity(entity) {
 }
 
 void GoToEnemy::enter() {
@@ -43,23 +44,40 @@ behaviour_tree::Status GoToEnemy::update() {
         auto result = cast_ray_vs_static_grid(m_world.grid(), pos, follow);
         if (!result.hits) {
             pc.path[pc.index] = follow;
-            m_world.input_c(m_entity).direction.push(1); // arriving
         } else {
             enter();
             if (m_status == PathfindingStatus::Failure) {
                 return behaviour_tree::Status::Failure;
             }
         }
-        if (w_magnitude(pos - follow) < m_radius * 0.1f) {
+        if (w_magnitude(pos - follow) < 100) {
             return behaviour_tree::Status::Success;
         }
     }
     m_world.input_c(m_entity).jump.push(true); // for seeking
     m_world.input_c(m_entity).mouse.push(pc.path[pc.index]);
+
+    // flock
+    auto colliders = m_world.dynamic_grid().find_colliders_in_radius(pos, 150);
+    pc.cohesion = pos;
+    int i = 1;
+    pc.flock.clear();
+
+    for (auto &col : colliders) {
+        if (col.entity == m_entity) {
+            continue;
+        }
+        if (m_world.tag_c(col.entity).test(static_cast<int>(Tags::Enemy))) {
+            pc.flock.push_back(col.entity);
+            pc.cohesion += m_world.pos_c(col.entity).global_position;
+            i++;
+        }
+    }
+    pc.cohesion /= (float)i;
+
     return behaviour_tree::Status::Running;
 }
 
 void GoToEnemy::leave(behaviour_tree::Status) {
     m_world.input_c(m_entity).jump.push(false);
-    m_world.input_c(m_entity).direction.push(0); // cancels arriving and fleeing
 }

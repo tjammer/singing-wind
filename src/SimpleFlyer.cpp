@@ -5,6 +5,7 @@
 #include "InputComponent.h"
 #include "CollisionComponent.h"
 #include "MoveSystems.h"
+#include "Pathfinding.h"
 #include "steering.h"
 
 void simpleflyer::on_static_collision(GameWorld &world, unsigned int entity) {
@@ -20,17 +21,13 @@ void SimpleFlyingMove::accel(GameWorld &world, unsigned int entity) {
     auto &mc = world.move_c(entity);
 
     // seeking
-    if (ic.direction.get() == 0) {
-        mc.accel = SteeringBuilder(pc.global_position, mc.velocity, fc.c_max_vel)
-            .seek(ic.mouse.get())
-            .end(fc.c_accel);
-    } else if (ic.direction.get() == 1) { // arriving
-        mc.accel = SteeringBuilder(pc.global_position, mc.velocity, fc.c_max_vel)
-            .arrive(ic.mouse.get(), fc.c_arrive_radius)
-            .end(fc.c_accel);
-    } else {
-        assert(false);
+    auto builder = SteeringBuilder(pc.global_position, mc.velocity, fc.c_max_vel).
+        seek(ic.mouse.get());
+    for (auto &ent : world.path_c(entity).flock) {
+        builder.add_flock(world.pos_c(ent).global_position);
     }
+    builder.add_cohesion(world.path_c(entity).cohesion);
+    mc.accel = builder.end(fc.c_accel);
 
     auto angle =  w_angle_to_vec(w_rotated(WVec(0, -1), pc.rotation * pc.direction), mc.velocity);
     rotate_angle(angle * pc.direction, mc.c_max_change_angle, pc);
