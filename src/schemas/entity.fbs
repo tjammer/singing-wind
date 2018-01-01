@@ -87,9 +87,9 @@ table PatrolComponent {
 }
 
 table AIComponent {
-    state:int;
+    state:int (deprecated);
     type:int;
-    msg_data:[int];
+    msg_data:[int] (deprecated);
 }
 
 root_type Entity;

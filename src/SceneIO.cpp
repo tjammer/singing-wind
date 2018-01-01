@@ -174,15 +174,7 @@ get_fb_entity(GameWorld& world, unsigned int entity)
   // ai_c
   if (bset.test(CAI)) {
     fbs_ent.ai_c = unique_ptr<AIComponentT>(new AIComponentT);
-    // this saves ai state as notinit, so we got no
-    // problems with temp objects like hurtboxes and so on
-    assert(false);
-    // fbs_ent.ai_c->state = static_cast<int>(AIStateName::NotInit);
-    // fbs_ent.ai_c->type = static_cast<int>(world.ai_c(entity).type);
-    // fbs_ent.ai_c->msg_data.clear();
-    // for (auto msg : world.ai_c(entity).msg_data) {
-    //     fbs_ent.ai_c->msg_data.push_back(msg);
-    // }
+    fbs_ent.ai_c->type = static_cast<int>(world.ai_c(entity).btree.type());
   }
 
   return fbs_ent_ptr;

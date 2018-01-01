@@ -24,17 +24,21 @@ entity_edit(GameWorld& world, unsigned int entity)
     if (Combo("type", &type, ai_types.data(), ai_types.size())) {
       ai::init_ai_type(world, entity, static_cast<AITreeType>(type));
     }
-    // int state = static_cast<int>(ac.state);
-    // if (Combo("state", &state, ai_states.data(), ai_states.size())) {
-    //     ac.state = static_cast<AIStateName>(state);
-    // }
   }
 }
 
 void
-init_ai_type(GameWorld& world, unsigned int entity, AITreeType)
+init_ai_type(GameWorld& world, unsigned int entity, AITreeType a_type)
 {
-  // TODO: bring AIComp into sane state and ensure no pointer are dropped
-  world.ai_c(entity).btree = testenemy::get_tree(world, entity);
+  switch (a_type) {
+    case AITreeType::None: {
+      world.ai_c(entity).btree = testenemy::get_tree(world, entity);
+      break;
+    }
+    case AITreeType::TestEnemy: {
+      world.ai_c(entity).btree = testenemy::get_tree(world, entity);
+      break;
+    }
+  }
 }
 }
