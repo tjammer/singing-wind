@@ -5,6 +5,8 @@
 #include <array>
 #include <assert.h>
 
+enum class AITreeType : int;
+
 namespace behaviour_tree {
 #include "WBehaviourTreeBuilder.h"
 
@@ -116,7 +118,6 @@ private:
   size_t m_current;
 };
 
-enum class AITreeType;
 class BehaviourTree : public Selector
 {
 public:

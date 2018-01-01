@@ -129,7 +129,11 @@ template<class selector_type>
 class WBehaviourTreeBuilder
 {
 public:
-  WBehaviourTreeBuilder() { m_root = std::make_shared<selector_type>(); }
+  template<typename... args_types>
+  WBehaviourTreeBuilder(args_types&&... args)
+  {
+    m_root = std::make_shared<selector_type>(std::forward<args_types>(args)...);
+  }
 
   template<class node_type, typename... param_types>
   WLeafBuilder<WBehaviourTreeBuilder, node_type> node(param_types&&... params)
