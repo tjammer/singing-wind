@@ -67,13 +67,4 @@ w_tangent(const WVec& v)
   return WVec(v.y, -v.x);
 }
 
-template<typename T>
-void
-clear_arr(std::deque<T>& arr, const T& val)
-{
-  for (unsigned int i = 0; i < arr.size(); ++i) {
-    arr[i] = val;
-  }
-}
-
 #endif // SINGING_WIND_WVECMATH_H
