@@ -6,6 +6,7 @@
 #include "NavMesh.h"
 #include "PosComponent.h"
 #include "WVecMath.h"
+#include "CollisionComponent.h"
 #include <imgui.h>
 #include <queue>
 
@@ -187,4 +188,14 @@ entity_edit_pathfind(GameWorld& world, unsigned int entity)
     if (DragFloat("padding", &pc.c_padding)) {
     }
   }
+}
+
+WVec
+nearest_dist_with_radii(const WVec& a_pos,
+                        float a_radius,
+                        const WVec& b_pos,
+                        float b_radius)
+{
+  auto distance = b_pos - a_pos;
+  return w_normalize(distance) * (w_magnitude(distance) - a_radius - b_radius);
 }

@@ -25,12 +25,16 @@ SimpleFlyingMove::accel(GameWorld& world, unsigned int entity)
   auto& mc = world.move_c(entity);
 
   // seeking
-  auto builder = SteeringBuilder(pc.global_position, mc.velocity, fc.c_max_vel)
-                   .seek(ic.mouse.get());
-  for (auto& ent : world.path_c(entity).flock) {
-    builder.add_flock(world.pos_c(ent).global_position);
+  auto builder =
+    SteeringBuilder(
+      pc.global_position, mc.velocity, fc.c_max_vel, fc.c_arrive_radius)
+      .seek(ic.mouse.get());
+
+  for (const auto& pos : world.path_c(entity).flock) {
+    builder.add_flock(pos);
   }
   builder.add_cohesion(world.path_c(entity).cohesion);
+
   mc.accel = builder.end(fc.c_accel);
 
   auto angle = w_angle_to_vec(

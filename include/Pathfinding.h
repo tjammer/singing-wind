@@ -24,7 +24,7 @@ struct PathingComponent
   SteerType s_type = SteerType::Seek;
   unsigned int following = 1; // if 0, needs extra PatrolComp
   std::vector<WVec> path;
-  std::vector<unsigned int> flock;
+  std::vector<WVec> flock;
   WVec cohesion{ 0, 0 };
   size_t index = 0;
   float c_padding = 20;
@@ -48,5 +48,11 @@ a_star_search(const NavMesh& mesh,
 
 void
 entity_edit_pathfind(GameWorld& world, unsigned int entity);
+
+WVec
+nearest_dist_with_radii(const WVec& a_pos,
+                        float a_radius,
+                        const WVec& b_pos,
+                        float b_radius);
 
 #endif /* PATHFINDING_H */
