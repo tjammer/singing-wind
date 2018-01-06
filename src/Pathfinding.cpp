@@ -28,6 +28,8 @@ construct_path(const std::unordered_map<NavNode, NavNode>& mesh_path,
   NavNode current = min_heur_node;
   NavNode next = mesh_path.at(min_heur_node);
   pc.path.push_back(WVec{ current.x, current.y });
+  pc.path.push_back(
+    WVec{ current.x, current.y }); // twice b/c index 0 is for real coord
   while (next != current) {
     pc.path.push_back(WVec{ next.x, next.y });
     current = next;
@@ -119,8 +121,11 @@ get_path(const WVec& from,
     return result;
   }
 
+  // out goal to index 0
+  pc.path[0] = to;
+
   // smooth path
-  auto& node = pc.path[0];
+  auto& node = pc.path[1];
   auto& spaces = mesh.m_space.at(node);
 
   node.y -= fmin(pc.c_padding, spaces.up / 2);
@@ -131,7 +136,7 @@ get_path(const WVec& from,
     node.x += fmin(pc.c_padding, spaces.left / 2);
   }
 
-  for (size_t i = 1; i < pc.path.size(); ++i) {
+  for (size_t i = 2; i < pc.path.size(); ++i) {
     auto& node = pc.path[i];
     auto& spaces = mesh.m_space.at(node);
 

@@ -50,7 +50,15 @@ GoToEnemy::update()
     }
   }
 
-  if (pc.index == 0) {
+  if (pc.index == 1) {
+    const auto& follow = m_world.pos_c(pc.following).global_position;
+    auto result = cast_ray_vs_static_grid(m_world.grid(), pos, follow);
+    if (!result.hits) {
+      pc.index--;
+    } else if (w_magnitude(pos - pc.path[pc.index]) < m_radius) {
+      enter();
+    }
+  } else if (pc.index == 0) { // directly following
     const auto& follow = m_world.pos_c(pc.following).global_position;
     float follow_radius = m_world.cshape_c(pc.following).shape->get_radius();
     auto result = cast_ray_vs_static_grid(m_world.grid(), pos, follow);
@@ -58,9 +66,6 @@ GoToEnemy::update()
       pc.path[pc.index] = follow;
     } else {
       enter();
-      if (m_status == PathfindingStatus::Failure) {
-        return behaviour_tree::Status::Failure;
-      }
     }
     if (w_magnitude(nearest_dist_with_radii(
           pos, m_radius, follow, follow_radius)) < m_radius) {
@@ -71,7 +76,8 @@ GoToEnemy::update()
   m_world.input_c(m_entity).mouse.push(pc.path[pc.index]);
 
   // flock
-  auto colliders = m_world.dynamic_grid().find_colliders_in_radius(pos, 150);
+  auto colliders =
+    m_world.dynamic_grid().find_colliders_in_radius(pos, m_radius * 4);
   pc.cohesion = pos;
   int i = 1;
   pc.flock.clear();
