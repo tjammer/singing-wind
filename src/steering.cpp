@@ -73,7 +73,8 @@ SteeringBuilder::add_flock(const WVec& position)
 {
   auto offset = m_pos - position;
   m_flock_count++;
-  m_separate += w_normalize(offset) / w_magnitude(offset) * m_cohesion_length;
+  m_separate +=
+    w_normalize(offset) / fmax(w_magnitude(offset), 1.f) * m_cohesion_length;
 }
 
 void
