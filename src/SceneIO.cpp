@@ -77,7 +77,7 @@ get_fb_entity(GameWorld& world, unsigned int entity)
   // static col
   if (bset.test(CStaticCol)) {
     fbs_ent.static_col_c =
-      static_cast<int>(world.static_col_c(entity).col_response);
+      static_cast<int>(world.static_col_c(entity).col_response_name);
   }
 
   // name
@@ -145,7 +145,8 @@ get_fb_entity(GameWorld& world, unsigned int entity)
 
   // dyn_col_c
   if (bset.test(CDynCol)) {
-    fbs_ent.dyn_col_c = static_cast<int>(world.dyn_col_c(entity).col_response);
+    fbs_ent.dyn_col_c =
+      static_cast<int>(world.dyn_col_c(entity).col_response_name);
   }
 
   // tag
@@ -281,8 +282,8 @@ entity_to_world(const EntityFBS::EntityT& fb_ent,
 
   // static col
   if (bs.test(CStaticCol)) {
-    world.static_col_c(entity).col_response =
-      static_cast<StaticColResponse>(fb_ent.static_col_c);
+    auto& sc = world.static_col_c(entity);
+    set_static_col(sc, static_cast<StaticColResponse>(fb_ent.static_col_c));
   }
 
   // name
@@ -341,8 +342,8 @@ entity_to_world(const EntityFBS::EntityT& fb_ent,
 
   // dyn col
   if (bs.test(CDynCol)) {
-    world.dyn_col_c(entity).col_response =
-      static_cast<DynColResponse>(fb_ent.dyn_col_c);
+    auto& dc = world.dyn_col_c(entity);
+    set_dynamic_col(dc, static_cast<DynColResponse>(fb_ent.dyn_col_c));
   }
 
   // tag_c

@@ -48,12 +48,26 @@ entity_edit_dyn_cols(GameWorld& world, unsigned int entity)
   using namespace ImGui;
   if (world.entities()[entity].test(CDynCol) and CollapsingHeader("DynCol")) {
     auto& dc = world.dyn_col_c(entity);
-    int response = static_cast<int>(dc.col_response);
+    int response = static_cast<int>(dc.col_response_name);
     if (Combo("response",
               &response,
               dyn_col_responses.data(),
               dyn_col_responses.size())) {
-      dc.col_response = static_cast<DynColResponse>(response);
+      set_dynamic_col(dc, static_cast<DynColResponse>(response));
     }
   }
+}
+
+void
+set_static_col(StaticColComponent& sc, const StaticColResponse& res)
+{
+  sc.col_response_name = res;
+  sc.col_response = get_static_col_response(res);
+}
+
+void
+set_dynamic_col(DynamicColComponent& dc, const DynColResponse& res)
+{
+  dc.col_response_name = res;
+  dc.col_response = get_dynamic_col_response(res);
 }

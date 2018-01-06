@@ -134,10 +134,10 @@ EntityIdle::update(const WVec& mpos)
   if (m_world.entities()[m_entity].test(CStaticCol) and
       CollapsingHeader("static collision")) {
     auto& sc = m_world.static_col_c(m_entity);
-    int response = static_cast<int>(sc.col_response);
+    int response = static_cast<int>(sc.col_response_name);
     if (Combo(
           "response", &response, col_responses.data(), col_responses.size())) {
-      sc.col_response = static_cast<StaticColResponse>(response);
+      set_static_col(sc, static_cast<StaticColResponse>(response));
     }
   }
   // appearance

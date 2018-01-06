@@ -108,8 +108,7 @@ static_col_update(GameWorld& world, const std::vector<unsigned int>& entities)
       }
 
       // call back
-      get_static_col_response(world.static_col_c(entity).col_response)(world,
-                                                                       entity);
+      world.static_col_c(entity).col_response(world, entity);
     }
   }
 }
@@ -250,17 +249,15 @@ dyn_col_update(GameWorld& world, std::vector<unsigned int>& entities)
         auto& dc = world.dyn_col_c(entity);
         dc.col_result = result;
         dc.collided = other;
-        auto fn = get_dynamic_col_response(dc.col_response);
-        if (fn) {
-          fn(world, entity);
+        if (dc.col_response) {
+          dc.col_response(world, entity);
         }
         auto& dcb = world.dyn_col_c(other);
         dcb.col_result = result;
         dcb.col_result.normal *= -1.f;
         dcb.collided = entity;
-        fn = get_dynamic_col_response(dcb.col_response);
-        if (fn) {
-          fn(world, other);
+        if (dcb.col_response) {
+          dcb.col_response(world, other);
         }
       }
     }

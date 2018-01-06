@@ -72,8 +72,7 @@ LoungeAttackMove::enter(GameWorld& world, unsigned int entity)
   tc.set(static_cast<int>(Tags::Hurtbox));
 
   // dyn col
-  auto& dc = world.dyn_col_c(hurtbox);
-  dc.col_response = DynColResponse::HurtBox;
+  set_dynamic_col(world.dyn_col_c(hurtbox), DynColResponse::HurtBox);
 
   // lifetime
   auto& lc = world.lifetime_c(hurtbox);

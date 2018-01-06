@@ -39,8 +39,7 @@ spawn(GameWorld& world, unsigned int entity)
   tc.set(static_cast<int>(Tags::AlertBubble));
 
   // dyn col
-  auto& dc = world.dyn_col_c(alert);
-  dc.col_response = DynColResponse::AlertBubble;
+  set_dynamic_col(world.dyn_col_c(alert), DynColResponse::AlertBubble);
 }
 
 void
