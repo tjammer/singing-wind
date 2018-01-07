@@ -40,25 +40,28 @@ GoToEnemy::update()
   auto& pc = m_world.path_c(m_entity);
 
   while (pc.index > 0) {
+    // can see current point
     auto result =
+      cast_ray_vs_static_grid(m_world.grid(), pos, pc.path[pc.index]);
+    if (result.hits) {
+      enter();
+      break;
+    }
+    result =
       cast_ray_vs_static_grid(m_world.grid(), pos, pc.path[pc.index - 1]);
     if (!result.hits) {
       pc.index--;
       pc.path.pop_back();
     } else {
+      if (pc.index == 1 && // cannot see follow anymore
+          w_magnitude(pos - pc.path[pc.index]) < m_radius) {
+        enter();
+      }
       break;
     }
   }
 
-  if (pc.index == 1) {
-    const auto& follow = m_world.pos_c(pc.following).global_position;
-    auto result = cast_ray_vs_static_grid(m_world.grid(), pos, follow);
-    if (!result.hits) {
-      pc.index--;
-    } else if (w_magnitude(pos - pc.path[pc.index]) < m_radius) {
-      enter();
-    }
-  } else if (pc.index == 0) { // directly following
+  if (pc.index == 0) { // directly following
     const auto& follow = m_world.pos_c(pc.following).global_position;
     float follow_radius = m_world.cshape_c(pc.following).shape->get_radius();
     auto result = cast_ray_vs_static_grid(m_world.grid(), pos, follow);
