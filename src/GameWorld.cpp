@@ -82,7 +82,7 @@ GameWorld::update_world()
   std::vector<WVec> triangles;
   grid().clear();
   for (const auto& island : islands()) {
-    triangulate_island(island, triangles);
+    triangulate_island(island, triangles, c_line_triangulate_split);
     for (unsigned int i = 0; i < triangles.size() / 3; ++i) {
       auto p1 = WVec(pos_c(0).global_transform * WVec3(triangles[i * 3], 1));
       auto p2 =
@@ -95,7 +95,7 @@ GameWorld::update_world()
     }
   }
 
-  pimpl->m_navmesh = build_navmesh(islands(), grid());
+  pimpl->m_navmesh = build_navmesh_fly(islands(), grid());
 }
 
 GameWorld::GameWorld()

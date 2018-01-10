@@ -30,13 +30,6 @@ template<typename grid_object>
 class HashGrid;
 class GameWorld;
 
-enum class LinkType : int
-{
-  Walk,
-  Fly,
-  JumpAlong
-};
-
 enum class NodeType : int
 {
   Ground,
@@ -68,7 +61,6 @@ struct NavLink
   NavNode to;
   NavNode from;
   float cost;
-  LinkType link_type = LinkType::Walk;
 
   NavLink(const NavNode& to, const NavNode& from);
 };
@@ -95,19 +87,9 @@ private:
   std::unique_ptr<impl> pimpl;
 };
 
-struct NodeSpace
-{
-  // no down, bc nodes are built on top of islands
-  float up = std::numeric_limits<float>::max();
-  float left = std::numeric_limits<float>::max();
-  float right = std::numeric_limits<float>::max();
-};
-
 struct NavMesh
 {
   NavGraph m_graph;
-  std::unordered_map<NavNode, unsigned int> m_levels;
-  std::unordered_map<NavNode, NodeSpace> m_space;
   void build_tree();
 
   NavNode get_nearest(const WVec& pos) const;
@@ -127,35 +109,17 @@ private:
 };
 
 NavMesh
-build_navmesh(const std::vector<Island>& m_islands,
-              const HashGrid<StaticTriangle>& gridmesh);
+build_navmesh_walk(const std::vector<Island>& islands,
+                   const HashGrid<StaticTriangle>& gridmesh);
+
+NavMesh
+build_navmesh_fly(const std::vector<Island>& islands,
+                  const HashGrid<StaticTriangle>& static_grid);
 
 inline float
 heuristic(const NavNode& from, const NavNode& to)
 {
   return abs(from.x - to.x) + abs(from.y - to.y);
 }
-
-void
-build_levels_connections(NavMesh& mesh, const HashGrid<StaticTriangle>& grid);
-void
-build_node_space(NavMesh& mesh, const HashGrid<StaticTriangle>& grid);
-
-struct NavMeshCreationConfig
-{
-  std::bitset<3> walkable_nodes;
-  std::bitset<3> walkable_links;
-};
-
-const auto c_fly_nodes = std::bitset<3>{}.set();
-const auto c_fly_links = std::bitset<3>{}.set();
-const auto c_platform_nodes =
-  std::bitset<3>{}.set(static_cast<int>(NodeType::Ground));
-const auto c_platform_links =
-  std::bitset<3>{}.set(static_cast<int>(LinkType::Walk));
-
-// world cannot be const due to HashGrid
-NavMesh
-create_navmesh(GameWorld& world, const NavMeshCreationConfig& config);
 
 #endif // SINGING_WIND_NAVMESH_H

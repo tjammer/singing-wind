@@ -124,14 +124,28 @@ std::unordered_map<NavNode, std::vector<NavLink>> walkable_from_tri(
   return graph;
 }
 
+bool
+triangle_is_adjacent(const QuickTri& tri1, const QuickTri& tri2)
+{
+  int samecount = 0;
+  for (const auto& a : { tri1.a, tri1.b, tri1.c }) {
+    for (const auto& b : { tri2.a, tri2.b, tri2.c }) {
+      if (a == b) {
+        samecount++;
+      }
+    }
+  }
+  return samecount == 2;
+}
+
 NavMesh
-build_navmesh(const std::vector<Island>& m_islands,
-              const HashGrid<StaticTriangle>& grid)
+build_navmesh_walk(const std::vector<Island>& m_islands,
+                   const HashGrid<StaticTriangle>& grid)
 {
   NavMesh mesh;
   std::vector<WVec> triangles;
   for (const auto& island : m_islands) {
-    triangulate_island(island, triangles);
+    triangulate_island(island, triangles, c_line_triangulate_split);
     for (unsigned int i = 0; i < triangles.size() / 3; ++i) {
       auto p1 = triangles[i * 3];
       auto p2 = triangles[i * 3 + 1];
@@ -146,158 +160,37 @@ build_navmesh(const std::vector<Island>& m_islands,
       }
     }
   }
-  build_levels_connections(mesh, grid);
-  // todo check space for earch node
-  build_node_space(mesh, grid);
   mesh.build_tree();
   return mesh;
 }
 
-void
-visit_node(NavNode& node,
-           NavMesh& mesh,
-           std::set<NavNode>& visited,
-           unsigned int level)
+NavMesh
+build_navmesh_fly(const std::vector<Island>& islands,
+                  const HashGrid<StaticTriangle>& static_grid)
+
 {
-  if (visited.count(node)) {
-    return;
-  }
-  mesh.m_levels[node] = level;
-  visited.insert(node);
-  for (auto& link : mesh.m_graph.at(node)) {
-    visit_node(link.to, mesh, visited, level);
-  }
-}
+  NavMesh mesh;
+  std::vector<QuickTri> tris;
+  triangulate_between_islands(islands, tris, c_line_triangulate_split);
+  for (const auto& tri : tris) {
+    auto node = NavNode((tri.a + tri.b + tri.c) / 3.0f);
 
-LinkType
-find_link_type(const NavLink& link)
-{
-  float dx = abs(link.to.x - link.from.x);
-  float dy = link.to.y - link.from.y;
+    int adjacent_ct = 0;
+    for (const auto& other_tri : tris) {
+      if (triangle_is_adjacent(tri, other_tri)) {
+        adjacent_ct++;
+        auto other_node =
+          NavNode((other_tri.a + other_tri.b + other_tri.c) / 3.0f);
 
-  if (abs(dy) > dx) {
-    // fall or jump
-    return LinkType::Fly;
-  }
-  // along
-  return LinkType::JumpAlong;
-}
-
-void
-find_shortest_links(unsigned int l1,
-                    unsigned int l2,
-                    NavMesh& mesh,
-                    const HashGrid<StaticTriangle>& grid)
-{
-  struct Match
-  {
-    float dist = std::numeric_limits<float>::max();
-    NavNode node;
-    bool create = false;
-  };
-  std::unordered_map<NavNode, Match> outer_matches;
-  std::unordered_map<NavNode, Match> inner_matches;
-
-  for (auto& outer : mesh.m_graph) {
-    auto& outer_node = outer.first;
-    if (mesh.m_levels.at(outer_node) != l1) {
-      continue;
-    }
-    for (auto& inner : mesh.m_graph) {
-      auto& inner_node = inner.first;
-      if (mesh.m_levels.at(inner_node) != l2) {
-        continue;
+        mesh.m_graph[node].push_back(NavLink(other_node, node));
       }
-      auto result = cast_ray_vs_static_grid(grid, outer_node, inner_node);
-      if (result.hits) { // < w_magnitude(outer_node - inner_node)) {
-        continue;
-      }
-      NavLink link{ outer_node, inner_node };
-      if (link.cost < outer_matches[outer_node].dist &&
-          link.cost < inner_matches[inner_node].dist) {
-        outer_matches[outer_node].node = inner_node;
-        outer_matches[outer_node].dist = link.cost;
-        outer_matches[outer_node].create = true;
-
-        inner_matches[inner_node].node = outer_node;
-        inner_matches[inner_node].dist = link.cost;
-        inner_matches[inner_node].create = true;
+      if (adjacent_ct == 3) {
+        break;
       }
     }
   }
-
-  for (auto& pair : outer_matches) {
-    auto& n1 = pair.first;
-    auto& match = pair.second;
-    if (match.create && inner_matches.at(match.node).node == n1) {
-      NavLink l1{ match.node, n1 };
-      l1.link_type = find_link_type(l1);
-      mesh.m_graph.at(n1).push_back(l1);
-
-      NavLink l2{ n1, match.node };
-      l2.link_type = find_link_type(l2);
-      mesh.m_graph.at(match.node).push_back(l2);
-    }
-  }
-}
-
-void
-build_levels_connections(NavMesh& mesh, const HashGrid<StaticTriangle>& grid)
-{
-  // first add level to nodes
-  unsigned int level = 0;
-  std::set<NavNode> visited;
-  for (auto& pair : mesh.m_graph) {
-    auto node = pair.first;
-    if (!visited.count(node)) {
-      level++;
-    }
-
-    visit_node(node, mesh, visited, level);
-  }
-
-  // find shortest link to each node on other level
-  unsigned int max_level = 0;
-  for (auto& pair : mesh.m_graph) {
-    if (mesh.m_levels.at(pair.first) > max_level) {
-      max_level = mesh.m_levels.at(pair.first);
-    }
-  }
-  for (unsigned int i = 0; i < max_level; ++i) {
-    for (unsigned int j = i + 1; j <= max_level; ++j) {
-      find_shortest_links(i, j, mesh, grid);
-    }
-  }
-}
-
-void
-build_node_space(NavMesh& mesh, const HashGrid<StaticTriangle>& grid)
-{
-  float check_height = 10000;
-  for (auto& pair : mesh.m_graph) {
-    NodeSpace ns;
-    auto& inode = pair.first;
-    auto node = WVec{ inode.x, inode.y };
-    // up
-    auto result =
-      cast_ray_vs_static_grid(grid, node, node + WVec{ 0, -check_height });
-    if (result.hit_parameter < check_height) {
-      ns.up = result.hit_parameter;
-    }
-    // left
-    result =
-      cast_ray_vs_static_grid(grid, node, node + WVec{ -check_height, 0 });
-    if (result.hit_parameter < check_height) {
-      ns.left = result.hit_parameter;
-    }
-    // right
-    result =
-      cast_ray_vs_static_grid(grid, node, node + WVec{ check_height, 0 });
-    if (result.hit_parameter < check_height) {
-      ns.right = result.hit_parameter;
-    }
-    mesh.m_space[inode] = ns;
-  }
+  mesh.build_tree();
+  return mesh;
 }
 
 NavLink::NavLink(const NavNode& to, const NavNode& from)
@@ -365,8 +258,6 @@ NavMesh::get_nearest_visible(const WVec& pos,
 NavMesh::NavMesh(const NavMesh& other)
 {
   m_graph = other.m_graph;
-  m_levels = other.m_levels;
-  m_space = other.m_space;
 
   build_tree();
 }
@@ -375,8 +266,6 @@ NavMesh&
 NavMesh::operator=(const NavMesh& other)
 {
   m_graph = other.m_graph;
-  m_levels = other.m_levels;
-  m_space = other.m_space;
 
   build_tree();
   return *this;

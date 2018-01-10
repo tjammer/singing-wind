@@ -126,36 +126,9 @@ get_path(const WVec& from,
 
   // smooth path
   auto& node = pc.path[1];
-  auto& spaces = mesh.m_space.at(node);
 
-  node.y -= fmin(pc.c_padding, spaces.up / 2);
-  if (spaces.right < pc.c_padding) {
-    node.x -= fmin(pc.c_padding, spaces.right / 2);
-  }
-  if (spaces.left < pc.c_padding) {
-    node.x += fmin(pc.c_padding, spaces.left / 2);
-  }
+  node.y -= pc.c_padding;
 
-  for (size_t i = 2; i < pc.path.size(); ++i) {
-    auto& node = pc.path[i];
-    auto& spaces = mesh.m_space.at(node);
-
-    node.y -= fmin(pc.c_padding, spaces.up / 2);
-    if (spaces.right < pc.c_padding) {
-      node.x -= fmin(pc.c_padding, spaces.right / 2);
-    }
-    if (spaces.left < pc.c_padding) {
-      node.x += fmin(pc.c_padding, spaces.left / 2);
-    }
-    auto diff = pc.path[i - 1] - node;
-    if (diff.y > 0 and abs(diff.y) > abs(diff.x)) {
-      if (diff.x > 0.f) {
-        node.x += fmin(pc.c_padding, spaces.right / 2);
-      } else if (diff.x < 0.f) {
-        node.x -= fmin(pc.c_padding, spaces.left / 2);
-      }
-    }
-  }
   pc.index = pc.path.size() - 1;
   return PathfindingStatus::Success;
 }

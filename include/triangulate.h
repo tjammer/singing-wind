@@ -42,7 +42,21 @@ extern "C" {
 
 #include "Island.h"
 
+struct QuickTri
+{
+  WVec a;
+  WVec b;
+  WVec c;
+};
+
 void
-triangulate_island(const Island& island, std::vector<WVec>& tri_vector);
+triangulate_island(const Island& island,
+                   std::vector<WVec>& tri_vector,
+                   float split_length);
+
+void
+triangulate_between_islands(const std::vector<Island>& islands,
+                            std::vector<QuickTri>& points,
+                            float split_length);
 
 #endif // SINGING_WIND_TRIANGULATE_H
