@@ -59,7 +59,7 @@ triangulate_island(const Island& island,
   out.triangleattributelist = nullptr;
   out.segmentmarkerlist = nullptr;
 
-  char flags[5] = { 'p', 'q', 'z', 'Q', '\0' };
+  char flags[] = { 'p', 'z', 'Q', '\0' };
   triangulate(flags, &in, &out, nullptr);
   triangles.resize(static_cast<size_t>(out.numberoftriangles * 3));
   tri_vector.clear();
