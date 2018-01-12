@@ -81,8 +81,7 @@ void
 SteeringBuilder::add_cohesion(const WVec& position)
 {
   auto offset = position - m_pos;
-  m_cohesion =
-    w_normalize(offset) * w_magnitude(offset) / m_cohesion_length * 0.5f;
+  m_cohesion = offset / m_cohesion_length * 0.5f;
 }
 
 WVec

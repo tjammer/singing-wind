@@ -55,4 +55,8 @@ nearest_dist_with_radii(const WVec& a_pos,
                         const WVec& b_pos,
                         float b_radius);
 
+bool
+can_follow_path_until_zero(const WVec& pos,
+                           PathingComponent& pc,
+                           const GameWorld& world);
 #endif /* PATHFINDING_H */

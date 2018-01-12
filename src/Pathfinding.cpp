@@ -177,3 +177,25 @@ nearest_dist_with_radii(const WVec& a_pos,
   auto distance = b_pos - a_pos;
   return w_normalize(distance) * (w_magnitude(distance) - a_radius - b_radius);
 }
+
+bool
+can_follow_path_until_zero(const WVec& pos,
+                           PathingComponent& pc,
+                           const GameWorld& world)
+{
+  while (pc.index > 0) {
+    // can see current point
+    auto result = cast_ray_vs_static_grid(world.grid(), pos, pc.path[pc.index]);
+    if (result.hits) {
+      return false;
+    }
+    result = cast_ray_vs_static_grid(world.grid(), pos, pc.path[pc.index - 1]);
+    if (!result.hits) {
+      pc.index--;
+      pc.path.pop_back();
+    } else {
+      break;
+    }
+  }
+  return true;
+}

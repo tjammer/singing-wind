@@ -39,26 +39,11 @@ GoToEnemy::update()
   const auto& pos = m_world.pos_c(m_entity).global_position;
   auto& pc = m_world.path_c(m_entity);
 
-  while (pc.index > 0) {
-    // can see current point
-    auto result =
-      cast_ray_vs_static_grid(m_world.grid(), pos, pc.path[pc.index]);
-    if (result.hits) {
-      enter();
-      break;
-    }
-    result =
-      cast_ray_vs_static_grid(m_world.grid(), pos, pc.path[pc.index - 1]);
-    if (!result.hits) {
-      pc.index--;
-      pc.path.pop_back();
-    } else {
-      if (pc.index == 1 && // cannot see follow anymore
-          w_magnitude(pos - pc.path[pc.index]) < m_radius) {
-        enter();
-      }
-      break;
-    }
+  if (!can_follow_path_until_zero(pos, pc, m_world)) {
+    enter();
+  } else if (pc.index == 1 && // cannot see follow anymore
+             w_magnitude(pos - pc.path[pc.index]) < m_radius) {
+    enter();
   }
 
   if (pc.index == 0) { // directly following
