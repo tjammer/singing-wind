@@ -185,7 +185,7 @@ triangulate_between_islands(const std::vector<Island>& a_islands,
   triangles.resize(static_cast<size_t>(out.numberoftriangles * 3));
   assert(out.numberoftriangles > 0);
   a_tris.clear();
-  for (unsigned int i = 0; i < out.numberoftriangles; ++i) {
+  for (int i = 0; i < out.numberoftriangles; ++i) {
     auto i1 = triangles[i * 3];
     auto i2 = triangles[i * 3 + 1];
     auto i3 = triangles[i * 3 + 2];
