@@ -289,19 +289,13 @@ statuseffect_update(GameWorld& world,
 {
   for (const auto& entity : entities) {
     for (auto& effect : world.statuseffect_c(entity).effects) {
-      effect.timer -= dt;
+      effect->timer -= dt;
 
-      if (effect.timer <= 0) {
-        auto fn = effect.on_stop;
-        if (fn) {
-          fn(world, entity);
-        }
-        statuseffects::delete_effect(world, entity, effect);
+      if (effect->timer <= 0) {
+        effect->leave(world, entity);
+        statuseffects::delete_effect(world.statuseffect_c(entity), effect);
       } else {
-        auto fn = effect.on_tick;
-        if (fn) {
-          fn(world, entity);
-        }
+        effect->tick(world, entity);
       }
     }
   }

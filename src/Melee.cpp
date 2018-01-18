@@ -12,6 +12,8 @@
 #include "StatusEffectComponent.h"
 #include "TagComponent.h"
 #include "WVecMath.h"
+#include "StatusEffectKnockback.h"
+#include "StatusEffectHitstun.h"
 
 void
 melee_skill_hurtfunc(GameWorld& world,
@@ -22,12 +24,8 @@ melee_skill_hurtfunc(GameWorld& world,
   auto dir = w_normalize(world.pos_c(victim).global_position -
                          world.pos_c(attacker).global_position);
   world.move_c(victim).velocity = dir * 400.f;
-  auto kb = statuseffects::knockback();
-  kb.timer = .6f;
-  statuseffects::add_effect(world, victim, kb);
-  auto hs = statuseffects::hitstun();
-  hs.timer = .1f;
-  statuseffects::add_effect(world, victim, hs);
+  statuseffects::add_effect(world, victim, std::make_shared<Knockback>(0.6f));
+  statuseffects::add_effect(world, victim, std::make_shared<Hitstun>(0.1f));
   // TODO: damage
 }
 
@@ -37,12 +35,8 @@ melee_skill_on_hit(GameWorld& world, unsigned int attacker, unsigned int victim)
   auto dir = w_normalize(world.pos_c(attacker).global_position -
                          world.pos_c(victim).global_position);
   world.move_c(attacker).velocity = dir * 200.f;
-  auto kb = statuseffects::knockback();
-  kb.timer = .1f;
-  statuseffects::add_effect(world, attacker, kb);
-  auto hs = statuseffects::hitstun();
-  hs.timer = .1f;
-  statuseffects::add_effect(world, attacker, hs);
+  statuseffects::add_effect(world, attacker, std::make_shared<Knockback>(0.1f));
+  statuseffects::add_effect(world, attacker, std::make_shared<Hitstun>(0.1f));
 
   world.move_c(attacker).timer = -0.5f;
 }

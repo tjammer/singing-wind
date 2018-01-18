@@ -13,6 +13,8 @@
 #include "TagComponent.h"
 #include "WVecMath.h"
 #include "steering.h"
+#include "StatusEffectKnockback.h"
+#include "StatusEffectHitstun.h"
 
 void
 lounge_skill_hurtfunc(GameWorld& world,
@@ -24,21 +26,15 @@ lounge_skill_hurtfunc(GameWorld& world,
   auto dir = w_normalize(world.pos_c(victim).global_position -
                          world.pos_c(attacker).global_position);
   world.move_c(victim).velocity = dir * 1000.f;
-  auto kb = statuseffects::knockback();
-  kb.timer = .4f;
-  statuseffects::add_effect(world, victim, kb);
-  auto hs = statuseffects::hitstun();
-  hs.timer = .05f;
-  statuseffects::add_effect(world, victim, hs);
+  statuseffects::add_effect(world, victim, std::make_shared<Knockback>(.4f));
+  statuseffects::add_effect(world, victim, std::make_shared<Hitstun>(0.1f));
   // TODO: damage
 }
 
 void
 lounge_skill_on_hit(GameWorld& world, unsigned int attacker, unsigned int)
 {
-  auto hs = statuseffects::hitstun();
-  hs.timer = .05f;
-  statuseffects::add_effect(world, attacker, hs);
+  statuseffects::add_effect(world, attacker, std::make_shared<Hitstun>(0.1f));
 }
 
 void

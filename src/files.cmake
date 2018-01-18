@@ -47,4 +47,6 @@ set(SOURCE_FILES
     src/EnemyInRange.cpp
     src/TestEnemyAI.cpp
     src/GoToEnemy.cpp
+    src/StatusEffectKnockback.cpp
+    src/StatusEffectHitstun.cpp
     )
