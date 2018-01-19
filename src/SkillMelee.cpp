@@ -87,9 +87,7 @@ MeleeAttackMove::enter(GameWorld& world, unsigned int entity)
 
   // hurtbox
   auto& hb = world.hurtbox_c(hurtbox);
-  hb.owner = entity;
-  hb.hurt_function = melee_skill_hurtfunc;
-  hb.on_hit = melee_skill_on_hit;
+  hb = HurtBoxComponent{ entity, {}, melee_skill_hurtfunc, melee_skill_on_hit };
 }
 
 void

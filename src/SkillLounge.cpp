@@ -76,10 +76,8 @@ LoungeAttackMove::enter(GameWorld& world, unsigned int entity)
 
   // hurtbox
   auto& hb = world.hurtbox_c(hurtbox);
-  hb.owner = entity;
-  hb.hit_entities.clear();
-  hb.hurt_function = lounge_skill_hurtfunc;
-  hb.on_hit = lounge_skill_on_hit;
+  hb =
+    HurtBoxComponent{ entity, {}, lounge_skill_hurtfunc, lounge_skill_on_hit };
 }
 
 void
