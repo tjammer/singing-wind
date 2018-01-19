@@ -72,7 +72,7 @@ MeleeAttackMove::enter(GameWorld& world, unsigned int entity)
   build_global_transform(world, hurtbox);
   // col shape
   auto& csc = world.cshape_c(hurtbox);
-  csc.shape = std::shared_ptr<ColShape>(new ColCapsule(45, 25));
+  csc.shape = std::make_shared<ColCapsule>(45, 25);
 
   // tags
   auto& tc = world.tag_c(hurtbox);
@@ -91,7 +91,7 @@ MeleeAttackMove::enter(GameWorld& world, unsigned int entity)
 }
 
 void
-MeleeSkill::set_special(GameWorld& world, unsigned int entity)
+MeleeSkill::set_special(MoveComponent& mc)
 {
-  world.move_c(entity).special_movestate = std::make_unique<MeleeCastMove>();
+  mc.special_movestate = std::make_unique<MeleeCastMove>();
 }

@@ -21,6 +21,7 @@ enum class SkillID : int
   state_count
 };
 
+struct MoveComponent;
 class BaseSkill
 {
 public:
@@ -30,8 +31,8 @@ public:
   float get_t_active() const { return t_active; }
   float get_t_cooldown() const { return t_cooldown; }
   SkillState state = SkillState::Ready;
-  virtual void set_special(GameWorld&,
-                           unsigned int) = 0; // sets correct timedmovestate
+  virtual void set_special(
+    MoveComponent& move_c) = 0; // sets correct timedmovestate
 protected:
   BaseSkill(SkillID id, float active, float cooldown, float cost = 0)
     : id(id)

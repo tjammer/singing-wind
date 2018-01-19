@@ -60,8 +60,7 @@ LoungeAttackMove::enter(GameWorld& world, unsigned int entity)
   build_global_transform(world, hurtbox);
   // col shape
   auto& csc = world.cshape_c(hurtbox);
-  csc.shape =
-    std::shared_ptr<ColShape>(new ColCapsule(radius * 1.2f, radius * 0.7f));
+  csc.shape = std::make_shared<ColCapsule>(radius * 1.2f, radius * 0.7f);
 
   // tags
   auto& tc = world.tag_c(hurtbox);
@@ -125,7 +124,7 @@ LoungeAttackMove::accel(GameWorld& world, unsigned int entity)
 }
 
 void
-LoungeSkill::set_special(GameWorld& world, unsigned int entity)
+LoungeSkill::set_special(MoveComponent& mc)
 {
-  world.move_c(entity).special_movestate = std::make_unique<LoungeCastMove>();
+  mc.special_movestate = std::make_unique<LoungeCastMove>();
 }
