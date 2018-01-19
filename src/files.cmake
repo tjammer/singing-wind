@@ -49,4 +49,5 @@ set(SOURCE_FILES
     src/GoToEnemy.cpp
     src/StatusEffectKnockback.cpp
     src/StatusEffectHitstun.cpp
+    src/SkillDisk.cpp
     )
