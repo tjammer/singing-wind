@@ -41,8 +41,8 @@ set(SOURCE_FILES
     src/StatusEffectComponent.cpp
     src/PatrolComponent.cpp
     src/AIComponent.cpp
-    src/Melee.cpp
-    src/Lounge.cpp
+    src/SkillMelee.cpp
+    src/SkillLounge.cpp
     src/NTimes.cpp
     src/EnemyInRange.cpp
     src/TestEnemyAI.cpp

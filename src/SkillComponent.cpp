@@ -1,8 +1,8 @@
 #include "SkillComponent.h"
 #include "Components.h"
 #include "GameWorld.h"
-#include "Lounge.h"
-#include "Melee.h"
+#include "SkillLounge.h"
+#include "SkillMelee.h"
 #include <algorithm>
 #include <imgui.h>
 

@@ -1,4 +1,4 @@
-#include "Lounge.h"
+#include "SkillLounge.h"
 #include "ColShape.h"
 #include "CollisionComponent.h"
 #include "Components.h"
