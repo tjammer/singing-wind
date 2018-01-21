@@ -111,7 +111,6 @@ public:
 
   // delete entities
   void queue_delete(unsigned int entity);
-  void queue_create(const EntityCreator& creator);
 
   // communication with editor
   void update_world();

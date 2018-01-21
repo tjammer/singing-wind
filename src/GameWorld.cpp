@@ -73,9 +73,7 @@ public:
   std::vector<unsigned int> m_ai_ents;
 
   std::vector<unsigned int> m_to_delete;
-  std::vector<EntityCreator> m_to_create;
   void delete_entitites(GameWorld&);
-  void create_entities(GameWorld&);
 };
 
 void
@@ -131,7 +129,6 @@ GameWorld::step_fixed(float dt)
 
   // delete entities
   pimpl->delete_entitites(*this);
-  pimpl->create_entities(*this);
 }
 
 unsigned int
@@ -307,25 +304,9 @@ GameWorld::impl::delete_entitites(GameWorld& world)
 }
 
 void
-GameWorld::impl::create_entities(GameWorld& world)
-{
-  for (auto& creator : m_to_create) {
-    unsigned int new_ent = world.create_entity();
-    creator.func(world, new_ent, creator.parent);
-  }
-  m_to_create.clear();
-}
-
-void
 GameWorld::queue_delete(unsigned int entity)
 {
   pimpl->m_to_delete.push_back(entity);
-}
-
-void
-GameWorld::queue_create(const EntityCreator& creator)
-{
-  pimpl->m_to_create.push_back(creator);
 }
 
 HashGrid<StaticTriangle>&

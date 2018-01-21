@@ -42,8 +42,9 @@ disk_skill_hurtfunc(GameWorld& world, unsigned int victim, unsigned int)
 }
 
 void
-create_disk(GameWorld& world, unsigned int hurtbox, unsigned int parent)
+DiskCastMove::leave(GameWorld& world, unsigned int entity)
 {
+  auto hurtbox = world.create_entity();
   bset comps;
   for (auto i : { CPosition,
                   CColShape,
@@ -60,7 +61,7 @@ create_disk(GameWorld& world, unsigned int hurtbox, unsigned int parent)
   world.name_c(hurtbox) = "disk_projectile";
 
   // pos
-  world.pos_c(hurtbox).position = world.pos_c(parent).global_position;
+  world.pos_c(hurtbox).position = world.pos_c(entity).global_position;
   build_global_transform(world, hurtbox);
 
   // col shape
@@ -80,21 +81,15 @@ create_disk(GameWorld& world, unsigned int hurtbox, unsigned int parent)
   // moveset
   auto& mc = world.move_c(hurtbox);
   mc.special_movestate = std::make_unique<DiskProjectileMove>(
-    w_normalize(world.move_c(parent).velocity));
+    w_normalize(world.move_c(entity).velocity));
 
   // hurtbox
   auto& hb = world.hurtbox_c(hurtbox);
-  hb = HurtBoxComponent{ parent, {}, disk_skill_hurtfunc, nullptr };
+  hb = HurtBoxComponent{ entity, {}, disk_skill_hurtfunc, nullptr };
 
   // lifetime
   auto& lc = world.lifetime_c(hurtbox);
   lc.timer = 30;
-}
-
-void
-DiskCastMove::leave(GameWorld& world, unsigned int entity)
-{
-  world.queue_create({ create_disk, entity });
 }
 
 void
