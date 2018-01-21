@@ -16,10 +16,11 @@
 #include "StatusEffectKnockback.h"
 #include "StatusEffectHitstun.h"
 
-void
+bool
 lounge_skill_hurtfunc(GameWorld& world,
                       unsigned int victim,
-                      unsigned int attacker)
+                      unsigned int attacker,
+                      unsigned int)
 {
   // knockback
   interrupt(world, victim);
@@ -29,12 +30,17 @@ lounge_skill_hurtfunc(GameWorld& world,
   statuseffects::add_effect(world, victim, std::make_shared<Knockback>(.4f));
   statuseffects::add_effect(world, victim, std::make_shared<Hitstun>(0.1f));
   // TODO: damage
+  return true;
 }
 
-void
-lounge_skill_on_hit(GameWorld& world, unsigned int attacker, unsigned int)
+bool
+lounge_skill_on_hit(GameWorld& world,
+                    unsigned int attacker,
+                    unsigned int,
+                    unsigned int)
 {
   statuseffects::add_effect(world, attacker, std::make_shared<Hitstun>(0.1f));
+  return true;
 }
 
 void

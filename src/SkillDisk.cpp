@@ -26,6 +26,7 @@ void
 DiskProjectileMove::accel(GameWorld& world, unsigned int entity)
 {
   auto& mc = world.move_c(entity);
+  mc.accel = { 0, 0 }; // cancel gravity
   mc.velocity = dir * move_speed;
 }
 
@@ -35,10 +36,20 @@ DiskProjectileMove::leave(GameWorld& world, unsigned int entity)
   world.queue_delete(entity);
 }
 
-void
-disk_skill_hurtfunc(GameWorld& world, unsigned int victim, unsigned int)
+bool
+disk_skill_hurtfunc(GameWorld& world,
+                    unsigned int victim,
+                    unsigned int attacker,
+                    unsigned int entity)
 {
+  auto& state =
+    dynamic_cast<DiskProjectileMove&>(*world.move_c(entity).special_movestate);
+  if (attacker == victim && !state.collided) {
+    return false;
+  }
   statuseffects::add_effect(world, victim, std::make_shared<Hitstun>(0.1f));
+  statuseffects::add_effect(world, entity, std::make_shared<Hitstun>(0.1f));
+  return true;
 }
 
 void
@@ -53,7 +64,8 @@ DiskCastMove::leave(GameWorld& world, unsigned int entity)
                   CDebugDraw,
                   CTag,
                   CLifeTime,
-                  CMove }) {
+                  CMove,
+                  CStatusEffect }) {
     comps.set(i);
   }
   world.entities()[hurtbox] = comps;
@@ -90,6 +102,8 @@ DiskCastMove::leave(GameWorld& world, unsigned int entity)
   // lifetime
   auto& lc = world.lifetime_c(hurtbox);
   lc.timer = 30;
+
+  world.statuseffect_c(hurtbox).effects.clear();
 }
 
 void
@@ -102,7 +116,10 @@ void
 disk_projectile::on_static_collision(GameWorld& world, unsigned int entity)
 {
   auto& mc = world.move_c(entity);
-  auto result = world.static_col_c(entity).col_result;
+  auto& result = world.static_col_c(entity).col_result;
+  auto& state = dynamic_cast<DiskProjectileMove&>(*mc.special_movestate);
   mc.velocity = w_reflect(mc.velocity, result.normal);
   mc.accel = w_reflect(mc.accel, result.normal);
+  state.set_dir(w_normalize(mc.velocity));
+  state.collided = true;
 }

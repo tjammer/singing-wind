@@ -23,17 +23,17 @@ hurtbox::on_dynamic_collision(GameWorld& world, const unsigned int entity)
 
   auto fn = hb.hurt_function;
   if (fn) {
-    fn(world, dc.collided, hb.owner);
+    if (fn(world, dc.collided, hb.owner, entity))
+      hb.hit_entities.push_back(dc.collided);
   }
   // we ahve a hit! check if owner has made a response yet
   if (std::find(hb.hit_entities.begin(), hb.hit_entities.end(), hb.owner) ==
       hb.hit_entities.end()) {
     fn = hb.on_hit;
     if (fn) {
-      fn(world, hb.owner, dc.collided);
+      if (fn(world, hb.owner, dc.collided, entity)) {
+        hb.hit_entities.push_back(hb.owner);
+      }
     }
-    hb.hit_entities.push_back(hb.owner);
   }
-
-  hb.hit_entities.push_back(dc.collided);
 }

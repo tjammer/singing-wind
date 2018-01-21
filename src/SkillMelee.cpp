@@ -15,10 +15,11 @@
 #include "StatusEffectKnockback.h"
 #include "StatusEffectHitstun.h"
 
-void
+bool
 melee_skill_hurtfunc(GameWorld& world,
                      unsigned int victim,
-                     unsigned int attacker)
+                     unsigned int attacker,
+                     unsigned int)
 {
   // knockback
   auto dir = w_normalize(world.pos_c(victim).global_position -
@@ -27,10 +28,14 @@ melee_skill_hurtfunc(GameWorld& world,
   statuseffects::add_effect(world, victim, std::make_shared<Knockback>(0.6f));
   statuseffects::add_effect(world, victim, std::make_shared<Hitstun>(0.1f));
   // TODO: damage
+  return true;
 }
 
-void
-melee_skill_on_hit(GameWorld& world, unsigned int attacker, unsigned int victim)
+bool
+melee_skill_on_hit(GameWorld& world,
+                   unsigned int attacker,
+                   unsigned int victim,
+                   unsigned int)
 {
   auto dir = w_normalize(world.pos_c(attacker).global_position -
                          world.pos_c(victim).global_position);
@@ -39,6 +44,7 @@ melee_skill_on_hit(GameWorld& world, unsigned int attacker, unsigned int victim)
   statuseffects::add_effect(world, attacker, std::make_shared<Hitstun>(0.1f));
 
   world.move_c(attacker).timer = -0.5f;
+  return true;
 }
 
 void

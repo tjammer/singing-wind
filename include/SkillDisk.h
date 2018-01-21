@@ -30,9 +30,12 @@ public:
   {
   }
 
+  void set_dir(const WVec& a_dir) { dir = a_dir; }
+  bool collided = false;
+
 private:
   const float move_speed = 700;
-  const WVec dir;
+  WVec dir;
 };
 
 class DiskSkill : public BaseSkill
