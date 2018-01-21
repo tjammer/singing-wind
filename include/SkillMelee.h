@@ -36,7 +36,7 @@ public:
 class MeleeSkill : public BaseSkill
 {
 public:
-  void set_special(GameWorld&, unsigned int) override;
+  void set_special(MoveComponent& move_c) override;
   MeleeSkill()
     : BaseSkill(SkillID::Melee, .6, 2)
   {

@@ -24,7 +24,6 @@
 auto moveset_names = get_enum_string_array(moveset_string);
 auto movestate_names = get_enum_string_array(movestate_string);
 const char* const colshape_names = { "Triangle\0Circle\0Capsule\0\0" };
-auto col_responses = get_enum_string_array(staticcolresponse_string);
 auto inputfunc_names = get_enum_string_array(inputfunc_string);
 
 void
@@ -78,7 +77,7 @@ EntityIdle::update(const WVec& mpos)
   }
 
   // position
-  if (m_world.entities()[m_entity].test(CPosition) and
+  if (m_world.entities()[m_entity].test(CPosition) &&
       CollapsingHeader("position")) {
     auto& pc = m_world.pos_c(m_entity);
     float data[2] = { pc.position.x, pc.position.y };
@@ -100,7 +99,7 @@ EntityIdle::update(const WVec& mpos)
   }
 
   // movement
-  if (m_world.entities()[m_entity].test(CMove) and
+  if (m_world.entities()[m_entity].test(CMove) &&
       CollapsingHeader("movement")) {
     auto& mc = m_world.move_c(m_entity);
     float data[2] = { mc.velocity.x, mc.velocity.y };
@@ -131,18 +130,11 @@ EntityIdle::update(const WVec& mpos)
   }
 
   // static col
-  if (m_world.entities()[m_entity].test(CStaticCol) and
-      CollapsingHeader("static collision")) {
-    auto& sc = m_world.static_col_c(m_entity);
-    int response = static_cast<int>(sc.col_response_name);
-    if (Combo(
-          "response", &response, col_responses.data(), col_responses.size())) {
-      set_static_col(sc, static_cast<StaticColResponse>(response));
-    }
-  }
+  entity_edit_static_cols(m_world, m_entity);
+
   // appearance
   // input
-  if (m_world.entities()[m_entity].test(CInput) and CollapsingHeader("input")) {
+  if (m_world.entities()[m_entity].test(CInput) && CollapsingHeader("input")) {
     auto& ic = m_world.input_c(m_entity);
     int inputstate = static_cast<int>(ic.input_func);
     if (Combo("InputFunc",
@@ -153,7 +145,7 @@ EntityIdle::update(const WVec& mpos)
     }
   }
   // ground move
-  if (m_world.entities()[m_entity].test(CGroundMove) and
+  if (m_world.entities()[m_entity].test(CGroundMove) &&
       CollapsingHeader("ground movement")) {
     auto& gc = m_world.ground_move_c(m_entity);
     if (DragFloat("accel", &gc.c_accel)) {
@@ -166,8 +158,7 @@ EntityIdle::update(const WVec& mpos)
     }
   }
   // jump
-  if (m_world.entities()[m_entity].test(CFall) and
-      CollapsingHeader("falling")) {
+  if (m_world.entities()[m_entity].test(CFall) && CollapsingHeader("falling")) {
     auto& jc = m_world.fall_c(m_entity);
     if (DragFloat("accel", &jc.c_accel)) {
     }
@@ -179,7 +170,7 @@ EntityIdle::update(const WVec& mpos)
     }
   }
   // fly
-  if (m_world.entities()[m_entity].test(CFly) and CollapsingHeader("flying")) {
+  if (m_world.entities()[m_entity].test(CFly) && CollapsingHeader("flying")) {
     auto& fc = m_world.fly_c(m_entity);
     if (DragFloat("lift", &fc.c_lift, .0001f, 0.0f, 0.0f, "%.5f")) {
     }
@@ -207,7 +198,7 @@ EntityIdle::update(const WVec& mpos)
   // pathing
   entity_edit_pathfind(m_world, m_entity);
   // simplefly
-  if (m_world.entities()[m_entity].test(CSimpleFly) and
+  if (m_world.entities()[m_entity].test(CSimpleFly) &&
       CollapsingHeader("simple fly")) {
     auto& fc = m_world.simple_fly_c(m_entity);
     DragFloat("max vel", &fc.c_max_vel);
@@ -218,7 +209,7 @@ EntityIdle::update(const WVec& mpos)
   // skill
   skill::entity_edit(m_world, m_entity);
   // shape
-  if (m_world.entities()[m_entity].test(CColShape) and
+  if (m_world.entities()[m_entity].test(CColShape) &&
       CollapsingHeader("col shape")) {
     auto& shape = m_world.cshape_c(m_entity).shape;
     if (!shape) {

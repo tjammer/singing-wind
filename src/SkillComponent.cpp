@@ -3,6 +3,7 @@
 #include "GameWorld.h"
 #include "SkillLounge.h"
 #include "SkillMelee.h"
+#include "SkillDisk.h"
 #include <algorithm>
 #include <imgui.h>
 
@@ -48,8 +49,9 @@ cast(GameWorld& world, unsigned int entity, SkillID id)
   auto& skill = *skill_iterator;
   sc.active = skill;
   skill->state = SkillState::Active;
-  skill->set_special(world, entity);
-  world.move_c(entity).special_movestate->enter(world, entity);
+  auto& mc = world.move_c(entity);
+  skill->set_special(mc);
+  mc.special_movestate->enter(world, entity);
   skill->timer = skill->get_t_active();
 
   return true;
@@ -57,7 +59,8 @@ cast(GameWorld& world, unsigned int entity, SkillID id)
 
 const std::map<SkillID, const char*> skillid_string = {
   { SkillID::Melee, "Melee" },
-  { SkillID::Lounge, "Lounge" }
+  { SkillID::Lounge, "Lounge" },
+  { SkillID::Disk, "Disk" }
 };
 
 using skillset = std::bitset<static_cast<size_t>(SkillID::state_count)>;
@@ -104,6 +107,9 @@ get_new_skill(SkillID id)
       break;
     case SkillID::Lounge:
       return std::make_shared<LoungeSkill>();
+      break;
+    case SkillID::Disk:
+      return std::make_shared<DiskSkill>();
       break;
     default:
       return nullptr;

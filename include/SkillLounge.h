@@ -36,7 +36,7 @@ public:
 class LoungeSkill : public BaseSkill
 {
 public:
-  void set_special(GameWorld&, unsigned int) override;
+  void set_special(MoveComponent& move_c) override;
   LoungeSkill()
     : BaseSkill(SkillID::Lounge, 2.8, 5)
   {

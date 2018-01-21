@@ -6,6 +6,7 @@
 #include "HurtBoxComponent.h"
 #include "PatrolComponent.h"
 #include "SimpleFlyer.h"
+#include "SkillDisk.h"
 #include "imgui.h"
 #include <unordered_map>
 
@@ -13,7 +14,8 @@ using response_func = std::function<void(GameWorld&, const unsigned int)>;
 
 const response_func c_static_col_responses[static_cast<size_t>(
   StaticColResponse::state_count)] = { actor::on_static_collision,
-                                       simpleflyer::on_static_collision };
+                                       simpleflyer::on_static_collision,
+                                       disk_projectile::on_static_collision };
 
 const response_func c_dyn_col_responses[static_cast<size_t>(
   DynColResponse::state_count)] = { actor::on_dynamic_collision,
@@ -33,6 +35,12 @@ get_dynamic_col_response(const DynColResponse& scr)
   return c_dyn_col_responses[static_cast<size_t>(scr)];
 }
 
+const std::map<StaticColResponse, const char*> staticcolresponse_string = {
+  { StaticColResponse::Actor, "Actor" },
+  { StaticColResponse::SimpleFlyer, "SimpleFlyer" },
+  { StaticColResponse::DiskProjectile, "DiskProjectile" }
+};
+
 const std::map<DynColResponse, const char*> c_dyn_col_response_string = {
   { DynColResponse::Actor, "Actor" },
   { DynColResponse::Projectile, "Projectile" },
@@ -46,7 +54,7 @@ void
 entity_edit_dyn_cols(GameWorld& world, unsigned int entity)
 {
   using namespace ImGui;
-  if (world.entities()[entity].test(CDynCol) and CollapsingHeader("DynCol")) {
+  if (world.entities()[entity].test(CDynCol) && CollapsingHeader("DynCol")) {
     auto& dc = world.dyn_col_c(entity);
     int response = static_cast<int>(dc.col_response_name);
     if (Combo("response",
@@ -70,4 +78,21 @@ set_dynamic_col(DynamicColComponent& dc, const DynColResponse& res)
 {
   dc.col_response_name = res;
   dc.col_response = get_dynamic_col_response(res);
+}
+
+const auto col_responses = get_enum_string_array(staticcolresponse_string);
+
+void
+entity_edit_static_cols(GameWorld& world, unsigned int entity)
+{
+  using namespace ImGui;
+  if (world.entities()[entity].test(CStaticCol) &&
+      CollapsingHeader("static collision")) {
+    auto& sc = world.static_col_c(entity);
+    int response = static_cast<int>(sc.col_response_name);
+    if (Combo(
+          "response", &response, col_responses.data(), col_responses.size())) {
+      set_static_col(sc, static_cast<StaticColResponse>(response));
+    }
+  }
 }

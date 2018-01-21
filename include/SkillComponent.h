@@ -18,6 +18,7 @@ enum class SkillID : int
 {
   Melee,
   Lounge,
+  Disk,
   state_count
 };
 

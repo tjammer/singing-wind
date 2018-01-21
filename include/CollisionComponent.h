@@ -12,6 +12,7 @@ enum class StaticColResponse : int
 {
   Actor,
   SimpleFlyer,
+  DiskProjectile,
   state_count
 };
 
@@ -22,11 +23,6 @@ enum class DynColResponse : int
   HurtBox,
   AlertBubble,
   state_count
-};
-
-const std::map<StaticColResponse, const char*> staticcolresponse_string = {
-  { StaticColResponse::Actor, "Actor" },
-  { StaticColResponse::SimpleFlyer, "SimpleFlyer" }
 };
 
 struct ColShapeComponent
@@ -61,4 +57,6 @@ set_dynamic_col(DynamicColComponent&, const DynColResponse&);
 
 void
 entity_edit_dyn_cols(GameWorld& world, unsigned int entity);
+void
+entity_edit_static_cols(GameWorld& world, unsigned int entity);
 #endif /* CSTATICCOL_H */

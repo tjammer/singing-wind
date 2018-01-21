@@ -143,7 +143,7 @@ move_update(GameWorld& world, float timedelta)
 
     if (world.entities()[entity].test(CMove)) {
       auto& mc = world.move_c(entity);
-      assert(mc.moveset);
+      assert(mc.moveset || mc.special_movestate);
 
       auto old_accel = mc.accel;
       auto dt = timedelta * mc.time_fac;
@@ -198,7 +198,7 @@ skill_update(GameWorld& world,
 
     // handle skill input
     if (ic.attacks[0].just_added(true)) {
-      skill::cast(world, entity, SkillID::Lounge);
+      skill::cast(world, entity, sc.skills[0]->get_id());
     }
 
     for (auto& skill : sc.skills) {
@@ -233,7 +233,6 @@ dyn_col_update(GameWorld& world, std::vector<unsigned int>& entities)
     shape->transform(world.pos_c(entity).global_transform);
     auto colliders = grid.insert_and_find_colliders(
       DynamicEntity{ shape->m_center, shape->get_radius(), entity });
-    // TODO: process collisions
     for (auto& dyn_ent : colliders) {
       auto other = dyn_ent.entity;
       if (world.pos_c(other).parent == entity ||
