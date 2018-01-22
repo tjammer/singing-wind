@@ -255,7 +255,8 @@ entity_to_world(const EntityFBS::EntityT& fb_ent,
     auto& move_c = fb_ent.move_c;
     auto& mc = world.move_c(entity);
 
-    init_moveset(world, entity, static_cast<MoveSetName>(move_c->moveset));
+    movement::init_moveset(
+      world, entity, static_cast<MoveSetName>(move_c->moveset));
     mc.mass = move_c->mass;
     mc.c_max_change_angle = move_c->max_change_angle;
   }

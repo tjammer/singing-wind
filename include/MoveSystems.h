@@ -80,11 +80,7 @@ enum class MoveSetName : int
 {
   Protagonist,
   TestEnemy,
-};
-
-const std::map<MoveSetName, const char*> moveset_string = {
-  { MoveSetName::Protagonist, "Protagonist" },
-  { MoveSetName::TestEnemy, "TestEnemy" },
+  TimedOnly
 };
 
 class MoveSet
@@ -92,7 +88,7 @@ class MoveSet
 public:
   virtual std::unique_ptr<MoveState> transition(GameWorld&, unsigned int) = 0;
   virtual void init(GameWorld&, unsigned int) = 0;
-  virtual MoveSetName name() = 0;
+  virtual MoveSetName name() const = 0;
 };
 
 struct MoveComponent
@@ -150,9 +146,24 @@ struct SimpleFlyComponent
   float c_stop_coef = 0.04;
 };
 
+class TimedOnlyMoveSet : public MoveSet
+{
+public:
+  std::unique_ptr<MoveState> transition(GameWorld&, unsigned int) override
+  {
+    return nullptr;
+  }
+  void init(GameWorld&, unsigned int) override;
+  MoveSetName name() const override { return MoveSetName::TimedOnly; }
+};
+
+namespace movement {
 void
 interrupt(GameWorld&, unsigned int);
 void
 init_moveset(GameWorld&, unsigned int, MoveSetName);
+void
+entity_edit(GameWorld&, unsigned int);
+}
 
 #endif // SINGING_WIND_MOVESYSTEMS_H

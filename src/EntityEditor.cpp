@@ -21,8 +21,6 @@
 #include "imgui-bezier.h"
 #include "imgui.h"
 
-auto moveset_names = get_enum_string_array(moveset_string);
-auto movestate_names = get_enum_string_array(movestate_string);
 const char* const colshape_names = { "Triangle\0Circle\0Capsule\0\0" };
 auto inputfunc_names = get_enum_string_array(inputfunc_string);
 
@@ -99,35 +97,7 @@ EntityIdle::update(const WVec& mpos)
   }
 
   // movement
-  if (m_world.entities()[m_entity].test(CMove) &&
-      CollapsingHeader("movement")) {
-    auto& mc = m_world.move_c(m_entity);
-    float data[2] = { mc.velocity.x, mc.velocity.y };
-    if (DragFloat2("velocity", data)) {
-      mc.velocity = { data[0], data[1] };
-    }
-    data[0] = mc.accel.x;
-    data[1] = mc.accel.y;
-    if (DragFloat2("accel", data)) {
-      mc.accel = { data[0], data[1] };
-    }
-    int movestate = static_cast<int>(mc.movestate->name());
-    if (Combo("MoveState",
-              &movestate,
-              movestate_names.data(),
-              movestate_names.size())) {
-      // mc.movestate = static_cast<MoveStateName>(movestate);
-    }
-    int moveset = static_cast<int>(mc.moveset->name());
-    if (Combo(
-          "MoveSet", &moveset, moveset_names.data(), moveset_names.size())) {
-      init_moveset(m_world, m_entity, static_cast<MoveSetName>(moveset));
-    }
-    DragFloat(
-      "max turn angle", &mc.c_max_change_angle, .0001f, 0.0f, 0.0f, "%.5f");
-    if (DragFloat("mass", &mc.mass)) {
-    }
-  }
+  movement::entity_edit(m_world, m_entity);
 
   // static col
   entity_edit_static_cols(m_world, m_entity);

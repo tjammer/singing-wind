@@ -34,7 +34,7 @@ class SimpleFlyerMoveSet : public MoveSet
 public:
   std::unique_ptr<MoveState> transition(GameWorld&, unsigned int) override;
   void init(GameWorld&, unsigned int) override;
-  MoveSetName name() override { return MoveSetName::TestEnemy; }
+  MoveSetName name() const override { return MoveSetName::TestEnemy; }
 
 private:
   std::unique_ptr<MoveState> from_undefined(GameWorld&, unsigned int);

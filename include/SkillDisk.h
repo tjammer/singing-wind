@@ -34,7 +34,7 @@ public:
   bool collided = false;
 
 private:
-  const float move_speed = 700;
+  const float move_speed = 900;
   WVec dir;
 };
 

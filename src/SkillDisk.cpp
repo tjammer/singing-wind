@@ -17,7 +17,7 @@ DiskCastMove::accel(GameWorld& world, unsigned int entity)
   mc.accel = { 0, 0 };
   mc.accel -= mc.velocity * c_drag * 10.f;
   rotate_to(world.input_c(entity).mouse.get(),
-            mc.c_max_change_angle / 2.0,
+            mc.c_max_change_angle,
             world.pos_c(entity));
 }
 
@@ -53,7 +53,7 @@ disk_skill_hurtfunc(GameWorld& world,
     return false;
   }
   statuseffects::add_effect(world, victim, std::make_shared<Hitstun>(0.1f));
-  statuseffects::add_effect(world, entity, std::make_shared<Hitstun>(0.1f));
+  statuseffects::add_effect(world, entity, std::make_shared<Hitstun>(0.05f));
   return true;
 }
 
@@ -82,7 +82,7 @@ DiskCastMove::leave(GameWorld& world, unsigned int entity)
   build_global_transform(world, hurtbox);
 
   // col shape
-  world.cshape_c(hurtbox).shape = std::make_shared<ColCircle>(30);
+  world.cshape_c(hurtbox).shape = std::make_shared<ColCircle>(20);
 
   // tags
   auto& tc = world.tag_c(hurtbox);
@@ -100,6 +100,7 @@ DiskCastMove::leave(GameWorld& world, unsigned int entity)
   mc.special_movestate = std::make_unique<DiskProjectileMove>(
     w_rotated(WVec{ 0, -1 },
               world.pos_c(entity).rotation * world.pos_c(entity).direction));
+  mc.moveset = std::make_unique<TimedOnlyMoveSet>();
 
   // hurtbox
   auto& hb = world.hurtbox_c(hurtbox);
@@ -107,7 +108,7 @@ DiskCastMove::leave(GameWorld& world, unsigned int entity)
 
   // lifetime
   auto& lc = world.lifetime_c(hurtbox);
-  lc.timer = 30;
+  lc.timer = 3;
 
   // status effects
   world.statuseffect_c(hurtbox).effects.clear();
