@@ -10,19 +10,6 @@
 #include <unordered_map>
 
 void
-reset_special(GameWorld& world,
-              unsigned int entity,
-              TimedMoveStateName movestate)
-{
-  if (world.move_c(entity).special_movestate == nullptr) {
-    return;
-  }
-  if (world.move_c(entity).special_movestate->name() == movestate) {
-    world.move_c(entity).special_movestate = nullptr;
-  }
-}
-
-void
 interrupt(GameWorld& world, unsigned int entity)
 {
   // TODO: reset skill, reset movement

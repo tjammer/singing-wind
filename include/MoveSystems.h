@@ -151,8 +151,6 @@ struct SimpleFlyComponent
 };
 
 void
-reset_special(GameWorld&, unsigned int, TimedMoveStateName);
-void
 interrupt(GameWorld&, unsigned int);
 void
 init_moveset(GameWorld&, unsigned int, MoveSetName);
