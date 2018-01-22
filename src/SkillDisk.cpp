@@ -8,12 +8,17 @@
 #include "CollisionComponent.h"
 #include "HurtBoxComponent.h"
 #include "LifeTimeComponent.h"
+#include "InputComponent.h"
 
 void
 DiskCastMove::accel(GameWorld& world, unsigned int entity)
 {
   auto& mc = world.move_c(entity);
-  mc.accel -= mc.velocity * c_drag;
+  mc.accel = { 0, 0 };
+  mc.accel -= mc.velocity * c_drag * 10.f;
+  rotate_to(world.input_c(entity).mouse.get(),
+            mc.c_max_change_angle / 2.0,
+            world.pos_c(entity));
 }
 
 void
@@ -93,7 +98,8 @@ DiskCastMove::leave(GameWorld& world, unsigned int entity)
   // moveset
   auto& mc = world.move_c(hurtbox);
   mc.special_movestate = std::make_unique<DiskProjectileMove>(
-    w_normalize(world.move_c(entity).velocity));
+    w_rotated(WVec{ 0, -1 },
+              world.pos_c(entity).rotation * world.pos_c(entity).direction));
 
   // hurtbox
   auto& hb = world.hurtbox_c(hurtbox);
@@ -103,6 +109,7 @@ DiskCastMove::leave(GameWorld& world, unsigned int entity)
   auto& lc = world.lifetime_c(hurtbox);
   lc.timer = 30;
 
+  // status effects
   world.statuseffect_c(hurtbox).effects.clear();
 }
 
