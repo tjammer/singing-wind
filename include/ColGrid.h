@@ -87,7 +87,7 @@ public:
     return std::move(colliders);
   }
 
-  std::vector<grid_object> get_objects() const { return m_objects; }
+  const std::vector<grid_object>& get_objects() const { return m_objects; }
 
   std::vector<grid_object> get_colliders_of_point(const WVec& p) const
   {
