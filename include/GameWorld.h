@@ -118,7 +118,7 @@ public:
 
   unsigned int create_entity();
   unsigned int load_entity(const std::string& name);
-  void create_root();
+  unsigned int create_root();
   void delete_entity_raw(unsigned int entity);
 
   // getters

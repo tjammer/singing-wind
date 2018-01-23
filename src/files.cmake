@@ -15,7 +15,6 @@ set(SOURCE_FILES
     src/systems.cpp
     src/WShader.cpp
     src/ColShape.cpp
-    src/entities.cpp
     src/steering.cpp
     src/WTexture.cpp
     src/Collision.cpp

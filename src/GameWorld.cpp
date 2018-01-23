@@ -281,10 +281,22 @@ GameWorld::reset_islands()
   pimpl->m_islands.clear();
 }
 
-void
+unsigned int
 GameWorld::create_root()
 {
-  Entities::create_root(*this);
+  auto root = create_entity();
+  assert(root == 0);
+  bset comps;
+  for (auto i : { CPosition }) {
+    comps.set(i);
+  }
+  entities()[root] = comps;
+  name_c(root) = "root";
+  pos_c(root).position = { 0, 0 };
+  pos_c(root).parent = 0;
+  pos_c(root).global_transform = WTransform();
+
+  return root;
 }
 
 void
