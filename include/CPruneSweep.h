@@ -21,6 +21,9 @@ public:
   // for updating, adding and removing can be done by system
   std::vector<PSBox>& get_boxes() { return m_boxes; }
   std::vector<ColPair>& get_pairs() { return m_pairs; }
+  std::vector<PSBox> find_in_radius(const WVec& center,
+                                    float radius,
+                                    unsigned int entity);
 
 private:
   std::vector<PSBox> m_boxes;

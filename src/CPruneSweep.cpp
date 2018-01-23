@@ -54,3 +54,35 @@ PruneSweeper::prune_and_sweep()
     sort_axis = 1;
   }
 }
+
+std::vector<PSBox>
+PruneSweeper::find_in_radius(const WVec& center,
+                             float radius,
+                             unsigned int entity)
+{
+  PSBox box{ center - radius, center + radius, entity };
+  auto lower = std::lower_bound(
+    m_boxes.begin(), m_boxes.end(), box, cmp_func{ sort_axis });
+  std::vector<PSBox> boxes;
+
+  // check upper dir
+  for (size_t i = lower - m_boxes.begin(); i < m_boxes.size(); ++i) {
+    if (m_boxes[i].mins[sort_axis] > box.maxs[sort_axis]) {
+      break;
+    }
+    if (overlap(box, m_boxes[i]) && m_boxes[i].entity != entity) {
+      boxes.push_back(m_boxes[i]);
+    }
+  }
+  // check lower dir
+  for (auto it = lower; it > m_boxes.begin(); --it) {
+    auto& other = *it;
+    if (other.maxs[sort_axis] < box.mins[sort_axis]) {
+      break;
+    }
+    if (overlap(box, other) && other.entity != entity) {
+      boxes.push_back(other);
+    }
+  }
+  return boxes;
+}
