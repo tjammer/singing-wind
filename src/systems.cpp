@@ -228,42 +228,77 @@ skill_update(GameWorld& world,
 void
 dyn_col_update(GameWorld& world, std::vector<unsigned int>& entities)
 {
-  auto& grid = world.dynamic_grid();
-  grid.clear();
+  auto& prune_sweep = world.prune_sweep();
+  auto& boxes = prune_sweep.get_boxes();
+  std::set<unsigned int> checked;
+
+  for (auto& box : boxes) {
+    // has dyn_col_comp
+    auto& shape = world.cshape_c(box.entity).shape;
+    checked.insert(box.entity);
+    shape->transform(world.pos_c(box.entity).global_transform);
+    box.mins = shape->m_center - shape->get_radius();
+    box.maxs = shape->m_center + shape->get_radius();
+    shape->reset();
+  }
 
   for (const auto& entity : entities) {
-    auto& shape = world.cshape_c(entity).shape;
-    shape->transform(world.pos_c(entity).global_transform);
-    auto colliders = grid.insert_and_find_colliders(
-      DynamicEntity{ shape->m_center, shape->get_radius(), entity });
-    for (auto& dyn_ent : colliders) {
-      auto other = dyn_ent.entity;
-      if (world.pos_c(other).parent == entity ||
-          world.pos_c(entity).parent == other) {
-        continue;
-      }
-      auto& other_shape = world.cshape_c(other).shape;
-      other_shape->transform(world.pos_c(other).global_transform);
-      auto result = shape->collides(*other_shape);
-      other_shape->reset();
+    if (checked.count(entity) == 0) {
+      auto& shape = world.cshape_c(entity).shape;
+      const auto& pos = world.pos_c(entity).position;
+      boxes.emplace_back(
+        PSBox{ pos - shape->get_radius(), pos + shape->get_radius(), entity });
+    } else {
+      checked.erase(entity);
+    }
+  }
+  // todo remove boxes from delete list
+  for (auto ent : checked) {
+    boxes.erase(
+      std::remove_if(boxes.begin(), boxes.end(), [ent](const PSBox& b) {
+        return b.entity == ent;
+      }));
+  }
 
-      if (result.collides) {
-        auto& dc = world.dyn_col_c(entity);
-        dc.col_result = result;
-        dc.collided = other;
-        if (dc.col_response) {
-          dc.col_response(world, entity);
-        }
-        auto& dcb = world.dyn_col_c(other);
-        dcb.col_result = result;
-        dcb.col_result.normal *= -1.f;
-        dcb.collided = entity;
-        if (dcb.col_response) {
-          dcb.col_response(world, other);
-        }
+  // prune and sweep
+  prune_sweep.prune_and_sweep();
+
+  for (auto& pair : prune_sweep.get_pairs()) {
+    unsigned int a = pair.first;
+    unsigned int b = pair.second;
+
+    auto& pos_a = world.pos_c(a);
+    auto& pos_b = world.pos_c(b);
+
+    // for hurtboxes or alert circles
+    if ((pos_a.parent == b || pos_b.parent == a)) {
+      continue;
+    }
+
+    auto& shape_a = world.cshape_c(a).shape;
+    auto& shape_b = world.cshape_c(b).shape;
+
+    shape_a->transform(world.pos_c(a).global_transform);
+    shape_b->transform(world.pos_c(b).global_transform);
+    auto result = shape_a->collides(*shape_b);
+    shape_a->reset();
+    shape_b->reset();
+
+    if (result.collides) {
+      auto& dc = world.dyn_col_c(a);
+      dc.col_result = result;
+      dc.collided = b;
+      if (dc.col_response) {
+        dc.col_response(world, a);
+      }
+      auto& dcb = world.dyn_col_c(b);
+      dcb.col_result = result;
+      dcb.col_result.normal *= -1.f;
+      dcb.collided = a;
+      if (dcb.col_response) {
+        dcb.col_response(world, b);
       }
     }
-    shape->reset();
   }
 }
 

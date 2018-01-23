@@ -55,7 +55,7 @@ public:
   std::vector<NameComponent> m_name_c;
 
   HashGrid<StaticTriangle> m_grid;
-  HashGrid<DynamicEntity> m_dynamic_grid;
+  PruneSweeper m_prune_sweep;
   std::vector<Island> m_islands;
   NavMesh m_navmesh;
 
@@ -321,10 +321,10 @@ GameWorld::grid() const
   return pimpl->m_grid;
 }
 
-HashGrid<DynamicEntity>&
-GameWorld::dynamic_grid()
+PruneSweeper&
+GameWorld::prune_sweep()
 {
-  return pimpl->m_dynamic_grid;
+  return pimpl->m_prune_sweep;
 }
 
 NavMesh&

@@ -65,7 +65,7 @@ GoToEnemy::update()
 
   // flock
   auto colliders =
-    m_world.dynamic_grid().find_colliders_in_radius(pos, m_radius * 4);
+    m_world.prune_sweep().find_in_radius(pos, m_radius * 4.0f, m_entity);
   pc.cohesion = pos;
   int i = 1;
   pc.flock.clear();
@@ -75,9 +75,10 @@ GoToEnemy::update()
       continue;
     }
     if (m_world.tag_c(col.entity).test(static_cast<int>(Tags::Enemy))) {
-      pc.flock.push_back(
-        pos + nearest_dist_with_radii(pos, 0, col.center, col.radius));
-      pc.cohesion += col.center;
+      auto center = (col.maxs + col.mins) / 2.0f;
+      float radius = w_magnitude(center - col.mins);
+      pc.flock.push_back(pos + nearest_dist_with_radii(pos, 0, center, radius));
+      pc.cohesion += center;
       i++;
     }
   }

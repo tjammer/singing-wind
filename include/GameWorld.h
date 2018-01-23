@@ -11,6 +11,7 @@
 #include "WindDefs.h"
 #include "ColGrid.h"
 #include "NavMesh.h"
+#include "CPruneSweep.h"
 
 struct GLFWwindow;
 struct PosComponent;
@@ -123,8 +124,7 @@ public:
   // getters
   HashGrid<StaticTriangle>& grid();
   HashGrid<StaticTriangle> const& grid() const;
-  HashGrid<DynamicEntity>& dynamic_grid();
-  HashGrid<DynamicEntity> const& dynamic_grid() const;
+  PruneSweeper& prune_sweep();
   NavMesh& navmesh();
   NavMesh const& navmesh() const;
   std::vector<Island>& islands();
