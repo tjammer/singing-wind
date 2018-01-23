@@ -23,6 +23,7 @@ struct StaticTriangle
   float radius;
   std::shared_ptr<ColTriangle> shape;
   unsigned int id;
+  int tag;
 };
 
 struct DynamicEntity
@@ -30,6 +31,7 @@ struct DynamicEntity
   WVec center;
   float radius;
   unsigned int entity;
+  int tag;
 };
 
 template<typename grid_object>
@@ -53,7 +55,8 @@ public:
   void add_object(grid_object object)
   {
     size_t pos = m_objects.size();
-    auto ids = get_ids_for_object(object.center, object.radius);
+    auto ids_ = get_ids_for_object(object.center, object.radius);
+    auto ids = std::set<int>(ids_.begin(), ids_.end());
     m_objects.push_back(std::move(object));
     for (auto id : ids)
       m_buckets[id].push_back(pos);
@@ -68,18 +71,18 @@ public:
   }
 
   std::vector<grid_object> find_colliders_in_radius(const WVec& center,
-                                                    float radius) const
+                                                    float radius)
   {
+    int tag = rand();
     std::vector<grid_object> colliders;
-    std::set<size_t> indices;
     for (const auto& id : get_ids_for_object(center, radius)) {
       for (size_t i : m_buckets[id]) {
-        indices.insert(i);
+        if (m_objects[i].tag != tag) {
+          if (overlap(center, radius, m_objects[i]))
+            colliders.push_back(m_objects[i]);
+        }
+        m_objects[i].tag = tag;
       }
-    }
-    for (auto i : indices) {
-      if (overlap(center, radius, m_objects[i]))
-        colliders.push_back(m_objects[i]);
     }
     return std::move(colliders);
   }
@@ -101,24 +104,24 @@ public:
 
   std::vector<grid_object> insert_and_find_colliders(grid_object object)
   {
+    int tag = rand();
     auto ids = get_ids_for_object(object.center, object.radius);
     std::vector<grid_object> colliders;
 
-    std::set<size_t> indices;
     for (const auto& id : ids) {
       for (size_t i : m_buckets[id]) {
-        indices.insert(i);
+        if (m_objects[i].tag != tag) {
+          if (overlap(object.center, object.radius, m_objects[i]))
+            colliders.push_back(m_objects[i]);
+          m_objects[i].tag = tag;
+        }
       }
     }
-    for (auto i : indices) {
-      if (overlap(object.center, object.radius, m_objects[i]))
-        colliders.push_back(m_objects[i]);
-    }
-
     // actually add
     size_t pos = m_objects.size();
     m_objects.push_back(std::move(object));
-    for (auto id : ids)
+    auto ids_ = std::set<int>(ids.begin(), ids.end());
+    for (auto id : ids_)
       m_buckets[id].push_back(pos);
 
     return std::move(colliders);
@@ -140,16 +143,16 @@ private:
     return id;
   }
 
-  std::set<int> get_ids_for_object(const WVec& center, float radius) const
+  std::vector<int> get_ids_for_object(const WVec& center, float radius) const
   {
-    std::set<int> ids;
+    std::vector<int> ids;
     int times = static_cast<int>(2.f * radius / m_cell_size) + 1;
     for (int i = 0; i <= times; ++i) {
       for (int j = 0; j <= times; ++j) {
         int id =
           get_id(center + WVec(static_cast<float>(i * m_cell_size) - radius,
                                static_cast<float>(j * m_cell_size) - radius));
-        ids.insert(id);
+        ids.push_back(id);
       }
     }
     return ids;
