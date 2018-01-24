@@ -75,7 +75,7 @@ DiskCastMove::leave(GameWorld& world, unsigned int entity)
   }
   world.entities()[hurtbox] = comps;
 
-  world.name_c(hurtbox) = "disk_projectile";
+  world.name_c(hurtbox).name = "disk_projectile";
 
   // pos
   world.pos_c(hurtbox).position = world.pos_c(entity).global_position;
@@ -86,8 +86,8 @@ DiskCastMove::leave(GameWorld& world, unsigned int entity)
 
   // tags
   auto& tc = world.tag_c(hurtbox);
-  tc.set(static_cast<int>(Tags::Hurtbox));
-  tc.set(static_cast<int>(Tags::Projectile));
+  tc.tags.set(static_cast<int>(Tags::Hurtbox));
+  tc.tags.set(static_cast<int>(Tags::Projectile));
 
   // dyn col
   set_dynamic_col(world.dyn_col_c(hurtbox), DynColResponse::HurtBox);

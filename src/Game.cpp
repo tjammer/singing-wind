@@ -6,6 +6,7 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "WInput.h"
+#include "Components.h"
 
 Game::Game()
 {
@@ -51,7 +52,7 @@ void
 Game::update_camera_follow()
 {
   for (unsigned int i = 0; i < m_game_world.entities().size(); ++i) {
-    if (m_game_world.name_c(i) == "player" and
+    if (m_game_world.name_c(i).name == "player" &&
         m_game_world.entities()[i].any()) {
       m_camera.m_entity_to_follow = i;
     }

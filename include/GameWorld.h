@@ -32,10 +32,10 @@ struct HurtBoxComponent;
 struct StatusEffectComponent;
 struct AIComponent;
 struct PatrolComponent;
+struct NameComponent;
 struct NavMesh;
+struct TagComponent;
 class Island;
-using NameComponent = std::string;
-using TagComponent = bset;
 
 // physics constants
 const float c_drag = 0.0026;
@@ -131,11 +131,18 @@ public:
   std::vector<Island> const& islands() const;
 
 private:
+  friend class Entity;
   class impl;
   std::unique_ptr<impl> pimpl;
 
   void find_entities_fixed();
   void find_entities_draw();
+
+  template<typename C>
+  struct component_getter
+  {
+    C& get(unsigned int entity);
+  };
 };
 
 namespace for_gameworld {

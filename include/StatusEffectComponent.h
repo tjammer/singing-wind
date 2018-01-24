@@ -1,6 +1,7 @@
 #ifndef STATUSEFFECTCOMPONENT_H
 #define STATUSEFFECTCOMPONENT_H
 
+#include "Components.h"
 #include <vector>
 #include <memory>
 
@@ -35,6 +36,7 @@ private:
 struct StatusEffectComponent
 {
   std::vector<std::shared_ptr<StatusEffect>> effects;
+  static const Components type = CStatusEffect;
 };
 
 namespace statuseffects {

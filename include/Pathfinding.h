@@ -2,6 +2,7 @@
 #define PATHFINDING_H
 
 #include "WindDefs.h"
+#include "Components.h"
 #include <map>
 #include <unordered_map>
 #include <vector>
@@ -29,6 +30,7 @@ struct PathingComponent
   size_t index = 0;
   float c_padding = 20;
   float c_max_mh_dist = 10000;
+  static const Components type = CPathing;
 };
 
 enum class PathfindingStatus

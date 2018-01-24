@@ -8,6 +8,7 @@
 #include "PosComponent.h"
 #include "TagComponent.h"
 #include "WindDefs.h"
+#include "TagComponent.h"
 #include <imgui.h>
 
 namespace alert_bubble {
@@ -22,7 +23,7 @@ spawn(GameWorld& world, unsigned int entity)
     comps.set(i);
   }
   world.entities()[alert] = comps;
-  world.name_c(alert) = "alert bubble";
+  world.name_c(alert).name = "alert bubble";
 
   // pos
   auto& pc = world.pos_c(alert);
@@ -36,7 +37,7 @@ spawn(GameWorld& world, unsigned int entity)
 
   // tags
   auto& tc = world.tag_c(alert);
-  tc.set(static_cast<int>(Tags::AlertBubble));
+  tc.tags.set(static_cast<int>(Tags::AlertBubble));
 
   // dyn col
   set_dynamic_col(world.dyn_col_c(alert), DynColResponse::AlertBubble);
@@ -48,7 +49,7 @@ on_dynamic_collision(GameWorld& world, unsigned int entity)
   // test tag comp of collider
   auto& dc = world.dyn_col_c(entity);
   auto& tc = world.tag_c(dc.collided);
-  if (!tc.test(static_cast<int>(Tags::Protagonist))) {
+  if (!tc.tags.test(static_cast<int>(Tags::Protagonist))) {
     return;
   }
   // test if was updated -> still in idle

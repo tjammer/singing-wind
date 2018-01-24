@@ -15,6 +15,7 @@
 #include "steering.h"
 #include "StatusEffectKnockback.h"
 #include "StatusEffectHitstun.h"
+#include "TagComponent.h"
 
 bool
 lounge_skill_hurtfunc(GameWorld& world,
@@ -55,7 +56,7 @@ LoungeAttackMove::enter(GameWorld& world, unsigned int entity)
   }
 
   world.entities()[hurtbox] = comps;
-  world.name_c(hurtbox) = "lounge_skill_hurtbox";
+  world.name_c(hurtbox).name = "lounge_skill_hurtbox";
 
   // pos
   float radius = world.cshape_c(entity).shape->get_radius();
@@ -70,7 +71,7 @@ LoungeAttackMove::enter(GameWorld& world, unsigned int entity)
 
   // tags
   auto& tc = world.tag_c(hurtbox);
-  tc.set(static_cast<int>(Tags::Hurtbox));
+  tc.tags.set(static_cast<int>(Tags::Hurtbox));
 
   // dyn col
   set_dynamic_col(world.dyn_col_c(hurtbox), DynColResponse::HurtBox);

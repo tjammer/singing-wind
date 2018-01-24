@@ -24,6 +24,26 @@
 #include "systems.h"
 #include "triangulate.h"
 
+// class comp_vec_base
+// {
+// public:
+//   ~comp_vec_base() {}
+// };
+//
+// template<typename T>
+// class comp_vec
+//   : public comp_vec_base
+//   , public std::vector<T>
+// {
+// };
+//
+// template<typename T, typename B>
+// std::vector<T>&
+// from_vec(const B& arr)
+// {
+//   return *(std::vector<T>*)arr.get();
+// }
+
 GameWorld::~GameWorld() = default;
 
 class GameWorld::impl
@@ -291,7 +311,7 @@ GameWorld::create_root()
     comps.set(i);
   }
   entities()[root] = comps;
-  name_c(root) = "root";
+  name_c(root).name = "root";
   pos_c(root).position = { 0, 0 };
   pos_c(root).parent = 0;
   pos_c(root).global_transform = WTransform();

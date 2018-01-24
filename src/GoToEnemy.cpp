@@ -74,7 +74,7 @@ GoToEnemy::update()
     if (col.entity == m_entity) {
       continue;
     }
-    if (m_world.tag_c(col.entity).test(static_cast<int>(Tags::Enemy))) {
+    if (m_world.tag_c(col.entity).tags.test(static_cast<int>(Tags::Enemy))) {
       auto center = (col.maxs + col.mins) / 2.0f;
       float radius = w_magnitude(center - col.mins);
       pc.flock.push_back(pos + nearest_dist_with_radii(pos, 0, center, radius));

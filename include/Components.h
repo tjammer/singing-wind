@@ -27,8 +27,11 @@ enum Components : int
   CLifeTime,
   CStatusEffect,
   CAI,
-  CPatrol
+  CPatrol,
+  CName,
+  comp_count
 };
+
 const std::map<Components, const char*> components_string = {
   { CPosition, "CPosition" },
   { CMove, "CMove" },
@@ -56,6 +59,10 @@ struct DebugComponent
 };
 
 // for serializing and identification
-using NameComponent = std::string;
+struct NameComponent
+{
+  std::string name;
+  static const Components type = CName;
+};
 
 #endif // SINGING_WIND_COMPONENTS_H

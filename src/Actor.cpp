@@ -29,7 +29,7 @@ actor::on_dynamic_collision(GameWorld& world, unsigned int entity)
   auto& pc = world.pos_c(entity);
 
   const auto& tag = world.tag_c(collider);
-  if (tag.test(static_cast<int>(Tags::Actor))) {
+  if (tag.tags.test(static_cast<int>(Tags::Actor))) {
     pc.position -= 0.5f * result.normal * result.depth;
     // pc.global_transform = glm::rotate(glm::translate(WTransform(),
     // pc.position), pc.rotation) * world.pos_c(pc.parent).global_transform;

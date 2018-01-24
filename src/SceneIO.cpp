@@ -10,6 +10,7 @@
 #include "PatrolComponent.h"
 #include "PosComponent.h"
 #include "SkillComponent.h"
+#include "TagComponent.h"
 #include <ColShape.h>
 #include <fstream>
 #include <iostream>
@@ -81,7 +82,7 @@ get_fb_entity(GameWorld& world, unsigned int entity)
   }
 
   // name
-  fbs_ent.name = world.name_c(entity);
+  fbs_ent.name = world.name_c(entity).name;
 
   // gound_move_c
   if (bset.test(CGroundMove)) {
@@ -151,7 +152,7 @@ get_fb_entity(GameWorld& world, unsigned int entity)
 
   // tag
   if (bset.test(CTag)) {
-    fbs_ent.tag_c = world.tag_c(entity).to_ulong();
+    fbs_ent.tag_c = world.tag_c(entity).tags.to_ulong();
   }
 
   // skill_c
@@ -190,7 +191,7 @@ save_entity_standalone(GameWorld& world, unsigned int entity)
   flatbuffers::FlatBufferBuilder fbb;
   fbb.Finish(EntityFBS::Entity::Pack(fbb, &*fbs_ent));
 
-  string entity_name = world.name_c(entity);
+  string entity_name = world.name_c(entity).name;
   string filename = "scenes/" + entity_name + ".went";
   ofstream entity_file(filename, ios_base::binary);
   entity_file.write(reinterpret_cast<char*>(fbb.GetBufferPointer()),
@@ -225,7 +226,7 @@ save_entity_scene(GameWorld& world, unsigned int entity)
     fbs_ent.pos_c->position->mutate_y(pos_c.position.y);
     fbs_ent.pos_c->direction = pos_c.direction;
   }
-  fbs_ent.name = world.name_c(entity);
+  fbs_ent.name = world.name_c(entity).name;
 }
 
 void
@@ -288,7 +289,7 @@ entity_to_world(const EntityFBS::EntityT& fb_ent,
   }
 
   // name
-  world.name_c(entity) = fb_ent.name;
+  world.name_c(entity).name = fb_ent.name;
 
   // ground move
   if (bs.test(CGroundMove)) {
@@ -349,7 +350,7 @@ entity_to_world(const EntityFBS::EntityT& fb_ent,
 
   // tag_c
   if (bs.test(CTag)) {
-    world.tag_c(entity) = bset(fb_ent.tag_c);
+    world.tag_c(entity).tags = bset(fb_ent.tag_c);
   }
 
   // skill_c

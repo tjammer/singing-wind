@@ -55,7 +55,7 @@ EntityIdle::update(const WVec& mpos)
   SameLine(100);
   Text("%s", to_string(m_entity).c_str());
 
-  string& _name = m_world.name_c(m_entity);
+  string& _name = m_world.name_c(m_entity).name;
   vector<char> entity_name(_name.begin(), _name.end());
   entity_name.push_back('\0');
   entity_name.resize(128);

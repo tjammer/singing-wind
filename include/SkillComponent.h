@@ -1,6 +1,7 @@
 #ifndef SKILLCOMPONENT_H
 #define SKILLCOMPONENT_H
 
+#include "Components.h"
 #include <functional>
 #include <vector>
 #include <memory>
@@ -57,6 +58,7 @@ struct SkillComponent
   std::vector<std::shared_ptr<BaseSkill>> skills;
   std::shared_ptr<BaseSkill> active = nullptr;
   std::vector<int> skill_data;
+  static const Components type = CSkill;
 };
 
 namespace skill {

@@ -4,6 +4,7 @@
 #include "WindDefs.h"
 #include "input_buffer.h"
 #include "SkillComponent.h"
+#include "Components.h"
 
 #include <map>
 #include <array>
@@ -31,6 +32,7 @@ struct InputComponent
   input_buffer<bool, c_input_buffer_length> wings;
   std::array<input_buffer<bool, c_input_buffer_length>, c_skill_slots> attacks;
   InputFunc input_func;
+  Components type = CInput;
 };
 
 #endif /* CINPUT_H */

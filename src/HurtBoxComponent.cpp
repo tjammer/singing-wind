@@ -15,7 +15,8 @@ hurtbox::on_dynamic_collision(GameWorld& world, const unsigned int entity)
       hb.hit_entities.end()) {
     return;
     // only on Actors
-  } else if (!world.tag_c(dc.collided).test(static_cast<int>(Tags::Actor))) {
+  } else if (!world.tag_c(dc.collided)
+                .tags.test(static_cast<int>(Tags::Actor))) {
     return;
   } else if (dc.collided == hb.owner) {
     // do nothing for now

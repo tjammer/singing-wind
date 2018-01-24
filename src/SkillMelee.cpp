@@ -12,6 +12,7 @@
 #include "StatusEffectComponent.h"
 #include "TagComponent.h"
 #include "WVecMath.h"
+#include "TagComponent.h"
 #include "StatusEffectKnockback.h"
 #include "StatusEffectHitstun.h"
 
@@ -68,7 +69,7 @@ MeleeAttackMove::enter(GameWorld& world, unsigned int entity)
   }
 
   world.entities()[hurtbox] = comps;
-  world.name_c(hurtbox) = "melee_skill_hurtbox";
+  world.name_c(hurtbox).name = "melee_skill_hurtbox";
 
   // pos
   auto& pc = world.pos_c(hurtbox);
@@ -82,7 +83,7 @@ MeleeAttackMove::enter(GameWorld& world, unsigned int entity)
 
   // tags
   auto& tc = world.tag_c(hurtbox);
-  tc.set(static_cast<int>(Tags::Hurtbox));
+  tc.tags.set(static_cast<int>(Tags::Hurtbox));
 
   // dyn col
   set_dynamic_col(world.dyn_col_c(hurtbox), DynColResponse::HurtBox);

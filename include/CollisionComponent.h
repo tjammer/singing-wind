@@ -2,6 +2,7 @@
 #define CSTATICCOL_H
 
 #include "Collision.h"
+#include "Components.h"
 #include <map>
 #include <functional>
 #include <memory>
@@ -28,6 +29,7 @@ enum class DynColResponse : int
 struct ColShapeComponent
 {
   std::shared_ptr<ColShape> shape;
+  static const Components type = CColShape;
 };
 
 struct StaticColComponent
@@ -35,6 +37,7 @@ struct StaticColComponent
   ColResult col_result;
   StaticColResponse col_response_name;
   std::function<void(GameWorld&, unsigned int)> col_response = nullptr;
+  static const Components type = CStaticCol;
 };
 
 struct DynamicColComponent
@@ -43,6 +46,7 @@ struct DynamicColComponent
   unsigned int collided;
   DynColResponse col_response_name;
   std::function<void(GameWorld&, unsigned int)> col_response = nullptr;
+  static const Components type = CDynCol;
 };
 
 std::function<void(GameWorld&, unsigned int)>

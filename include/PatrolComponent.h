@@ -2,10 +2,12 @@
 #define PATROLCOMPONENT_H
 
 #include "WindDefs.h"
+#include "Components.h"
 
 struct PatrolComponent
 {
   WVec patrol_point;
+  static const Components type = CPatrol;
 };
 
 class GameWorld;

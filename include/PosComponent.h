@@ -2,6 +2,7 @@
 #define POSCOMPONENT_H
 
 #include "WindDefs.h"
+#include "Components.h"
 
 struct PosComponent
 {
@@ -11,6 +12,7 @@ struct PosComponent
   WTransform global_transform = WTransform();
   unsigned int parent = 0;
   int direction = 1;
+  static const Components type = CPosition;
 };
 
 class GameWorld;

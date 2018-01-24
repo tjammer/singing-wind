@@ -6,6 +6,7 @@
 #define SINGING_WIND_MOVESYSTEMS_H
 
 #include "WindDefs.h"
+#include "Components.h"
 #include <map>
 #include <vector>
 #include <memory>
@@ -104,6 +105,7 @@ struct MoveComponent
 
   float c_max_change_angle = 0.08;
   float timer = 0;
+  static const Components type = CMove;
 };
 
 struct GroundMoveComponent
@@ -112,6 +114,7 @@ struct GroundMoveComponent
   float c_stop_friction = 8;
   float c_turn_mod = 4;
   float c_max_vel = 100;
+  static const Components type = CGroundMove;
 };
 
 struct FallComponent
@@ -120,6 +123,7 @@ struct FallComponent
   float c_turn_mod = 4;
   float c_jump_height = 1000;
   float c_max_vel = 100;
+  static const Components type = CFall;
 };
 
 struct FlyComponent
@@ -136,6 +140,7 @@ struct FlyComponent
   WVec ctrl_from = { 0.819312513, -0.31962499 };
   WVec ctrl_to = { -0.0288125277, 1.40112495 };
   WVec to = { 1.000, 0.870875001 };
+  static const Components type = CFly;
 };
 
 struct SimpleFlyComponent
@@ -144,6 +149,7 @@ struct SimpleFlyComponent
   float c_accel = 1000;
   float c_arrive_radius = 70;
   float c_stop_coef = 0.04;
+  static const Components type = CSimpleFly;
 };
 
 class TimedOnlyMoveSet : public MoveSet

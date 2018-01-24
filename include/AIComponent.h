@@ -1,6 +1,7 @@
 #ifndef AICOMPONENT_H
 #define AICOMPONENT_H
 
+#include "Components.h"
 #include <vector>
 #include <memory>
 #include "WBehaviourTree.h"
@@ -27,6 +28,7 @@ enum class AITreeType : int
 struct AIComponent
 {
   behaviour_tree::BehaviourTree btree;
+  static const Components type = CAI;
 };
 
 namespace ai {

@@ -2,10 +2,15 @@
 #define TAGCOMPONENT_H
 
 #include "WindDefs.h"
+#include "Components.h"
 
 class GameWorld;
 
-using TagComponent = bset;
+struct TagComponent
+{
+  bset tags;
+  static const Components type = CTag;
+};
 
 enum class Tags : int
 {

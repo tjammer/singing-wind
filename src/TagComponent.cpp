@@ -17,10 +17,10 @@ entity_edit_tags(GameWorld& world, unsigned int entity)
 
   if (world.entities()[entity].test(CTag) and CollapsingHeader("tags")) {
     auto& tc = world.tag_c(entity);
-    auto flags = tc.to_ulong();
+    auto flags = tc.tags.to_ulong();
     for (auto& pair : tags_string) {
       CheckboxFlags(pair.second, &flags, 1 << static_cast<int>(pair.first));
     }
-    tc = bset(flags);
+    tc.tags = bset(flags);
   }
 }
