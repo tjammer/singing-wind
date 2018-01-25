@@ -34,10 +34,10 @@ EntityIdle::draw(GameWorld& world)
   if (!for_gameworld::has_component(world.entities()[m_entity], debug_draw)) {
     return;
   }
-  const auto& shape = world.cshape_c(m_entity).shape;
+  const auto& shape = world.get<ColShapeComponent>(m_entity).shape;
   auto circle = ColCircle(shape->get_radius());
   circle.m_highlight = true;
-  circle.add_gfx_lines(world.pos_c(m_entity).global_transform);
+  circle.add_gfx_lines(world.get<PosComponent>(m_entity).global_transform);
 }
 
 EditorSubState
@@ -55,7 +55,7 @@ EntityIdle::update(const WVec& mpos)
   SameLine(100);
   Text("%s", to_string(m_entity).c_str());
 
-  string& _name = m_world.name_c(m_entity).name;
+  string& _name = m_world.get<NameComponent>(m_entity).name;
   vector<char> entity_name(_name.begin(), _name.end());
   entity_name.push_back('\0');
   entity_name.resize(128);
@@ -77,7 +77,7 @@ EntityIdle::update(const WVec& mpos)
   // position
   if (m_world.entities()[m_entity].test(CPosition) &&
       CollapsingHeader("position")) {
-    auto& pc = m_world.pos_c(m_entity);
+    auto& pc = m_world.get<PosComponent>(m_entity);
     float data[2] = { pc.position.x, pc.position.y };
     if (DragFloat2("position", data)) {
       pc.position.x = data[0];
@@ -105,7 +105,7 @@ EntityIdle::update(const WVec& mpos)
   // appearance
   // input
   if (m_world.entities()[m_entity].test(CInput) && CollapsingHeader("input")) {
-    auto& ic = m_world.input_c(m_entity);
+    auto& ic = m_world.get<InputComponent>(m_entity);
     int inputstate = static_cast<int>(ic.input_func);
     if (Combo("InputFunc",
               &inputstate,
@@ -117,7 +117,7 @@ EntityIdle::update(const WVec& mpos)
   // ground move
   if (m_world.entities()[m_entity].test(CGroundMove) &&
       CollapsingHeader("ground movement")) {
-    auto& gc = m_world.ground_move_c(m_entity);
+    auto& gc = m_world.get<GroundMoveComponent>(m_entity);
     if (DragFloat("accel", &gc.c_accel)) {
     }
     if (DragFloat("stop_friction", &gc.c_stop_friction)) {
@@ -129,7 +129,7 @@ EntityIdle::update(const WVec& mpos)
   }
   // jump
   if (m_world.entities()[m_entity].test(CFall) && CollapsingHeader("falling")) {
-    auto& jc = m_world.fall_c(m_entity);
+    auto& jc = m_world.get<FallComponent>(m_entity);
     if (DragFloat("accel", &jc.c_accel)) {
     }
     if (DragFloat("jump height", &jc.c_jump_height)) {
@@ -141,7 +141,7 @@ EntityIdle::update(const WVec& mpos)
   }
   // fly
   if (m_world.entities()[m_entity].test(CFly) && CollapsingHeader("flying")) {
-    auto& fc = m_world.fly_c(m_entity);
+    auto& fc = m_world.get<FlyComponent>(m_entity);
     if (DragFloat("lift", &fc.c_lift, .0001f, 0.0f, 0.0f, "%.5f")) {
     }
     if (DragFloat("stall angle", &fc.c_stall_angle)) {
@@ -170,7 +170,7 @@ EntityIdle::update(const WVec& mpos)
   // simplefly
   if (m_world.entities()[m_entity].test(CSimpleFly) &&
       CollapsingHeader("simple fly")) {
-    auto& fc = m_world.simple_fly_c(m_entity);
+    auto& fc = m_world.get<SimpleFlyComponent>(m_entity);
     DragFloat("max vel", &fc.c_max_vel);
     DragFloat("accel", &fc.c_accel);
     DragFloat("near threshold", &fc.c_arrive_radius);
@@ -181,7 +181,7 @@ EntityIdle::update(const WVec& mpos)
   // shape
   if (m_world.entities()[m_entity].test(CColShape) &&
       CollapsingHeader("col shape")) {
-    auto& shape = m_world.cshape_c(m_entity).shape;
+    auto& shape = m_world.get<ColShapeComponent>(m_entity).shape;
     if (!shape) {
       shape = std::shared_ptr<ColShape>(new ColCapsule(
         protagonist::c_capsule_size.x, protagonist::c_capsule_size.y));
@@ -277,16 +277,16 @@ EntityMove::draw(GameWorld& world)
   if (!for_gameworld::has_component(world.entities()[m_entity], debug_draw)) {
     return;
   }
-  const auto& shape = world.cshape_c(m_entity).shape;
+  const auto& shape = world.get<ColShapeComponent>(m_entity).shape;
   auto circle = ColCircle(shape->get_radius());
   circle.m_highlight = true;
-  circle.add_gfx_lines(world.pos_c(m_entity).global_transform);
+  circle.add_gfx_lines(world.get<PosComponent>(m_entity).global_transform);
 }
 
 EditorSubState
 EntityMove::cancel()
 {
-  auto& pc = m_world.pos_c(m_entity);
+  auto& pc = m_world.get<PosComponent>(m_entity);
 
   pc.position += m_diff;
   build_global_transform(m_world, m_entity);
@@ -298,15 +298,15 @@ EntityMove::EntityMove(GameWorld& world, unsigned int entity, const WVec& mouse)
   : m_world(world)
   , m_entity(entity)
 {
-  m_diff = m_world.pos_c(m_entity).position - mouse;
+  m_diff = m_world.get<PosComponent>(m_entity).position - mouse;
   m_mpos = mouse;
-  m_world.pos_c(m_entity).position = mouse;
+  m_world.get<PosComponent>(m_entity).position = mouse;
 }
 
 EditorSubState
 EntityMove::update(const WVec& mpos)
 {
-  auto& pc = m_world.pos_c(m_entity);
+  auto& pc = m_world.get<PosComponent>(m_entity);
 
   auto diff = m_mpos - mpos;
   m_diff += diff;

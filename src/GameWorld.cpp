@@ -20,7 +20,6 @@
 #include "SkillComponent.h"
 #include "StatusEffectComponent.h"
 #include "TagComponent.h"
-#include "entities.h"
 #include "systems.h"
 #include "triangulate.h"
 
@@ -80,7 +79,6 @@ public:
   NavMesh m_navmesh;
 
   std::vector<unsigned int> m_input_ents;
-  // std::vector<unsigned int> m_move_ents;
   std::vector<unsigned int> m_debug_draw_ents;
   std::vector<unsigned int> m_ground_move_ents;
   std::vector<unsigned int> m_fly_ents;
@@ -96,6 +94,146 @@ public:
   void delete_entitites(GameWorld&);
 };
 
+template<>
+PosComponent&
+GameWorld::get<PosComponent>(unsigned int entity)
+{
+  return pimpl->m_pos_c[entity];
+}
+
+template<>
+DebugComponent&
+GameWorld::get<DebugComponent>(unsigned int entity)
+{
+  return pimpl->m_debug_c[entity];
+}
+
+template<>
+InputComponent&
+GameWorld::get<InputComponent>(unsigned int entity)
+{
+  return pimpl->m_input_c[entity];
+}
+
+template<>
+MoveComponent&
+GameWorld::get<MoveComponent>(unsigned int entity)
+{
+  return pimpl->m_move_c[entity];
+}
+
+template<>
+StaticColComponent&
+GameWorld::get<StaticColComponent>(unsigned int entity)
+{
+  return pimpl->m_static_col_c[entity];
+}
+
+template<>
+GroundMoveComponent&
+GameWorld::get<GroundMoveComponent>(unsigned int entity)
+{
+  return pimpl->m_ground_move_c[entity];
+}
+
+template<>
+FallComponent&
+GameWorld::get<FallComponent>(unsigned int entity)
+{
+  return pimpl->m_fall_c[entity];
+}
+
+template<>
+FlyComponent&
+GameWorld::get<FlyComponent>(unsigned int entity)
+{
+  return pimpl->m_fly_c[entity];
+}
+
+template<>
+PathingComponent&
+GameWorld::get<PathingComponent>(unsigned int entity)
+{
+  return pimpl->m_path_c[entity];
+}
+
+template<>
+NameComponent&
+GameWorld::get<NameComponent>(unsigned int entity)
+{
+  return pimpl->m_name_c[entity];
+}
+
+template<>
+SimpleFlyComponent&
+GameWorld::get<SimpleFlyComponent>(unsigned int entity)
+{
+  return pimpl->m_simple_fly_c[entity];
+}
+
+template<>
+SkillComponent&
+GameWorld::get<SkillComponent>(unsigned int entity)
+{
+  return pimpl->m_skill_c[entity];
+}
+
+template<>
+DynamicColComponent&
+GameWorld::get<DynamicColComponent>(unsigned int entity)
+{
+  return pimpl->m_dyn_c[entity];
+}
+
+template<>
+TagComponent&
+GameWorld::get<TagComponent>(unsigned int entity)
+{
+  return pimpl->m_tag_c[entity];
+}
+
+template<>
+ColShapeComponent&
+GameWorld::get<ColShapeComponent>(unsigned int entity)
+{
+  return pimpl->m_cshape_c[entity];
+}
+
+template<>
+LifeTimeComponent&
+GameWorld::get<LifeTimeComponent>(unsigned int entity)
+{
+  return pimpl->m_lifetime_c[entity];
+}
+
+template<>
+HurtBoxComponent&
+GameWorld::get<HurtBoxComponent>(unsigned int entity)
+{
+  return pimpl->m_hurtbox_c[entity];
+}
+
+template<>
+StatusEffectComponent&
+GameWorld::get<StatusEffectComponent>(unsigned int entity)
+{
+  return pimpl->m_statuseffect_c[entity];
+}
+
+template<>
+AIComponent&
+GameWorld::get<AIComponent>(unsigned int entity)
+{
+  return pimpl->m_ai_c[entity];
+}
+
+template<>
+PatrolComponent&
+GameWorld::get<PatrolComponent>(unsigned int entity)
+{
+  return pimpl->m_patrol_c[entity];
+}
+
 void
 GameWorld::update_world()
 {
@@ -104,11 +242,12 @@ GameWorld::update_world()
   for (const auto& island : islands()) {
     triangulate_island(island, triangles, c_line_triangulate_split);
     for (unsigned int i = 0; i < triangles.size() / 3; ++i) {
-      auto p1 = WVec(pos_c(0).global_transform * WVec3(triangles[i * 3], 1));
-      auto p2 =
-        WVec(pos_c(0).global_transform * WVec3(triangles[i * 3 + 1], 1));
-      auto p3 =
-        WVec(pos_c(0).global_transform * WVec3(triangles[i * 3 + 2], 1));
+      auto p1 = WVec(get<PosComponent>(0).global_transform *
+                     WVec3(triangles[i * 3], 1));
+      auto p2 = WVec(get<PosComponent>(0).global_transform *
+                     WVec3(triangles[i * 3 + 1], 1));
+      auto p3 = WVec(get<PosComponent>(0).global_transform *
+                     WVec3(triangles[i * 3 + 2], 1));
       auto tri = std::make_shared<ColTriangle>(p1, p2, p3);
       grid().add_object(
         StaticTriangle{ tri->m_center, tri->get_radius(), tri, i });
@@ -311,10 +450,10 @@ GameWorld::create_root()
     comps.set(i);
   }
   entities()[root] = comps;
-  name_c(root).name = "root";
-  pos_c(root).position = { 0, 0 };
-  pos_c(root).parent = 0;
-  pos_c(root).global_transform = WTransform();
+  get<NameComponent>(root).name = "root";
+  get<PosComponent>(root).position = { 0, 0 };
+  get<PosComponent>(root).parent = 0;
+  get<PosComponent>(root).global_transform = WTransform();
 
   return root;
 }
@@ -381,124 +520,4 @@ std::vector<bset>&
 GameWorld::entities()
 {
   return pimpl->m_entities;
-}
-
-PosComponent&
-GameWorld::pos_c(unsigned int entity)
-{
-  return pimpl->m_pos_c[entity];
-}
-
-DebugComponent&
-GameWorld::debug_c(unsigned int entity)
-{
-  return pimpl->m_debug_c[entity];
-}
-
-InputComponent&
-GameWorld::input_c(unsigned int entity)
-{
-  return pimpl->m_input_c[entity];
-}
-
-MoveComponent&
-GameWorld::move_c(unsigned int entity)
-{
-  return pimpl->m_move_c[entity];
-}
-
-StaticColComponent&
-GameWorld::static_col_c(unsigned int entity)
-{
-  return pimpl->m_static_col_c[entity];
-}
-
-GroundMoveComponent&
-GameWorld::ground_move_c(unsigned int entity)
-{
-  return pimpl->m_ground_move_c[entity];
-}
-
-FallComponent&
-GameWorld::fall_c(unsigned int entity)
-{
-  return pimpl->m_fall_c[entity];
-}
-
-FlyComponent&
-GameWorld::fly_c(unsigned int entity)
-{
-  return pimpl->m_fly_c[entity];
-}
-
-PathingComponent&
-GameWorld::path_c(unsigned int entity)
-{
-  return pimpl->m_path_c[entity];
-}
-
-NameComponent&
-GameWorld::name_c(unsigned int entity)
-{
-  return pimpl->m_name_c[entity];
-}
-
-SimpleFlyComponent&
-GameWorld::simple_fly_c(unsigned int entity)
-{
-  return pimpl->m_simple_fly_c[entity];
-}
-
-SkillComponent&
-GameWorld::skill_c(unsigned int entity)
-{
-  return pimpl->m_skill_c[entity];
-}
-
-DynamicColComponent&
-GameWorld::dyn_col_c(unsigned int entity)
-{
-  return pimpl->m_dyn_c[entity];
-}
-
-TagComponent&
-GameWorld::tag_c(unsigned int entity)
-{
-  return pimpl->m_tag_c[entity];
-}
-
-ColShapeComponent&
-GameWorld::cshape_c(unsigned int entity)
-{
-  return pimpl->m_cshape_c[entity];
-}
-
-LifeTimeComponent&
-GameWorld::lifetime_c(unsigned int entity)
-{
-  return pimpl->m_lifetime_c[entity];
-}
-
-HurtBoxComponent&
-GameWorld::hurtbox_c(unsigned int entity)
-{
-  return pimpl->m_hurtbox_c[entity];
-}
-
-StatusEffectComponent&
-GameWorld::statuseffect_c(unsigned int entity)
-{
-  return pimpl->m_statuseffect_c[entity];
-}
-
-AIComponent&
-GameWorld::ai_c(unsigned int entity)
-{
-  return pimpl->m_ai_c[entity];
-}
-
-PatrolComponent&
-GameWorld::patrol_c(unsigned int entity)
-{
-  return pimpl->m_patrol_c[entity];
 }

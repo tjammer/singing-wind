@@ -17,7 +17,7 @@ add_effect(GameWorld& world,
   if (!world.entities()[entity].test(CStatusEffect)) {
     return;
   }
-  auto& effects = world.statuseffect_c(entity).effects;
+  auto& effects = world.get<StatusEffectComponent>(entity).effects;
   auto it = std::find_if(
     effects.begin(), effects.end(), [&effect](std::shared_ptr<StatusEffect> e) {
       return e->name() == effect->name();

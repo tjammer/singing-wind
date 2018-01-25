@@ -55,7 +55,7 @@ entity_edit_dyn_cols(GameWorld& world, unsigned int entity)
 {
   using namespace ImGui;
   if (world.entities()[entity].test(CDynCol) && CollapsingHeader("DynCol")) {
-    auto& dc = world.dyn_col_c(entity);
+    auto& dc = world.get<DynamicColComponent>(entity);
     int response = static_cast<int>(dc.col_response_name);
     if (Combo("response",
               &response,
@@ -88,7 +88,7 @@ entity_edit_static_cols(GameWorld& world, unsigned int entity)
   using namespace ImGui;
   if (world.entities()[entity].test(CStaticCol) &&
       CollapsingHeader("static collision")) {
-    auto& sc = world.static_col_c(entity);
+    auto& sc = world.get<StaticColComponent>(entity);
     int response = static_cast<int>(sc.col_response_name);
     if (Combo(
           "response", &response, col_responses.data(), col_responses.size())) {

@@ -14,27 +14,7 @@
 #include "CPruneSweep.h"
 
 struct GLFWwindow;
-struct PosComponent;
-struct DebugComponent;
-struct InputComponent;
-struct MoveComponent;
-struct StaticColComponent;
-struct GroundMoveComponent;
-struct FallComponent;
-struct FlyComponent;
-struct PathingComponent;
-struct SimpleFlyComponent;
-struct SkillComponent;
-struct DynamicColComponent;
-struct ColShapeComponent;
-struct LifeTimeComponent;
-struct HurtBoxComponent;
-struct StatusEffectComponent;
-struct AIComponent;
-struct PatrolComponent;
-struct NameComponent;
 struct NavMesh;
-struct TagComponent;
 class Island;
 
 // physics constants
@@ -65,48 +45,6 @@ public:
   std::vector<bset>& entities();
   std::vector<bset> const& entities() const;
 
-  // components
-  PosComponent& pos_c(unsigned int entity);
-  PosComponent const& pos_c(unsigned int entity) const;
-  DebugComponent& debug_c(unsigned int entity);
-  DebugComponent const& debug_c(unsigned int entity) const;
-  InputComponent& input_c(unsigned int entity);
-  InputComponent const& input_c(unsigned int entity) const;
-  MoveComponent& move_c(unsigned int entity);
-  MoveComponent const& move_c(unsigned int entity) const;
-  StaticColComponent& static_col_c(unsigned int entity);
-  StaticColComponent const& static_col_c(unsigned int entity) const;
-  GroundMoveComponent& ground_move_c(unsigned int entity);
-  GroundMoveComponent const& ground_move_c(unsigned int entity) const;
-  FallComponent& fall_c(unsigned int entity);
-  FallComponent const& fall_c(unsigned int entity) const;
-  FlyComponent& fly_c(unsigned int entity);
-  FlyComponent const& fly_c(unsigned int entity) const;
-  PathingComponent& path_c(unsigned int entity);
-  PathingComponent const& path_c(unsigned int entity) const;
-  NameComponent& name_c(unsigned int entity);
-  NameComponent const& name_c(unsigned int entity) const;
-  SimpleFlyComponent& simple_fly_c(unsigned int entity);
-  SimpleFlyComponent const& simple_fly_c(unsigned int entity) const;
-  SkillComponent& skill_c(unsigned int entity);
-  SkillComponent const& skill_c(unsigned int entity) const;
-  DynamicColComponent& dyn_col_c(unsigned int entity);
-  DynamicColComponent const& dyn_col_c(unsigned int entity) const;
-  TagComponent& tag_c(unsigned int entity);
-  TagComponent const& tag_c(unsigned int entity) const;
-  ColShapeComponent& cshape_c(unsigned int entity);
-  ColShapeComponent const& cshape_c(unsigned int entity) const;
-  LifeTimeComponent& lifetime_c(unsigned int entity);
-  LifeTimeComponent const& lifetime_c(unsigned int entity) const;
-  HurtBoxComponent& hurtbox_c(unsigned int entity);
-  HurtBoxComponent const& hurtbox_c(unsigned int entity) const;
-  StatusEffectComponent& statuseffect_c(unsigned int entity);
-  StatusEffectComponent const& statuseffect_c(unsigned int entity) const;
-  AIComponent& ai_c(unsigned int entity);
-  AIComponent const& ai_c(unsigned int entity) const;
-  PatrolComponent& patrol_c(unsigned int entity);
-  PatrolComponent const& patrol_c(unsigned int entity) const;
-
   void reset_entities();
   void reset_islands();
 
@@ -122,6 +60,9 @@ public:
   void delete_entity_raw(unsigned int entity);
 
   // getters
+  template<typename C>
+  C& get(unsigned int entity);
+
   HashGrid<StaticTriangle>& grid();
   HashGrid<StaticTriangle> const& grid() const;
   PruneSweeper& prune_sweep();
@@ -131,18 +72,11 @@ public:
   std::vector<Island> const& islands() const;
 
 private:
-  friend class Entity;
   class impl;
   std::unique_ptr<impl> pimpl;
 
   void find_entities_fixed();
   void find_entities_draw();
-
-  template<typename C>
-  struct component_getter
-  {
-    C& get(unsigned int entity);
-  };
 };
 
 namespace for_gameworld {

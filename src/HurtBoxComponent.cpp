@@ -8,14 +8,14 @@
 void
 hurtbox::on_dynamic_collision(GameWorld& world, const unsigned int entity)
 {
-  auto& dc = world.dyn_col_c(entity);
-  auto& hb = world.hurtbox_c(entity);
+  auto& dc = world.get<DynamicColComponent>(entity);
+  auto& hb = world.get<HurtBoxComponent>(entity);
 
   if (std::find(hb.hit_entities.begin(), hb.hit_entities.end(), dc.collided) !=
       hb.hit_entities.end()) {
     return;
     // only on Actors
-  } else if (!world.tag_c(dc.collided)
+  } else if (!world.get<TagComponent>(dc.collided)
                 .tags.test(static_cast<int>(Tags::Actor))) {
     return;
   } else if (dc.collided == hb.owner) {

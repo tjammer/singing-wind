@@ -5,13 +5,13 @@
 void
 Hitstun::enter(GameWorld& world, unsigned int entity)
 {
-  world.move_c(entity).time_fac *= 0.1f;
+  world.get<MoveComponent>(entity).time_fac *= 0.1f;
 }
 
 void
 Hitstun::tick(GameWorld& world, unsigned int entity)
 {
-  world.move_c(entity).time_fac *= 0.1f;
+  world.get<MoveComponent>(entity).time_fac *= 0.1f;
 }
 
 void

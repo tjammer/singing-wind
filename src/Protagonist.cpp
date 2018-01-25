@@ -20,7 +20,7 @@ using namespace protagonist;
 void
 protagonist::handle_inputs(GameWorld& world, unsigned int entity)
 {
-  auto& ic = world.input_c(entity);
+  auto& ic = world.get<InputComponent>(entity);
 
   ic.jump.push(WInput::is_key_pressed(GLFW_KEY_SPACE));
   ic.direction.push(WInput::is_key_pressed(GLFW_KEY_D) -
@@ -139,10 +139,10 @@ FallingMove::enter(GameWorld& world, unsigned int entity)
 void
 FallingMove::accel(GameWorld& world, unsigned int entity)
 {
-  auto& ic = world.input_c(entity);
-  auto& mc = world.move_c(entity);
-  auto& fc = world.fall_c(entity);
-  auto& pc = world.pos_c(entity);
+  auto& ic = world.get<InputComponent>(entity);
+  auto& mc = world.get<MoveComponent>(entity);
+  auto& fc = world.get<FallComponent>(entity);
+  auto& pc = world.get<PosComponent>(entity);
 
   walk(ic, mc, fc);
 
@@ -159,8 +159,8 @@ FallingMove::name()
 bool
 FallingMove::transition(GameWorld& world, unsigned int entity)
 {
-  const auto& mc = world.move_c(entity);
-  auto& ic = world.input_c(entity);
+  const auto& mc = world.get<MoveComponent>(entity);
+  auto& ic = world.get<InputComponent>(entity);
 
   if (mc.movestate->name() == MoveStateName::OnGround and
       mc.timer > c_jump_tolerance) {
@@ -176,17 +176,17 @@ FallingMove::transition(GameWorld& world, unsigned int entity)
 void
 GroundMove::enter(GameWorld& world, unsigned int entity)
 {
-  auto& pc = world.pos_c(entity);
+  auto& pc = world.get<PosComponent>(entity);
   pc.rotation = 0;
 }
 
 void
 GroundMove::accel(GameWorld& world, unsigned int entity)
 {
-  auto& ic = world.input_c(entity);
-  auto& mc = world.move_c(entity);
-  auto& gc = world.ground_move_c(entity);
-  auto& pc = world.pos_c(entity);
+  auto& ic = world.get<InputComponent>(entity);
+  auto& mc = world.get<MoveComponent>(entity);
+  auto& gc = world.get<GroundMoveComponent>(entity);
+  auto& pc = world.get<PosComponent>(entity);
 
   walk(ic, mc, gc);
   pseudo_friction(mc, gc);
@@ -213,7 +213,7 @@ GroundMove::transition(GameWorld& world, unsigned int entity)
     return false;
   }
 
-  const auto& result = world.static_col_c(entity).col_result;
+  const auto& result = world.get<StaticColComponent>(entity).col_result;
   if (w_dot(WVec(0, 1), result.normal) > c_max_floor_angle) {
     return true;
   }
@@ -223,14 +223,14 @@ GroundMove::transition(GameWorld& world, unsigned int entity)
 void
 FlyingMove::enter(GameWorld& world, unsigned int entity)
 {
-  auto& ic = world.input_c(entity);
-  auto& mc = world.move_c(entity);
-  auto& pc = world.pos_c(entity);
+  auto& ic = world.get<InputComponent>(entity);
+  auto& mc = world.get<MoveComponent>(entity);
+  auto& pc = world.get<PosComponent>(entity);
 
   ic.wings.fill(true);
   // if coming from ground push
   if (mc.movestate->name() == MoveStateName::OnGround) {
-    mc.velocity.y = -world.fly_c(entity).c_push_vel;
+    mc.velocity.y = -world.get<FlyComponent>(entity).c_push_vel;
     pc.rotation = (float)M_PI / 4.f;
   }
 }
@@ -238,10 +238,10 @@ FlyingMove::enter(GameWorld& world, unsigned int entity)
 void
 FlyingMove::accel(GameWorld& world, unsigned int entity)
 {
-  auto& pc = world.pos_c(entity);
-  auto& ic = world.input_c(entity);
-  auto& mc = world.move_c(entity);
-  auto& fc = world.fly_c(entity);
+  auto& pc = world.get<PosComponent>(entity);
+  auto& ic = world.get<InputComponent>(entity);
+  auto& mc = world.get<MoveComponent>(entity);
+  auto& fc = world.get<FlyComponent>(entity);
 
   rotate_to(ic.mouse.get(), mc.c_max_change_angle, pc);
 
@@ -262,12 +262,12 @@ FlyingMove::transition(GameWorld& world, unsigned int entity)
   if (!world.entities()[entity].test(CFly)) {
     return false;
   }
-  const auto& ic = world.input_c(entity);
+  const auto& ic = world.get<InputComponent>(entity);
   if (ic.wings.just_added(true)) {
     return true;
   }
-  auto& mc = world.move_c(entity);
-  auto& fc = world.fly_c(entity);
+  auto& mc = world.get<MoveComponent>(entity);
+  auto& fc = world.get<FlyComponent>(entity);
   if (mc.movestate->name() == MoveStateName::FlyingAccel &&
       (!ic.wings.get() or mc.timer >= fc.c_accel_time)) {
     return true;
@@ -278,9 +278,9 @@ FlyingMove::transition(GameWorld& world, unsigned int entity)
 void
 FlyingAccelMove::enter(GameWorld& world, unsigned int entity)
 {
-  auto& mc = world.move_c(entity);
-  auto& pc = world.pos_c(entity);
-  auto& ic = world.input_c(entity);
+  auto& mc = world.get<MoveComponent>(entity);
+  auto& pc = world.get<PosComponent>(entity);
+  auto& ic = world.get<InputComponent>(entity);
 
   ic.wings.fill(true);
   // can get set after skill hit or so
@@ -291,7 +291,7 @@ FlyingAccelMove::enter(GameWorld& world, unsigned int entity)
     pc.rotation +=
       copysignf(fmin(mc.c_max_change_angle, abs(mouse_angle)), mouse_angle);
     pc.rotation = std::remainder(pc.rotation, (float)M_PI * 2.f);
-    mc.velocity = world.fly_c(entity).c_push_vel * 1.0f *
+    mc.velocity = world.get<FlyComponent>(entity).c_push_vel * 1.0f *
                   w_rotated(WVec(0, -1), pc.rotation);
     pc.rotation = w_angle_to_vec(WVec(0, -1), mc.velocity);
   }
@@ -301,10 +301,10 @@ FlyingAccelMove::enter(GameWorld& world, unsigned int entity)
 void
 FlyingAccelMove::accel(GameWorld& world, unsigned int entity)
 {
-  auto& pc = world.pos_c(entity);
-  auto& ic = world.input_c(entity);
-  auto& mc = world.move_c(entity);
-  auto& fc = world.fly_c(entity);
+  auto& pc = world.get<PosComponent>(entity);
+  auto& ic = world.get<InputComponent>(entity);
+  auto& mc = world.get<MoveComponent>(entity);
+  auto& fc = world.get<FlyComponent>(entity);
 
   BCurve curve = { fc.from, fc.ctrl_from, fc.ctrl_to, fc.to };
   float time_frac = curve.eval(mc.timer / fc.c_accel_time).y;
@@ -330,7 +330,7 @@ FlyingAccelMove::transition(GameWorld& world, unsigned int entity)
   if (!world.entities()[entity].test(CFly)) {
     return false;
   }
-  const auto& ic = world.input_c(entity);
+  const auto& ic = world.get<InputComponent>(entity);
   if (ic.wings.just_added(true)) {
     return true;
   }
@@ -341,7 +341,7 @@ std::unique_ptr<MoveState>
 ProtagonistMoveSet::transition(GameWorld& world, unsigned int entity)
 {
   using namespace std;
-  auto& mc = world.move_c(entity);
+  auto& mc = world.get<MoveComponent>(entity);
 
   if (mc.movestate == nullptr) {
     return from_undefined(world, entity);
@@ -398,7 +398,7 @@ ProtagonistMoveSet::transition(GameWorld& world, unsigned int entity)
 void
 ProtagonistMoveSet::init(GameWorld& world, unsigned int entity)
 {
-  auto& mc = world.move_c(entity);
+  auto& mc = world.get<MoveComponent>(entity);
   mc.movestate = from_undefined(world, entity);
   mc.special_movestate = nullptr;
 }

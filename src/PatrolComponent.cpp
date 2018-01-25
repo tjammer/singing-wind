@@ -23,37 +23,38 @@ spawn(GameWorld& world, unsigned int entity)
     comps.set(i);
   }
   world.entities()[alert] = comps;
-  world.name_c(alert).name = "alert bubble";
+  world.get<NameComponent>(alert).name = "alert bubble";
 
   // pos
-  auto& pc = world.pos_c(alert);
+  auto& pc = world.get<PosComponent>(alert);
   pc.parent = entity;
   pc.position = { 0, 0 };
   build_global_transform(world, alert);
 
   // col shape
-  auto& csc = world.cshape_c(alert);
+  auto& csc = world.get<ColShapeComponent>(alert);
   csc.shape = std::shared_ptr<ColShape>(new ColCircle(400));
 
   // tags
-  auto& tc = world.tag_c(alert);
+  auto& tc = world.get<TagComponent>(alert);
   tc.tags.set(static_cast<int>(Tags::AlertBubble));
 
   // dyn col
-  set_dynamic_col(world.dyn_col_c(alert), DynColResponse::AlertBubble);
+  set_dynamic_col(world.get<DynamicColComponent>(alert),
+                  DynColResponse::AlertBubble);
 }
 
 void
 on_dynamic_collision(GameWorld& world, unsigned int entity)
 {
   // test tag comp of collider
-  auto& dc = world.dyn_col_c(entity);
-  auto& tc = world.tag_c(dc.collided);
+  auto& dc = world.get<DynamicColComponent>(entity);
+  auto& tc = world.get<TagComponent>(dc.collided);
   if (!tc.tags.test(static_cast<int>(Tags::Protagonist))) {
     return;
   }
   // test if was updated -> still in idle
-  // auto &pc = world.pos_c(entity);
+  // auto &pc = world.get<PosComponent>(entity);
   // auto &parent_ac = world.ai_c(pc.parent);
   // TODO: rewrite this
   assert(false);
@@ -72,9 +73,9 @@ entity_edit(GameWorld& world, unsigned int entity)
 {
   using namespace ImGui;
   if (world.entities()[entity].test(CPatrol) and CollapsingHeader("patrol")) {
-    auto& pc = world.pos_c(entity);
+    auto& pc = world.get<PosComponent>(entity);
     // TODO: draw line to point
-    auto& patrol_c = world.patrol_c(entity);
+    auto& patrol_c = world.get<PatrolComponent>(entity);
     float pp[2] = { patrol_c.patrol_point.x, patrol_c.patrol_point.y };
     if (DragFloat2("patrol point", pp)) {
       patrol_c.patrol_point = { pp[0], pp[1] };

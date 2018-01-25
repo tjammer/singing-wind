@@ -11,7 +11,7 @@ namespace skill {
 bool
 can_cast(GameWorld& world, unsigned int entity, SkillID id)
 {
-  auto& sc = world.skill_c(entity);
+  auto& sc = world.get<SkillComponent>(entity);
   // check if entity is even ready
   if (sc.active != nullptr) {
     return false;
@@ -39,7 +39,7 @@ cast(GameWorld& world, unsigned int entity, SkillID id)
   if (!can_cast(world, entity, id)) {
     return false;
   }
-  auto& sc = world.skill_c(entity);
+  auto& sc = world.get<SkillComponent>(entity);
   auto skill_iterator = std::find_if(
     sc.skills.begin(),
     sc.skills.end(),
@@ -49,7 +49,7 @@ cast(GameWorld& world, unsigned int entity, SkillID id)
   auto& skill = *skill_iterator;
   sc.active = skill;
   skill->state = SkillState::Active;
-  auto& mc = world.move_c(entity);
+  auto& mc = world.get<MoveComponent>(entity);
   skill->set_special(mc);
   mc.special_movestate->enter(world, entity);
   skill->timer = skill->get_t_active();
@@ -70,7 +70,7 @@ entity_edit(GameWorld& world, unsigned int entity)
 {
   using namespace ImGui;
   if (world.entities()[entity].test(CSkill) and CollapsingHeader("skill")) {
-    auto& sc = world.skill_c(entity);
+    auto& sc = world.get<SkillComponent>(entity);
 
     skillset ss = 0;
     unsigned long skill_flag = 0;
@@ -120,7 +120,7 @@ get_new_skill(SkillID id)
 void
 reset(GameWorld& world, unsigned int entity)
 {
-  auto& sc = world.skill_c(entity);
+  auto& sc = world.get<SkillComponent>(entity);
   if (sc.active and sc.active->state != SkillState::Cooldown) {
     sc.active->state = SkillState::Cooldown;
     sc.active = nullptr;

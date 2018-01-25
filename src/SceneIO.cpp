@@ -22,7 +22,6 @@ std::unique_ptr<EntityFBS::EntityT>
 get_fb_entity(GameWorld& world, unsigned int entity)
 {
   using namespace std;
-  using namespace EntityFBS;
   unique_ptr<EntityFBS::EntityT> fbs_ent_ptr =
     unique_ptr<EntityFBS::EntityT>(new EntityFBS::EntityT);
   auto& fbs_ent = *fbs_ent_ptr;
@@ -33,11 +32,11 @@ get_fb_entity(GameWorld& world, unsigned int entity)
 
   // poc_c
   if (bset.test(CPosition)) {
-    const auto& pos_c = world.pos_c(entity);
-    fbs_ent.pos_c = unique_ptr<PosComponentT>(new PosComponentT());
+    const auto& pos_c = world.get<PosComponent>(entity);
+    fbs_ent.pos_c = make_unique<EntityFBS::PosComponentT>();
     fbs_ent.pos_c->rotation = pos_c.rotation;
     fbs_ent.pos_c->parent = pos_c.parent;
-    fbs_ent.pos_c->position = unique_ptr<Point>(new Point());
+    fbs_ent.pos_c->position = make_unique<EntityFBS::Point>();
     fbs_ent.pos_c->position->mutate_x(pos_c.position.x);
     fbs_ent.pos_c->position->mutate_y(pos_c.position.y);
     fbs_ent.pos_c->direction = pos_c.direction;
@@ -45,32 +44,32 @@ get_fb_entity(GameWorld& world, unsigned int entity)
 
   // input_c
   if (bset.test(CInput)) {
-    fbs_ent.input_c = static_cast<int>(world.input_c(entity).input_func);
+    fbs_ent.input_c =
+      static_cast<int>(world.get<InputComponent>(entity).input_func);
   }
 
   // move_c
   if (bset.test(CMove)) {
-    fbs_ent.move_c = unique_ptr<MoveComponentT>(new MoveComponentT);
-    fbs_ent.move_c->moveset =
-      static_cast<int>(world.move_c(entity).moveset->name());
-    fbs_ent.move_c->movestate =
-      static_cast<int>(world.move_c(entity).movestate->name());
-    fbs_ent.move_c->mass = world.move_c(entity).mass;
-    fbs_ent.move_c->max_change_angle = world.move_c(entity).c_max_change_angle;
+    fbs_ent.move_c = make_unique<EntityFBS::MoveComponentT>();
+    const auto& mc = world.get<MoveComponent>(entity);
+    fbs_ent.move_c->moveset = static_cast<int>(mc.moveset->name());
+    fbs_ent.move_c->movestate = static_cast<int>(mc.movestate->name());
+    fbs_ent.move_c->mass = mc.mass;
+    fbs_ent.move_c->max_change_angle = mc.c_max_change_angle;
   }
 
   // shape_c
   if (bset.test(CColShape)) {
-    auto& type = world.cshape_c(entity).shape->m_type;
-    fbs_ent.shape_c = unique_ptr<ShapeComponentT>(new ShapeComponentT);
+    const auto& sc = world.get<ColShapeComponent>(entity);
+    auto& type = sc.shape->m_type;
+    fbs_ent.shape_c = make_unique<EntityFBS::ShapeComponentT>();
 
     if (type == ColShapeName::ColCapsule) {
-      const auto& capsule =
-        dynamic_cast<ColCapsule*>(world.cshape_c(entity).shape.get());
+      const auto& capsule = dynamic_cast<ColCapsule*>(sc.shape.get());
       fbs_ent.shape_c->length = capsule->m_length;
       fbs_ent.shape_c->radius = capsule->get_capsule_radius();
     } else if (type == ColShapeName::ColCircle) {
-      fbs_ent.shape_c->radius = world.cshape_c(entity).shape->get_radius();
+      fbs_ent.shape_c->radius = sc.shape->get_radius();
     }
     fbs_ent.shape_c->shape = static_cast<int>(type);
   }
@@ -78,17 +77,16 @@ get_fb_entity(GameWorld& world, unsigned int entity)
   // static col
   if (bset.test(CStaticCol)) {
     fbs_ent.static_col_c =
-      static_cast<int>(world.static_col_c(entity).col_response_name);
+      static_cast<int>(world.get<StaticColComponent>(entity).col_response_name);
   }
 
   // name
-  fbs_ent.name = world.name_c(entity).name;
+  fbs_ent.name = world.get<NameComponent>(entity).name;
 
   // gound_move_c
   if (bset.test(CGroundMove)) {
-    const auto& gc = world.ground_move_c(entity);
-    fbs_ent.ground_move_c =
-      unique_ptr<GroundMoveComponentT>(new GroundMoveComponentT);
+    const auto& gc = world.get<GroundMoveComponent>(entity);
+    fbs_ent.ground_move_c = make_unique<EntityFBS::GroundMoveComponentT>();
     fbs_ent.ground_move_c->accel = gc.c_accel;
     fbs_ent.ground_move_c->turn_mod = gc.c_turn_mod;
     fbs_ent.ground_move_c->stop_friction = gc.c_stop_friction;
@@ -97,8 +95,8 @@ get_fb_entity(GameWorld& world, unsigned int entity)
 
   // fall_c
   if (bset.test(CFall)) {
-    const auto& fc = world.fall_c(entity);
-    fbs_ent.fall_c = unique_ptr<FallComponentT>(new FallComponentT);
+    const auto& fc = world.get<FallComponent>(entity);
+    fbs_ent.fall_c = make_unique<EntityFBS::FallComponentT>();
     fbs_ent.fall_c->accel = fc.c_accel;
     fbs_ent.fall_c->turn_mod = fc.c_turn_mod;
     fbs_ent.fall_c->jump_height = fc.c_jump_height;
@@ -107,8 +105,8 @@ get_fb_entity(GameWorld& world, unsigned int entity)
 
   // fly_c
   if (bset.test(CFly)) {
-    const auto& fc = world.fly_c(entity);
-    fbs_ent.fly_c = unique_ptr<FlyComponentT>(new FlyComponentT);
+    const auto& fc = world.get<FlyComponent>(entity);
+    fbs_ent.fly_c = make_unique<EntityFBS::FlyComponentT>();
     auto& fbs_fc = fbs_ent.fly_c;
     fbs_fc->lift = fc.c_lift;
     fbs_fc->stall_angle = fc.c_stall_angle;
@@ -117,10 +115,10 @@ get_fb_entity(GameWorld& world, unsigned int entity)
     fbs_fc->push_vel = fc.c_push_vel;
     fbs_fc->drag = fc.c_drag;
 
-    fbs_fc->to = unique_ptr<Point>(new Point);
-    fbs_fc->ctrl_to = unique_ptr<Point>(new Point);
-    fbs_fc->ctrl_from = unique_ptr<Point>(new Point);
-    fbs_fc->from = unique_ptr<Point>(new Point);
+    fbs_fc->to = make_unique<EntityFBS::Point>();
+    fbs_fc->ctrl_to = make_unique<EntityFBS::Point>();
+    fbs_fc->ctrl_from = make_unique<EntityFBS::Point>();
+    fbs_fc->from = make_unique<EntityFBS::Point>();
     fbs_fc->to->mutate_x(fc.to.x);
     fbs_fc->to->mutate_y(fc.to.y);
     fbs_fc->ctrl_to->mutate_x(fc.ctrl_to.x);
@@ -133,9 +131,8 @@ get_fb_entity(GameWorld& world, unsigned int entity)
 
   // simple fly
   if (bset.test(CSimpleFly)) {
-    const auto& fc = world.simple_fly_c(entity);
-    fbs_ent.simple_fly_c =
-      unique_ptr<SimpleFlyComponentT>(new SimpleFlyComponentT);
+    const auto& fc = world.get<SimpleFlyComponent>(entity);
+    fbs_ent.simple_fly_c = make_unique<EntityFBS::SimpleFlyComponentT>();
     auto& fbc_fc = fbs_ent.simple_fly_c;
 
     fbc_fc->max_vel = fc.c_max_vel;
@@ -146,13 +143,13 @@ get_fb_entity(GameWorld& world, unsigned int entity)
 
   // dyn_col_c
   if (bset.test(CDynCol)) {
-    fbs_ent.dyn_col_c =
-      static_cast<int>(world.dyn_col_c(entity).col_response_name);
+    fbs_ent.dyn_col_c = static_cast<int>(
+      world.get<DynamicColComponent>(entity).col_response_name);
   }
 
   // tag
   if (bset.test(CTag)) {
-    fbs_ent.tag_c = world.tag_c(entity).tags.to_ulong();
+    fbs_ent.tag_c = world.get<TagComponent>(entity).tags.to_ulong();
   }
 
   // skill_c
@@ -160,23 +157,26 @@ get_fb_entity(GameWorld& world, unsigned int entity)
     auto& skill_vec = fbs_ent.skill_c;
     skill_vec.clear();
 
-    for (const auto& skill : world.skill_c(entity).skills) {
+    for (const auto& skill : world.get<SkillComponent>(entity).skills) {
       skill_vec.push_back(static_cast<int>(skill->get_id()));
     }
   }
 
   // patrol_c
   if (bset.test(CPatrol)) {
-    fbs_ent.patrol_c = unique_ptr<PatrolComponentT>(new PatrolComponentT);
-    fbs_ent.patrol_c->pp = unique_ptr<Point>(new Point);
-    fbs_ent.patrol_c->pp->mutate_x(world.patrol_c(entity).patrol_point.x);
-    fbs_ent.patrol_c->pp->mutate_y(world.patrol_c(entity).patrol_point.y);
+    fbs_ent.patrol_c = make_unique<EntityFBS::PatrolComponentT>();
+    fbs_ent.patrol_c->pp = make_unique<EntityFBS::Point>();
+    fbs_ent.patrol_c->pp->mutate_x(
+      world.get<PatrolComponent>(entity).patrol_point.x);
+    fbs_ent.patrol_c->pp->mutate_y(
+      world.get<PatrolComponent>(entity).patrol_point.y);
   }
 
   // ai_c
   if (bset.test(CAI)) {
-    fbs_ent.ai_c = unique_ptr<AIComponentT>(new AIComponentT);
-    fbs_ent.ai_c->type = static_cast<int>(world.ai_c(entity).btree.type());
+    fbs_ent.ai_c = make_unique<EntityFBS::AIComponentT>();
+    fbs_ent.ai_c->type =
+      static_cast<int>(world.get<AIComponent>(entity).btree.type());
   }
 
   return fbs_ent_ptr;
@@ -191,7 +191,7 @@ save_entity_standalone(GameWorld& world, unsigned int entity)
   flatbuffers::FlatBufferBuilder fbb;
   fbb.Finish(EntityFBS::Entity::Pack(fbb, &*fbs_ent));
 
-  string entity_name = world.name_c(entity).name;
+  string entity_name = world.get<NameComponent>(entity).name;
   string filename = "scenes/" + entity_name + ".went";
   ofstream entity_file(filename, ios_base::binary);
   entity_file.write(reinterpret_cast<char*>(fbb.GetBufferPointer()),
@@ -206,7 +206,6 @@ void
 save_entity_scene(GameWorld& world, unsigned int entity)
 {
   using namespace std;
-  using namespace EntityFBS;
   unique_ptr<EntityFBS::EntityT> fbs_ent_ptr =
     unique_ptr<EntityFBS::EntityT>(new EntityFBS::EntityT);
   auto& fbs_ent = *fbs_ent_ptr;
@@ -217,16 +216,16 @@ save_entity_scene(GameWorld& world, unsigned int entity)
 
   // poc_c
   if (bset.test(CPosition)) {
-    const auto& pos_c = world.pos_c(entity);
-    fbs_ent.pos_c = unique_ptr<PosComponentT>(new PosComponentT());
+    const auto& pos_c = world.get<PosComponent>(entity);
+    fbs_ent.pos_c = make_unique<EntityFBS::PosComponentT>();
     fbs_ent.pos_c->rotation = pos_c.rotation;
     fbs_ent.pos_c->parent = pos_c.parent;
-    fbs_ent.pos_c->position = unique_ptr<Point>(new Point());
+    fbs_ent.pos_c->position = make_unique<EntityFBS::Point>();
     fbs_ent.pos_c->position->mutate_x(pos_c.position.x);
     fbs_ent.pos_c->position->mutate_y(pos_c.position.y);
     fbs_ent.pos_c->direction = pos_c.direction;
   }
-  fbs_ent.name = world.name_c(entity).name;
+  fbs_ent.name = world.get<NameComponent>(entity).name;
 }
 
 void
@@ -242,7 +241,7 @@ entity_to_world(const EntityFBS::EntityT& fb_ent,
   // pos_c
   if (bs.test(CPosition)) {
     auto& pos_c = fb_ent.pos_c;
-    auto& pc = world.pos_c(entity);
+    auto& pc = world.get<PosComponent>(entity);
 
     pc.position = WVec(pos_c->position->x(), pos_c->position->y());
     pc.rotation = pos_c->rotation;
@@ -254,7 +253,7 @@ entity_to_world(const EntityFBS::EntityT& fb_ent,
   // move_c
   if (bs.test(CMove)) {
     auto& move_c = fb_ent.move_c;
-    auto& mc = world.move_c(entity);
+    auto& mc = world.get<MoveComponent>(entity);
 
     movement::init_moveset(
       world, entity, static_cast<MoveSetName>(move_c->moveset));
@@ -264,13 +263,14 @@ entity_to_world(const EntityFBS::EntityT& fb_ent,
 
   // input_c
   if (bs.test(CInput)) {
-    world.input_c(entity).input_func = static_cast<InputFunc>(fb_ent.input_c);
+    world.get<InputComponent>(entity).input_func =
+      static_cast<InputFunc>(fb_ent.input_c);
   }
 
   // shape_c
   if (bs.test(CColShape)) {
     auto& shape_c = fb_ent.shape_c;
-    auto& sc = world.cshape_c(entity);
+    auto& sc = world.get<ColShapeComponent>(entity);
     auto type = static_cast<ColShapeName>(shape_c->shape);
 
     if (type == ColShapeName::ColCapsule) {
@@ -284,17 +284,17 @@ entity_to_world(const EntityFBS::EntityT& fb_ent,
 
   // static col
   if (bs.test(CStaticCol)) {
-    auto& sc = world.static_col_c(entity);
+    auto& sc = world.get<StaticColComponent>(entity);
     set_static_col(sc, static_cast<StaticColResponse>(fb_ent.static_col_c));
   }
 
   // name
-  world.name_c(entity).name = fb_ent.name;
+  world.get<NameComponent>(entity).name = fb_ent.name;
 
   // ground move
   if (bs.test(CGroundMove)) {
     auto& ground_c = fb_ent.ground_move_c;
-    auto& gc = world.ground_move_c(entity);
+    auto& gc = world.get<GroundMoveComponent>(entity);
 
     gc.c_accel = ground_c->accel;
     gc.c_stop_friction = ground_c->stop_friction;
@@ -305,7 +305,7 @@ entity_to_world(const EntityFBS::EntityT& fb_ent,
   // fall_c
   if (bs.test(CFall)) {
     auto& fall_c = fb_ent.fall_c;
-    auto& fc = world.fall_c(entity);
+    auto& fc = world.get<FallComponent>(entity);
 
     fc.c_accel = fall_c->accel;
     fc.c_turn_mod = fall_c->turn_mod;
@@ -316,7 +316,7 @@ entity_to_world(const EntityFBS::EntityT& fb_ent,
   // fly_c
   if (bs.test(CFly)) {
     auto& fly_c = fb_ent.fly_c;
-    auto& fc = world.fly_c(entity);
+    auto& fc = world.get<FlyComponent>(entity);
 
     fc.c_lift = fly_c->lift;
     fc.c_stall_angle = fly_c->stall_angle;
@@ -334,7 +334,7 @@ entity_to_world(const EntityFBS::EntityT& fb_ent,
   // simple gly
   if (bs.test(CSimpleFly)) {
     auto& fly_c = fb_ent.simple_fly_c;
-    auto& fc = world.simple_fly_c(entity);
+    auto& fc = world.get<SimpleFlyComponent>(entity);
 
     fc.c_max_vel = fly_c->max_vel;
     fc.c_accel = fly_c->accel;
@@ -344,18 +344,18 @@ entity_to_world(const EntityFBS::EntityT& fb_ent,
 
   // dyn col
   if (bs.test(CDynCol)) {
-    auto& dc = world.dyn_col_c(entity);
+    auto& dc = world.get<DynamicColComponent>(entity);
     set_dynamic_col(dc, static_cast<DynColResponse>(fb_ent.dyn_col_c));
   }
 
   // tag_c
   if (bs.test(CTag)) {
-    world.tag_c(entity).tags = bset(fb_ent.tag_c);
+    world.get<TagComponent>(entity).tags = bset(fb_ent.tag_c);
   }
 
   // skill_c
   if (bs.test(CSkill)) {
-    auto& sc = world.skill_c(entity);
+    auto& sc = world.get<SkillComponent>(entity);
     sc.active = nullptr;
     sc.skills.clear();
     for (auto id : fb_ent.skill_c) {
@@ -365,7 +365,7 @@ entity_to_world(const EntityFBS::EntityT& fb_ent,
 
   // patrol_c
   if (bs.test(CPatrol)) {
-    world.patrol_c(entity).patrol_point =
+    world.get<PatrolComponent>(entity).patrol_point =
       WVec(fb_ent.patrol_c->pp->x(), fb_ent.patrol_c->pp->y());
   }
 
@@ -423,7 +423,7 @@ scene_entity_to_world_fbs(const EntityFBS::EntityT& fb_ent,
       load_entity_from_filename(filename, world, entity)) {
     if (world.entities()[entity].test(CPosition)) {
       auto& pos_c = fb_ent.pos_c;
-      auto& pc = world.pos_c(entity);
+      auto& pc = world.get<PosComponent>(entity);
       pc.rotation = pos_c->rotation;
       pc.position = WVec(pos_c->position->x(), pos_c->position->y());
       pc.parent = pos_c->parent;
@@ -431,7 +431,7 @@ scene_entity_to_world_fbs(const EntityFBS::EntityT& fb_ent,
       build_global_transform(world, entity);
     }
     if (world.entities()[entity].test(CPatrol)) {
-      world.patrol_c(entity).patrol_point =
+      world.get<PatrolComponent>(entity).patrol_point =
         WVec(fb_ent.patrol_c->pp->x(), fb_ent.patrol_c->pp->y());
     }
   } else if (fb_ent.name == "root") {
@@ -513,7 +513,7 @@ save_scene_to_fb(const std::string& name, GameWorld& world, float zoom)
   scene.zoom = zoom;
 
   for (unsigned int entity = 0; entity < entities.size(); ++entity) {
-    if (world.pos_c(entity).parent == 0 && entities[entity].any()) {
+    if (world.get<PosComponent>(entity).parent == 0 && entities[entity].any()) {
       scene.entities.push_back(get_fb_entity(world, entity));
     }
   }

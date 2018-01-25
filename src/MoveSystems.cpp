@@ -16,7 +16,7 @@ void
 movement::interrupt(GameWorld& world, unsigned int entity)
 {
   // TODO: reset skill, reset movement
-  auto& mc = world.move_c(entity);
+  auto& mc = world.get<MoveComponent>(entity);
   mc.timer = 0;
   mc.moveset->init(world, entity);
   assert(mc.special_movestate == nullptr);
@@ -28,7 +28,7 @@ movement::init_moveset(GameWorld& world,
                        unsigned int entity,
                        MoveSetName moveset_name)
 {
-  auto& mc = world.move_c(entity);
+  auto& mc = world.get<MoveComponent>(entity);
   switch (moveset_name) {
     case MoveSetName::Protagonist: {
       mc.moveset = std::make_unique<ProtagonistMoveSet>();
@@ -69,7 +69,7 @@ movement::entity_edit(GameWorld& world, unsigned int entity)
 {
   using namespace ImGui;
   if (world.entities()[entity].test(CMove) && CollapsingHeader("movement")) {
-    auto& mc = world.move_c(entity);
+    auto& mc = world.get<MoveComponent>(entity);
     float data[2] = { mc.velocity.x, mc.velocity.y };
     if (DragFloat2("velocity", data)) {
       mc.velocity = { data[0], data[1] };

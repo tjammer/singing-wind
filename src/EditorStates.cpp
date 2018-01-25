@@ -470,8 +470,9 @@ EditorIdle::confirm(GameWorld& world)
   for (unsigned int i = 0; i < world.entities().size(); ++i) {
     bset pos_set{ (1 << CPosition) | (1 << CDebugDraw) };
     if (for_gameworld::has_component(world.entities()[i], pos_set)) {
-      float dist_to_point = w_magnitude(
-        m_mpos - WVec(world.pos_c(i).global_transform * WVec3(0, 0, 1)));
+      float dist_to_point =
+        w_magnitude(m_mpos - WVec(world.get<PosComponent>(i).global_transform *
+                                  WVec3(0, 0, 1)));
       if (dist_to_point < dist) {
         dist = dist_to_point;
         index = i;

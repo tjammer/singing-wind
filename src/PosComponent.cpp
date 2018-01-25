@@ -8,10 +8,10 @@ void
 build_global_transform(GameWorld& world, unsigned int entity)
 {
   using namespace glm;
-  auto& pc = world.pos_c(entity);
+  auto& pc = world.get<PosComponent>(entity);
   assert(abs(pc.direction) == 1);
   pc.global_transform =
-    world.pos_c(pc.parent).global_transform *
+    world.get<PosComponent>(pc.parent).global_transform *
     rotate(scale(translate(WTransform(), pc.position), WVec(pc.direction, 1)),
            pc.rotation);
   pc.global_position = WVec(pc.global_transform * WVec3(0.f, 0.f, 1.f));

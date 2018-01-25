@@ -159,7 +159,7 @@ entity_edit_pathfind(GameWorld& world, unsigned int entity)
 {
   using namespace ImGui;
   if (world.entities()[entity].test(CPathing) and CollapsingHeader("pathing")) {
-    auto& pc = world.path_c(entity);
+    auto& pc = world.get<PathingComponent>(entity);
 
     if (DragFloat("max mh dist", &pc.c_max_mh_dist)) {
     }

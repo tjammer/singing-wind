@@ -14,7 +14,7 @@ void
 Camera::update(GameWorld& game_world)
 {
   if (game_world.entities().size() > m_entity_to_follow - 1) {
-    m_center = game_world.pos_c(m_entity_to_follow).global_position;
+    m_center = game_world.get<PosComponent>(m_entity_to_follow).global_position;
   }
   update();
 }

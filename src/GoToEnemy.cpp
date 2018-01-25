@@ -20,14 +20,14 @@ GoToEnemy::GoToEnemy(GameWorld& world, unsigned int entity)
 void
 GoToEnemy::enter()
 {
-  auto& pc = m_world.path_c(m_entity);
+  auto& pc = m_world.get<PathingComponent>(m_entity);
   assert(pc.following > 0);
   assert(m_world.entities()[m_entity].test(CPathing));
-  const auto& pos = m_world.pos_c(m_entity).global_position;
-  const auto& to = m_world.pos_c(pc.following).global_position;
+  const auto& pos = m_world.get<PosComponent>(m_entity).global_position;
+  const auto& to = m_world.get<PosComponent>(pc.following).global_position;
   m_status = get_path(pos, to, m_world, pc);
-  m_radius = m_world.cshape_c(m_entity).shape->get_radius();
-  m_world.simple_fly_c(m_entity).c_arrive_radius = m_radius;
+  m_radius = m_world.get<ColShapeComponent>(m_entity).shape->get_radius();
+  m_world.get<SimpleFlyComponent>(m_entity).c_arrive_radius = m_radius;
 }
 
 behaviour_tree::Status
@@ -36,8 +36,8 @@ GoToEnemy::update()
   if (m_status == PathfindingStatus::Failure) {
     return behaviour_tree::Status::Failure;
   }
-  const auto& pos = m_world.pos_c(m_entity).global_position;
-  auto& pc = m_world.path_c(m_entity);
+  const auto& pos = m_world.get<PosComponent>(m_entity).global_position;
+  auto& pc = m_world.get<PathingComponent>(m_entity);
 
   if (!can_follow_path_until_zero(pos, pc, m_world)) {
     enter();
@@ -47,8 +47,10 @@ GoToEnemy::update()
   }
 
   if (pc.index == 0) { // directly following
-    const auto& follow = m_world.pos_c(pc.following).global_position;
-    float follow_radius = m_world.cshape_c(pc.following).shape->get_radius();
+    const auto& follow =
+      m_world.get<PosComponent>(pc.following).global_position;
+    float follow_radius =
+      m_world.get<ColShapeComponent>(pc.following).shape->get_radius();
     auto result = cast_ray_vs_static_grid(m_world.grid(), pos, follow);
     if (!result.hits) {
       pc.path[pc.index] = follow;
@@ -60,8 +62,8 @@ GoToEnemy::update()
       return behaviour_tree::Status::Success;
     }
   }
-  m_world.input_c(m_entity).jump.push(true); // for seeking
-  m_world.input_c(m_entity).mouse.push(pc.path[pc.index]);
+  m_world.get<InputComponent>(m_entity).jump.push(true); // for seeking
+  m_world.get<InputComponent>(m_entity).mouse.push(pc.path[pc.index]);
 
   // flock
   auto colliders =
@@ -74,7 +76,8 @@ GoToEnemy::update()
     if (col.entity == m_entity) {
       continue;
     }
-    if (m_world.tag_c(col.entity).tags.test(static_cast<int>(Tags::Enemy))) {
+    if (m_world.get<TagComponent>(col.entity)
+          .tags.test(static_cast<int>(Tags::Enemy))) {
       auto center = (col.maxs + col.mins) / 2.0f;
       float radius = w_magnitude(center - col.mins);
       pc.flock.push_back(pos + nearest_dist_with_radii(pos, 0, center, radius));
@@ -89,5 +92,5 @@ GoToEnemy::update()
 
 void GoToEnemy::leave(behaviour_tree::Status)
 {
-  m_world.input_c(m_entity).jump.push(false);
+  m_world.get<InputComponent>(m_entity).jump.push(false);
 }

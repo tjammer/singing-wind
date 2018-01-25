@@ -25,9 +25,9 @@ lounge_skill_hurtfunc(GameWorld& world,
 {
   // knockback
   movement::interrupt(world, victim);
-  auto dir = w_normalize(world.pos_c(victim).global_position -
-                         world.pos_c(attacker).global_position);
-  world.move_c(victim).velocity = dir * 1000.f;
+  auto dir = w_normalize(world.get<PosComponent>(victim).global_position -
+                         world.get<PosComponent>(attacker).global_position);
+  world.get<MoveComponent>(victim).velocity = dir * 1000.f;
   statuseffects::add_effect(world, victim, std::make_shared<Knockback>(.4f));
   statuseffects::add_effect(world, victim, std::make_shared<Hitstun>(0.1f));
   // TODO: damage
@@ -56,32 +56,33 @@ LoungeAttackMove::enter(GameWorld& world, unsigned int entity)
   }
 
   world.entities()[hurtbox] = comps;
-  world.name_c(hurtbox).name = "lounge_skill_hurtbox";
+  world.get<NameComponent>(hurtbox).name = "lounge_skill_hurtbox";
 
   // pos
-  float radius = world.cshape_c(entity).shape->get_radius();
-  auto& pc = world.pos_c(hurtbox);
+  float radius = world.get<ColShapeComponent>(entity).shape->get_radius();
+  auto& pc = world.get<PosComponent>(hurtbox);
   pc.parent = entity;
   pc.position = WVec(0, -radius * 0.3f);
   pc.rotation = 0;
   build_global_transform(world, hurtbox);
   // col shape
-  auto& csc = world.cshape_c(hurtbox);
+  auto& csc = world.get<ColShapeComponent>(hurtbox);
   csc.shape = std::make_shared<ColCapsule>(radius * 1.2f, radius * 0.7f);
 
   // tags
-  auto& tc = world.tag_c(hurtbox);
+  auto& tc = world.get<TagComponent>(hurtbox);
   tc.tags.set(static_cast<int>(Tags::Hurtbox));
 
   // dyn col
-  set_dynamic_col(world.dyn_col_c(hurtbox), DynColResponse::HurtBox);
+  set_dynamic_col(world.get<DynamicColComponent>(hurtbox),
+                  DynColResponse::HurtBox);
 
   // lifetime
-  auto& lc = world.lifetime_c(hurtbox);
+  auto& lc = world.get<LifeTimeComponent>(hurtbox);
   lc.timer = TimedMoveState::timer;
 
   // hurtbox
-  auto& hb = world.hurtbox_c(hurtbox);
+  auto& hb = world.get<HurtBoxComponent>(hurtbox);
   hb =
     HurtBoxComponent{ entity, {}, lounge_skill_hurtfunc, lounge_skill_on_hit };
 }
@@ -89,9 +90,9 @@ LoungeAttackMove::enter(GameWorld& world, unsigned int entity)
 void
 LoungeCastMove::accel(GameWorld& world, unsigned int entity)
 {
-  auto& pc = world.pos_c(entity);
-  auto& ic = world.input_c(entity);
-  auto& mc = world.move_c(entity);
+  auto& pc = world.get<PosComponent>(entity);
+  auto& ic = world.get<InputComponent>(entity);
+  auto& mc = world.get<MoveComponent>(entity);
 
   rotate_to(ic.mouse.get(), mc.c_max_change_angle * 1.5f, pc);
 
@@ -104,9 +105,9 @@ LoungeCastMove::accel(GameWorld& world, unsigned int entity)
 void
 LoungeAttackMove::accel(GameWorld& world, unsigned int entity)
 {
-  auto& pc = world.pos_c(entity);
-  auto& mc = world.move_c(entity);
-  auto& ic = world.input_c(entity);
+  auto& pc = world.get<PosComponent>(entity);
+  auto& mc = world.get<MoveComponent>(entity);
+  auto& ic = world.get<InputComponent>(entity);
 
   float lounge_speed = 1200;
   float lounge_accel = 3500;

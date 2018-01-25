@@ -32,8 +32,8 @@ debug_draw_update(GameWorld& world, const std::vector<unsigned int>& entities)
   }
 
   for (const auto entity : entities) {
-    auto& shape = world.cshape_c(entity).shape;
-    const auto& transform = world.pos_c(entity).global_transform;
+    auto& shape = world.get<ColShapeComponent>(entity).shape;
+    const auto& transform = world.get<PosComponent>(entity).global_transform;
     shape->add_gfx_lines(transform);
   }
 }
@@ -44,12 +44,12 @@ static_col_update(GameWorld& world, const std::vector<unsigned int>& entities)
 
   for (const auto entity : entities) {
     // position
-    auto& transform = world.pos_c(entity).global_transform;
-    auto& pos = world.pos_c(entity).position;
+    auto& transform = world.get<PosComponent>(entity).global_transform;
+    auto& pos = world.get<PosComponent>(entity).position;
 
     // collision
-    auto& result = world.static_col_c(entity).col_result;
-    auto& shape = world.cshape_c(entity).shape;
+    auto& result = world.get<StaticColComponent>(entity).col_result;
+    auto& shape = world.get<ColShapeComponent>(entity).shape;
 
     // circle to world
     shape->transform(transform);
@@ -108,7 +108,7 @@ static_col_update(GameWorld& world, const std::vector<unsigned int>& entities)
       }
 
       // call back
-      world.static_col_c(entity).col_response(world, entity);
+      world.get<StaticColComponent>(entity).col_response(world, entity);
     }
   }
 }
@@ -117,7 +117,7 @@ void
 input_update(GameWorld& world, const std::vector<unsigned int>& entities)
 {
   for (const auto entity : entities) {
-    auto& ic = world.input_c(entity);
+    auto& ic = world.get<InputComponent>(entity);
     switch (ic.input_func) {
       case InputFunc::Protagonist: {
         protagonist::handle_inputs(world, entity);
@@ -140,50 +140,54 @@ move_update(GameWorld& world, float timedelta)
   for (unsigned int entity = 0; entity < world.entities().size(); ++entity) {
 
     if (world.entities()[entity].test(CMove)) {
-      assert(world.move_c(entity).moveset ||
-             world.move_c(entity).special_movestate);
+      assert(world.get<MoveComponent>(entity).moveset ||
+             world.get<MoveComponent>(entity).special_movestate);
 
-      auto old_accel = world.move_c(entity).accel;
-      auto dt = timedelta * world.move_c(entity).time_fac;
+      auto old_accel = world.get<MoveComponent>(entity).accel;
+      auto dt = timedelta * world.get<MoveComponent>(entity).time_fac;
 
-      world.move_c(entity).accel = WVec(0, c_gravity);
-      world.move_c(entity).accel +=
-        world.move_c(entity).additional_force / world.move_c(entity).mass;
+      world.get<MoveComponent>(entity).accel = WVec(0, c_gravity);
+      world.get<MoveComponent>(entity).accel +=
+        world.get<MoveComponent>(entity).additional_force /
+        world.get<MoveComponent>(entity).mass;
 
-      world.move_c(entity).velocity += old_accel * dt;
+      world.get<MoveComponent>(entity).velocity += old_accel * dt;
 
       // if char is in special state, the correct func needs to be found
-      if (world.move_c(entity).special_movestate) {
-        world.move_c(entity).special_movestate->accel(world, entity);
-        world.move_c(entity).special_movestate->timer -= dt;
-        if (world.move_c(entity).special_movestate->timer <= 0) {
-          world.move_c(entity).special_movestate->leave(world, entity);
-          world.move_c(entity).special_movestate =
-            world.move_c(entity).special_movestate->next();
-          if (world.move_c(entity).special_movestate) {
-            world.move_c(entity).special_movestate->enter(world, entity);
+      if (world.get<MoveComponent>(entity).special_movestate) {
+        world.get<MoveComponent>(entity).special_movestate->accel(world,
+                                                                  entity);
+        world.get<MoveComponent>(entity).special_movestate->timer -= dt;
+        if (world.get<MoveComponent>(entity).special_movestate->timer <= 0) {
+          world.get<MoveComponent>(entity).special_movestate->leave(world,
+                                                                    entity);
+          world.get<MoveComponent>(entity).special_movestate =
+            world.get<MoveComponent>(entity).special_movestate->next();
+          if (world.get<MoveComponent>(entity).special_movestate) {
+            world.get<MoveComponent>(entity).special_movestate->enter(world,
+                                                                      entity);
           }
         }
       } else {
         // check transistions
         auto transition =
-          world.move_c(entity).moveset->transition(world, entity);
+          world.get<MoveComponent>(entity).moveset->transition(world, entity);
         if (transition) {
           transition->enter(world, entity);
-          world.move_c(entity).movestate = std::move(transition);
+          world.get<MoveComponent>(entity).movestate = std::move(transition);
         }
-        world.move_c(entity).movestate->accel(world, entity);
+        world.get<MoveComponent>(entity).movestate->accel(world, entity);
       }
 
-      world.move_c(entity).velocity +=
-        dt * (world.move_c(entity).accel - old_accel) / 2.0f;
-      auto motion = dt * (world.move_c(entity).velocity +
-                          world.move_c(entity).accel * dt / 2.0f);
-      world.pos_c(entity).position += motion;
-      world.move_c(entity).additional_force = { 0, 0 };
-      world.move_c(entity).time_fac = 1;
+      world.get<MoveComponent>(entity).velocity +=
+        dt * (world.get<MoveComponent>(entity).accel - old_accel) / 2.0f;
+      auto motion = dt * (world.get<MoveComponent>(entity).velocity +
+                          world.get<MoveComponent>(entity).accel * dt / 2.0f);
+      world.get<PosComponent>(entity).position += motion;
+      world.get<MoveComponent>(entity).additional_force = { 0, 0 };
+      world.get<MoveComponent>(entity).time_fac = 1;
 
-      world.move_c(entity).timer += dt;
+      world.get<MoveComponent>(entity).timer += dt;
     }
 
     build_global_transform(world, entity);
@@ -196,8 +200,8 @@ skill_update(GameWorld& world,
              const std::vector<unsigned int>& entities)
 {
   for (const auto entity : entities) {
-    auto& sc = world.skill_c(entity);
-    auto& ic = world.input_c(entity);
+    auto& sc = world.get<SkillComponent>(entity);
+    auto& ic = world.get<InputComponent>(entity);
 
     // handle skill input
     if (ic.attacks[0].just_added(true)) {
@@ -234,9 +238,9 @@ dyn_col_update(GameWorld& world, std::vector<unsigned int>& entities)
 
   for (auto& box : boxes) {
     // has dyn_col_comp
-    auto& shape = world.cshape_c(box.entity).shape;
+    auto& shape = world.get<ColShapeComponent>(box.entity).shape;
     checked.insert(box.entity);
-    shape->transform(world.pos_c(box.entity).global_transform);
+    shape->transform(world.get<PosComponent>(box.entity).global_transform);
     box.mins = shape->m_center - shape->get_radius();
     box.maxs = shape->m_center + shape->get_radius();
     shape->reset();
@@ -244,8 +248,8 @@ dyn_col_update(GameWorld& world, std::vector<unsigned int>& entities)
 
   for (const auto& entity : entities) {
     if (checked.count(entity) == 0) {
-      auto& shape = world.cshape_c(entity).shape;
-      const auto& pos = world.pos_c(entity).position;
+      auto& shape = world.get<ColShapeComponent>(entity).shape;
+      const auto& pos = world.get<PosComponent>(entity).position;
       boxes.emplace_back(
         PSBox{ pos - shape->get_radius(), pos + shape->get_radius(), entity });
     } else {
@@ -267,31 +271,31 @@ dyn_col_update(GameWorld& world, std::vector<unsigned int>& entities)
     unsigned int a = pair.first;
     unsigned int b = pair.second;
 
-    auto& pos_a = world.pos_c(a);
-    auto& pos_b = world.pos_c(b);
+    auto& pos_a = world.get<PosComponent>(a);
+    auto& pos_b = world.get<PosComponent>(b);
 
     // for hurtboxes or alert circles
     if ((pos_a.parent == b || pos_b.parent == a)) {
       continue;
     }
 
-    auto& shape_a = world.cshape_c(a).shape;
-    auto& shape_b = world.cshape_c(b).shape;
+    auto& shape_a = world.get<ColShapeComponent>(a).shape;
+    auto& shape_b = world.get<ColShapeComponent>(b).shape;
 
-    shape_a->transform(world.pos_c(a).global_transform);
-    shape_b->transform(world.pos_c(b).global_transform);
+    shape_a->transform(world.get<PosComponent>(a).global_transform);
+    shape_b->transform(world.get<PosComponent>(b).global_transform);
     auto result = shape_a->collides(*shape_b);
     shape_a->reset();
     shape_b->reset();
 
     if (result.collides) {
-      auto& dc = world.dyn_col_c(a);
+      auto& dc = world.get<DynamicColComponent>(a);
       dc.col_result = result;
       dc.collided = b;
       if (dc.col_response) {
         dc.col_response(world, a);
       }
-      auto& dcb = world.dyn_col_c(b);
+      auto& dcb = world.get<DynamicColComponent>(b);
       dcb.col_result = result;
       dcb.col_result.normal *= -1.f;
       dcb.collided = a;
@@ -308,7 +312,7 @@ lifetime_update(GameWorld& world,
                 const std::vector<unsigned int>& entities)
 {
   for (const auto& entity : entities) {
-    auto& lc = world.lifetime_c(entity);
+    auto& lc = world.get<LifeTimeComponent>(entity);
     lc.timer -= dt;
     if (lc.timer <= 0) {
       if (lc.delete_func) {
@@ -325,12 +329,13 @@ statuseffect_update(GameWorld& world,
                     const std::vector<unsigned int>& entities)
 {
   for (const auto& entity : entities) {
-    for (auto& effect : world.statuseffect_c(entity).effects) {
+    for (auto& effect : world.get<StatusEffectComponent>(entity).effects) {
       effect->timer -= dt;
 
       if (effect->timer <= 0) {
         effect->leave(world, entity);
-        statuseffects::delete_effect(world.statuseffect_c(entity), effect);
+        statuseffects::delete_effect(world.get<StatusEffectComponent>(entity),
+                                     effect);
       } else {
         effect->tick(world, entity);
       }
@@ -342,7 +347,7 @@ void
 ai_update(GameWorld& world, float dt, const std::vector<unsigned int>& entities)
 {
   for (const auto& entity : entities) {
-    auto& ac = world.ai_c(entity);
+    auto& ac = world.get<AIComponent>(entity);
     ac.btree.tick();
   }
 }

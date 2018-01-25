@@ -23,9 +23,9 @@ melee_skill_hurtfunc(GameWorld& world,
                      unsigned int)
 {
   // knockback
-  auto dir = w_normalize(world.pos_c(victim).global_position -
-                         world.pos_c(attacker).global_position);
-  world.move_c(victim).velocity = dir * 400.f;
+  auto dir = w_normalize(world.get<PosComponent>(victim).global_position -
+                         world.get<PosComponent>(attacker).global_position);
+  world.get<MoveComponent>(victim).velocity = dir * 400.f;
   statuseffects::add_effect(world, victim, std::make_shared<Knockback>(0.6f));
   statuseffects::add_effect(world, victim, std::make_shared<Hitstun>(0.1f));
   // TODO: damage
@@ -38,21 +38,21 @@ melee_skill_on_hit(GameWorld& world,
                    unsigned int victim,
                    unsigned int)
 {
-  auto dir = w_normalize(world.pos_c(attacker).global_position -
-                         world.pos_c(victim).global_position);
-  world.move_c(attacker).velocity = dir * 200.f;
+  auto dir = w_normalize(world.get<PosComponent>(attacker).global_position -
+                         world.get<PosComponent>(victim).global_position);
+  world.get<MoveComponent>(attacker).velocity = dir * 200.f;
   statuseffects::add_effect(world, attacker, std::make_shared<Knockback>(0.1f));
   statuseffects::add_effect(world, attacker, std::make_shared<Hitstun>(0.1f));
 
-  world.move_c(attacker).timer = -0.5f;
+  world.get<MoveComponent>(attacker).timer = -0.5f;
   return true;
 }
 
 void
 MeleeAttackMove::accel(GameWorld& world, unsigned int entity)
 {
-  const auto& pc = world.pos_c(entity);
-  auto& mc = world.move_c(entity);
+  const auto& pc = world.get<PosComponent>(entity);
+  auto& mc = world.get<MoveComponent>(entity);
 
   mc.accel = 1500.f * w_rotated(WVec(0, -1), pc.rotation * pc.direction);
 }
@@ -69,31 +69,32 @@ MeleeAttackMove::enter(GameWorld& world, unsigned int entity)
   }
 
   world.entities()[hurtbox] = comps;
-  world.name_c(hurtbox).name = "melee_skill_hurtbox";
+  world.get<NameComponent>(hurtbox).name = "melee_skill_hurtbox";
 
   // pos
-  auto& pc = world.pos_c(hurtbox);
+  auto& pc = world.get<PosComponent>(hurtbox);
   pc.parent = entity;
   pc.position = WVec(10, -35);
   pc.rotation = 0;
   build_global_transform(world, hurtbox);
   // col shape
-  auto& csc = world.cshape_c(hurtbox);
+  auto& csc = world.get<ColShapeComponent>(hurtbox);
   csc.shape = std::make_shared<ColCapsule>(45, 25);
 
   // tags
-  auto& tc = world.tag_c(hurtbox);
+  auto& tc = world.get<TagComponent>(hurtbox);
   tc.tags.set(static_cast<int>(Tags::Hurtbox));
 
   // dyn col
-  set_dynamic_col(world.dyn_col_c(hurtbox), DynColResponse::HurtBox);
+  set_dynamic_col(world.get<DynamicColComponent>(hurtbox),
+                  DynColResponse::HurtBox);
 
   // lifetime
-  auto& lc = world.lifetime_c(hurtbox);
+  auto& lc = world.get<LifeTimeComponent>(hurtbox);
   lc.timer = .3;
 
   // hurtbox
-  auto& hb = world.hurtbox_c(hurtbox);
+  auto& hb = world.get<HurtBoxComponent>(hurtbox);
   hb = HurtBoxComponent{ entity, {}, melee_skill_hurtfunc, melee_skill_on_hit };
 }
 
