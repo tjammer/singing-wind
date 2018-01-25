@@ -244,7 +244,8 @@ EntityIdle::update(const WVec& mpos)
   }
   SameLine();
   if (Button("delete entity")) {
-    m_world.delete_entity_raw(m_entity);
+    m_world.queue_delete(m_entity);
+    m_world.update_world(); // to actually delete
     transition = EditorSubState(new EditorIdle);
   }
   SameLine();

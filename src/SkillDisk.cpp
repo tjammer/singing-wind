@@ -58,9 +58,8 @@ disk_skill_hurtfunc(GameWorld& world,
 }
 
 void
-DiskCastMove::leave(GameWorld& world, unsigned int entity)
+create_disk(GameWorld& world, unsigned int hurtbox, unsigned int parent)
 {
-  auto hurtbox = world.create_entity();
   bset comps;
   for (auto i : { CPosition,
                   CColShape,
@@ -79,7 +78,7 @@ DiskCastMove::leave(GameWorld& world, unsigned int entity)
 
   // pos
   world.get<PosComponent>(hurtbox).position =
-    world.get<PosComponent>(entity).global_position;
+    world.get<PosComponent>(parent).global_position;
   build_global_transform(world, hurtbox);
 
   // col shape
@@ -101,13 +100,13 @@ DiskCastMove::leave(GameWorld& world, unsigned int entity)
   auto& mc = world.get<MoveComponent>(hurtbox);
   mc.special_movestate = std::make_unique<DiskProjectileMove>(
     w_rotated(WVec{ 0, -1 },
-              world.get<PosComponent>(entity).rotation *
-                world.get<PosComponent>(entity).direction));
+              world.get<PosComponent>(parent).rotation *
+                world.get<PosComponent>(parent).direction));
   mc.moveset = std::make_unique<TimedOnlyMoveSet>();
 
   // hurtbox
   auto& hb = world.get<HurtBoxComponent>(hurtbox);
-  hb = HurtBoxComponent{ entity, {}, disk_skill_hurtfunc, nullptr };
+  hb = HurtBoxComponent{ parent, {}, disk_skill_hurtfunc, nullptr };
 
   // lifetime
   auto& lc = world.get<LifeTimeComponent>(hurtbox);
@@ -115,6 +114,12 @@ DiskCastMove::leave(GameWorld& world, unsigned int entity)
 
   // status effects
   world.get<StatusEffectComponent>(hurtbox).effects.clear();
+}
+
+void
+DiskCastMove::leave(GameWorld& world, unsigned int entity)
+{
+  world.queue_create({ create_disk, entity });
 }
 
 void

@@ -91,7 +91,9 @@ public:
   std::vector<unsigned int> m_ai_ents;
 
   std::vector<unsigned int> m_to_delete;
+  std::vector<EntityCreator> m_to_create;
   void delete_entitites(GameWorld&);
+  void create_entities(GameWorld&);
 };
 
 template<>
@@ -255,6 +257,9 @@ GameWorld::update_world()
   }
 
   pimpl->m_navmesh = build_navmesh_fly(islands(), grid());
+
+  pimpl->delete_entitites(*this);
+  pimpl->create_entities(*this);
 }
 
 GameWorld::GameWorld()
@@ -286,12 +291,13 @@ GameWorld::step_fixed(float dt)
   statuseffect_update(*this, dt, pimpl->m_statuseffect_ents);
   ai_update(*this, dt, pimpl->m_ai_ents);
 
-  // delete entities
+  // delete entities then create
   pimpl->delete_entitites(*this);
+  pimpl->create_entities(*this);
 }
 
 unsigned int
-GameWorld::create_entity()
+GameWorld::create_entity_raw()
 {
   unsigned int entity;
   for (entity = 0; entity < entities().size(); ++entity) {
@@ -399,7 +405,7 @@ unsigned int
 GameWorld::load_entity(const std::string& name)
 {
   std::string filename = "scenes/" + name + ".went";
-  unsigned int ent = create_entity();
+  unsigned int ent = create_entity_raw();
 
   load_entity_from_filename(filename, *this, ent);
   return ent;
@@ -443,7 +449,7 @@ GameWorld::reset_islands()
 unsigned int
 GameWorld::create_root()
 {
-  auto root = create_entity();
+  auto root = create_entity_raw();
   assert(root == 0);
   bset comps;
   for (auto i : { CPosition }) {
@@ -475,11 +481,25 @@ GameWorld::impl::delete_entitites(GameWorld& world)
 }
 
 void
+GameWorld::impl::create_entities(GameWorld& world)
+{
+  for (auto& creator : m_to_create) {
+    creator.func(world, world.create_entity_raw(), creator.parent);
+  }
+  m_to_create.clear();
+}
+
+void
 GameWorld::queue_delete(unsigned int entity)
 {
   pimpl->m_to_delete.push_back(entity);
 }
 
+void
+GameWorld::queue_create(EntityCreator creator)
+{
+  pimpl->m_to_create.push_back(std::move(creator));
+}
 HashGrid<StaticTriangle>&
 GameWorld::grid()
 {

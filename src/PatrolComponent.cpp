@@ -12,12 +12,10 @@
 #include <imgui.h>
 
 namespace alert_bubble {
-void
-spawn(GameWorld& world, unsigned int entity)
-{
 
-  // spawn alert bubble
-  auto alert = world.create_entity();
+void
+create(GameWorld& world, unsigned int alert, unsigned int parent)
+{
   bset comps;
   for (auto i : { CPosition, CColShape, CDynCol, CDebugDraw, CTag }) {
     comps.set(i);
@@ -27,7 +25,7 @@ spawn(GameWorld& world, unsigned int entity)
 
   // pos
   auto& pc = world.get<PosComponent>(alert);
-  pc.parent = entity;
+  pc.parent = parent;
   pc.position = { 0, 0 };
   build_global_transform(world, alert);
 
@@ -42,6 +40,12 @@ spawn(GameWorld& world, unsigned int entity)
   // dyn col
   set_dynamic_col(world.get<DynamicColComponent>(alert),
                   DynColResponse::AlertBubble);
+}
+
+void
+spawn(GameWorld& world, unsigned int entity)
+{
+  world.queue_create({ create, entity });
 }
 
 void

@@ -45,10 +45,10 @@ lounge_skill_on_hit(GameWorld& world,
 }
 
 void
-LoungeAttackMove::enter(GameWorld& world, unsigned int entity)
+create_lounge_hurtbox(GameWorld& world,
+                      unsigned int hurtbox,
+                      unsigned int parent)
 {
-  // create hurtbox
-  auto hurtbox = world.create_entity();
   bset comps;
   for (auto i :
        { CPosition, CColShape, CDynCol, CDebugDraw, CTag, CLifeTime }) {
@@ -59,9 +59,9 @@ LoungeAttackMove::enter(GameWorld& world, unsigned int entity)
   world.get<NameComponent>(hurtbox).name = "lounge_skill_hurtbox";
 
   // pos
-  float radius = world.get<ColShapeComponent>(entity).shape->get_radius();
+  float radius = world.get<ColShapeComponent>(parent).shape->get_radius();
   auto& pc = world.get<PosComponent>(hurtbox);
-  pc.parent = entity;
+  pc.parent = parent;
   pc.position = WVec(0, -radius * 0.3f);
   pc.rotation = 0;
   build_global_transform(world, hurtbox);
@@ -79,12 +79,19 @@ LoungeAttackMove::enter(GameWorld& world, unsigned int entity)
 
   // lifetime
   auto& lc = world.get<LifeTimeComponent>(hurtbox);
-  lc.timer = TimedMoveState::timer;
+  assert(world.get<MoveComponent>(parent).special_movestate != nullptr);
+  lc.timer = world.get<MoveComponent>(parent).special_movestate->timer;
 
   // hurtbox
   auto& hb = world.get<HurtBoxComponent>(hurtbox);
   hb =
-    HurtBoxComponent{ entity, {}, lounge_skill_hurtfunc, lounge_skill_on_hit };
+    HurtBoxComponent{ parent, {}, lounge_skill_hurtfunc, lounge_skill_on_hit };
+}
+
+void
+LoungeAttackMove::enter(GameWorld& world, unsigned int entity)
+{
+  world.queue_create({ create_lounge_hurtbox, entity });
 }
 
 void

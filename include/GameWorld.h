@@ -48,16 +48,14 @@ public:
   void reset_entities();
   void reset_islands();
 
-  // delete entities
   void queue_delete(unsigned int entity);
+  void queue_create(EntityCreator);
 
   // communication with editor
   void update_world();
 
-  unsigned int create_entity();
   unsigned int load_entity(const std::string& name);
   unsigned int create_root();
-  void delete_entity_raw(unsigned int entity);
 
   // getters
   template<typename C>
@@ -77,6 +75,12 @@ private:
 
   void find_entities_fixed();
   void find_entities_draw();
+
+  void delete_entity_raw(unsigned int entity);
+  unsigned int create_entity_raw();
+
+  // friends
+  friend bool load_scene_from_fb(const std::string&, GameWorld&, float&);
 };
 
 namespace for_gameworld {

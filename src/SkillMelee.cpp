@@ -58,10 +58,8 @@ MeleeAttackMove::accel(GameWorld& world, unsigned int entity)
 }
 
 void
-MeleeAttackMove::enter(GameWorld& world, unsigned int entity)
+create_hurtbox(GameWorld& world, unsigned int hurtbox, unsigned int parent)
 {
-  // create hurtbox
-  auto hurtbox = world.create_entity();
   bset comps;
   for (auto i :
        { CPosition, CColShape, CDynCol, CDebugDraw, CTag, CLifeTime }) {
@@ -73,7 +71,7 @@ MeleeAttackMove::enter(GameWorld& world, unsigned int entity)
 
   // pos
   auto& pc = world.get<PosComponent>(hurtbox);
-  pc.parent = entity;
+  pc.parent = parent;
   pc.position = WVec(10, -35);
   pc.rotation = 0;
   build_global_transform(world, hurtbox);
@@ -95,7 +93,13 @@ MeleeAttackMove::enter(GameWorld& world, unsigned int entity)
 
   // hurtbox
   auto& hb = world.get<HurtBoxComponent>(hurtbox);
-  hb = HurtBoxComponent{ entity, {}, melee_skill_hurtfunc, melee_skill_on_hit };
+  hb = HurtBoxComponent{ parent, {}, melee_skill_hurtfunc, melee_skill_on_hit };
+}
+
+void
+MeleeAttackMove::enter(GameWorld& world, unsigned int entity)
+{
+  world.queue_create({ create_hurtbox, entity });
 }
 
 void
