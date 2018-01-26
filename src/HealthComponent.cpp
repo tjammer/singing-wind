@@ -9,7 +9,10 @@ health::entity_edit(GameWorld& world, unsigned int entity)
   using namespace ImGui;
   if (world.entities()[entity].test(CHealth) && CollapsingHeader("health")) {
     auto& hc = world.get<HealthComponent>(entity);
-    InputInt("health", &hc.health);
+    int health = hc.health;
+    if (InputInt("health", &health)) {
+      hc.health = health;
+    }
   }
 }
 
