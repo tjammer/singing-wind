@@ -16,4 +16,9 @@ struct DamageType
 void
 damage_entity(GameWorld&, unsigned int, DamageType);
 
+namespace health {
+void
+entity_edit(GameWorld&, unsigned int);
+}
+
 #endif /* ALIVECOMPONENT_H */

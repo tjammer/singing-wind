@@ -18,6 +18,7 @@
 #include "SceneIO.h"
 #include "SkillComponent.h"
 #include "TagComponent.h"
+#include "HealthComponent.h"
 #include "imgui-bezier.h"
 #include "imgui.h"
 
@@ -238,6 +239,9 @@ EntityIdle::update(const WVec& mpos)
   ai::entity_edit(m_world, m_entity);
   // patrol
   patrol::entity_edit(m_world, m_entity);
+
+  // health
+  health::entity_edit(m_world, m_entity);
 
   if (Button("save entity")) {
     save_entity_standalone(m_world, m_entity);

@@ -51,7 +51,8 @@ const std::map<Components, const char*> components_string = {
   { CColShape, "ColShape" },
   { CStatusEffect, "StatusEffect" },
   { CAI, "AI" },
-  { CPatrol, "Patrol" }
+  { CPatrol, "Patrol" },
+  { CHealth, "Health" }
 };
 
 struct DebugComponent
