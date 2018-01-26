@@ -11,6 +11,7 @@
 #include "PosComponent.h"
 #include "SkillComponent.h"
 #include "TagComponent.h"
+#include "HealthComponent.h"
 #include <ColShape.h>
 #include <fstream>
 #include <iostream>
@@ -177,6 +178,12 @@ get_fb_entity(GameWorld& world, unsigned int entity)
     fbs_ent.ai_c = make_unique<EntityFBS::AIComponentT>();
     fbs_ent.ai_c->type =
       static_cast<int>(world.get<AIComponent>(entity).btree.type());
+  }
+
+  // health_c
+  if (bset.test(CHealth)) {
+    fbs_ent.health_c = make_unique<EntityFBS::HealthComponentT>();
+    fbs_ent.health_c->health = world.get<HealthComponent>(entity).health;
   }
 
   return fbs_ent_ptr;
@@ -375,6 +382,11 @@ entity_to_world(const EntityFBS::EntityT& fb_ent,
     auto& ai_c = fb_ent.ai_c;
 
     ai::init_ai_type(world, entity, static_cast<AITreeType>(ai_c->type));
+  }
+
+  // health_c
+  if (bs.test(CHealth)) {
+    world.get<HealthComponent>(entity).health = fb_ent.health_c->health;
   }
 }
 

@@ -22,6 +22,7 @@ table Entity {
     skill_c:[int];
     patrol_c:PatrolComponent;
     ai_c:AIComponent;
+    health_c:HealthComponent;
 }
 
 table PosComponent {
@@ -70,7 +71,7 @@ table FlyComponent {
     ctrl_from:Point;
     ctrl_to:Point;
     to:Point;
-    
+
     drag:float = 0.0026;
 }
 
@@ -90,6 +91,10 @@ table AIComponent {
     state:int (deprecated);
     type:int;
     msg_data:[int] (deprecated);
+}
+
+table HealthComponent {
+    health:int;
 }
 
 root_type Entity;
