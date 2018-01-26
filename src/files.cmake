@@ -1,6 +1,7 @@
 include(${CMAKE_CURRENT_LIST_DIR}/schemas/schemas.cmake)
 
 set(SOURCE_FILES
+    src/GameWorld.cpp
     src/Game.cpp
     src/main.cpp
     src/Actor.cpp
@@ -18,7 +19,6 @@ set(SOURCE_FILES
     src/steering.cpp
     src/WTexture.cpp
     src/Collision.cpp
-    src/GameWorld.cpp
     src/WRenderer.cpp
     src/Components.cpp
     src/EditorDraw.cpp
@@ -49,4 +49,5 @@ set(SOURCE_FILES
     src/StatusEffectKnockback.cpp
     src/StatusEffectHitstun.cpp
     src/SkillDisk.cpp
+    src/AliveComponent.cpp
     )
