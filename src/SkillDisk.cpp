@@ -15,11 +15,10 @@ void
 DiskCastMove::accel(GameWorld& world, unsigned int entity)
 {
   auto& mc = world.get<MoveComponent>(entity);
-  mc.accel = { 0, 0 };
-  mc.accel -= mc.velocity * c_drag * 10.f;
-  rotate_to(world.get<InputComponent>(entity).mouse.get(),
-            mc.c_max_change_angle,
-            world.get<PosComponent>(entity));
+  auto temp = mc.c_max_change_angle;
+  mc.c_max_change_angle *= 1.3f;
+  mc.movestate->accel(world, entity);
+  mc.c_max_change_angle = temp;
 }
 
 void
@@ -123,6 +122,11 @@ void
 DiskCastMove::leave(GameWorld& world, unsigned int entity)
 {
   world.queue_create({ create_disk, entity });
+  auto& mc = world.get<MoveComponent>(entity);
+  auto dir = w_rotated(WVec{ 0, -1 },
+                       world.get<PosComponent>(entity).rotation *
+                         world.get<PosComponent>(entity).direction);
+  mc.accel += dir * 10000.0f;
 }
 
 void
