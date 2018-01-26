@@ -88,6 +88,7 @@ create_disk(GameWorld& world, unsigned int hurtbox, unsigned int parent)
 
   // tags
   auto& tc = world.get<TagComponent>(hurtbox);
+  tc.tags.reset();
   tc.tags.set(static_cast<int>(Tags::Hurtbox));
   tc.tags.set(static_cast<int>(Tags::Projectile));
 

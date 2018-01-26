@@ -81,6 +81,7 @@ create_hurtbox(GameWorld& world, unsigned int hurtbox, unsigned int parent)
 
   // tags
   auto& tc = world.get<TagComponent>(hurtbox);
+  tc.tags.reset();
   tc.tags.set(static_cast<int>(Tags::Hurtbox));
 
   // dyn col
