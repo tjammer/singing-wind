@@ -29,6 +29,7 @@ enum Components : int
   CAI,
   CPatrol,
   CName,
+  CHealth,
   comp_count
 };
 

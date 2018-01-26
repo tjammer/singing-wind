@@ -20,6 +20,7 @@
 #include "SkillComponent.h"
 #include "StatusEffectComponent.h"
 #include "TagComponent.h"
+#include "HealthComponent.h"
 #include "systems.h"
 #include "triangulate.h"
 
@@ -72,6 +73,7 @@ public:
   std::vector<AIComponent> m_ai_c;
   std::vector<PatrolComponent> m_patrol_c;
   std::vector<NameComponent> m_name_c;
+  std::vector<HealthComponent> m_health_c;
 
   HashGrid<StaticTriangle> m_grid;
   PruneSweeper m_prune_sweep;
@@ -89,6 +91,7 @@ public:
   std::vector<unsigned int> m_lifetime_ents;
   std::vector<unsigned int> m_statuseffect_ents;
   std::vector<unsigned int> m_ai_ents;
+  std::vector<unsigned int> m_health_ents;
 
   std::vector<unsigned int> m_to_delete;
   std::vector<EntityCreator> m_to_create;
@@ -236,6 +239,13 @@ GameWorld::get<PatrolComponent>(unsigned int entity)
   return pimpl->m_patrol_c[entity];
 }
 
+template<>
+HealthComponent&
+GameWorld::get<HealthComponent>(unsigned int entity)
+{
+  return pimpl->m_health_c[entity];
+}
+
 void
 GameWorld::update_world()
 {
@@ -291,6 +301,9 @@ GameWorld::step_fixed(float dt)
   statuseffect_update(*this, dt, pimpl->m_statuseffect_ents);
   ai_update(*this, dt, pimpl->m_ai_ents);
 
+  // kill killed entities
+  health_update(*this, pimpl->m_health_ents);
+
   // delete entities then create
   pimpl->delete_entitites(*this);
   pimpl->create_entities(*this);
@@ -329,6 +342,7 @@ GameWorld::create_entity_raw()
   pimpl->m_statuseffect_c.emplace_back(StatusEffectComponent());
   pimpl->m_ai_c.emplace_back(AIComponent());
   pimpl->m_patrol_c.emplace_back(PatrolComponent());
+  pimpl->m_health_c.emplace_back(HealthComponent());
 
   return entity;
 }
@@ -347,6 +361,7 @@ GameWorld::find_entities_fixed()
   pimpl->m_lifetime_ents.clear();
   pimpl->m_statuseffect_ents.clear();
   pimpl->m_ai_ents.clear();
+  pimpl->m_health_ents.clear();
 
   for (unsigned int i = 0; i < pimpl->m_entities.size(); ++i) {
     auto ent = pimpl->m_entities[i];
@@ -384,6 +399,10 @@ GameWorld::find_entities_fixed()
 
     if (has_component(ent, c_ai_components)) {
       pimpl->m_ai_ents.push_back(i);
+    }
+
+    if (has_component(ent, c_health_components)) {
+      pimpl->m_health_ents.push_back(i);
     }
   }
 }
@@ -438,6 +457,7 @@ GameWorld::reset_entities()
   pimpl->m_statuseffect_c.clear();
   pimpl->m_ai_c.clear();
   pimpl->m_patrol_c.clear();
+  pimpl->m_health_c.clear();
 }
 
 void

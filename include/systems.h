@@ -61,4 +61,8 @@ ai_update(GameWorld& world,
           float dt,
           const std::vector<unsigned int>& entities);
 
+const bset c_health_components{ (1 << CHealth) };
+void
+health_update(GameWorld& world, const std::vector<unsigned int>& entities);
+
 #endif // SINGING_WIND_SYSTEMS_H

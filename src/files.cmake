@@ -49,5 +49,5 @@ set(SOURCE_FILES
     src/StatusEffectKnockback.cpp
     src/StatusEffectHitstun.cpp
     src/SkillDisk.cpp
-    src/AliveComponent.cpp
+    src/HealthComponent.cpp
     )

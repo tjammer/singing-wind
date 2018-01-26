@@ -17,6 +17,7 @@
 #include "Protagonist.h"
 #include "SkillComponent.h"
 #include "StatusEffectComponent.h"
+#include "HealthComponent.h"
 
 #include <WRenderer.h>
 #include <WVecMath.h>
@@ -349,5 +350,16 @@ ai_update(GameWorld& world, float dt, const std::vector<unsigned int>& entities)
   for (const auto& entity : entities) {
     auto& ac = world.get<AIComponent>(entity);
     ac.btree.tick();
+  }
+}
+
+void
+health_update(GameWorld& world, const std::vector<unsigned int>& entities)
+{
+  for (const auto& entity : entities) {
+    auto& hc = world.get<HealthComponent>(entity);
+    if (hc.health <= 0) {
+      world.queue_delete(entity);
+    }
   }
 }

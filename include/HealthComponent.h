@@ -3,7 +3,7 @@
 
 class GameWorld;
 
-struct AliveComponent
+struct HealthComponent
 {
   int health = 10;
 };
