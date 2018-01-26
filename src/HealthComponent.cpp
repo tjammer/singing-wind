@@ -12,3 +12,11 @@ health::entity_edit(GameWorld& world, unsigned int entity)
     InputInt("health", &hc.health);
   }
 }
+
+void
+health::damage(GameWorld& world, unsigned int victim, DamageType dmg)
+{
+  if (world.entities()[victim].test(CHealth)) {
+    world.get<HealthComponent>(victim).health -= dmg.base_damage;
+  }
+}

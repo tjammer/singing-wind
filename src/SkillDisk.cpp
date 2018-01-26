@@ -9,6 +9,7 @@
 #include "HurtBoxComponent.h"
 #include "LifeTimeComponent.h"
 #include "InputComponent.h"
+#include "HealthComponent.h"
 
 void
 DiskCastMove::accel(GameWorld& world, unsigned int entity)
@@ -54,6 +55,7 @@ disk_skill_hurtfunc(GameWorld& world,
   }
   statuseffects::add_effect(world, victim, std::make_shared<Hitstun>(0.1f));
   statuseffects::add_effect(world, entity, std::make_shared<Hitstun>(0.05f));
+  health::damage(world, victim, { 1 });
   return true;
 }
 

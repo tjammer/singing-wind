@@ -13,12 +13,11 @@ struct DamageType
   float base_damage;
 };
 
-void
-damage_entity(GameWorld&, unsigned int, DamageType);
-
 namespace health {
 void
 entity_edit(GameWorld&, unsigned int);
+void
+damage(GameWorld&, unsigned int, DamageType);
 }
 
 #endif /* ALIVECOMPONENT_H */

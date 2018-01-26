@@ -29,16 +29,14 @@ class BaseSkill
 public:
   float timer;
   SkillID get_id() const { return id; }
-  float get_cost() const { return cost; }
   float get_t_active() const { return t_active; }
   float get_t_cooldown() const { return t_cooldown; }
   SkillState state = SkillState::Ready;
   virtual void set_special(
     MoveComponent& move_c) = 0; // sets correct timedmovestate
 protected:
-  BaseSkill(SkillID id, float active, float cooldown, float cost = 0)
+  BaseSkill(SkillID id, float active, float cooldown)
     : id(id)
-    , cost(cost)
     , t_active(active)
     , t_cooldown(cooldown)
   {
@@ -46,7 +44,7 @@ protected:
 
 private:
   SkillID id;
-  float cost;
+  float damage;
   float t_active;
   float t_cooldown;
 };
