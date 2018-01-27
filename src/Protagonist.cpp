@@ -266,12 +266,6 @@ FlyingMove::transition(GameWorld& world, unsigned int entity)
   if (ic.wings.just_added(true)) {
     return true;
   }
-  auto& mc = world.get<MoveComponent>(entity);
-  auto& fc = world.get<FlyComponent>(entity);
-  if (mc.movestate->name() == MoveStateName::FlyingAccel &&
-      (!ic.wings.get() or mc.timer >= fc.c_accel_time)) {
-    return true;
-  }
   return false;
 }
 
@@ -279,23 +273,11 @@ void
 FlyingAccelMove::enter(GameWorld& world, unsigned int entity)
 {
   auto& mc = world.get<MoveComponent>(entity);
-  auto& pc = world.get<PosComponent>(entity);
   auto& ic = world.get<InputComponent>(entity);
 
   ic.wings.fill(true);
-  // can get set after skill hit or so
-  if (mc.timer < 0) {
-    auto mouse =
-      WVec(glm::inverse(pc.global_transform) * WVec3(ic.mouse.get(), 1));
-    float mouse_angle = angle_up_from_local_mouse_deg(mouse);
-    pc.rotation +=
-      copysignf(fmin(mc.c_max_change_angle, abs(mouse_angle)), mouse_angle);
-    pc.rotation = std::remainder(pc.rotation, (float)M_PI * 2.f);
-    mc.velocity = world.get<FlyComponent>(entity).c_push_vel * 1.0f *
-                  w_rotated(WVec(0, -1), pc.rotation);
-    pc.rotation = w_angle_to_vec(WVec(0, -1), mc.velocity);
-  }
   mc.timer = 0;
+  mc.special_movestate->timer = world.get<FlyComponent>(entity).c_accel_time;
 }
 
 void
@@ -316,12 +298,6 @@ FlyingAccelMove::accel(GameWorld& world, unsigned int entity)
   fly(mc, angle, fc, 0.75f);
 
   mc.accel += calc_accel_angle(pc) * fc.c_accel_force * time_frac;
-}
-
-MoveStateName
-FlyingAccelMove::name()
-{
-  return MoveStateName::FlyingAccel;
 }
 
 bool
@@ -368,22 +344,15 @@ ProtagonistMoveSet::transition(GameWorld& world, unsigned int entity)
     }
     case MoveStateName::Flying: {
       if (FlyingAccelMove::transition(world, entity)) {
-        return make_unique<FlyingAccelMove>();
+        mc.special_movestate = make_unique<FlyingAccelMove>();
+        mc.special_movestate->enter(world, entity);
+        return make_unique<FlyingMove>();
       }
       if (GroundMove::transition(world, entity)) {
         return make_unique<GroundMove>();
       }
       if (FallingMove::transition(world, entity)) {
         return make_unique<FallingMove>();
-      }
-      break;
-    }
-    case MoveStateName::FlyingAccel: {
-      if (FlyingMove::transition(world, entity)) {
-        return make_unique<FlyingMove>();
-      }
-      if (GroundMove::transition(world, entity)) {
-        return make_unique<GroundMove>();
       }
       break;
     }

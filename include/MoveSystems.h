@@ -18,7 +18,6 @@ enum class MoveStateName : int
   OnGround,
   Falling,
   Flying,
-  FlyingAccel,
   SimpleFlying,
   Hover,
   state_count
@@ -28,6 +27,7 @@ enum class TimedMoveStateName : int
 {
   None,
   Still,
+  FlyingAccel,
   Knockback,
   MeleeAttack,
   MeleeCast,
@@ -42,7 +42,6 @@ const std::map<MoveStateName, const char*> movestate_string = {
   { MoveStateName::OnGround, "OnGround" },
   { MoveStateName::Falling, "Falling" },
   { MoveStateName::Flying, "Flying" },
-  { MoveStateName::FlyingAccel, "FlyingAccel" },
   { MoveStateName::SimpleFlying, "SimpleFlying" },
   { MoveStateName::Hover, "Hover" }
 };

@@ -45,14 +45,19 @@ public:
   static bool transition(GameWorld&, unsigned int);
 };
 
-class FlyingAccelMove : public MoveState
+class FlyingAccelMove : public TimedMoveState
 {
 public:
   void enter(GameWorld&, unsigned int) override;
   void accel(GameWorld&, unsigned int) override;
-  MoveStateName name() override;
+  void leave(GameWorld&, unsigned int) override {}
+  std::unique_ptr<TimedMoveState> next() override { return nullptr; }
 
   static bool transition(GameWorld&, unsigned int);
+  FlyingAccelMove()
+    : TimedMoveState(TimedMoveStateName::FlyingAccel, 1)
+  {
+  }
 };
 
 class ProtagonistMoveSet : public MoveSet
