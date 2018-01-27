@@ -17,7 +17,14 @@ can_cast(GameWorld& world, unsigned int entity, SkillID id)
     return false;
   }
   // if is moving normally on its own
-  if (world.get<MoveComponent>(entity).special_movestate != nullptr) {
+  auto& mc = world.get<MoveComponent>(entity);
+  if (mc.special_movestate != nullptr) {
+    if (mc.special_movestate->name() == TimedMoveStateName::FlyingAccel) {
+      // cancel
+      mc.special_movestate->leave(world, entity);
+      mc.special_movestate = nullptr;
+      return true;
+    }
     return false;
   }
 
