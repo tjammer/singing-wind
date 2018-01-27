@@ -16,6 +16,10 @@ can_cast(GameWorld& world, unsigned int entity, SkillID id)
   if (sc.active != nullptr) {
     return false;
   }
+  // if is moving normally on its own
+  if (world.get<MoveComponent>(entity).special_movestate != nullptr) {
+    return false;
+  }
 
   // check if skill is in equiped list
   auto skill_iterator = std::find_if(
