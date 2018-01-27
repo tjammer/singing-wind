@@ -144,51 +144,44 @@ move_update(GameWorld& world, float timedelta)
       assert(world.get<MoveComponent>(entity).moveset ||
              world.get<MoveComponent>(entity).special_movestate);
 
-      auto old_accel = world.get<MoveComponent>(entity).accel;
-      auto dt = timedelta * world.get<MoveComponent>(entity).time_fac;
+      auto& mc = world.get<MoveComponent>(entity);
 
-      world.get<MoveComponent>(entity).accel = WVec(0, c_gravity);
-      world.get<MoveComponent>(entity).accel +=
-        world.get<MoveComponent>(entity).additional_force /
-        world.get<MoveComponent>(entity).mass;
+      auto old_accel = mc.accel;
+      auto dt = timedelta * mc.time_fac;
 
-      world.get<MoveComponent>(entity).velocity += old_accel * dt;
+      mc.accel = WVec(0, c_gravity);
+      mc.accel += mc.additional_force / mc.mass;
+
+      mc.velocity += old_accel * dt;
 
       // if char is in special state, the correct func needs to be found
-      if (world.get<MoveComponent>(entity).special_movestate) {
-        world.get<MoveComponent>(entity).special_movestate->accel(world,
-                                                                  entity);
-        world.get<MoveComponent>(entity).special_movestate->timer -= dt;
-        if (world.get<MoveComponent>(entity).special_movestate->timer <= 0) {
-          world.get<MoveComponent>(entity).special_movestate->leave(world,
-                                                                    entity);
-          world.get<MoveComponent>(entity).special_movestate =
-            world.get<MoveComponent>(entity).special_movestate->next();
-          if (world.get<MoveComponent>(entity).special_movestate) {
-            world.get<MoveComponent>(entity).special_movestate->enter(world,
-                                                                      entity);
+      if (mc.special_movestate) {
+        mc.special_movestate->accel(world, entity);
+        mc.special_movestate->timer -= dt;
+        if (mc.special_movestate->timer <= 0) {
+          mc.special_movestate->leave(world, entity);
+          mc.special_movestate = mc.special_movestate->next();
+          if (mc.special_movestate) {
+            mc.special_movestate->enter(world, entity);
           }
         }
       } else {
         // check transistions
-        auto transition =
-          world.get<MoveComponent>(entity).moveset->transition(world, entity);
+        auto transition = mc.moveset->transition(world, entity);
         if (transition) {
           transition->enter(world, entity);
-          world.get<MoveComponent>(entity).movestate = std::move(transition);
+          mc.movestate = std::move(transition);
         }
-        world.get<MoveComponent>(entity).movestate->accel(world, entity);
+        mc.movestate->accel(world, entity);
       }
 
-      world.get<MoveComponent>(entity).velocity +=
-        dt * (world.get<MoveComponent>(entity).accel - old_accel) / 2.0f;
-      auto motion = dt * (world.get<MoveComponent>(entity).velocity +
-                          world.get<MoveComponent>(entity).accel * dt / 2.0f);
+      mc.velocity += dt * (mc.accel - old_accel) / 2.0f;
+      auto motion = dt * (mc.velocity + mc.accel * dt / 2.0f);
       world.get<PosComponent>(entity).position += motion;
-      world.get<MoveComponent>(entity).additional_force = { 0, 0 };
-      world.get<MoveComponent>(entity).time_fac = 1;
+      mc.additional_force = { 0, 0 };
+      mc.time_fac = 1;
 
-      world.get<MoveComponent>(entity).timer += dt;
+      mc.timer += dt;
     }
 
     build_global_transform(world, entity);
