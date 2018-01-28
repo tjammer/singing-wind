@@ -50,4 +50,5 @@ set(SOURCE_FILES
     src/StatusEffectHitstun.cpp
     src/SkillDisk.cpp
     src/HealthComponent.cpp
+    src/Wander.cpp
     )
