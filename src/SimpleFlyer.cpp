@@ -6,7 +6,6 @@
 #include "Pathfinding.h"
 #include "PosComponent.h"
 #include "WVecMath.h"
-#include "steering.h"
 
 void
 simpleflyer::on_static_collision(GameWorld& world, unsigned int entity)
@@ -20,22 +19,10 @@ void
 SimpleFlyingMove::accel(GameWorld& world, unsigned int entity)
 {
   auto& ic = world.get<InputComponent>(entity);
-  auto& fc = world.get<SimpleFlyComponent>(entity);
   auto& pc = world.get<PosComponent>(entity);
   auto& mc = world.get<MoveComponent>(entity);
 
-  // seeking
-  auto builder =
-    SteeringBuilder(
-      pc.global_position, mc.velocity, fc.c_max_vel, fc.c_arrive_radius)
-      .seek(ic.mouse.get());
-
-  for (const auto& pos : world.get<PathingComponent>(entity).flock) {
-    builder.add_flock(pos);
-  }
-  builder.add_cohesion(world.get<PathingComponent>(entity).cohesion);
-
-  mc.accel = builder.end(fc.c_accel);
+  mc.accel = ic.mouse.get() - pc.global_position;
 
   auto angle = w_angle_to_vec(
     w_rotated(WVec(0, -1), pc.rotation * pc.direction), mc.velocity);

@@ -10,6 +10,7 @@
 #include "Pathfinding.h"
 #include "CollisionComponent.h"
 #include "WVecMath.h"
+#include "steering.h"
 
 GoToEnemy::GoToEnemy(GameWorld& world, unsigned int entity)
   : m_world(world)
@@ -63,7 +64,13 @@ GoToEnemy::update()
     }
   }
   m_world.get<InputComponent>(m_entity).jump.push(true); // for seeking
-  m_world.get<InputComponent>(m_entity).mouse.push(pc.path[pc.index]);
+
+  auto builder =
+    SteeringBuilder(pos,
+                    m_world.get<MoveComponent>(m_entity).velocity,
+                    m_world.get<SimpleFlyComponent>(m_entity).c_max_vel,
+                    m_radius)
+      .seek(pc.path[pc.index]);
 
   // flock
   auto colliders =
@@ -80,12 +87,18 @@ GoToEnemy::update()
           .tags.test(static_cast<int>(Tags::Enemy))) {
       auto center = (col.maxs + col.mins) / 2.0f;
       float radius = w_magnitude(center - col.mins);
-      pc.flock.push_back(pos + nearest_dist_with_radii(pos, 0, center, radius));
+      // pc.flock.push_back(pos + nearest_dist_with_radii(pos, 0, center,
+      // radius));
+      builder.add_flock(pos + nearest_dist_with_radii(pos, 0, center, radius));
       pc.cohesion += center;
       i++;
     }
   }
   pc.cohesion /= (float)i;
+  builder.add_cohesion(pc.cohesion);
+
+  m_world.get<InputComponent>(m_entity).mouse.push(
+    pos + builder.end(m_world.get<SimpleFlyComponent>(m_entity).c_accel));
 
   return behaviour_tree::Status::Running;
 }
