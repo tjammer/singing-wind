@@ -23,6 +23,7 @@ private:
   const unsigned int m_entity;
   const float m_max_mag;
   const float m_rate;
+  float m_radius;
 };
 
 #endif /* WANDER_H */

@@ -14,7 +14,7 @@ testenemy::get_tree(GameWorld& world, unsigned int entity)
                 // TODO: maybe do nothing?
                 .end()
                 //.node<GoToEnemy>(world, entity)
-                .node<Wander>(world, entity, 1.3, .4)
+                .node<Wander>(world, entity, 1.3, .6)
                 .end()
                 .end();
 
