@@ -14,11 +14,17 @@ public:
   SteeringBuilder& flee(const WVec& position);
   SteeringBuilder& arrive(const WVec& position, float radius);
   SteeringBuilder& flock(const WVec& position);
+  SteeringBuilder& wander(WVec& steering_force,
+                          float max_steering,
+                          float max_displacement);
   void add_seek(const WVec& position);
   void add_flee(const WVec& position);
   void add_arrive(const WVec& position, float radius);
   void add_flock(const WVec& position);
   void add_cohesion(const WVec& position);
+  void add_wander(WVec& steering_force,
+                  float max_steering,
+                  float max_displacement);
   WVec end(float force);
 
 private:

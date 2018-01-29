@@ -6,5 +6,6 @@
 #include "EnemyInRange.h"
 #include "GoToEnemy.h"
 #include "Inverter.h"
+#include "Wander.h"
 
 #endif /* BEHAVIOURS_H */

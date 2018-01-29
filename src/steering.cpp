@@ -1,5 +1,7 @@
 #include "steering.h"
 #include "WVecMath.h"
+#include <random>
+#include <iostream>
 
 SteeringBuilder::SteeringBuilder(const WVec& self_pos,
                                  const WVec& self_vel,
@@ -43,6 +45,15 @@ SteeringBuilder::flock(const WVec& pos)
   return *this;
 }
 
+SteeringBuilder&
+SteeringBuilder::wander(WVec& steering_force,
+                        float max_steering,
+                        float max_displacement)
+{
+  add_wander(steering_force, max_steering, max_displacement);
+  return *this;
+}
+
 void
 SteeringBuilder::add_seek(const WVec& position)
 {
@@ -82,6 +93,22 @@ SteeringBuilder::add_cohesion(const WVec& position)
 {
   auto offset = position - m_pos;
   m_cohesion = offset / m_cohesion_length * 0.5f;
+}
+
+void
+SteeringBuilder::add_wander(WVec& steering_force,
+                            float max_steering,
+                            float max_displacement)
+{
+  std::random_device r;
+  std::default_random_engine gen{ r() };
+  std::uniform_real_distribution<float> dist{ -max_displacement,
+                                              max_displacement };
+  WVec displacement{ dist(gen), dist(gen) };
+
+  steering_force += displacement;
+  steering_force = w_normalize(steering_force) * max_steering;
+  add_seek(m_pos + w_normalize(m_vel) * sqrtf(2) + steering_force);
 }
 
 WVec
