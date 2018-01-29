@@ -1,6 +1,10 @@
 #include "steering.h"
 #include "WVecMath.h"
+#include "ColGrid.h"
+#include "CollisionComponent.h"
+#include "NavMesh.h"
 #include <random>
+
 #include <iostream>
 
 SteeringBuilder::SteeringBuilder(const WVec& self_pos,
@@ -109,6 +113,37 @@ SteeringBuilder::add_wander(WVec& steering_force,
   steering_force += displacement;
   steering_force = w_normalize(steering_force) * max_steering;
   add_seek(m_pos + w_normalize(m_vel) * sqrtf(2) + steering_force);
+}
+
+void
+SteeringBuilder::add_avoid_collision(const HashGrid<StaticTriangle>& grid,
+                                     const NavMesh& mesh)
+{
+  RayCastResult result;
+  // first ray
+  auto dir = w_normalize(m_vel);
+  auto tangent = w_tangent(dir);
+
+  auto p1 = m_pos + tangent * m_cohesion_length;
+  auto res1 =
+    cast_ray_vs_static_grid(grid, p1, p1 + dir * m_cohesion_length * 4.0f);
+  if (res1.hits) {
+    result = res1;
+  }
+
+  auto p2 = m_pos - tangent * m_cohesion_length;
+  res1 = cast_ray_vs_static_grid(grid, p2, p2 + dir * m_cohesion_length * 4.0f);
+  if (res1.hits && res1.hit_parameter < result.hit_parameter) {
+    result = res1;
+  }
+
+  if (!result.hits) {
+    return;
+  }
+
+  m_seek -= w_normalize(result.hit_normal) * m_max_vel * 2.5f;
+  m_seek +=
+    w_normalize(WVec{ mesh.get_nearest(m_pos) } - m_pos) * m_max_vel * 0.5f;
 }
 
 WVec

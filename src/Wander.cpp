@@ -52,8 +52,6 @@ Wander::update()
   // flock
   auto colliders =
     m_world.prune_sweep().find_in_radius(pos, m_radius * 4.0f, m_entity);
-  pc.cohesion = pos;
-  int i = 1;
   pc.flock.clear();
 
   for (auto& col : colliders) {
@@ -65,12 +63,10 @@ Wander::update()
       auto center = (col.maxs + col.mins) / 2.0f;
       float radius = w_magnitude(center - col.mins);
       builder.add_flock(pos + nearest_dist_with_radii(pos, 0, center, radius));
-      pc.cohesion += center;
-      i++;
     }
   }
-  pc.cohesion /= (float)i;
-  builder.add_cohesion(pc.cohesion);
+  builder.add_avoid_collision(m_world.grid(), m_world.navmesh());
+
   ic.jump.push(true);
   auto steering =
     builder.end(m_world.get<SimpleFlyComponent>(m_entity).c_accel);
