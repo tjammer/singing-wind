@@ -33,13 +33,6 @@ SteeringBuilder::flee(const WVec& pos)
 }
 
 SteeringBuilder&
-SteeringBuilder::arrive(const WVec& pos, float radius)
-{
-  add_arrive(pos, radius);
-  return *this;
-}
-
-SteeringBuilder&
 SteeringBuilder::flock(const WVec& pos)
 {
   auto dir = w_normalize(pos - m_pos);
@@ -70,17 +63,6 @@ SteeringBuilder::add_flee(const WVec& position)
 {
   auto desired_velocity = w_normalize(position - m_pos) * m_max_vel;
   m_seek -= desired_velocity - m_vel;
-}
-
-void
-SteeringBuilder::add_arrive(const WVec& position, float radius)
-{
-  auto offset = position - m_pos;
-  auto dist = w_magnitude(offset);
-  auto ramped_vel = m_max_vel * (dist / radius);
-  ramped_vel = fmin(ramped_vel, m_max_vel);
-  auto desired_velocity = ramped_vel / dist * offset;
-  m_seek += desired_velocity - m_vel;
 }
 
 void
