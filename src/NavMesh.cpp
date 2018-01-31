@@ -3,7 +3,7 @@
 //
 
 #include "NavMesh.h"
-#include "ColGrid.h"
+#include "StaticGrid.h"
 #include "Collision.h"
 #include "GameWorld.h"
 #include "WVecMath.h"
@@ -92,7 +92,7 @@ NavTree::get_nodes() const
 
 std::unordered_map<NavNode, std::vector<NavLink>> walkable_from_tri(
   std::array<WVec, 3> tri,
-  const HashGrid<StaticTriangle>& grid)
+  const StaticGrid<StaticTriangle>& grid)
 {
   std::unordered_map<NavNode, std::vector<NavLink>> graph;
   std::vector<NavNode> nodes;
@@ -140,7 +140,7 @@ triangle_is_adjacent(const QuickTri& tri1, const QuickTri& tri2)
 
 NavMesh
 build_navmesh_walk(const std::vector<Island>& m_islands,
-                   const HashGrid<StaticTriangle>& grid)
+                   const StaticGrid<StaticTriangle>& grid)
 {
   NavMesh mesh;
   std::vector<WVec> triangles;
@@ -166,7 +166,7 @@ build_navmesh_walk(const std::vector<Island>& m_islands,
 
 NavMesh
 build_navmesh_fly(const std::vector<Island>& islands,
-                  const HashGrid<StaticTriangle>& static_grid)
+                  const StaticGrid<StaticTriangle>& static_grid)
 
 {
   NavMesh mesh;
@@ -241,14 +241,14 @@ NavMesh::get_nearest(const WVec& pos) const
 
 NavNode
 NavMesh::get_nearest_visible(const WVec& pos,
-                             const HashGrid<StaticTriangle>& grid) const
+                             const StaticGrid<StaticTriangle>& grid) const
 {
   // get four nearest
   auto inds = m_tree.get_nearest_indices(pos);
   const auto& nodes = m_tree.get_nodes();
   for (auto& i : inds) {
     const auto& node = nodes[i];
-    if (!cast_ray_vs_static_grid(grid, pos, WVec{ node.x, node.y }).hits) {
+    if (!grid.raycast_against_grid(pos, WVec{ node.x, node.y }).hits) {
       return node;
     }
   }

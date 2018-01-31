@@ -1,5 +1,5 @@
 #include "EnemyInRange.h"
-#include "ColGrid.h"
+#include "StaticGrid.h"
 #include "Collision.h"
 #include "GameWorld.h"
 #include "Pathfinding.h"
@@ -25,8 +25,8 @@ EnemyInRange::update()
     if (m_world.get<TagComponent>(col.entity)
           .tags.test(static_cast<int>(Tags::Protagonist))) {
       m_world.get<PathingComponent>(m_entity).following = col.entity;
-      auto cast_result = cast_ray_vs_static_grid(
-        m_world.grid(), pos, (col.maxs + col.mins) / 2.0f);
+      auto cast_result =
+        m_world.grid().raycast_against_grid(pos, (col.maxs + col.mins) / 2.0f);
       if (!cast_result.hits) {
         return Status::Success;
       }

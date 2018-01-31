@@ -1,6 +1,6 @@
 #include "steering.h"
 #include "WVecMath.h"
-#include "ColGrid.h"
+#include "StaticGrid.h"
 #include "CollisionComponent.h"
 #include "NavMesh.h"
 #include <random>
@@ -98,7 +98,7 @@ SteeringBuilder::add_wander(WVec& steering_force,
 }
 
 void
-SteeringBuilder::add_avoid_collision(const HashGrid<StaticTriangle>& grid,
+SteeringBuilder::add_avoid_collision(StaticGrid<StaticTriangle>& grid,
                                      const NavMesh& mesh)
 {
   RayCastResult result;
@@ -108,13 +108,13 @@ SteeringBuilder::add_avoid_collision(const HashGrid<StaticTriangle>& grid,
 
   auto p1 = m_pos + tangent * m_cohesion_length;
   auto res1 =
-    cast_ray_vs_static_grid(grid, p1, p1 + dir * m_cohesion_length * 4.0f);
+    grid.raycast_against_grid(p1, p1 + dir * m_cohesion_length * 4.0f);
   if (res1.hits) {
     result = res1;
   }
 
   auto p2 = m_pos - tangent * m_cohesion_length;
-  res1 = cast_ray_vs_static_grid(grid, p2, p2 + dir * m_cohesion_length * 4.0f);
+  res1 = grid.raycast_against_grid(p2, p2 + dir * m_cohesion_length * 4.0f);
   if (res1.hits && res1.hit_parameter < result.hit_parameter) {
     result = res1;
   }

@@ -2,6 +2,7 @@
 #include "Collision.h"
 #include "Components.h"
 #include "GameWorld.h"
+#include "StaticGrid.h"
 #include "InputComponent.h"
 #include "NavMesh.h"
 #include "PosComponent.h"
@@ -104,7 +105,7 @@ get_path(const WVec& from,
          PathingComponent& pc)
 {
   // first of all check if there is direct visiblity
-  auto direct_sight = cast_ray_vs_static_grid(world.grid(), from, to);
+  auto direct_sight = world.grid().raycast_against_grid(from, to);
   if (!direct_sight.hits) {
     pc.path.clear();
     pc.path.push_back(to);
@@ -185,11 +186,11 @@ can_follow_path_until_zero(const WVec& pos,
 {
   while (pc.index > 0) {
     // can see current point
-    auto result = cast_ray_vs_static_grid(world.grid(), pos, pc.path[pc.index]);
+    auto result = world.grid().raycast_against_grid(pos, pc.path[pc.index]);
     if (result.hits) {
       return false;
     }
-    result = cast_ray_vs_static_grid(world.grid(), pos, pc.path[pc.index - 1]);
+    result = world.grid().raycast_against_grid(pos, pc.path[pc.index - 1]);
     if (!result.hits) {
       pc.index--;
       pc.path.pop_back();

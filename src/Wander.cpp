@@ -8,6 +8,8 @@
 #include "TagComponent.h"
 #include "Pathfinding.h"
 #include "CollisionComponent.h"
+#include "ColShape.h"
+#include "WVecMath.h"
 #include "steering.h"
 
 Wander::Wander(GameWorld& world,

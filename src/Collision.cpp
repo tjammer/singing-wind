@@ -3,11 +3,9 @@
 //
 
 #include "Collision.h"
-#include "ColGrid.h"
 #include "ColShape.h"
 #include <WVecMath.h>
 #include <assert.h>
-#include <bits/shared_ptr.h>
 #include <set>
 
 const float c_epsilon = 0.01f;
@@ -382,82 +380,4 @@ operator<<(std::ostream& os, const ColResult& result)
             << ", normal: x: " << result.normal.x << " y: " << result.normal.y
             << ", depth: " << result.depth << ", gjk it: " << result.gjk_it
             << ", epa it: " << result.epa_it;
-}
-
-inline void
-swap(float& p1, float& p2)
-{
-  auto tmp = p1;
-  p1 = p2;
-  p2 = tmp;
-}
-inline float
-pymod(float a, float b)
-{
-  return fmod(b + fmod(a, b), b);
-}
-
-RayCastResult
-cast_ray_vs_static_grid(const HashGrid<StaticTriangle>& grid,
-                        const WVec& from,
-                        const WVec& to)
-{
-  // http://www.cs.yorku.ca/~amana/research/grid.pdf
-  std::set<unsigned int> tested;
-
-  auto dir = w_normalize(to - from);
-
-  RayCastResult result;
-
-  auto pos = from;
-
-  float cell_size = static_cast<float>(grid.get_size());
-
-  float x_dt = 0;
-  float y_dt = 0;
-
-  while ((to.x - pos.x) * dir.x >= 0 && (to.y - pos.y) * dir.y >= 0) {
-    float t = 0;
-    if (x_dt < y_dt) {
-      t = x_dt;
-    } else {
-      t = y_dt;
-    }
-    pos += dir * t;
-
-    auto colliders = grid.get_colliders_of_point(pos);
-    // check collision
-    for (const auto& tri : colliders) {
-      if (tested.count(tri.id)) {
-        continue;
-      }
-      auto res = cast_ray_vs_shape(from, *tri.shape, -dir);
-      if (res.hit_parameter < result.hit_parameter) {
-        assert(res.hits);
-        result = res;
-      }
-      tested.insert(tri.id);
-    }
-    if (result.hits) {
-      if (result.hit_parameter > w_magnitude(to - from)) {
-        result.hits = false;
-      } else {
-        break;
-      }
-    }
-
-    // todo: find xdt and ydt
-    if (dir.x != 0) {
-      x_dt = pymod(copysignf(pos.x, dir.x), cell_size) / abs(dir.x) + 0.1f;
-    } else {
-      x_dt = std::numeric_limits<float>::max();
-    }
-
-    if (dir.y != 0) {
-      y_dt = pymod(copysignf(pos.y, dir.y), cell_size) / abs(dir.y) + 0.1f;
-    } else {
-      y_dt = std::numeric_limits<float>::max();
-    }
-  }
-  return result;
 }

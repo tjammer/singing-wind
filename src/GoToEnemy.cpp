@@ -9,6 +9,7 @@
 #include "TagComponent.h"
 #include "Pathfinding.h"
 #include "CollisionComponent.h"
+#include "StaticGrid.h"
 #include "WVecMath.h"
 #include "steering.h"
 
@@ -52,7 +53,7 @@ GoToEnemy::update()
       m_world.get<PosComponent>(pc.following).global_position;
     float follow_radius =
       m_world.get<ColShapeComponent>(pc.following).shape->get_radius();
-    auto result = cast_ray_vs_static_grid(m_world.grid(), pos, follow);
+    auto result = m_world.grid().raycast_against_grid(pos, follow);
     if (!result.hits) {
       pc.path[pc.index] = follow;
     } else {

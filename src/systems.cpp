@@ -5,7 +5,7 @@
 #include "systems.h"
 #include "AIComponent.h"
 #include "CPruneSweep.h"
-#include "ColGrid.h"
+#include "StaticGrid.h"
 #include "ColShape.h"
 #include "CollisionComponent.h"
 #include "Components.h"
@@ -22,6 +22,7 @@
 #include <WRenderer.h>
 #include <WVecMath.h>
 #include <algorithm>
+#include <set>
 
 void
 debug_draw_update(GameWorld& world, const std::vector<unsigned int>& entities)
@@ -56,18 +57,8 @@ static_col_update(GameWorld& world, const std::vector<unsigned int>& entities)
     shape->transform(transform);
 
     // overwrite result
-    result = ColResult();
+    result = world.grid().test_against_grid(shape);
 
-    auto colliders = world.grid().find_colliders_in_radius(shape->m_center,
-                                                           shape->get_radius());
-    for (const auto& tri : colliders) {
-      auto cr = shape->collides(*tri.shape);
-      if (cr.collides) {
-        if (cr.depth > result.depth) {
-          result = cr;
-        }
-      }
-    }
     shape->reset();
 
     if (result.collides && result.epa_it < 21) {
@@ -88,16 +79,8 @@ static_col_update(GameWorld& world, const std::vector<unsigned int>& entities)
       build_global_transform(world, entity);
       shape->transform(transform);
 
-      ColResult second_result;
+      auto second_result = world.grid().test_against_grid(shape);
 
-      for (const auto& tri : colliders) {
-        auto cr = shape->collides(*tri.shape);
-        if (cr.collides) {
-          if (cr.depth > second_result.depth) {
-            second_result = cr;
-          }
-        }
-      }
       shape->reset();
 
       if (second_result.collides) {

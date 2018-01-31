@@ -5,7 +5,7 @@
 
 struct StaticTriangle;
 template<typename t>
-class HashGrid;
+class StaticGrid;
 class NavMesh;
 
 class SteeringBuilder
@@ -28,7 +28,7 @@ public:
   void add_wander(WVec& steering_force,
                   float max_steering,
                   float max_displacement);
-  void add_avoid_collision(const HashGrid<StaticTriangle>& grid,
+  void add_avoid_collision(StaticGrid<StaticTriangle>& grid,
                            const NavMesh& mesh);
   WVec end(float force);
 

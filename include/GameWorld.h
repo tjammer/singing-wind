@@ -9,12 +9,14 @@
 #include <vector>
 #include <memory>
 #include "WindDefs.h"
-#include "ColGrid.h"
 #include "NavMesh.h"
 #include "CPruneSweep.h"
 
 struct GLFWwindow;
 struct NavMesh;
+struct StaticTriangle;
+template<typename grid_object>
+class StaticGrid;
 class Island;
 
 // physics constants
@@ -61,8 +63,8 @@ public:
   template<typename C>
   C& get(unsigned int entity);
 
-  HashGrid<StaticTriangle>& grid();
-  HashGrid<StaticTriangle> const& grid() const;
+  StaticGrid<StaticTriangle>& grid();
+  StaticGrid<StaticTriangle> const& grid() const;
   PruneSweeper& prune_sweep();
   NavMesh& navmesh();
   NavMesh const& navmesh() const;

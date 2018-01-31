@@ -10,6 +10,8 @@
 #include "LifeTimeComponent.h"
 #include "InputComponent.h"
 #include "HealthComponent.h"
+#include "ColShape.h"
+#include "WVecMath.h"
 
 void
 DiskCastMove::accel(GameWorld& world, unsigned int entity)

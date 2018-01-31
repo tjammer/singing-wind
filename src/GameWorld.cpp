@@ -4,7 +4,7 @@
 
 #include "GameWorld.h"
 #include "AIComponent.h"
-#include "ColGrid.h"
+#include "StaticGrid.h"
 #include "ColShape.h"
 #include "CollisionComponent.h"
 #include "Editor.h"
@@ -75,7 +75,7 @@ public:
   std::vector<NameComponent> m_name_c;
   std::vector<HealthComponent> m_health_c;
 
-  HashGrid<StaticTriangle> m_grid;
+  StaticGrid<StaticTriangle> m_grid;
   PruneSweeper m_prune_sweep;
   std::vector<Island> m_islands;
   NavMesh m_navmesh;
@@ -261,10 +261,11 @@ GameWorld::update_world()
       auto p3 = WVec(get<PosComponent>(0).global_transform *
                      WVec3(triangles[i * 3 + 2], 1));
       auto tri = std::make_shared<ColTriangle>(p1, p2, p3);
-      grid().add_object(
+      grid().lazy_add(
         StaticTriangle{ tri->m_center, tri->get_radius(), tri, i });
     }
   }
+  grid().finish();
 
   pimpl->m_navmesh = build_navmesh_fly(islands(), grid());
 
@@ -520,13 +521,14 @@ GameWorld::queue_create(EntityCreator creator)
 {
   pimpl->m_to_create.push_back(std::move(creator));
 }
-HashGrid<StaticTriangle>&
+
+StaticGrid<StaticTriangle>&
 GameWorld::grid()
 {
   return pimpl->m_grid;
 }
 
-HashGrid<StaticTriangle> const&
+StaticGrid<StaticTriangle> const&
 GameWorld::grid() const
 {
   return pimpl->m_grid;

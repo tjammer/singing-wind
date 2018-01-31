@@ -27,7 +27,7 @@
 class Island;
 struct StaticTriangle;
 template<typename grid_object>
-class HashGrid;
+class StaticGrid;
 class GameWorld;
 
 enum class NodeType : int
@@ -94,7 +94,7 @@ struct NavMesh
 
   NavNode get_nearest(const WVec& pos) const;
   NavNode get_nearest_visible(const WVec& pos,
-                              const HashGrid<StaticTriangle>& grid) const;
+                              const StaticGrid<StaticTriangle>& grid) const;
 
   // for reusage
   // std::unordered_map<NavNode, NavNode> m_path;
@@ -110,11 +110,11 @@ private:
 
 NavMesh
 build_navmesh_walk(const std::vector<Island>& islands,
-                   const HashGrid<StaticTriangle>& gridmesh);
+                   const StaticGrid<StaticTriangle>& gridmesh);
 
 NavMesh
 build_navmesh_fly(const std::vector<Island>& islands,
-                  const HashGrid<StaticTriangle>& static_grid);
+                  const StaticGrid<StaticTriangle>& static_grid);
 
 inline float
 heuristic(const NavNode& from, const NavNode& to)
