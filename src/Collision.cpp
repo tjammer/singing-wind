@@ -17,7 +17,7 @@ ColResult
 static_collide(const ColShape& a, const ColShape& b)
 {
   ColResult result;
-  WVec v = a.get_support(WVec(1, 0)) - b.get_support(WVec(-1, 0));
+  WVec v = a.get_support(WVec(-1, 0)) - b.get_support(WVec(1, 0));
   Simplex s;
   WVec w = a.get_support(-v) - b.get_support(v);
   int it = 0;
