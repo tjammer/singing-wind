@@ -28,8 +28,9 @@ public:
   void add_wander(WVec& steering_force,
                   float max_steering,
                   float max_displacement);
-  void add_avoid_collision(StaticGrid<StaticTriangle>& grid,
-                           const NavMesh& mesh);
+  void add_avoid_collision(const StaticGrid<StaticTriangle>& grid,
+                           const NavMesh& mesh,
+                           WVec& wander);
   WVec end(float force);
 
 private:

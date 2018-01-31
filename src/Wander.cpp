@@ -67,7 +67,7 @@ Wander::update()
       builder.add_flock(pos + nearest_dist_with_radii(pos, 0, center, radius));
     }
   }
-  builder.add_avoid_collision(m_world.grid(), m_world.navmesh());
+  builder.add_avoid_collision(m_world.grid(), m_world.navmesh(), force);
 
   ic.jump.push(true);
   auto steering =

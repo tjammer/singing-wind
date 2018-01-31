@@ -98,8 +98,9 @@ SteeringBuilder::add_wander(WVec& steering_force,
 }
 
 void
-SteeringBuilder::add_avoid_collision(StaticGrid<StaticTriangle>& grid,
-                                     const NavMesh& mesh)
+SteeringBuilder::add_avoid_collision(const StaticGrid<StaticTriangle>& grid,
+                                     const NavMesh& mesh,
+                                     WVec& wander)
 {
   RayCastResult result;
   // first ray
@@ -123,9 +124,13 @@ SteeringBuilder::add_avoid_collision(StaticGrid<StaticTriangle>& grid,
     return;
   }
 
-  m_seek -= w_normalize(result.hit_normal) * m_max_vel * 2.5f;
-  m_seek +=
-    w_normalize(WVec{ mesh.get_nearest(m_pos) } - m_pos) * m_max_vel * 0.5f;
+  float vel = w_magnitude(m_vel);
+  m_seek -= w_normalize(result.hit_normal) * vel * 2.0f;
+  m_seek += w_normalize(WVec{ mesh.get_nearest(m_pos) } - m_pos) * vel * 0.5f;
+  auto dot = w_dot(w_normalize(wander), result.hit_normal);
+  if (-0.3 < dot && dot < 0) {
+    w_reflect(wander, result.hit_normal);
+  }
 }
 
 WVec
