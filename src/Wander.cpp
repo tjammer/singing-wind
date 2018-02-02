@@ -24,17 +24,6 @@ Wander::Wander(GameWorld& world,
   m_radius = world.get<ColShapeComponent>(entity).shape->get_radius();
 }
 
-void
-Wander::enter()
-{
-  std::random_device r;
-  std::default_random_engine gen{ r() };
-  std::uniform_real_distribution<float> dist{ -1, 1 };
-  WVec force = { dist(gen), dist(gen) };
-  force = w_normalize(force) * m_max_mag;
-  m_world.get<PatrolComponent>(m_entity).patrol_point = force;
-}
-
 behaviour_tree::Status
 Wander::update()
 {
@@ -74,10 +63,10 @@ Wander::update()
     builder.end(m_world.get<SimpleFlyComponent>(m_entity).c_accel);
   ic.mouse.push(m_world.get<PosComponent>(m_entity).global_position + steering);
 
-  return Status::Running;
+  return Status::Success;
 }
 
 void Wander::leave(behaviour_tree::Status)
 {
-  m_world.get<InputComponent>(m_entity).jump.push(false);
+  // m_world.get<InputComponent>(m_entity).jump.push(false);
 }

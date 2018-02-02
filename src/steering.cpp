@@ -5,7 +5,7 @@
 #include "NavMesh.h"
 #include <random>
 
-#include <iostream>
+std::default_random_engine gen{ 110 };
 
 SteeringBuilder::SteeringBuilder(const WVec& self_pos,
                                  const WVec& self_vel,
@@ -86,8 +86,6 @@ SteeringBuilder::add_wander(WVec& steering_force,
                             float max_steering,
                             float max_displacement)
 {
-  std::random_device r;
-  std::default_random_engine gen{ r() };
   std::uniform_real_distribution<float> dist{ -max_displacement,
                                               max_displacement };
   WVec displacement{ dist(gen), dist(gen) };
