@@ -15,7 +15,6 @@ public:
          float max_mag,
          float wander_rate);
   behaviour_tree::Status update() override;
-  void enter() override;
   void leave(behaviour_tree::Status) override;
 
 private:

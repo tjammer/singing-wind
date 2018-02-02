@@ -51,4 +51,5 @@ set(SOURCE_FILES
     src/SkillDisk.cpp
     src/HealthComponent.cpp
     src/Wander.cpp
+    src/RunForFrames.cpp
     )

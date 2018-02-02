@@ -7,5 +7,6 @@
 #include "GoToEnemy.h"
 #include "Inverter.h"
 #include "Wander.h"
+#include "RunForFrames.h"
 
 #endif /* BEHAVIOURS_H */

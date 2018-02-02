@@ -8,15 +8,19 @@ testenemy::get_tree(GameWorld& world, unsigned int entity)
 {
   using namespace behaviour_tree;
   auto tree = WBehaviourTreeBuilder<BehaviourTree>(AITreeType::TestEnemy)
-                .decorator<Inverter>()
-                .node<EnemyInRange>(world, entity, 700)
-                .end()
+                .composite<Sequence>()
+                .node<EnemyInRange>(world, entity, 200)
+                //.end()
                 // TODO: maybe do nothing?
                 .end()
-                //.node<GoToEnemy>(world, entity)
+                .decorator<RunForFrames>(300)
+                .node<GoToEnemy>(world, entity)
+                .end()
+                .end()
+                .end()
                 .node<Wander>(world, entity, 1.3, .4)
                 .end()
-                .end();
 
+                .end();
   return tree;
 };
