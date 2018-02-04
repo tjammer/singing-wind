@@ -9,6 +9,6 @@
 #include "Wander.h"
 #include "RunForFrames.h"
 #include "UseSkill.h"
-#include "HoldDistance.h"
+#include "Idle.h"
 
 #endif /* BEHAVIOURS_H */

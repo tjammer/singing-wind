@@ -20,6 +20,7 @@ enum class SkillID : int
   Melee,
   Lounge,
   Disk,
+  SixPattern,
   state_count
 };
 

@@ -41,3 +41,20 @@ wandercharge::get_tree(GameWorld& world, unsigned int entity)
                 .end();
   return tree;
 }
+
+behaviour_tree::BehaviourTree
+stillfirepattern::get_tree(GameWorld& world, unsigned int entity)
+{
+  using namespace behaviour_tree;
+  auto tree = WBehaviourTreeBuilder<BehaviourTree>(AITreeType::StillFirePattern)
+                .composite<Sequence>()
+                .node<EnemyInRange>(world, entity, 400)
+                .end()
+                .node<UseSkill>(world, entity)
+                .end()
+                .end()
+                .node<Idle>(world, entity, 1.3, .4)
+                .end()
+                .end();
+  return tree;
+}
