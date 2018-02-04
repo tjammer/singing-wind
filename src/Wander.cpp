@@ -11,6 +11,7 @@
 #include "ColShape.h"
 #include "WVecMath.h"
 #include "steering.h"
+#include <random>
 
 Wander::Wander(GameWorld& world,
                unsigned int entity,
