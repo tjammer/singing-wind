@@ -80,6 +80,7 @@ create_disk(GameWorld& world, unsigned int hurtbox, unsigned int parent)
   world.get<NameComponent>(hurtbox).name = "disk_projectile";
 
   // pos
+  world.get<PosComponent>(hurtbox) = PosComponent();
   world.get<PosComponent>(hurtbox).position =
     world.get<PosComponent>(parent).global_position;
   build_global_transform(world, hurtbox);
