@@ -9,7 +9,8 @@
 namespace ai {
 const std::map<AITreeType, const char*> c_ai_types = {
   { AITreeType::None, "None" },
-  { AITreeType::TestEnemy, "TestEnemy" }
+  { AITreeType::TestEnemy, "TestEnemy" },
+  { AITreeType::WanderCharge, "WanderCharge" }
 };
 
 const auto ai_types = get_enum_string_array(c_ai_types);
@@ -38,6 +39,14 @@ init_ai_type(GameWorld& world, unsigned int entity, AITreeType a_type)
     case AITreeType::TestEnemy: {
       world.get<AIComponent>(entity).btree = testenemy::get_tree(world, entity);
       break;
+    }
+    case AITreeType::WanderCharge: {
+      world.get<AIComponent>(entity).btree =
+        wandercharge::get_tree(world, entity);
+      break;
+    }
+    default: {
+      assert(false);
     }
   }
 }

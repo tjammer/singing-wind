@@ -33,6 +33,7 @@ enum class TimedMoveStateName : int
   MeleeCast,
   LoungeCast,
   LoungeAttack,
+  LoungeAfterCast,
   DiskCast,
   DiskProjectile,
   state_count
