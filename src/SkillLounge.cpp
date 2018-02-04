@@ -107,7 +107,7 @@ LoungeCastMove::accel(GameWorld& world, unsigned int entity)
   // cancel gravity
   mc.accel.y -= c_gravity;
   // slow caster down
-  mc.accel -= w_normalize(mc.velocity) * w_magnitude(mc.velocity) * 0.9f;
+  mc.accel -= mc.velocity * 1.5f;
 }
 
 void
@@ -117,30 +117,37 @@ LoungeAttackMove::accel(GameWorld& world, unsigned int entity)
   auto& mc = world.get<MoveComponent>(entity);
   auto& ic = world.get<InputComponent>(entity);
 
-  float lounge_speed = 1200;
-  float lounge_accel = 3500;
-  float change_angle = mc.c_max_change_angle * 0.5f;
+  float lounge_speed = 2000;
+  WVec dir = w_normalize(mc.velocity);
 
-  auto vel = w_normalize(mc.velocity);
-  // normal accel
-  mc.accel = w_rotated(WVec(0, -1), pc.rotation * pc.direction) * lounge_accel;
-
-  auto dir = w_normalize(ic.mouse.get() - pc.global_position);
-  // when target before actor, steer towards
-  if (dot(dir, w_rotated(WVec(0, -1), pc.rotation * pc.direction)) > 0) {
-    auto angle =
-      w_angle_to_vec(w_rotated(WVec(0, -1), pc.rotation * pc.direction), dir);
-    rotate_angle(angle * pc.direction, change_angle, pc);
-
-    // steer
-    mc.accel = dir * lounge_accel;
-  }
-
-  mc.velocity = fmin(w_magnitude(mc.velocity), lounge_speed) * vel;
+  mc.accel = SteeringBuilder(pc.global_position, mc.velocity, lounge_speed, 1)
+               .seek(ic.mouse.get())
+               .end(0);
+  auto angle =
+    w_angle_to_vec(w_rotated(WVec(0, -1), pc.rotation * pc.direction), dir);
+  rotate_angle(angle * pc.direction, mc.c_max_change_angle, pc);
+  mc.velocity = w_magnitude(mc.velocity) *
+                w_rotated(WVec(0, -1), pc.rotation * pc.direction);
 }
 
 void
 LoungeSkill::set_special(MoveComponent& mc)
 {
   mc.special_movestate = std::make_unique<LoungeCastMove>();
+}
+
+void
+LoungeAfterCastMove::accel(GameWorld& world, unsigned int entity)
+{
+  auto& pc = world.get<PosComponent>(entity);
+  auto& mc = world.get<MoveComponent>(entity);
+
+  auto angle = w_angle_to_vec(
+    w_rotated(WVec(0, -1), pc.rotation * pc.direction), mc.velocity);
+  rotate_angle(angle * pc.direction, mc.c_max_change_angle, pc);
+
+  // cancel gravity
+  mc.accel.y -= c_gravity;
+  // slow caster down
+  mc.accel -= mc.velocity;
 }

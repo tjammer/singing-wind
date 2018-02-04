@@ -1,4 +1,0 @@
-#ifndef HOLDDISTANCE_H
-#define HOLDDISTANCE_H
-
-#endif /* HOLDDISTANCE_H */

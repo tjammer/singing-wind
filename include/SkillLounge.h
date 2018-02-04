@@ -4,13 +4,29 @@
 #include "SkillComponent.h"
 #include "MoveSystems.h"
 
+class LoungeAfterCastMove : public TimedMoveState
+{
+public:
+  void enter(GameWorld&, unsigned int) override {}
+  void accel(GameWorld&, unsigned int) override;
+  void leave(GameWorld&, unsigned int) override {}
+  std::unique_ptr<TimedMoveState> next() override { return nullptr; }
+  LoungeAfterCastMove()
+    : TimedMoveState(TimedMoveStateName::LoungeAfterCast, 1)
+  {
+  }
+};
+
 class LoungeAttackMove : public TimedMoveState
 {
 public:
   void enter(GameWorld&, unsigned int) override;
   void accel(GameWorld&, unsigned int) override;
   void leave(GameWorld&, unsigned int) override {}
-  std::unique_ptr<TimedMoveState> next() override { return nullptr; }
+  std::unique_ptr<TimedMoveState> next() override
+  {
+    return std::make_unique<LoungeAfterCastMove>();
+  }
   LoungeAttackMove()
     : TimedMoveState(TimedMoveStateName::LoungeAttack, 1.6)
   {
@@ -38,7 +54,7 @@ class LoungeSkill : public BaseSkill
 public:
   void set_special(MoveComponent& move_c) override;
   LoungeSkill()
-    : BaseSkill(SkillID::Lounge, 2.8, 5)
+    : BaseSkill(SkillID::Lounge, 3.8, 6)
   {
   }
 };
