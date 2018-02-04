@@ -22,7 +22,11 @@ enum class AIState : int
 enum class AITreeType : int
 {
   None,
-  TestEnemy
+  TestEnemy,
+  WanderCharge,
+  StillFirePattern,
+  StillDeploy,
+  Swarmer
 };
 
 struct AIComponent

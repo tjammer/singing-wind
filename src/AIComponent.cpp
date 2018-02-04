@@ -3,7 +3,7 @@
 #include "EntityEditor.h"
 #include "GameWorld.h"
 #include "MoveSystems.h"
-#include "TestEnemyAI.h"
+#include "AIs.h"
 #include <imgui.h>
 
 namespace ai {

@@ -44,7 +44,7 @@ set(SOURCE_FILES
     src/SkillLounge.cpp
     src/NTimes.cpp
     src/EnemyInRange.cpp
-    src/TestEnemyAI.cpp
+    src/AIs.cpp
     src/GoToEnemy.cpp
     src/StatusEffectKnockback.cpp
     src/StatusEffectHitstun.cpp
@@ -52,4 +52,5 @@ set(SOURCE_FILES
     src/HealthComponent.cpp
     src/Wander.cpp
     src/RunForFrames.cpp
+    src/UseSkill.cpp
     )

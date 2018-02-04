@@ -8,5 +8,6 @@
 #include "Inverter.h"
 #include "Wander.h"
 #include "RunForFrames.h"
+#include "UseSkill.h"
 
 #endif /* BEHAVIOURS_H */

@@ -1,5 +1,5 @@
-#ifndef TESTENEMYAI_H
-#define TESTENEMYAI_H
+#ifndef AIS_H
+#define AIS_H
 
 #include "WBehaviourTree.h"
 
@@ -10,4 +10,24 @@ behaviour_tree::BehaviourTree
 get_tree(GameWorld&, unsigned int);
 };
 
-#endif /* TESTENEMYAI_H */
+namespace wandercharge {
+behaviour_tree::BehaviourTree
+get_tree(GameWorld&, unsigned int);
+};
+
+namespace stillfirepattern {
+behaviour_tree::BehaviourTree
+get_tree(GameWorld&, unsigned int);
+};
+
+namespace stilldeploy {
+behaviour_tree::BehaviourTree
+get_tree(GameWorld&, unsigned int);
+};
+
+namespace swarm {
+behaviour_tree::BehaviourTree
+get_tree(GameWorld&, unsigned int);
+};
+
+#endif /* AIS_H */
