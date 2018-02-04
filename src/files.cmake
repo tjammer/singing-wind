@@ -53,4 +53,5 @@ set(SOURCE_FILES
     src/Wander.cpp
     src/RunForFrames.cpp
     src/UseSkill.cpp
+    src/HoldDistance.cpp
     )
