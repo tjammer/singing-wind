@@ -538,6 +538,17 @@ void
 GameWorld::queue_delete(unsigned int entity)
 {
   pimpl->m_to_delete.push_back(entity);
+  queue_delete_children(entity);
+}
+
+void
+GameWorld::queue_delete_children(unsigned int entity)
+{
+  for (auto it = pimpl->m_pos_c.begin(); it != pimpl->m_pos_c.end(); ++it) {
+    if ((*it).parent == entity) {
+      queue_delete(it - pimpl->m_pos_c.begin());
+    }
+  }
 }
 
 void

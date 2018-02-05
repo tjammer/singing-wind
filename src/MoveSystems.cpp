@@ -15,12 +15,12 @@
 void
 movement::interrupt(GameWorld& world, unsigned int entity)
 {
-  // TODO: reset skill, reset movement
   auto& mc = world.get<MoveComponent>(entity);
   mc.timer = 0;
   mc.moveset->init(world, entity);
   assert(mc.special_movestate == nullptr);
   skill::reset(world, entity);
+  world.queue_delete_children(entity);
 }
 
 void

@@ -53,6 +53,8 @@ public:
   void queue_delete(unsigned int entity);
   void queue_create(EntityCreator);
 
+  void queue_delete_children(unsigned int entity);
+
   // communication with editor
   void update_world();
 
