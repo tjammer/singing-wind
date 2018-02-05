@@ -16,17 +16,6 @@ can_cast(GameWorld& world, unsigned int entity, SkillID id)
   if (sc.active != nullptr) {
     return false;
   }
-  // if is moving normally on its own
-  auto& mc = world.get<MoveComponent>(entity);
-  if (mc.special_movestate != nullptr) {
-    if (mc.special_movestate->name() == TimedMoveStateName::FlyingAccel) {
-      // cancel
-      mc.special_movestate->leave(world, entity);
-      mc.special_movestate = nullptr;
-      return true;
-    }
-    return false;
-  }
 
   // check if skill is in equiped list
   auto skill_iterator = std::find_if(
@@ -41,6 +30,19 @@ can_cast(GameWorld& world, unsigned int entity, SkillID id)
   if ((*skill_iterator)->state != SkillState::Ready) {
     return false;
   }
+
+  // if is moving normally on its own
+  auto& mc = world.get<MoveComponent>(entity);
+  if (mc.special_movestate != nullptr) {
+    if (mc.special_movestate->name() == TimedMoveStateName::FlyingAccel) {
+      // cancel
+      mc.special_movestate->leave(world, entity);
+      mc.special_movestate = nullptr;
+      return true;
+    }
+    return false;
+  }
+
   return true;
 }
 

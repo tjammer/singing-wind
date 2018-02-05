@@ -198,6 +198,7 @@ skill_update(GameWorld& world,
           skill->state = SkillState::Cooldown;
           sc.active = nullptr;
         } else { // should be cooldown
+          assert(skill->state == SkillState::Cooldown);
           // to ready
           skill->state = SkillState::Ready;
         }
