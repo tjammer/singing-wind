@@ -12,7 +12,7 @@ public:
   void leave(GameWorld&, unsigned int) override;
   std::unique_ptr<TimedMoveState> next() override { return nullptr; }
   DiskCastMove()
-    : TimedMoveState(TimedMoveStateName::DiskCast, 0.4)
+    : TimedMoveState(TimedMoveStateName::DiskCast, 0.2)
   {
   }
 };
@@ -24,9 +24,10 @@ public:
   void accel(GameWorld&, unsigned int) override;
   void leave(GameWorld&, unsigned int) override;
   std::unique_ptr<TimedMoveState> next() override { return nullptr; }
-  DiskProjectileMove(const WVec& a_dir)
+  DiskProjectileMove(const WVec& a_dir, float a_speed)
     : TimedMoveState(TimedMoveStateName::DiskProjectile, 60)
     , dir(a_dir)
+    , move_speed(fmin(a_speed + 400, 1200)) // base speed
   {
   }
 
@@ -34,8 +35,8 @@ public:
   bool collided = false;
 
 private:
-  const float move_speed = 900;
   WVec dir;
+  const float move_speed;
 };
 
 class DiskSkill : public BaseSkill
@@ -43,7 +44,7 @@ class DiskSkill : public BaseSkill
 public:
   void set_special(MoveComponent&) override;
   DiskSkill()
-    : BaseSkill(SkillID::Disk, .6, 2)
+    : BaseSkill(SkillID::Disk, .6, 1)
   {
   }
 };

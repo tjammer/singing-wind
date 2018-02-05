@@ -54,6 +54,7 @@ disk_skill_hurtfunc(GameWorld& world,
   if (attacker == victim && !state.collided) {
     return false;
   }
+  movement::interrupt(world, victim);
   statuseffects::add_effect(world, victim, std::make_shared<Hitstun>(0.1f));
   statuseffects::add_effect(world, entity, std::make_shared<Hitstun>(0.05f));
   health::damage(world, victim, { 1 });
@@ -105,7 +106,8 @@ create_disk(GameWorld& world, unsigned int hurtbox, unsigned int parent)
   mc.special_movestate = std::make_unique<DiskProjectileMove>(
     w_rotated(WVec{ 0, -1 },
               world.get<PosComponent>(parent).rotation *
-                world.get<PosComponent>(parent).direction));
+                world.get<PosComponent>(parent).direction),
+    w_magnitude(world.get<MoveComponent>(parent).velocity));
   mc.moveset = std::make_unique<TimedOnlyMoveSet>();
 
   // hurtbox
