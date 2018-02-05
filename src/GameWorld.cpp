@@ -489,6 +489,30 @@ void
 GameWorld::delete_entity_raw(unsigned int entity)
 {
   pimpl->m_entities[entity].reset();
+  // reset every comp
+
+  pimpl->m_name_c[entity] = NameComponent();
+  pimpl->m_pos_c[entity] = PosComponent();
+  pimpl->m_debug_c[entity] = DebugComponent();
+  pimpl->m_input_c[entity] = InputComponent();
+  pimpl->m_move_c[entity] = MoveComponent();
+  pimpl->m_static_col_c[entity] = StaticColComponent();
+  pimpl->m_ground_move_c[entity] = GroundMoveComponent();
+  pimpl->m_fall_c[entity] = FallComponent();
+  pimpl->m_fly_c[entity] = FlyComponent();
+  pimpl->m_path_c[entity] = PathingComponent();
+  pimpl->m_simple_fly_c[entity] = SimpleFlyComponent();
+  pimpl->m_skill_c[entity] = SkillComponent();
+  pimpl->m_dyn_c[entity] = DynamicColComponent();
+  pimpl->m_tag_c[entity] = TagComponent();
+  pimpl->m_cshape_c[entity] = ColShapeComponent();
+  pimpl->m_lifetime_c[entity] = LifeTimeComponent();
+  pimpl->m_hurtbox_c[entity] = HurtBoxComponent();
+  pimpl->m_statuseffect_c[entity] = StatusEffectComponent();
+  assert(pimpl->m_statuseffect_c[entity].effects.size() == 0);
+  pimpl->m_ai_c[entity] = AIComponent();
+  pimpl->m_patrol_c[entity] = PatrolComponent();
+  pimpl->m_health_c[entity] = HealthComponent();
   assert(pimpl->m_entities[entity].none());
 }
 

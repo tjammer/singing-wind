@@ -6,8 +6,6 @@
 #include "WVecMath.h"
 #include <algorithm>
 
-#include <iostream>
-
 namespace statuseffects {
 void
 add_effect(GameWorld& world,

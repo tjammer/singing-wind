@@ -217,6 +217,9 @@ dyn_col_update(GameWorld& world, std::vector<unsigned int>& entities)
     // has dyn_col_comp
     auto& shape = world.get<ColShapeComponent>(box.entity).shape;
     checked.insert(box.entity);
+    if (!shape) {
+      continue;
+    }
     shape->transform(world.get<PosComponent>(box.entity).global_transform);
     box.mins = shape->m_center - shape->get_radius();
     box.maxs = shape->m_center + shape->get_radius();
@@ -305,18 +308,24 @@ statuseffect_update(GameWorld& world,
                     float dt,
                     const std::vector<unsigned int>& entities)
 {
+  std::vector<std::pair<std::shared_ptr<StatusEffect>, unsigned int>> to_delete;
   for (const auto& entity : entities) {
     for (auto& effect : world.get<StatusEffectComponent>(entity).effects) {
       effect->timer -= dt;
 
       if (effect->timer <= 0) {
         effect->leave(world, entity);
-        statuseffects::delete_effect(world.get<StatusEffectComponent>(entity),
-                                     effect);
+        // statuseffects::delete_effect(world.get<StatusEffectComponent>(entity),
+        //                             effect);
+        to_delete.push_back({ effect, entity });
       } else {
         effect->tick(world, entity);
       }
     }
+  }
+  for (auto& pr : to_delete) {
+    statuseffects::delete_effect(world.get<StatusEffectComponent>(pr.second),
+                                 pr.first);
   }
 }
 
