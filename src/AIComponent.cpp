@@ -10,7 +10,8 @@ namespace ai {
 const std::map<AITreeType, const char*> c_ai_types = {
   { AITreeType::None, "None" },
   { AITreeType::TestEnemy, "TestEnemy" },
-  { AITreeType::WanderCharge, "WanderCharge" }
+  { AITreeType::WanderCharge, "WanderCharge" },
+  { AITreeType::StillFirePattern, "StillFirePattern" }
 };
 
 const auto ai_types = get_enum_string_array(c_ai_types);
@@ -31,18 +32,22 @@ entity_edit(GameWorld& world, unsigned int entity)
 void
 init_ai_type(GameWorld& world, unsigned int entity, AITreeType a_type)
 {
+  auto& ac = world.get<AIComponent>(entity);
   switch (a_type) {
     case AITreeType::None: {
-      world.get<AIComponent>(entity).btree = testenemy::get_tree(world, entity);
+      ac.btree = testenemy::get_tree(world, entity);
       break;
     }
     case AITreeType::TestEnemy: {
-      world.get<AIComponent>(entity).btree = testenemy::get_tree(world, entity);
+      ac.btree = testenemy::get_tree(world, entity);
       break;
     }
     case AITreeType::WanderCharge: {
-      world.get<AIComponent>(entity).btree =
-        wandercharge::get_tree(world, entity);
+      ac.btree = wandercharge::get_tree(world, entity);
+      break;
+    }
+    case AITreeType::StillFirePattern: {
+      ac.btree = stillfirepattern::get_tree(world, entity);
       break;
     }
     default: {

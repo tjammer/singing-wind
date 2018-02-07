@@ -53,7 +53,7 @@ stillfirepattern::get_tree(GameWorld& world, unsigned int entity)
                 .node<UseSkill>(world, entity)
                 .end()
                 .end()
-                .node<Idle>(world, entity, 1.3, .4)
+                .node<Idle>(world, entity)
                 .end()
                 .end();
   return tree;

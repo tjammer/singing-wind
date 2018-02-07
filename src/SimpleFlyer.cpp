@@ -64,19 +64,15 @@ HoverMove::accel(GameWorld& world, unsigned int entity)
   auto& ic = world.get<InputComponent>(entity);
 
   // rotate
-  pc.rotation += copysignf(fmin(mc.c_max_change_angle, abs(pc.rotation)),
-                           pc.rotation - (float)M_PI);
-  pc.rotation = std::remainder(pc.rotation, (float)M_PI * 2.f);
+  rotate_angle(pc.direction * pc.rotation, mc.c_max_change_angle, pc);
 
   // hover
-  // mitigate gravity
-  mc.accel.y *= 0.0f;
-  mc.accel.y += c_gravity * .01f * (ic.mouse.get().y - pc.global_position.y);
+  mc.accel.y += 25.f * (ic.mouse.get().y - pc.global_position.y);
+  mc.accel.y -= mc.velocity.y * 0.1f;
 
+  auto xdiff = ic.mouse.get().x - pc.global_position.x;
+  mc.accel.x = fmin(xdiff, copysignf(200, xdiff));
   mc.accel.x -= fc.c_stop_coef * mc.velocity.x;
-  if (abs(mc.velocity.y) > 130) {
-    mc.accel.y -= fc.c_stop_coef * 0.01f * mc.velocity.y;
-  }
 }
 
 MoveStateName
