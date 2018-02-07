@@ -95,6 +95,7 @@ public:
 
     RayCastResult result;
     auto dir = glm::normalize(from - to);
+    auto mag = w_magnitude(from - to);
     m_tag++;
 
     while (true) {
@@ -105,7 +106,8 @@ public:
         if (object.tag != m_tag) {
           object.tag = m_tag;
           auto cr = cast_ray_vs_shape(from, *object.shape, dir);
-          if (cr.hit_parameter < result.hit_parameter) {
+          if (cr.hit_parameter < result.hit_parameter &&
+              cr.hit_parameter < mag) {
             assert(cr.hits);
             result = cr;
           }
