@@ -14,6 +14,7 @@ enum class StaticColResponse : int
   Actor,
   SimpleFlyer,
   DiskProjectile,
+  DeleteAfterCol,
   state_count
 };
 
@@ -53,6 +54,9 @@ std::function<void(GameWorld&, unsigned int)>
 get_static_col_response(const StaticColResponse&);
 std::function<void(GameWorld&, unsigned int)>
 get_dynamic_col_response(const DynColResponse&);
+
+void
+delete_after_col(GameWorld&, unsigned int);
 
 void
 set_static_col(StaticColComponent&, const StaticColResponse&);

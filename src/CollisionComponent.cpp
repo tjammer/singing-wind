@@ -12,10 +12,17 @@
 
 using response_func = std::function<void(GameWorld&, const unsigned int)>;
 
+void
+delete_after_col(GameWorld& world, unsigned int entity)
+{
+  world.queue_delete(entity);
+}
+
 const response_func c_static_col_responses[static_cast<size_t>(
   StaticColResponse::state_count)] = { actor::on_static_collision,
                                        simpleflyer::on_static_collision,
-                                       disk_projectile::on_static_collision };
+                                       disk_projectile::on_static_collision,
+                                       delete_after_col };
 
 const response_func c_dyn_col_responses[static_cast<size_t>(
   DynColResponse::state_count)] = { actor::on_dynamic_collision,
@@ -38,7 +45,8 @@ get_dynamic_col_response(const DynColResponse& scr)
 const std::map<StaticColResponse, const char*> staticcolresponse_string = {
   { StaticColResponse::Actor, "Actor" },
   { StaticColResponse::SimpleFlyer, "SimpleFlyer" },
-  { StaticColResponse::DiskProjectile, "DiskProjectile" }
+  { StaticColResponse::DiskProjectile, "DiskProjectile" },
+  { StaticColResponse::DeleteAfterCol, "DeleteAfterCol" }
 };
 
 const std::map<DynColResponse, const char*> c_dyn_col_response_string = {
