@@ -73,7 +73,8 @@ cast(GameWorld& world, unsigned int entity, SkillID id)
 const std::map<SkillID, const char*> skillid_string = {
   { SkillID::Melee, "Melee" },
   { SkillID::Lounge, "Lounge" },
-  { SkillID::Disk, "Disk" }
+  { SkillID::Disk, "Disk" },
+  { SkillID::SixPattern, "SixPattern" }
 };
 
 using skillset = std::bitset<static_cast<size_t>(SkillID::state_count)>;
