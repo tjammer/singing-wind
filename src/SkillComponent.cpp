@@ -4,6 +4,7 @@
 #include "SkillLounge.h"
 #include "SkillMelee.h"
 #include "SkillDisk.h"
+#include "SkillSixPattern.h"
 #include <algorithm>
 #include <imgui.h>
 
@@ -125,8 +126,12 @@ get_new_skill(SkillID id)
     case SkillID::Disk:
       return std::make_shared<DiskSkill>();
       break;
-    default:
-      return nullptr;
+    case SkillID::SixPattern:
+      return std::make_shared<SixPatternSkill>();
+      break;
+    case SkillID::state_count:
+      assert(false);
+      break;
   }
   return nullptr;
 }

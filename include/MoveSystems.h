@@ -36,6 +36,9 @@ enum class TimedMoveStateName : int
   LoungeAfterCast,
   DiskCast,
   DiskProjectile,
+  SixPatternCast,
+  SixPatternAfterCast,
+  PatternProjectile,
   state_count
 };
 

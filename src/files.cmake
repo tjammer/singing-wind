@@ -54,4 +54,5 @@ set(SOURCE_FILES
     src/RunForFrames.cpp
     src/UseSkill.cpp
     src/Idle.cpp
+    src/SkillSixPattern.cpp
     )
