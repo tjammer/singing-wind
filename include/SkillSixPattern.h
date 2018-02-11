@@ -57,7 +57,7 @@ class SixPatternSkill : public BaseSkill
 public:
   void set_special(MoveComponent&) override;
   SixPatternSkill()
-    : BaseSkill(SkillID::SixPattern, 2, 5)
+    : BaseSkill(SkillID::SixPattern, 2, 7)
   {
   }
 };

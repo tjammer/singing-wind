@@ -16,7 +16,7 @@ void
 SixPatternAfterCastMove::accel(GameWorld& world, unsigned int entity)
 {
   auto& mc = world.get<MoveComponent>(entity);
-  mc.accel -= 0.7f * mc.velocity;
+  mc.accel = -0.7f * mc.velocity;
 }
 
 void
@@ -24,7 +24,7 @@ SixPatternCastMove::accel(GameWorld& world, unsigned int entity)
 {
   auto& mc = world.get<MoveComponent>(entity);
   // cancel gravity and slow down
-  mc.accel = 0.7f * mc.velocity;
+  mc.accel = -0.7f * mc.velocity;
 }
 
 void
@@ -107,7 +107,7 @@ create_pattern_projectile(GameWorld& world,
 
   // moveset
   auto& mc = world.get<MoveComponent>(proj);
-  mc.special_movestate = std::make_unique<PatternProjectileMove>(dir, 600);
+  mc.special_movestate = std::make_unique<PatternProjectileMove>(dir, 400);
   mc.moveset = std::make_unique<TimedOnlyMoveSet>();
 
   // proj
