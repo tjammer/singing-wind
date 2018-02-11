@@ -15,6 +15,7 @@ UseSkill::UseSkill(GameWorld& world, unsigned int entity)
 void
 UseSkill::enter()
 {
+  m_can_cast = false;
   const auto& sc = m_world.get<SkillComponent>(m_entity);
   if (sc.skills.size() == 0) {
     return; // will fail
