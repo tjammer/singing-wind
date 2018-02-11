@@ -20,7 +20,7 @@ Idle::update()
   using namespace behaviour_tree;
 
   auto& pos = m_world.get<PosComponent>(m_entity).global_position;
-  WVec p = m_world.navmesh().get_nearest_visible(pos, m_world.grid());
+  WVec p = m_world.get<PatrolComponent>(m_entity).patrol_point;
   float radius = m_world.get<ColShapeComponent>(m_entity).shape->get_radius();
 
   if (w_magnitude(p - pos) > radius * 0.25f) {

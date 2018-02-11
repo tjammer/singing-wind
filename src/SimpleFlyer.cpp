@@ -68,7 +68,7 @@ HoverMove::accel(GameWorld& world, unsigned int entity)
 
   // hover
   mc.accel.y = 25.f * (ic.mouse.get().y - pc.global_position.y);
-  mc.accel.y = copysignf(fmin(150, abs(mc.accel.y)), mc.accel.y);
+  mc.accel.y = copysignf(fmin(200, abs(mc.accel.y)), mc.accel.y);
   // add driving force
   if (abs(ic.mouse.get().y - pc.global_position.y) < 2 && mc.velocity.y < 0) {
     mc.accel.y -= 50;
