@@ -23,7 +23,7 @@ Idle::update()
   WVec p = m_world.get<PatrolComponent>(m_entity).patrol_point;
   float radius = m_world.get<ColShapeComponent>(m_entity).shape->get_radius();
 
-  if (w_magnitude(p - pos) > radius * 0.25f) {
+  if (w_magnitude(p - pos) > radius * 0.5f) {
     m_world.get<InputComponent>(m_entity).mouse.push(p);
   } else {
     m_world.get<InputComponent>(m_entity).mouse.push(pos);

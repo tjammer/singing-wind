@@ -53,7 +53,9 @@ pattern_skill_hurtfunc(GameWorld& world,
                        unsigned int attacker,
                        unsigned int entity)
 {
-  if (attacker == victim) {
+  if (attacker == victim ||
+      world.get<TagComponent>(victim).tags.test(
+        static_cast<int>(Tags::Enemy))) {
     return false;
   }
   movement::interrupt(world, victim);
@@ -107,7 +109,7 @@ create_pattern_projectile(GameWorld& world,
 
   // moveset
   auto& mc = world.get<MoveComponent>(proj);
-  mc.special_movestate = std::make_unique<PatternProjectileMove>(dir, 400);
+  mc.special_movestate = std::make_unique<PatternProjectileMove>(dir, 500);
   mc.moveset = std::make_unique<TimedOnlyMoveSet>();
 
   // proj

@@ -28,7 +28,7 @@ public:
     return std::make_unique<SixPatternAfterCastMove>();
   }
   SixPatternCastMove()
-    : TimedMoveState(TimedMoveStateName::SixPatternCast, 1)
+    : TimedMoveState(TimedMoveStateName::SixPatternCast, 0.5)
   {
   }
 };
@@ -57,7 +57,7 @@ class SixPatternSkill : public BaseSkill
 public:
   void set_special(MoveComponent&) override;
   SixPatternSkill()
-    : BaseSkill(SkillID::SixPattern, 2, 7)
+    : BaseSkill(SkillID::SixPattern, 1.5, 7)
   {
   }
 };
