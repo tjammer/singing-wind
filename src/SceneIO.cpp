@@ -293,8 +293,9 @@ entity_to_world(const EntityFBS::EntityT& fb_ent,
       float len = shape_c->radius / sqrtf(2);
       sc.shape = std::make_shared<ColTriangle>(
         WVec{ 0, -shape_c->radius }, WVec{ -len, len }, WVec{ len, len });
+    } else {
+      assert(false);
     }
-    assert(false);
   }
 
   // static col
