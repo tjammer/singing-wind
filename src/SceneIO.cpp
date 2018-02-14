@@ -71,6 +71,10 @@ get_fb_entity(GameWorld& world, unsigned int entity)
       fbs_ent.shape_c->radius = capsule->get_capsule_radius();
     } else if (type == ColShapeName::ColCircle) {
       fbs_ent.shape_c->radius = sc.shape->get_radius();
+    } else if (type == ColShapeName::ColTriangle) {
+      const auto& tri = dynamic_cast<ColTriangle*>(sc.shape.get());
+      fbs_ent.shape_c->length = tri->get_point();
+      fbs_ent.shape_c->radius = tri->get_radius();
     }
     fbs_ent.shape_c->shape = static_cast<int>(type);
   }
@@ -285,8 +289,12 @@ entity_to_world(const EntityFBS::EntityT& fb_ent,
         ColCapsule{ shape_c->radius, shape_c->length });
     } else if (type == ColShapeName::ColCircle) {
       sc.shape = std::make_shared<ColCircle>(ColCircle{ shape_c->radius });
-    } else
-      assert(false);
+    } else if (type == ColShapeName::ColTriangle) {
+      float len = shape_c->radius / sqrtf(2);
+      sc.shape = std::make_shared<ColTriangle>(
+        WVec{ 0, -shape_c->radius }, WVec{ -len, len }, WVec{ len, len });
+    }
+    assert(false);
   }
 
   // static col
