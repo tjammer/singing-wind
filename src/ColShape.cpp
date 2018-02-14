@@ -77,6 +77,41 @@ ColTriangle::reset()
 }
 
 void
+ColTriangle::set_radius(float r)
+{
+  float len = r / sqrtf(2);
+  m_vertices[1] = { -len, len };
+  m_vertices[2] = { len, len };
+  m_rest_vertices[1] = m_vertices[1];
+  m_rest_vertices[2] = m_vertices[2];
+
+  float radius = 0;
+  for (const auto& v : m_vertices) {
+    auto mag = w_magnitude(v - m_center);
+    if (mag > radius) {
+      radius = mag;
+    }
+  }
+  m_radius = radius;
+}
+
+void
+ColTriangle::set_point(float l)
+{
+  m_vertices[0] = { 0, -l };
+  m_rest_vertices[0] = m_vertices[0];
+
+  float radius = 0;
+  for (const auto& v : m_vertices) {
+    auto mag = w_magnitude(v - m_center);
+    if (mag > radius) {
+      radius = mag;
+    }
+  }
+  m_radius = radius;
+}
+
+void
 ColCircle::add_gfx_lines(const WTransform& tf)
 {
   WRenderer::set_mode(PLines);

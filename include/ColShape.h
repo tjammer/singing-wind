@@ -46,6 +46,10 @@ public:
   virtual void add_gfx_lines(const WTransform& tf) override;
   virtual void transform(const WTransform& transform) override;
   virtual void reset() override;
+  // for editor
+  void set_radius(float r);
+  void set_point(float l);
+  float get_point() const { return -m_vertices[0].y; }
 
   ColTriangle(const WVec& p1, const WVec& p2, const WVec& p3);
   ~ColTriangle() = default;
@@ -53,7 +57,7 @@ public:
 private:
   std::array<WVec, 3> m_vertices;
   float m_radius;
-  const std::array<WVec, 3> m_rest_vertices;
+  std::array<WVec, 3> m_rest_vertices;
 };
 
 class ColCircle : public ColShape

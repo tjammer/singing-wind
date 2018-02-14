@@ -201,6 +201,14 @@ EntityIdle::update(const WVec& mpos)
           if (shape->m_type != ColShapeName::ColCircle) {
             shape = std::shared_ptr<ColShape>(new ColCircle(30));
           }
+          break;
+        }
+        case ColShapeName::ColTriangle: {
+          if (shape->m_type != ColShapeName::ColTriangle) {
+            shape = std::make_shared<ColTriangle>(
+              WVec{ 0, -20 }, WVec{ -15, 15 }, WVec{ 15, 15 });
+          }
+          break;
         }
         default:
           break;
@@ -224,6 +232,18 @@ EntityIdle::update(const WVec& mpos)
         float radius = shape->get_radius();
         if (DragFloat("radius", &radius)) {
           circle->set_radius(radius);
+        }
+        break;
+      }
+      case ColShapeName::ColTriangle: {
+        auto tri = dynamic_cast<ColTriangle*>(shape.get());
+        float radius = shape->get_radius();
+        float length = tri->get_point();
+        if (DragFloat("radius", &radius)) {
+          tri->set_radius(radius);
+        }
+        if (DragFloat("length", &length)) {
+          tri->set_point(length);
         }
         break;
       }
