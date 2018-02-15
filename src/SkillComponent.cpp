@@ -142,6 +142,7 @@ reset(GameWorld& world, unsigned int entity)
   auto& sc = world.get<SkillComponent>(entity);
   if (sc.active and sc.active->state != SkillState::Cooldown) {
     sc.active->state = SkillState::Cooldown;
+    sc.active->timer = sc.active->get_t_cooldown();
     sc.active = nullptr;
   }
 }
