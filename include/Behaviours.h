@@ -11,5 +11,7 @@
 #include "UseSkill.h"
 #include "Idle.h"
 #include "HoldDistance.h"
+#include "IsAggro.h"
+#include "MakeAggroIf.h"
 
 #endif /* BEHAVIOURS_H */
