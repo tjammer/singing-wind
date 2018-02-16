@@ -28,6 +28,8 @@ Idle::update()
   } else {
     m_world.get<InputComponent>(m_entity).mouse.push(pos);
   }
+  m_world.get<InputComponent>(m_entity).jump.push(false);
+  m_world.get<InputComponent>(m_entity).wings.push(false);
 
   return behaviour_tree::Status::Success;
 }
