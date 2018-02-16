@@ -55,4 +55,5 @@ set(SOURCE_FILES
     src/UseSkill.cpp
     src/Idle.cpp
     src/SkillSixPattern.cpp
+    src/HoldDistance.cpp
     )
