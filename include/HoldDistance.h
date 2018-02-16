@@ -11,7 +11,6 @@ class HoldDistance : public behaviour_tree::Behaviour
 public:
   HoldDistance(GameWorld&, unsigned int, float max_range, float min_range);
   behaviour_tree::Status update() override;
-  void leave(behaviour_tree::Status) override;
 
 private:
   GameWorld& m_world;

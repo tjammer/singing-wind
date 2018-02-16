@@ -24,9 +24,11 @@ SimpleFlyingMove::accel(GameWorld& world, unsigned int entity)
 
   mc.accel = ic.mouse.get() - pc.global_position;
 
-  auto angle = w_angle_to_vec(
-    w_rotated(WVec(0, -1), pc.rotation * pc.direction), mc.velocity);
-  rotate_angle(angle * pc.direction, mc.c_max_change_angle, pc);
+  if (!ic.wings.get()) {
+    auto angle = w_angle_to_vec(
+      w_rotated(WVec(0, -1), pc.rotation * pc.direction), mc.velocity);
+    rotate_angle(angle * pc.direction, mc.c_max_change_angle, pc);
+  }
 }
 
 void
