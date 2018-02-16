@@ -56,4 +56,5 @@ set(SOURCE_FILES
     src/Idle.cpp
     src/SkillSixPattern.cpp
     src/HoldDistance.cpp
+    src/IsAggro.cpp
     )
