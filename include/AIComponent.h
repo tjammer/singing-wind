@@ -33,6 +33,8 @@ struct AIComponent
 {
   behaviour_tree::BehaviourTree btree;
   static const Components type = CAI;
+  float aggro_time = 0;
+  bool is_aggro = false;
 };
 
 namespace ai {

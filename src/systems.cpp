@@ -336,6 +336,12 @@ ai_update(GameWorld& world, float dt, const std::vector<unsigned int>& entities)
   for (const auto& entity : entities) {
     auto& ac = world.get<AIComponent>(entity);
     ac.btree.tick();
+    if (ac.is_aggro) {
+      ac.aggro_time -= dt;
+      if (ac.aggro_time < 0) {
+        ac.is_aggro = false;
+      }
+    }
   }
 }
 
