@@ -55,4 +55,11 @@ init_ai_type(GameWorld& world, unsigned int entity, AITreeType a_type)
     }
   }
 }
+
+void
+make_aggro(AIComponent& ac)
+{
+  ac.is_aggro = true;
+  ac.aggro_time = c_aggro_time;
+}
 }

@@ -41,6 +41,10 @@ namespace ai {
 
 const float c_pathfinding_time = 1.f;
 const float c_flee_time = 10.f;
+const float c_aggro_time = 15.f;
+
+void
+make_aggro(AIComponent&);
 
 void
 entity_edit(GameWorld&, unsigned int);
