@@ -58,4 +58,5 @@ set(SOURCE_FILES
     src/HoldDistance.cpp
     src/IsAggro.cpp
     src/MakeAggroIf.cpp
+    src/CanSee.cpp
     )
