@@ -53,9 +53,8 @@ pattern_skill_hurtfunc(GameWorld& world,
                        unsigned int attacker,
                        unsigned int entity)
 {
-  if (attacker == victim ||
-      world.get<TagComponent>(victim).tags.test(
-        static_cast<int>(Tags::Enemy))) {
+  if (attacker == victim || world.get<TagComponent>(victim).tags.test(
+                              static_cast<int>(Tags::Enemy))) {
     return false;
   }
   movement::interrupt(world, victim);
@@ -128,9 +127,11 @@ void
 SixPatternCastMove::leave(GameWorld& world, unsigned int entity)
 {
   using namespace std::placeholders;
+  const auto& pc = world.get<PosComponent>(entity);
+  float start_angle = pc.direction * pc.rotation;
 
   for (size_t i = 0; i < 6; ++i) {
-    float angle = (float)i * 1.0f / 6.0f * 2.0f * (float)M_PI;
+    float angle = start_angle + (float)i * 1.0f / 6.0f * 2.0f * (float)M_PI;
     auto func = std::bind(
       create_pattern_projectile, _1, _2, _3, w_rotated({ 0, -1 }, angle));
     world.queue_create({ func, entity });

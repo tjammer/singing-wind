@@ -13,5 +13,6 @@
 #include "HoldDistance.h"
 #include "IsAggro.h"
 #include "MakeAggroIf.h"
+#include "CanSee.h"
 
 #endif /* BEHAVIOURS_H */

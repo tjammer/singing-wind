@@ -32,6 +32,7 @@ HoldDistance::update()
     m_world.get<ColShapeComponent>(m_entity).shape->get_radius();
   auto& pc = m_world.get<PathingComponent>(m_entity);
   auto& mc = m_world.get<MoveComponent>(m_entity);
+  const auto& target = m_world.get<PosComponent>(pc.following).global_position;
 
   auto builder =
     SteeringBuilder(pos,
@@ -55,15 +56,15 @@ HoldDistance::update()
       builder.add_flock(pos + nearest_dist_with_radii(pos, 0, center, radius));
     }
   }
-  builder.add_avoid_collision(m_world.grid(), m_world.navmesh(), mc.accel);
+  WVec v;
+  builder.add_avoid_collision(m_world.grid(), m_world.navmesh(), v);
 
   ic.jump.push(true);
 
-  const auto& follow = m_world.get<PosComponent>(pc.following).global_position;
-  float mag = w_magnitude(follow - pos);
+  float mag = w_magnitude(target - pos);
   if (mag > m_max_range) {
     ic.wings.push(false);
-    builder.add_seek(follow);
+    builder.add_seek(target);
     ic.mouse.push(
       pos + builder.end(m_world.get<SimpleFlyComponent>(m_entity).c_accel));
     return Status::Running;
@@ -71,11 +72,11 @@ HoldDistance::update()
     builder.add_seek(pos);
     // will cancel turning
     ic.wings.push(true);
-    // turn to follow
+    // turn to target
     rotate_to(
-      follow, mc.c_max_change_angle, m_world.get<PosComponent>(m_entity));
+      target, mc.c_max_change_angle, m_world.get<PosComponent>(m_entity));
   } else { // turn around
-    builder.add_flee(follow);
+    builder.add_flee(target);
     ic.wings.push(false);
   }
   ic.mouse.push(pos +
