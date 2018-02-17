@@ -26,7 +26,7 @@ const char* const colshape_names = { "Triangle\0Circle\0Capsule\0\0" };
 auto inputfunc_names = get_enum_string_array(inputfunc_string);
 
 void
-EntityIdle::draw(GameWorld& world)
+EntityIdle::draw(GameWorld& world, float zoom)
 {
   bset debug_draw;
   debug_draw.set(CPosition);
@@ -293,7 +293,7 @@ EntityIdle::move(GameWorld&)
 }
 
 void
-EntityMove::draw(GameWorld& world)
+EntityMove::draw(GameWorld& world, float zoom)
 {
   bset debug_draw;
   debug_draw.set(CPosition);

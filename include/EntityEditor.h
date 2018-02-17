@@ -12,7 +12,7 @@ class EntityIdle : public BaseEditorSubState
 {
 public:
   EditorSubState update(const WVec& mpos) override;
-  void draw(GameWorld& world) override;
+  void draw(GameWorld& world, float zoom) override;
   EditorSubState move(GameWorld&) override;
   EditorSubState cancel() override;
 
@@ -33,7 +33,7 @@ public:
   EditorSubState confirm(GameWorld& world) override;
   EditorSubState update(const WVec& mpos) override;
   EditorSubState cancel() override;
-  void draw(GameWorld& world) override;
+  void draw(GameWorld& world, float zoom) override;
 
   EntityMove(GameWorld& world, unsigned int entity, const WVec& mouse);
 

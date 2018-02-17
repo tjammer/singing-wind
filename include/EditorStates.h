@@ -19,7 +19,7 @@ public:
   // extra fct so only do this per mouse in the menu
   EditorSubState delete_island(GameWorld& world);
   EditorSubState menu(GameWorld& world) override;
-  void draw(GameWorld& world) override;
+  void draw(GameWorld& world, float zoom) override;
 
   IslandIdle(Island& active)
     : m_island(active)
@@ -41,7 +41,7 @@ public:
   }
   EditorSubState cancel() override;
   EditorSubState menu(GameWorld& world) override;
-  void draw(GameWorld& world) override;
+  void draw(GameWorld& world, float zoom) override;
 
   IslandMove(Island& active, const WVec& mouse);
   ~IslandMove() = default;
@@ -55,7 +55,7 @@ class CurveIdle : public BaseEditorSubState
 {
 public:
   EditorSubState confirm(GameWorld& world) override;
-  void draw(GameWorld& world) override;
+  void draw(GameWorld& world, float zoom) override;
   EditorSubState cancel() override
   {
     return EditorSubState(new IslandIdle(m_island));
@@ -80,7 +80,7 @@ class PointEdit : public BaseEditorSubState
 {
 public:
   EditorSubState update(const WVec& mpos) override;
-  void draw(GameWorld& world) override;
+  void draw(GameWorld& world, float zoom) override;
   EditorSubState confirm(GameWorld&) override
   {
     return EditorSubState(new IslandIdle(m_island));
@@ -105,7 +105,7 @@ private:
 class CurveInsert : public BaseEditorSubState
 {
 public:
-  void draw(GameWorld& world) override;
+  void draw(GameWorld& world, float zoom) override;
   EditorSubState update(const WVec& mpos) override;
   EditorSubState confirm(GameWorld& world) override;
   EditorSubState cancel() override
@@ -126,7 +126,7 @@ private:
 class EditorIdle : public BaseEditorSubState
 {
 public:
-  void draw(GameWorld& world) override;
+  void draw(GameWorld& world, float zoom) override;
   EditorSubState confirm(GameWorld& world) override;
   EditorSubState insert_item(GameWorld& world) override;
   EditorSubState menu(GameWorld& world) override;
@@ -135,10 +135,10 @@ public:
 class NavMeshIdle : public BaseEditorSubState
 {
 public:
-  void draw(GameWorld& world) override;
+  void draw(GameWorld& world, float zoom) override;
   EditorSubState cancel() override;
 };
 
 void
-get_island_vertex_array(const Island&);
+get_island_vertex_array(const Island&, float zoom);
 #endif // SINGING_WIND_EDITORSTATES_H

@@ -27,7 +27,7 @@ public:
 
   std::vector<PrimitiveVertex> get_points(float spread) const;
   std::vector<PrimitiveVertex> get_ctrl_points(float spread) const;
-  std::vector<PrimitiveVertex> get_curves(float distance);
+  std::vector<PrimitiveVertex> get_curves(float distance, float zoom);
 };
 
 inline bool

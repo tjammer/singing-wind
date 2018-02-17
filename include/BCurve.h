@@ -42,7 +42,7 @@ struct BCurve
       to = curve.to;
   }*/
 
-  std::vector<WVec> line_along_curve(float distance) const;
+  std::vector<WVec> line_along_curve(float distance, float zoom) const;
   std::vector<WVec> points_along_curve(float distance) const;
   WVec eval(float t) const;
   WVec eval_perpendicular(float t) const;

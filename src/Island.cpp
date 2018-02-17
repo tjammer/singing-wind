@@ -58,7 +58,7 @@ Island::get_ctrl_points(float spread) const
 }
 
 std::vector<PrimitiveVertex>
-Island::get_curves(float distance)
+Island::get_curves(float distance, float zoom)
 {
   std::vector<PrimitiveVertex> out;
   auto size = m_points.size();
@@ -67,7 +67,7 @@ Island::get_curves(float distance)
                            m_ctrl_points[i * 2],
                            m_ctrl_points[i * 2 + 1],
                            m_points[(i + 1) % size] };
-    auto vecs = curve.line_along_curve(distance);
+    auto vecs = curve.line_along_curve(distance, zoom);
     for (auto v : vecs) {
       out.push_back({ { v.x, v.y }, { .5, .5, .5 } });
     }

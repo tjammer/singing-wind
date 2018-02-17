@@ -24,7 +24,7 @@ EngineEditorState::draw()
   if (m_paused) {
     return;
   }
-  m_state->draw(m_game_world);
+  m_state->draw(m_game_world, m_zoom);
   drawables::draw(debug_drawset, m_game_world);
 }
 

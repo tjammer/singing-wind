@@ -75,7 +75,7 @@ public:
     m_mpos = mpos;
     return nullptr;
   }
-  virtual void draw(GameWorld& world) = 0;
+  virtual void draw(GameWorld& world, float zoom) = 0;
   virtual EditorSubState confirm(GameWorld&) { return nullptr; }
   virtual EditorSubState cancel() { return nullptr; }
   virtual EditorSubState move(GameWorld&) { return nullptr; }

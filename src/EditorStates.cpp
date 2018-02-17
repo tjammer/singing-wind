@@ -78,9 +78,9 @@ IslandIdle::cancel()
 }
 
 void
-IslandIdle::draw(GameWorld&)
+IslandIdle::draw(GameWorld&, float zoom)
 {
-  get_island_vertex_array(m_island);
+  get_island_vertex_array(m_island, zoom);
 }
 
 EditorSubState
@@ -105,11 +105,11 @@ CurveIdle::CurveIdle(const BCurve& curve, Island& active)
 }
 
 void
-CurveIdle::draw(GameWorld&)
+CurveIdle::draw(GameWorld&, float zoom)
 {
-  get_island_vertex_array(m_island);
+  get_island_vertex_array(m_island, zoom);
   WRenderer::set_mode(PQuads);
-  for (auto v : m_curve.line_along_curve(c_line_draw_distance)) {
+  for (auto v : m_curve.line_along_curve(c_line_draw_distance, zoom)) {
     WRenderer::add_primitive_vertex({ { v.x, v.y }, { 0.5, 0.05, 0.5 } });
   }
 
@@ -259,9 +259,9 @@ PointEdit::cancel()
 }
 
 void
-PointEdit::draw(GameWorld&)
+PointEdit::draw(GameWorld&, float zoom)
 {
-  get_island_vertex_array(m_island);
+  get_island_vertex_array(m_island, zoom);
   WRenderer::set_mode(PQuads);
   for (const auto& v : make_quad(m_point, c_point_size)) {
     WRenderer::add_primitive_vertex({ { v.x, v.y }, { 0.5, 0.05, 0.5 } });
@@ -349,9 +349,9 @@ PointEdit::delete_item(GameWorld&)
 }
 
 void
-CurveInsert::draw(GameWorld&)
+CurveInsert::draw(GameWorld&, float zoom)
 {
-  get_island_vertex_array(m_island);
+  get_island_vertex_array(m_island, zoom);
   WRenderer::set_mode(PQuads);
 
   float t_low = fmax(m_new_point_t - 0.01f, 0.f);
@@ -492,7 +492,7 @@ EditorIdle::confirm(GameWorld& world)
 }
 
 void
-EditorIdle::draw(GameWorld&)
+EditorIdle::draw(GameWorld&, float)
 {
 }
 
@@ -523,24 +523,25 @@ EditorIdle::menu(GameWorld& world)
 }
 
 void
-get_island_vertex_array(const Island& island)
+get_island_vertex_array(const Island& island, float zoom)
 {
   WRenderer::set_mode(PQuads);
-  auto curves = const_cast<Island&>(island).get_curves(c_line_draw_distance);
+  auto curves =
+    const_cast<Island&>(island).get_curves(c_line_draw_distance, zoom);
   for (auto& v : curves) {
     WRenderer::add_primitive_vertex(v);
   }
 
-  auto verts = island.get_points(c_point_size);
+  auto verts = island.get_points(c_point_size * zoom);
   for (auto& v : verts) {
     WRenderer::add_primitive_vertex(v);
   }
 }
 
 void
-IslandMove::draw(GameWorld&)
+IslandMove::draw(GameWorld&, float zoom)
 {
-  get_island_vertex_array(m_island);
+  get_island_vertex_array(m_island, zoom);
   WRenderer::set_mode(PQuads);
   for (const auto& point : m_island.m_points) {
     for (const auto& v : make_quad(point, c_point_size)) {
@@ -599,7 +600,7 @@ IslandMove::IslandMove(Island& active, const WVec& mouse)
 }
 
 void
-NavMeshIdle::draw(GameWorld& world)
+NavMeshIdle::draw(GameWorld& world, float zoom)
 {
   const auto& mesh = world.navmesh();
 
