@@ -47,7 +47,6 @@ private:
   // last frame
   std::unordered_map<EditorButtons, bool> m_pressed;
   WVec m_mouse;
-  float m_mouse_wheel = 0;
 
   // menu
   bool m_menu = false;

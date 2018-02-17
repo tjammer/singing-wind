@@ -37,10 +37,6 @@ public:
 
   GameWorld& get_world();
 
-  // mouse wheel
-  float get_mouse_wheel() { return m_mouse_wheel; }
-  void update_mouse_wheel(float delta) { m_mouse_wheel += delta; }
-
 private:
   bool m_has_focus = true;
   std::vector<std::unique_ptr<EngineState>> m_states;
@@ -50,7 +46,6 @@ private:
 
   // switch
   bool m_switch_pressed = false;
-  float m_mouse_wheel = 0;
 };
 
 class EngineState

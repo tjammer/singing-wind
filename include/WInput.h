@@ -24,6 +24,13 @@ void
 set_mouse(const WVec& mouse);
 WVec
 get_mouse_pos();
+
+void
+scroll_callback(GLFWwindow*, double dx, double dy);
+float
+get_scroll_diff();
+void
+fix_scroll_for_frame();
 }
 
 #endif // SINGING_WIND_WINPUT_H

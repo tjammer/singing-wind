@@ -20,11 +20,12 @@ main()
   gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
   glfwSwapInterval(1);
 
+  Engine engine(*window);
+
   // these get overridden by imui, will get called there too
   glfwSetKeyCallback(window, WInput::key_callback);
   glfwSetMouseButtonCallback(window, WInput::mouse_button_callback);
-
-  Engine engine(*window);
+  glfwSetScrollCallback(window, WInput::scroll_callback);
 
   ImGui_ImplGlfwGL3_Init(window, true);
 

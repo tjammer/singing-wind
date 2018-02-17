@@ -9,6 +9,7 @@
 #include "GameWorld.h"
 #include "Island.h"
 #include "SceneIO.h"
+#include "WInput.h"
 
 #include "WRenderer.h"
 #include <GLFW/glfw3.h>
@@ -133,21 +134,18 @@ EngineEditorState::update(Engine& engine)
   m_pressed[Delete] = glfwGetKey(&window, GLFW_KEY_D) == GLFW_PRESS;
 
   auto screen_mouse = WVec(mpos[0], mpos[1]);
-  auto idiff = m_mouse - screen_mouse;
+  auto idiff = WVec{ 0, 0 };
   m_mouse = screen_mouse;
   if (glfwGetMouseButton(&window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS) {
-    m_camera.update(m_zoom * idiff, m_zoom);
+    idiff = m_mouse - screen_mouse;
   }
+  m_camera.update(m_zoom * idiff, m_zoom);
 
-  if (engine.get_mouse_wheel() != m_mouse_wheel) {
-    m_zoom -= zoom_constant * (engine.get_mouse_wheel() - m_mouse_wheel);
-    m_mouse_wheel = engine.get_mouse_wheel();
-  }
+  m_zoom -= zoom_constant * WInput::get_scroll_diff();
 
-  if (glfwGetKey(&window, GLFW_KEY_HOME) == GLFW_PRESS and
-      not m_pressed[ResetZoom]) {
+  if (glfwGetKey(&window, GLFW_KEY_HOME) == GLFW_PRESS &&
+      !m_pressed[ResetZoom]) {
     m_zoom = 1.0f;
-    m_mouse_wheel = engine.get_mouse_wheel();
   }
   m_pressed[ResetZoom] = glfwGetKey(&window, GLFW_KEY_HOME) == GLFW_PRESS;
 }

@@ -211,12 +211,13 @@ ImGui_ImplGlfwGL3_MouseButtonCallback(GLFWwindow* window,
 }
 
 void
-ImGui_ImplGlfwGL3_ScrollCallback(GLFWwindow*,
-                                 double /*xoffset*/,
+ImGui_ImplGlfwGL3_ScrollCallback(GLFWwindow* window,
+                                 double xoffset,
                                  double yoffset)
 {
   g_MouseWheel +=
     (float)yoffset; // Use fractional mouse wheel, 1.0 unit 5 lines.
+  WInput::scroll_callback(window, xoffset, yoffset);
 }
 
 void

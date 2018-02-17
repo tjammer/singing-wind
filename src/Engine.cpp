@@ -6,6 +6,7 @@
 #include "Editor.h"
 #include "Game.h"
 #include "WRenderer.h"
+#include "WInput.h"
 
 Engine::Engine(GLFWwindow& window)
   : window(window)
@@ -28,6 +29,7 @@ Engine::update()
     m_states[m_editor_index]->switch_pause();
   }
   m_switch_pressed = glfwGetKey(&window, GLFW_KEY_F1) == GLFW_PRESS;
+  WInput::fix_scroll_for_frame();
 
   WRenderer::reset();
 
