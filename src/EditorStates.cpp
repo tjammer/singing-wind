@@ -115,7 +115,7 @@ CurveIdle::draw(GameWorld&, float zoom)
 
   for (const auto& point :
        { m_curve.from, m_curve.ctrl_from, m_curve.ctrl_to, m_curve.to }) {
-    for (const auto& v : make_quad(point, c_ctrl_point_size)) {
+    for (const auto& v : make_quad(point, c_ctrl_point_size * zoom)) {
       WRenderer::add_primitive_vertex({ { v.x, v.y }, { 1, 1, 1 } });
     }
   }
@@ -263,7 +263,7 @@ PointEdit::draw(GameWorld&, float zoom)
 {
   get_island_vertex_array(m_island, zoom);
   WRenderer::set_mode(PQuads);
-  for (const auto& v : make_quad(m_point, c_point_size)) {
+  for (const auto& v : make_quad(m_point, c_point_size * zoom)) {
     WRenderer::add_primitive_vertex({ { v.x, v.y }, { 0.5, 0.05, 0.5 } });
   }
 }
@@ -544,7 +544,7 @@ IslandMove::draw(GameWorld&, float zoom)
   get_island_vertex_array(m_island, zoom);
   WRenderer::set_mode(PQuads);
   for (const auto& point : m_island.m_points) {
-    for (const auto& v : make_quad(point, c_point_size)) {
+    for (const auto& v : make_quad(point, c_point_size * zoom)) {
       WRenderer::add_primitive_vertex({ { v.x, v.y }, { 0.5, 0.05, 0.5 } });
     }
   }
