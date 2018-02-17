@@ -24,26 +24,6 @@
 #include "systems.h"
 #include "triangulate.h"
 
-// class comp_vec_base
-// {
-// public:
-//   ~comp_vec_base() {}
-// };
-//
-// template<typename T>
-// class comp_vec
-//   : public comp_vec_base
-//   , public std::vector<T>
-// {
-// };
-//
-// template<typename T, typename B>
-// std::vector<T>&
-// from_vec(const B& arr)
-// {
-//   return *(std::vector<T>*)arr.get();
-// }
-
 GameWorld::~GameWorld() = default;
 
 class GameWorld::impl
@@ -94,7 +74,7 @@ public:
   std::vector<unsigned int> m_health_ents;
 
   std::vector<unsigned int> m_to_delete;
-  std::vector<EntityCreator> m_to_create;
+  std::vector<std::function<void(GameWorld&, unsigned int)>> m_to_create;
   void delete_entitites(GameWorld&);
   void create_entities(GameWorld&);
 };
@@ -528,8 +508,8 @@ GameWorld::impl::delete_entitites(GameWorld& world)
 void
 GameWorld::impl::create_entities(GameWorld& world)
 {
-  for (auto& creator : m_to_create) {
-    creator.func(world, world.create_entity_raw(), creator.parent);
+  for (auto& func : m_to_create) {
+    func(world, world.create_entity_raw());
   }
   m_to_create.clear();
 }
@@ -552,9 +532,9 @@ GameWorld::queue_delete_children(unsigned int entity)
 }
 
 void
-GameWorld::queue_create(EntityCreator creator)
+GameWorld::queue_create(std::function<void(GameWorld&, unsigned int)> func)
 {
-  pimpl->m_to_create.push_back(std::move(creator));
+  pimpl->m_to_create.push_back(std::move(func));
 }
 
 StaticGrid<StaticTriangle>&

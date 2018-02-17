@@ -100,7 +100,9 @@ create_hurtbox(GameWorld& world, unsigned int hurtbox, unsigned int parent)
 void
 MeleeAttackMove::enter(GameWorld& world, unsigned int entity)
 {
-  world.queue_create({ create_hurtbox, entity });
+  using namespace std::placeholders;
+  auto func = std::bind(create_hurtbox, _1, _2, entity);
+  world.queue_create(func);
 }
 
 void

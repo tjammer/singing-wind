@@ -92,7 +92,9 @@ create_lounge_hurtbox(GameWorld& world,
 void
 LoungeAttackMove::enter(GameWorld& world, unsigned int entity)
 {
-  world.queue_create({ create_lounge_hurtbox, entity });
+  using namespace std::placeholders;
+  auto func = std::bind(create_lounge_hurtbox, _1, _2, entity);
+  world.queue_create(func);
 }
 
 void

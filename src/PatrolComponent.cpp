@@ -45,7 +45,9 @@ create(GameWorld& world, unsigned int alert, unsigned int parent)
 void
 spawn(GameWorld& world, unsigned int entity)
 {
-  world.queue_create({ create, entity });
+  using namespace std::placeholders;
+  auto func = std::bind(create, _1, _2, entity);
+  world.queue_create(func);
 }
 
 void

@@ -125,7 +125,9 @@ create_disk(GameWorld& world, unsigned int hurtbox, unsigned int parent)
 void
 DiskCastMove::leave(GameWorld& world, unsigned int entity)
 {
-  world.queue_create({ create_disk, entity });
+  using namespace std::placeholders;
+  auto func = std::bind(create_disk, _1, _2, entity);
+  world.queue_create(func);
   auto& mc = world.get<MoveComponent>(entity);
   auto dir = w_rotated(WVec{ 0, -1 },
                        world.get<PosComponent>(entity).rotation *

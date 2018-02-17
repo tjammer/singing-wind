@@ -25,13 +25,6 @@ const float c_max_floor_angle = 0.7;
 const float c_gravity = 980;
 const float c_jump_tolerance = 0.1f;
 
-struct EntityCreator
-{
-  std::function<void(GameWorld&, unsigned int new_ent, unsigned int parent)>
-    func;
-  unsigned int parent;
-};
-
 // implements the ecs
 class GameWorld
 {
@@ -51,7 +44,7 @@ public:
   void reset_islands();
 
   void queue_delete(unsigned int entity);
-  void queue_create(EntityCreator);
+  void queue_create(std::function<void(GameWorld&, unsigned int)>);
 
   void queue_delete_children(unsigned int entity);
 
