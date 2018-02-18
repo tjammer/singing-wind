@@ -135,10 +135,10 @@ EngineEditorState::update(Engine& engine)
 
   auto screen_mouse = WVec(mpos[0], mpos[1]);
   auto idiff = WVec{ 0, 0 };
-  m_mouse = screen_mouse;
   if (glfwGetMouseButton(&window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS) {
     idiff = m_mouse - screen_mouse;
   }
+  m_mouse = screen_mouse;
   m_camera.update(m_zoom * idiff, m_zoom);
 
   m_zoom -= zoom_constant * WInput::get_scroll_diff();
