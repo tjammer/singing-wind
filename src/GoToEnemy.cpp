@@ -12,9 +12,10 @@
 #include "WVecMath.h"
 #include "steering.h"
 
-GoToEnemy::GoToEnemy(GameWorld& world, unsigned int entity)
+GoToEnemy::GoToEnemy(GameWorld& world, unsigned int entity, float ar_dist)
   : m_world(world)
   , m_entity(entity)
+  , m_arrive_distance(ar_dist)
 {
 }
 
@@ -52,6 +53,10 @@ GoToEnemy::update()
       m_world.get<PosComponent>(pc.following).global_position;
     float follow_radius =
       m_world.get<ColShapeComponent>(pc.following).shape->get_radius();
+    if (follow_radius + m_radius > m_arrive_distance) {
+      assert(false);
+      return behaviour_tree::Status::Failure;
+    }
     auto result = m_world.grid().raycast_against_grid(pos, follow);
     if (!result.hits) {
       pc.path[pc.index] = follow;
@@ -59,7 +64,7 @@ GoToEnemy::update()
       enter();
     }
     if (w_magnitude(nearest_dist_with_radii(
-          pos, m_radius, follow, follow_radius)) < m_radius) {
+          pos, m_radius, follow, follow_radius)) < m_arrive_distance) {
       return behaviour_tree::Status::Success;
     }
   }
