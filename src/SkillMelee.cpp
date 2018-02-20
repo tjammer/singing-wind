@@ -72,7 +72,7 @@ create_hurtbox(GameWorld& world, unsigned int hurtbox, unsigned int parent)
   // pos
   auto& pc = world.get<PosComponent>(hurtbox);
   pc.parent = parent;
-  pc.position = WVec(10, -35);
+  pc.position = { 10, -35 };
   pc.rotation = 0;
   build_global_transform(world, hurtbox);
   // col shape

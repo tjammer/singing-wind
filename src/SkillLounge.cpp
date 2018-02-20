@@ -62,7 +62,7 @@ create_lounge_hurtbox(GameWorld& world,
   float radius = world.get<ColShapeComponent>(parent).shape->get_radius();
   auto& pc = world.get<PosComponent>(hurtbox);
   pc.parent = parent;
-  pc.position = WVec(0, -radius * 0.3f);
+  pc.position = { 0, -radius * 0.3f };
   pc.rotation = 0;
   build_global_transform(world, hurtbox);
   // col shape

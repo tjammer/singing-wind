@@ -254,7 +254,7 @@ entity_to_world(const EntityFBS::EntityT& fb_ent,
     auto& pos_c = fb_ent.pos_c;
     auto& pc = world.get<PosComponent>(entity);
 
-    pc.position = WVec(pos_c->position->x(), pos_c->position->y());
+    pc.position = { pos_c->position->x(), pos_c->position->y() };
     pc.rotation = pos_c->rotation;
     pc.parent = pos_c->parent;
     pc.direction = pos_c->direction;
@@ -446,7 +446,7 @@ scene_entity_to_world_fbs(const EntityFBS::EntityT& fb_ent,
       auto& pos_c = fb_ent.pos_c;
       auto& pc = world.get<PosComponent>(entity);
       pc.rotation = pos_c->rotation;
-      pc.position = WVec(pos_c->position->x(), pos_c->position->y());
+      pc.position = { pos_c->position->x(), pos_c->position->y() };
       pc.parent = pos_c->parent;
       // pc.direction = pos_c->direction;
       build_global_transform(world, entity);

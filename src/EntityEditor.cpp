@@ -325,7 +325,7 @@ EntityMove::EntityMove(GameWorld& world, unsigned int entity, const WVec& mouse)
 {
   m_diff = m_world.get<PosComponent>(m_entity).position - mouse;
   m_mpos = mouse;
-  m_world.get<PosComponent>(m_entity).position = mouse;
+  m_world.get<PosComponent>(m_entity).position = { mouse.x, mouse.y };
 }
 
 EditorSubState
