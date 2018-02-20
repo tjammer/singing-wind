@@ -10,11 +10,14 @@
 #include <vector>
 
 class GameWorld;
+class Camera;
 
 const bset c_debug_draw_components{ (1 << CPosition) | (1 << CDebugDraw) |
                                     (1 << CColShape) };
 void
-debug_draw_update(GameWorld& world, const std::vector<unsigned int>& entities);
+debug_draw_update(GameWorld& world,
+                  const std::vector<unsigned int>& entities,
+                  const Camera& camera);
 
 const bset c_static_col_components{ (1 << CPosition) | (1 << CStaticCol) |
                                     (1 << CColShape) };

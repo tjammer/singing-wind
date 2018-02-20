@@ -18,6 +18,7 @@ struct StaticTriangle;
 template<typename grid_object>
 class StaticGrid;
 class Island;
+class Camera;
 
 // physics constants
 const float c_drag = 0.0026;
@@ -35,7 +36,7 @@ public:
   // maybe a timer?
   void step_fixed(float dt);
   void pre_draw(float dt);
-  void draw();
+  void draw(const Camera&);
 
   std::vector<bset>& entities();
   std::vector<bset> const& entities() const;

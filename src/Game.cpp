@@ -37,7 +37,7 @@ Game::update(Engine& engine)
 void
 Game::draw()
 {
-  m_game_world.draw();
+  m_game_world.draw(m_camera);
 }
 
 void

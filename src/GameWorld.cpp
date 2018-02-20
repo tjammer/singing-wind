@@ -21,6 +21,7 @@
 #include "StatusEffectComponent.h"
 #include "TagComponent.h"
 #include "HealthComponent.h"
+#include "Camera.h"
 #include "systems.h"
 #include "triangulate.h"
 
@@ -241,8 +242,7 @@ GameWorld::update_world()
       auto p3 = WVec(get<PosComponent>(0).global_transform *
                      WVec3(triangles[i * 3 + 2], 1));
       auto tri = std::make_shared<ColTriangle>(p1, p2, p3);
-      grid().lazy_add(
-        StaticTriangle{ tri->m_center, tri->get_radius(), tri, i });
+      grid().lazy_add(StaticTriangle{ tri->m_center, tri->get_radius(), tri });
     }
   }
   grid().finish();
@@ -259,11 +259,11 @@ GameWorld::GameWorld()
 }
 
 void
-GameWorld::draw()
+GameWorld::draw(const Camera& camera)
 {
   find_entities_draw();
 
-  debug_draw_update(*this, pimpl->m_debug_draw_ents);
+  debug_draw_update(*this, pimpl->m_debug_draw_ents, camera);
 }
 
 void
