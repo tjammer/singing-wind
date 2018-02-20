@@ -18,25 +18,33 @@
 #include "SkillComponent.h"
 #include "StatusEffectComponent.h"
 #include "HealthComponent.h"
-
+#include "wraparound.h"
 #include <WRenderer.h>
 #include <WVecMath.h>
 #include <algorithm>
 #include <set>
 
 void
-debug_draw_update(GameWorld& world, const std::vector<unsigned int>& entities)
+debug_draw_update(GameWorld& world,
+                  const std::vector<unsigned int>& entities,
+                  const Camera& camera)
 {
   WTransform zero_tf;
+  WTransform transl = translate(zero_tf, WVec(wrapsize, 0));
+  WTransform minus_transl = translate(zero_tf, WVec(-wrapsize, 0));
   WRenderer::set_mode(PLines);
   for (const auto& tri : world.grid().get_objects()) {
     tri.shape->add_gfx_lines(zero_tf);
+    tri.shape->add_gfx_lines(transl);
+    tri.shape->add_gfx_lines(minus_transl);
   }
 
   for (const auto entity : entities) {
     auto& shape = world.get<ColShapeComponent>(entity).shape;
     const auto& transform = world.get<PosComponent>(entity).global_transform;
     shape->add_gfx_lines(transform);
+    shape->add_gfx_lines(translate(transform, WVec(wrapsize, 0)));
+    shape->add_gfx_lines(translate(transform, WVec(-wrapsize, 0)));
   }
 }
 
@@ -167,6 +175,10 @@ move_update(GameWorld& world, float timedelta)
       mc.timer += dt;
     }
 
+    auto& pc = world.get<PosComponent>(entity);
+    if (abs(pc.global_position.x) > wrapsize * 0.5f) {
+      pc.position.x += copysignf(wrapsize, -pc.global_position.x);
+    }
     build_global_transform(world, entity);
   }
 }
