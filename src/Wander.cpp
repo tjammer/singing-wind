@@ -52,8 +52,8 @@ Wander::update()
     }
     if (m_world.get<TagComponent>(col.entity)
           .tags.test(static_cast<int>(Tags::Enemy))) {
-      auto center = (col.maxs + col.mins) / 2.0f;
-      float radius = w_magnitude(center - col.mins);
+      float radius = w_magnitude(col.maxs - col.mins) / 2.0f;
+      auto center = m_world.get<PosComponent>(col.entity).wrapped_position(pos);
       builder.add_flock(pos + nearest_dist_with_radii(pos, 0, center, radius));
     }
   }

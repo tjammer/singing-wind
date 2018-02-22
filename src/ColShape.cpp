@@ -28,6 +28,13 @@ ColTriangle::ColTriangle(const WVec& p1, const WVec& p2, const WVec& p3)
   m_type = ColShapeName::ColTriangle;
 }
 
+ColTriangle::ColTriangle(const ColTriangle& tri, const WVec& v)
+  : ColTriangle(tri.m_vertices[0] + v,
+                tri.m_vertices[1] + v,
+                tri.m_vertices[2] + v)
+{
+}
+
 void
 ColTriangle::add_gfx_lines(const WTransform& tf)
 {

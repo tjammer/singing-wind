@@ -52,6 +52,7 @@ public:
   float get_point() const { return -m_vertices[0].y; }
 
   ColTriangle(const WVec& p1, const WVec& p2, const WVec& p3);
+  ColTriangle(const ColTriangle& tri, const WVec& v);
   ~ColTriangle() = default;
 
 private:

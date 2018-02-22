@@ -3,6 +3,13 @@
 #include "WindDefs.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
+#include "wraparound.h"
+
+WVec
+PosComponent::wrapped_position(const WVec& other)
+{
+  return get_wrapped_global_position(global_position, other);
+}
 
 void
 build_global_transform(GameWorld& world, unsigned int entity)

@@ -1,4 +1,5 @@
 #include "CPruneSweep.h"
+#include "wraparound.h"
 #include <algorithm>
 
 struct cmp_func
@@ -11,12 +12,12 @@ struct cmp_func
 };
 
 inline bool
-overlap(const PSBox& a, const PSBox& b)
+overlap(const PSBox& a, const PSBox& b, float offset = 0)
 {
   for (size_t i = 0; i < 2; ++i) {
-    if (a.maxs[i] < b.mins[i])
+    if (a.maxs[i] < b.mins[i] + offset)
       return false;
-    if (a.mins[i] > b.maxs[i])
+    if (a.mins[i] > b.maxs[i] - offset)
       return false;
   }
   return true;
@@ -46,13 +47,33 @@ PruneSweeper::prune_and_sweep()
         m_pairs.emplace_back(box.entity, m_boxes[j].entity);
       }
     }
+    assert(sort_axis == 0);
+
+    // check upper wrap
+    for (unsigned int j = 0; j < i; ++j) {
+      if (m_boxes[j].mins[sort_axis] + wrapsize > box.maxs[sort_axis]) {
+        break;
+      }
+      if (overlap(box, m_boxes[j]), +wrapsize) {
+        m_pairs.emplace_back(box.entity, m_boxes[j].entity);
+      }
+    }
+    // check lower wrap
+    for (unsigned int j = m_boxes.size() - 1; j > i; --j) {
+      if (m_boxes[j].maxs[sort_axis] - wrapsize < box.mins[sort_axis]) {
+        break;
+      }
+      if (overlap(box, m_boxes[j]), -wrapsize) {
+        m_pairs.emplace_back(box.entity, m_boxes[j].entity);
+      }
+    }
   }
 
-  glm::tvec2<float> var = sqrd_means - means * means / (float)m_boxes.size();
-  sort_axis = 0;
-  if (var.y > var.x) {
-    sort_axis = 1;
-  }
+  // glm::tvec2<float> var = sqrd_means - means * means / (float)m_boxes.size();
+  // sort_axis = 0;
+  // if (var.y > var.x) {
+  //  sort_axis = 1;
+  //}
 }
 
 std::vector<PSBox>
@@ -82,6 +103,25 @@ PruneSweeper::find_in_radius(const WVec& center,
     }
     if (overlap(box, other) && other.entity != entity) {
       boxes.push_back(other);
+    }
+  }
+  // check for wraps
+  // check upper wrap
+  for (auto j = 0; j < lower - m_boxes.begin(); ++j) {
+    if (m_boxes[j].mins[sort_axis] + wrapsize > box.maxs[sort_axis]) {
+      break;
+    }
+    if (overlap(box, m_boxes[j]), +wrapsize) {
+      boxes.push_back(m_boxes[j]);
+    }
+  }
+  // check lower wrap
+  for (unsigned int j = m_boxes.size() - 1; j > lower - m_boxes.begin(); --j) {
+    if (m_boxes[j].maxs[sort_axis] - wrapsize < box.mins[sort_axis]) {
+      break;
+    }
+    if (overlap(box, m_boxes[j]), -wrapsize) {
+      boxes.push_back(m_boxes[j]);
     }
   }
   return boxes;

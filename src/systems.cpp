@@ -30,21 +30,17 @@ debug_draw_update(GameWorld& world,
                   const Camera& camera)
 {
   WTransform zero_tf;
-  WTransform transl = translate(zero_tf, WVec(wrapsize, 0));
-  WTransform minus_transl = translate(zero_tf, WVec(-wrapsize, 0));
   WRenderer::set_mode(PLines);
   for (const auto& tri : world.grid().get_objects()) {
     tri.shape->add_gfx_lines(zero_tf);
-    tri.shape->add_gfx_lines(transl);
-    tri.shape->add_gfx_lines(minus_transl);
   }
 
   for (const auto entity : entities) {
     auto& shape = world.get<ColShapeComponent>(entity).shape;
     const auto& transform = world.get<PosComponent>(entity).global_transform;
     shape->add_gfx_lines(transform);
-    shape->add_gfx_lines(translate(transform, WVec(wrapsize, 0)));
-    shape->add_gfx_lines(translate(transform, WVec(-wrapsize, 0)));
+    shape->add_gfx_lines(translate(zero_tf, WVec(+wrapsize, 0)) * transform);
+    shape->add_gfx_lines(translate(zero_tf, WVec(-wrapsize, 0)) * transform);
   }
 }
 

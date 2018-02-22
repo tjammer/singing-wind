@@ -26,8 +26,9 @@ GoToEnemy::enter()
   assert(pc.following > 0);
   assert(m_world.entities()[m_entity].test(CPathing));
   const auto& pos = m_world.get<PosComponent>(m_entity).global_position;
-  const auto& to = m_world.get<PosComponent>(pc.following).global_position;
-  m_status = get_path(pos, to, m_world, pc);
+  const auto& target =
+    m_world.get<PosComponent>(pc.following).wrapped_position(pos);
+  m_status = get_path(pos, target, m_world, pc);
   m_radius = m_world.get<ColShapeComponent>(m_entity).shape->get_radius();
   m_world.get<SimpleFlyComponent>(m_entity).c_arrive_radius = m_radius;
 }
@@ -49,22 +50,22 @@ GoToEnemy::update()
   }
 
   if (pc.index == 0) { // directly following
-    const auto& follow =
-      m_world.get<PosComponent>(pc.following).global_position;
-    float follow_radius =
+    const auto& target =
+      m_world.get<PosComponent>(pc.following).wrapped_position(pos);
+    float target_radius =
       m_world.get<ColShapeComponent>(pc.following).shape->get_radius();
-    if (follow_radius + m_radius > m_arrive_distance) {
+    if (target_radius + m_radius > m_arrive_distance) {
       assert(false);
       return behaviour_tree::Status::Failure;
     }
-    auto result = m_world.grid().raycast_against_grid(pos, follow);
+    auto result = m_world.grid().raycast_against_grid(pos, target);
     if (!result.hits) {
-      pc.path[pc.index] = follow;
+      pc.path[pc.index] = target;
     } else {
       enter();
     }
     if (w_magnitude(nearest_dist_with_radii(
-          pos, m_radius, follow, follow_radius)) < m_arrive_distance) {
+          pos, m_radius, target, target_radius)) < m_arrive_distance) {
       return behaviour_tree::Status::Success;
     }
   }
@@ -90,8 +91,8 @@ GoToEnemy::update()
     }
     if (m_world.get<TagComponent>(col.entity)
           .tags.test(static_cast<int>(Tags::Enemy))) {
-      auto center = (col.maxs + col.mins) / 2.0f;
-      float radius = w_magnitude(center - col.mins);
+      float radius = w_magnitude(col.maxs - col.mins) / 2.0f;
+      auto center = m_world.get<PosComponent>(col.entity).wrapped_position(pos);
       builder.add_flock(pos + nearest_dist_with_radii(pos, 0, center, radius));
       pc.cohesion += center;
       i++;

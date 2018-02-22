@@ -133,8 +133,11 @@ SixPatternCastMove::leave(GameWorld& world, unsigned int entity)
 
   for (size_t i = 0; i < 6; ++i) {
     float angle = start_angle + (float)i * 1.0f / 6.0f * 2.0f * (float)M_PI;
-    auto func = std::bind(
-      create_pattern_projectile, _1, _2, entity, w_rotated({ 0, -1 }, angle));
+    auto func = std::bind(create_pattern_projectile,
+                          _1,
+                          _2,
+                          entity,
+                          w_rotated(WVec{ 0, -1 }, angle));
     world.queue_create(func);
   }
 }

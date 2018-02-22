@@ -5,16 +5,16 @@ const float wrapsize = 2 * 1500;
 
 template<typename T>
 T
-wrap_add(const T& a, const T& b)
+get_wrapped_global_position(const T& query, const T& other)
 {
-  return a + b;
-}
-
-template<typename T>
-T
-wrap_sub(const T& a, const T& b)
-{
-  return a - b;
+  auto diff = query.x - other.x;
+  auto x = query.x;
+  if (abs(diff) > abs(diff + wrapsize)) {
+    x += wrapsize;
+  } else if (abs(diff) > abs(diff - wrapsize)) {
+    x -= wrapsize;
+  }
+  return { x, query.y };
 }
 
 #endif /* WRAPAROUND_H */

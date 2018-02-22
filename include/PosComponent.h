@@ -13,6 +13,9 @@ struct PosComponent
   unsigned int parent = 0;
   int direction = 1;
   static const Components type = CPosition;
+
+  // returns wrapped global position
+  WVec wrapped_position(const WVec& other);
 };
 
 class GameWorld;

@@ -3,7 +3,10 @@
 
 #include "ColShape.h"
 #include "CollisionComponent.h"
+#include "wraparound.h"
 #include "WVecMath.h"
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/matrix_transform_2d.hpp>
 #include <vector>
 #include <array>
 
@@ -14,7 +17,6 @@ struct StaticTriangle
   WVec center;
   float radius;
   std::shared_ptr<ColTriangle> shape;
-  unsigned int id;
   mutable int tag;
 };
 
@@ -134,7 +136,7 @@ public:
     return result;
   }
 
-  void lazy_add(obj object)
+  void lazy_add(obj object, bool wrap = true)
   {
     m_objects.push_back(object);
 
@@ -149,6 +151,17 @@ public:
         auto& cell = m_grid[y][x];
         cell.num_objects++;
       }
+    }
+    if (!wrap) {
+      return;
+    }
+    for (auto i : { -1.0f, 1.0f }) {
+      auto shape = std::make_shared<ColTriangle>(*object.shape.get(),
+                                                 WVec{ i * wrapsize, 0 });
+      obj _obj = { object.center + WVec{ i * wrapsize, 0 },
+                   object.radius,
+                   shape };
+      lazy_add(_obj, false);
     }
   }
 

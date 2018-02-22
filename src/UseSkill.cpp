@@ -34,9 +34,11 @@ UseSkill::update()
   if (!m_can_cast) {
     return Status::Failure;
   }
+  const auto& pos = m_world.get<PosComponent>(m_entity).global_position;
   auto victim = m_world.get<PathingComponent>(m_entity).following;
+
   m_world.get<InputComponent>(m_entity).mouse.push(
-    m_world.get<PosComponent>(victim).global_position);
+    m_world.get<PosComponent>(victim).wrapped_position(pos));
   m_world.get<InputComponent>(m_entity).attacks[0].push(true);
 
   if (m_world.get<SkillComponent>(m_entity).skills[0]->state ==

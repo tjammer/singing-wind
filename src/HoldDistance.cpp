@@ -32,7 +32,8 @@ HoldDistance::update()
     m_world.get<ColShapeComponent>(m_entity).shape->get_radius();
   auto& pc = m_world.get<PathingComponent>(m_entity);
   auto& mc = m_world.get<MoveComponent>(m_entity);
-  const auto& target = m_world.get<PosComponent>(pc.following).global_position;
+  const auto& target =
+    m_world.get<PosComponent>(pc.following).wrapped_position(pos);
 
   auto builder =
     SteeringBuilder(pos,
@@ -51,8 +52,9 @@ HoldDistance::update()
     }
     if (m_world.get<TagComponent>(col.entity)
           .tags.test(static_cast<int>(Tags::Enemy))) {
-      auto center = (col.maxs + col.mins) / 2.0f;
-      float radius = w_magnitude(center - col.mins);
+      float radius = w_magnitude(col.maxs - col.mins) / 2.0f;
+      assert(radius == w_magnitude(col.maxs - col.mins) / 2.0f);
+      auto center = m_world.get<PosComponent>(col.entity).wrapped_position(pos);
       builder.add_flock(pos + nearest_dist_with_radii(pos, 0, center, radius));
     }
   }
