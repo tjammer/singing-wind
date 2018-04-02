@@ -21,7 +21,7 @@ public:
 private:
   glm::tmat4x4<float> m_projection;
   glm::tmat4x4<float> m_view;
-  float m_zoom = 1.4f;
+  float m_zoom = 1.7f;
   WVec m_center;
   void update();
 };

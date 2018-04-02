@@ -126,3 +126,10 @@ PruneSweeper::find_in_radius(const WVec& center,
   }
   return boxes;
 }
+
+void
+PruneSweeper::clear()
+{
+  m_boxes.clear();
+  m_pairs.clear();
+}

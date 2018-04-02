@@ -248,6 +248,7 @@ GameWorld::update_world()
   grid().finish();
 
   pimpl->m_navmesh = build_navmesh_fly(islands(), grid());
+  prune_sweep().clear();
 
   pimpl->delete_entitites(*this);
   pimpl->create_entities(*this);

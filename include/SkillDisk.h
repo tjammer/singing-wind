@@ -27,7 +27,7 @@ public:
   DiskProjectileMove(const WVec& a_dir, float a_speed)
     : TimedMoveState(TimedMoveStateName::DiskProjectile, 60)
     , dir(a_dir)
-    , move_speed(fmin(a_speed + 400, 1200)) // base speed
+    , move_speed(fmin(a_speed + 700, 1200)) // base speed
   {
   }
 

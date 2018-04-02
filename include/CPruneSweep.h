@@ -24,6 +24,7 @@ public:
   std::vector<PSBox> find_in_radius(const WVec& center,
                                     float radius,
                                     unsigned int entity);
+  void clear();
 
 private:
   std::vector<PSBox> m_boxes;

@@ -1,6 +1,6 @@
 augroup LOCAL_SETUP
   "https://github.com/MarcWeber/vim-addon-local-vimrc
-  nnoremap <leader>l :! build/singing_wind<CR>
+  nnoremap <leader>r :! build/singing_wind<CR>
   nnoremap <leader>b :wa <bar> :!cmake --build build<CR>
 
   let g:clang_format#style_options = {
