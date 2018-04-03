@@ -2,7 +2,7 @@
 // Created by jammer on 20/04/17.
 //
 
-#include "FrameTimer.h"
+#include "frame_timer.h"
 #include <GLFW/glfw3.h>
 
 void

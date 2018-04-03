@@ -2,7 +2,7 @@
 // Created by jammer on 16/05/17.
 //
 
-#include <WShader.h>
+#include <shader.h>
 #include <fstream>
 #include <iostream>
 

@@ -2,7 +2,7 @@
 // Created by jammer on 16/05/17.
 //
 
-#include "WTexture.h"
+#include "texture.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include <iostream>
 #include <stb_image.h>

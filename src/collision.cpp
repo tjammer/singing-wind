@@ -2,9 +2,9 @@
 // Created by jammer on 03/04/17.
 //
 
-#include "Collision.h"
-#include "ColShape.h"
-#include <WVecMath.h>
+#include "collision.h"
+#include "col_shape.h"
+#include <vec_math.h>
 #include <assert.h>
 #include <set>
 

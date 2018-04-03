@@ -5,7 +5,7 @@
 #ifndef SINGING_WIND_COLSHAPE_H
 #define SINGING_WIND_COLSHAPE_H
 
-#include "WindDefs.h"
+#include "wind_defs.h"
 #include <array>
 
 const float c_line_triangulate_split = 250.f;

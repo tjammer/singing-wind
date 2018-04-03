@@ -2,10 +2,10 @@
 // Created by jammer on 03/04/17.
 //
 
-#include "ColShape.h"
-#include "Collision.h"
-#include <WRenderer.h>
-#include <WVecMath.h>
+#include "col_shape.h"
+#include "collision.h"
+#include <renderer.h>
+#include <vec_math.h>
 #include <iostream>
 
 ColTriangle::ColTriangle(const WVec& p1, const WVec& p2, const WVec& p3)
@@ -32,8 +32,7 @@ ColTriangle::ColTriangle(const ColTriangle& tri, const WVec& v)
   : ColTriangle(tri.m_vertices[0] + v,
                 tri.m_vertices[1] + v,
                 tri.m_vertices[2] + v)
-{
-}
+{}
 
 void
 ColTriangle::add_gfx_lines(const WTransform& tf)

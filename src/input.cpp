@@ -2,7 +2,7 @@
 // Created by jammer on 16/05/17.
 //
 
-#include "WInput.h"
+#include "input.h"
 #include <imgui.h>
 #include "imgui_impl_glfw_gl3.h"
 #include <unordered_map>

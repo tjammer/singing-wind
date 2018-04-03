@@ -2,7 +2,9 @@
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 #include "imgui_impl_glfw_gl3.h"
-#include <WInput.h>
+#include "input.h"
+#include "col_shape.h"
+#include "renderer.h"
 
 int
 main()
@@ -22,11 +24,16 @@ main()
 
   ImGui_ImplGlfwGL3_Init(window, false);
 
+  WRenderer::init(window);
+
   // these get overridden by imui, will get called there too
   glfwSetKeyCallback(window, WInput::key_callback);
   glfwSetMouseButtonCallback(window, WInput::mouse_button_callback);
   glfwSetScrollCallback(window, WInput::scroll_callback);
   glfwSetCharCallback(window, WInput::char_callback);
+
+  auto pos = WVec(0, 0);
+  auto shape = ColCircle(10);
 
   while (glfwWindowShouldClose(window) == 0) {
     glfwPollEvents();

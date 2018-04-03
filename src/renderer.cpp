@@ -2,9 +2,9 @@
 // Created by jammer on 16/05/17.
 //
 
-#include "WRenderer.h"
+#include "renderer.h"
 #include <GLFW/glfw3.h>
-#include <WShader.h>
+#include <shader.h>
 #include <assert.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -110,8 +110,7 @@ WRenderer::render_array()
 
 void
 WRenderer::shutdown()
-{
-}
+{}
 
 unsigned int ::WRenderer::get_vao()
 {

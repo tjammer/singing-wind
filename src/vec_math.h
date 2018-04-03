@@ -5,7 +5,7 @@
 #ifndef SINGING_WIND_WVECMATH_H
 #define SINGING_WIND_WVECMATH_H
 
-#include "WindDefs.h"
+#include "wind_defs.h"
 #include <math.h>
 #include <deque>
 

@@ -3,12 +3,13 @@ target_include_directories(singing_wind PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_sources(singing_wind
   PRIVATE
   ${CMAKE_CURRENT_LIST_DIR}/main.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/WInput.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/WShader.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/ColShape.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/WTexture.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/Collision.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/WRenderer.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/FrameTimer.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/input.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/shader.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/col_shape.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/texture.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/collision.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/renderer.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/frame_timer.cpp
   ${CMAKE_CURRENT_LIST_DIR}/imgui_impl_glfw_gl3.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/camera.cpp
   )
