@@ -1,0 +1,6 @@
+set(GLAD_INSTALL OFF CACHE INTERNAL "")
+set(GLAD_NO_LOADER OFF CACHE INTERNAL "")
+set(GLAD_PROFILE core CACHE STRING "")
+set(GLAD_EXPORT ON CACHE INTERNAL "")
+add_subdirectory(glad)
+target_include_directories(glad PUBLIC ${GLAD_INCLUDE_DIRS})
