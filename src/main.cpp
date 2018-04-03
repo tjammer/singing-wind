@@ -2,7 +2,6 @@
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 #include "imgui_impl_glfw_gl3.h"
-#include "Engine.h"
 #include <WInput.h>
 
 int
@@ -21,8 +20,6 @@ main()
   gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
   glfwSwapInterval(1);
 
-  Engine engine(*window);
-
   ImGui_ImplGlfwGL3_Init(window, false);
 
   // these get overridden by imui, will get called there too
@@ -34,7 +31,10 @@ main()
   while (glfwWindowShouldClose(window) == 0) {
     glfwPollEvents();
     ImGui_ImplGlfwGL3_NewFrame();
-    engine.update();
+    glClearColor(0.16f, 0.19f, 0.23f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    // engine.update();
+    ImGui::Text("Hello, world!");
 
     ImGui::Render();
     glfwSwapBuffers(window);
