@@ -88,7 +88,7 @@ entity_edit(GameWorld& world, unsigned int entity)
     auto& sc = world.get<SkillComponent>(entity);
 
     skillset ss = 0;
-    unsigned long skill_flag = 0;
+    unsigned int skill_flag = 0;
     for (const auto& skill : sc.skills) {
       skill_flag |= (1 << static_cast<int>(skill->get_id()));
     }

@@ -67,7 +67,7 @@ EntityIdle::update(const WVec& mpos)
   if (CollapsingHeader("components bitset")) {
     auto& comps = m_world.entities()[m_entity];
 
-    auto flags = comps.to_ulong();
+    unsigned int flags = comps.to_ulong();
     for (auto& pair : components_string) {
       CheckboxFlags(pair.second, &flags, 1 << static_cast<int>(pair.first));
     }

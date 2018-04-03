@@ -17,7 +17,7 @@ entity_edit_tags(GameWorld& world, unsigned int entity)
 
   if (world.entities()[entity].test(CTag) and CollapsingHeader("tags")) {
     auto& tc = world.get<TagComponent>(entity);
-    auto flags = tc.tags.to_ulong();
+    unsigned int flags = tc.tags.to_ulong();
     for (auto& pair : tags_string) {
       CheckboxFlags(pair.second, &flags, 1 << static_cast<int>(pair.first));
     }

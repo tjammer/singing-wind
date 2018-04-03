@@ -56,7 +56,7 @@ const std::map<EditorDrawables, const char*> drawables_string = {
 void
 drawables::menu(EditorDrawSet& drawset)
 {
-  auto int_set = drawset.to_ulong();
+  unsigned int int_set = drawset.to_ulong();
   for (auto& pair : drawables_string) {
     ImGui::CheckboxFlags(
       pair.second, &int_set, 1 << static_cast<int>(pair.first));
