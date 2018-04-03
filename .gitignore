@@ -7,6 +7,5 @@ build
 assets
 imgui.ini
 scenes
-external/stb_image/
 external/tool/
 external/triangle/

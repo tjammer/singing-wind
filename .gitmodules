@@ -16,3 +16,6 @@
 [submodule "external/nanoflann"]
 	path = external/nanoflann
 	url = https://github.com/jlblancoc/nanoflann
+[submodule "external/stb"]
+	path = external/stb
+	url = https://github.com/nothings/stb
