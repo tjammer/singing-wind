@@ -7,7 +7,6 @@ build
 assets
 imgui.ini
 scenes
-external/imgui/
 external/nanoflann/
 external/stb_image/
 external/tool/
