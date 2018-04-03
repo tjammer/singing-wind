@@ -3,6 +3,8 @@
 //
 
 #include "WInput.h"
+#include <imgui.h>
+#include "imgui_impl_glfw_gl3.h"
 #include <unordered_map>
 
 namespace WInput {
@@ -14,9 +16,10 @@ float scroll_offset{ 0 };
 float scroll_accum{ 0 };
 
 void
-key_callback(GLFWwindow*, int key, int, int action, int)
+key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
   keys[key] = action;
+  ImGui_ImplGlfwGL3_KeyCallback(window, key, scancode, action, mods);
 }
 
 bool
@@ -26,9 +29,10 @@ is_key_pressed(int key)
 }
 
 void
-mouse_button_callback(GLFWwindow*, int button, int action, int)
+mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
   buttons[button] = action;
+  // ImGui_ImplGlfwGL3_MouseButtonCallback(window, button, action, mods);
 }
 
 bool
@@ -50,9 +54,16 @@ get_mouse_pos()
 }
 
 void
-scroll_callback(GLFWwindow*, double, double dy)
+scroll_callback(GLFWwindow* window, double dx, double dy)
 {
   scroll_accum += static_cast<float>(dy);
+  ImGui_ImplGlfwGL3_ScrollCallback(window, dx, dy);
+}
+
+void
+char_callback(GLFWwindow* window, unsigned int codepoint)
+{
+  ImGui_ImplGlfwGL3_CharCallback(window, codepoint);
 }
 
 float

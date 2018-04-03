@@ -31,6 +31,8 @@ float
 get_scroll_diff();
 void
 fix_scroll_for_frame();
-}
 
+void
+char_callback(GLFWwindow* window, unsigned int);
+}
 #endif // SINGING_WIND_WINPUT_H

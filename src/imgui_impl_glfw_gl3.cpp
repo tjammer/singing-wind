@@ -24,8 +24,6 @@
 #include <GLFW/glfw3native.h>
 #endif
 
-#include <WInput.h>
-
 // Data
 static GLFWwindow* g_Window = NULL;
 static double g_Time = 0.0f;
@@ -205,7 +203,6 @@ ImGui_ImplGlfwGL3_MouseButtonCallback(GLFWwindow* window,
                                       int action,
                                       int mods)
 {
-  WInput::mouse_button_callback(window, button, action, mods);
   if (action == GLFW_PRESS && button >= 0 && button < 3)
     g_MousePressed[button] = true;
 }
@@ -217,7 +214,6 @@ ImGui_ImplGlfwGL3_ScrollCallback(GLFWwindow* window,
 {
   g_MouseWheel +=
     (float)yoffset; // Use fractional mouse wheel, 1.0 unit 5 lines.
-  WInput::scroll_callback(window, xoffset, yoffset);
 }
 
 void
@@ -227,7 +223,6 @@ ImGui_ImplGlfwGL3_KeyCallback(GLFWwindow* window,
                               int action,
                               int mods)
 {
-  WInput::key_callback(window, key, scancode, action, mods);
   ImGuiIO& io = ImGui::GetIO();
   if (action == GLFW_PRESS)
     io.KeysDown[key] = true;
@@ -519,12 +514,12 @@ ImGui_ImplGlfwGL3_NewFrame()
   }
 
   for (int i = 0; i < 3; i++) {
-    io.MouseDown[i] = g_MousePressed[i] ||
-                      glfwGetMouseButton(g_Window, i) !=
-                        0; // If a mouse press event came, always pass it as
-                           // "mouse held this frame", so we don't miss
-                           // click-release events that are shorter than 1
-                           // frame.
+    io.MouseDown[i] =
+      g_MousePressed[i] || glfwGetMouseButton(g_Window, i) !=
+                             0; // If a mouse press event came, always pass it
+                                // as "mouse held this frame", so we don't miss
+                                // click-release events that are shorter than 1
+                                // frame.
     g_MousePressed[i] = false;
   }
 
