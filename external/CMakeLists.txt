@@ -11,13 +11,13 @@ add_subdirectory(glfw)
 
 include(glm.cmake)
 include(imgui.cmake)
+include(nanoflann.cmake)
 
 set(GLAD_INSTALL OFF CACHE INTERNAL "")
 set(GLAD_NO_LOADER OFF CACHE INTERNAL "")
 set(GLAD_PROFILE core CACHE STRING "")
 add_subdirectory(glad)
 add_subdirectory(triangle)
-add_subdirectory(nanoflann)
 add_subdirectory(stb_image)
 
 set(FLATBUFFERS_BUILD_FLATHASH OFF CACHE INTERNAL "")

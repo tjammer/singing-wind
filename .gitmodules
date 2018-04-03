@@ -13,3 +13,6 @@
 [submodule "external/imgui"]
 	path = external/imgui
 	url = https://github.com/ocornut/imgui
+[submodule "external/nanoflann"]
+	path = external/nanoflann
+	url = https://github.com/jlblancoc/nanoflann
