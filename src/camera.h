@@ -10,17 +10,14 @@
 class Camera
 {
 public:
-  unsigned int m_entity_to_follow;
-  void update(const WVec& offset, float zoom);
-  void set_center(const WVec& center);
-  WVec unproject_mouse(double pos[2]);
+  WVec unproject_mouse(double pos[2]) const;
+  glm::tmat4x4<float> get_camera() const;
+  Camera(const WVec& viewport);
 
 private:
   glm::tmat4x4<float> m_projection;
   glm::tmat4x4<float> m_view;
-  float m_zoom = 1.7f;
-  WVec m_center;
-  void update();
+  WVec m_viewport;
 };
 
 #endif // SINGING_WIND_CAMERA_H

@@ -16,7 +16,6 @@ using namespace WRenderer;
 namespace WRenderer {
 // vp, models are already transformed
 glm::tmat4x4<float> camera_transform;
-glm::tvec2<int> viewport;
 
 int m_mode = -1;
 GLuint prim_vao, prim_vbo, prim_ebo;
@@ -32,8 +31,6 @@ void ::WRenderer::init(GLFWwindow* window)
 {
   int width, height;
   glfwGetFramebufferSize(window, &width, &height);
-  glViewport(0, 0, width, height);
-  viewport = { width, height };
 
   glGenBuffers(1, &prim_vbo);
   glGenBuffers(1, &prim_ebo);
@@ -110,7 +107,8 @@ WRenderer::render_array()
 
 void
 WRenderer::shutdown()
-{}
+{
+}
 
 unsigned int ::WRenderer::get_vao()
 {
@@ -132,14 +130,4 @@ void ::WRenderer::set_mode(int mode)
 void ::WRenderer::set_camera(const glm::tmat4x4<float>& transform)
 {
   camera_transform = transform;
-}
-
-const glm::tvec2<int>& ::WRenderer::get_viewport()
-{
-  return viewport;
-}
-
-glm::tmat4x4<float>& ::WRenderer::get_camera()
-{
-  return camera_transform;
 }

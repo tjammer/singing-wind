@@ -4,7 +4,7 @@
 
 #include "col_shape.h"
 #include "collision.h"
-#include <renderer.h>
+#include "renderer.h"
 #include <vec_math.h>
 #include <iostream>
 
@@ -32,7 +32,8 @@ ColTriangle::ColTriangle(const ColTriangle& tri, const WVec& v)
   : ColTriangle(tri.m_vertices[0] + v,
                 tri.m_vertices[1] + v,
                 tri.m_vertices[2] + v)
-{}
+{
+}
 
 void
 ColTriangle::add_gfx_lines(const WTransform& tf)
