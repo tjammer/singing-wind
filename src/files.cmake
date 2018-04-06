@@ -1,4 +1,4 @@
-target_include_directories(singing_wind PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(singing_wind PRIVATE ${CMAKE_CURRENT_LIST_DIR} ${CMAKE_CURRENT_LIST_DIR}/ecs)
 
 target_sources(singing_wind
   PRIVATE
@@ -12,4 +12,5 @@ target_sources(singing_wind
   ${CMAKE_CURRENT_LIST_DIR}/frame_timer.cpp
   ${CMAKE_CURRENT_LIST_DIR}/imgui_impl_glfw_gl3.cpp
   ${CMAKE_CURRENT_LIST_DIR}/camera.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/ecs/ecs.hpp
   )

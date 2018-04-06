@@ -8,6 +8,7 @@
 #include "camera.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
+#include "ecs.hpp"
 
 int
 main()
