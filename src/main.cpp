@@ -10,6 +10,26 @@
 #include <glm/gtx/matrix_transform_2d.hpp>
 #include "ecs.hpp"
 
+struct PosComp
+{
+  WTransform tf;
+  ColCircle shape;
+};
+
+void
+pos_update(PosComp& pc)
+{
+  pc.tf = glm::translate(WTransform(), WInput::get_mouse_pos());
+  WRenderer::set_mode(PLines);
+  pc.shape.add_gfx_lines(pc.tf);
+}
+
+void
+render_update()
+{
+  WRenderer::render_array();
+}
+
 int
 main()
 {
@@ -41,7 +61,10 @@ main()
   glfwSetScrollCallback(window, WInput::scroll_callback);
   glfwSetCharCallback(window, WInput::char_callback);
 
-  auto shape = ColCircle(10);
+  ecs::World world;
+
+  auto player = world.create_entity();
+  world.create_component<PosComp>(player, { WTransform(), ColCircle(10) });
 
   while (glfwWindowShouldClose(window) == 0) {
     glfwPollEvents();
@@ -52,13 +75,12 @@ main()
     double cursor[2];
     glfwGetCursorPos(window, &cursor[0], &cursor[1]);
     auto unpr_cursor = camera.unproject_mouse(cursor);
-    auto tf = glm::translate(WTransform(), unpr_cursor);
+    WInput::set_mouse(unpr_cursor);
 
     WRenderer::reset();
-    WRenderer::set_mode(PLines);
-    shape.add_gfx_lines(tf);
+    world.visit(pos_update);
+    render_update();
 
-    WRenderer::render_array();
     ImGui::Text("%f, %f", unpr_cursor.x, unpr_cursor.y);
 
     ImGui::Render();
