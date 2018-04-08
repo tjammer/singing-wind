@@ -113,8 +113,30 @@ private:
   std::vector<T> components;
 };
 
+template<typename T>
+struct tag
+{};
+
+template<typename T>
+class component_set_impl<tag<T>> : public component_set
+{
+public:
+  virtual ~component_set_impl() = default;
+  virtual void remove(size_type) override {}
+};
+
 namespace component_kinds {
-struct normal
+struct std
+{};
+struct normal : public std
+{};
+struct tagged : public std
+{};
+struct meta
+{};
+struct world : public meta
+{};
+struct ent : public meta
 {};
 }
 
@@ -122,6 +144,27 @@ template<typename World, typename Component>
 struct component_kind
 {
   using category = component_kinds::normal;
+  using component = Component;
+};
+
+template<typename World>
+struct component_kind<World, typename World::ent_id>
+{
+  using category = component_kinds::ent;
+  using component = void;
+};
+
+template<typename World>
+struct component_kind<World, World>
+{
+  using category = component_kinds::world;
+  using component = void;
+};
+
+template<typename World, typename Component>
+struct component_kind<World, tag<Component>>
+{
+  using category = component_kinds::tagged;
   using component = Component;
 };
 
@@ -181,6 +224,35 @@ struct world_traits
     {
       auto& com = world.template get_component<component>(eid);
       visitor(com);
+    }
+
+    template<typename Visitor>
+    static void dispatch(component_kinds::ent,
+                         World&,
+                         ent_id eid,
+                         Visitor&& visitor)
+    {
+      visitor(eid);
+    }
+
+    template<typename Visitor>
+    static void dispatch(component_kinds::world,
+                         World& world,
+                         ent_id,
+                         Visitor&& visitor)
+    {
+      visitor(world);
+    }
+
+    template<typename Visitor>
+    static void dispatch(component_kinds::tagged,
+                         World& world,
+                         ent_id eid,
+                         Visitor&& visitor)
+    {
+      if (world.template has_component<component>(eid)) {
+        visitor(component{});
+      }
     }
   };
 
@@ -262,10 +334,15 @@ struct world_traits
     using traits = comp_kind<HeadCom>;
     using next_key = visitor_key<primary<PrimaryComponent>, TailComs...>;
 
-    static bool helper(World& world, ent_id eid, component_kinds::normal)
+    static bool helper(World& world, ent_id eid, component_kinds::std)
     {
       return next_key::check(world, eid) &&
              world.template has_component<typename traits::component>(eid);
+    }
+
+    static bool helper(World& db, ent_id eid, component_kinds::meta)
+    {
+      return next_key::check(db, eid);
     }
 
     static bool check(World& world, ent_id eid)
@@ -315,42 +392,35 @@ struct world_traits
   template<typename Visitor>
   struct visitor_traits
     : visitor_traits<decltype(&std::decay_t<Visitor>::operator())>
-  {
-  };
+  {};
   template<typename R, typename... Ts>
   struct visitor_traits<R (&)(Ts...)> : visitor_traits_impl<std::decay_t<Ts>...>
-  {
-  };
+  {};
 
   template<typename Visitor, typename R, typename... Ts>
   struct visitor_traits<R (Visitor::*)(Ts...)>
     : visitor_traits_impl<std::decay_t<Ts>...>
-  {
-  };
+  {};
 
   template<typename Visitor, typename R, typename... Ts>
   struct visitor_traits<R (Visitor::*)(Ts...) const>
     : visitor_traits_impl<std::decay_t<Ts>...>
-  {
-  };
+  {};
 
   template<typename Visitor, typename R, typename... Ts>
   struct visitor_traits<R (Visitor::*)(Ts...)&>
     : visitor_traits_impl<std::decay_t<Ts>...>
-  {
-  };
+  {};
 
   template<typename Visitor, typename R, typename... Ts>
-  struct visitor_traits<R (Visitor::*)(Ts...) const &>
+  struct visitor_traits<R (Visitor::*)(Ts...) const&>
     : visitor_traits_impl<std::decay_t<Ts>...>
-  {
-  };
+  {};
 
   template<typename Visitor, typename R, typename... Ts>
   struct visitor_traits<R (Visitor::*)(Ts...) &&>
     : visitor_traits_impl<std::decay_t<Ts>...>
-  {
-  };
+  {};
 };
 
 class World
@@ -424,10 +494,11 @@ public:
   }
 
   template<typename Com>
-    Com& get_component_by_id(com_id cid) {
-      auto& com_set = *get_com_set<Com>();
-      return com_set.get_com(cid);
-    }
+  Com& get_component_by_id(com_id cid)
+  {
+    auto& com_set = *get_com_set<Com>();
+    return com_set.get_com(cid);
+  }
 
   template<typename Com>
   bool has_component(ent_id eid)
@@ -494,6 +565,20 @@ private:
         if (key::check(*this, eid)) {
           traits::apply(*this, eid, cid, visitor);
         }
+      }
+    }
+  }
+
+  template<typename Visitor, typename Component>
+  void visit_helper(Visitor&& visitor, primary<void>)
+  {
+    using w_traits = world_traits<World>;
+    using traits = typename w_traits::visitor_traits<Visitor>;
+    using key = typename traits::key;
+
+    for (com_id eid = 0; eid < m_entities.size(); ++eid) {
+      if (m_entities[eid].components[eid] && key::check(*this, eid)) {
+        traits::apply(*this, eid, {}, visitor);
       }
     }
   }

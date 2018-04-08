@@ -16,12 +16,22 @@ struct PosComp
   ColCircle shape;
 };
 
+struct VelComp
+{};
+
 void
-pos_update(PosComp& pc)
+pos_update(PosComp& pc, ecs::World& world, ecs::World::ent_id id)
 {
   pc.tf = glm::translate(WTransform(), WInput::get_mouse_pos());
   WRenderer::set_mode(PLines);
   pc.shape.add_gfx_lines(pc.tf);
+  world.create_component(id, VelComp{});
+}
+
+void
+vel_update(VelComp&)
+{
+  assert(false);
 }
 
 void
@@ -79,6 +89,7 @@ main()
 
     WRenderer::reset();
     world.visit(pos_update);
+    world.visit(vel_update);
     render_update();
 
     ImGui::Text("%f, %f", unpr_cursor.x, unpr_cursor.y);
