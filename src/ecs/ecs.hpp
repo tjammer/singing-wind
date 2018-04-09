@@ -9,7 +9,7 @@
 namespace ecs {
 using type_ct = std::size_t;
 
-type_ct
+inline type_ct
 get_next_type_ct()
 {
   static type_ct ct = 0;
@@ -54,89 +54,23 @@ struct primary
   using type = T;
 };
 
-class component_set
-{
-public:
-  using size_type = std::size_t;
-  virtual ~component_set() = 0;
-  virtual void remove(size_type ent) = 0;
-};
-
-inline component_set::~component_set() = default;
-
-template<typename T>
-class component_set_impl : public component_set
-{
-public:
-  virtual ~component_set_impl() = default;
-
-  size_type assign(size_type entid, T com)
-  {
-    if (entid >= entid_to_comid.size()) {
-      entid_to_comid.resize(entid + 1, -1);
-    }
-
-    auto comid = comid_to_entid.size();
-
-    entid_to_comid[entid] = comid;
-    comid_to_entid.push_back(entid);
-    components.push_back(std::move(com));
-
-    return comid;
-  }
-
-  virtual void remove(size_type entid) override
-  {
-    auto last = comid_to_entid.size() - 1;
-    auto comid = entid_to_comid[entid];
-
-    entid_to_comid[entid] = -1;
-    entid_to_comid[comid_to_entid[last]] = comid;
-
-    comid_to_entid[comid] = comid_to_entid[last];
-    comid_to_entid.pop_back();
-
-    components[comid] = std::move(components[last]);
-    components.pop_back();
-  }
-  size_type get_comid(size_type entid) const { return entid_to_comid[entid]; }
-
-  T& get_com(size_type comid) { return components[comid]; }
-
-  size_type get_entid(size_type comid) const { return comid_to_entid[comid]; }
-
-  size_type size() const { return components.size(); }
-
-private:
-  std::vector<size_type> entid_to_comid;
-  std::vector<size_type> comid_to_entid;
-  std::vector<T> components;
-};
-
 template<typename T>
 struct tag
-{};
-
-template<typename T>
-class component_set_impl<tag<T>> : public component_set
 {
-public:
-  virtual ~component_set_impl() = default;
-  virtual void remove(size_type) override {}
 };
 
 namespace component_kinds {
 struct std
 {};
-struct normal : public std
+struct normal : std
 {};
-struct tagged : public std
+struct tagged : std
 {};
 struct meta
 {};
-struct world : public meta
+struct world : meta
 {};
-struct ent : public meta
+struct ent : meta
 {};
 }
 
@@ -145,6 +79,13 @@ struct component_kind
 {
   using category = component_kinds::normal;
   using component = Component;
+};
+
+template<typename World, typename Component>
+struct component_kind<World, tag<Component>>
+{
+  using category = component_kinds::tagged;
+  using component = tag<Component>;
 };
 
 template<typename World>
@@ -161,21 +102,14 @@ struct component_kind<World, World>
   using component = void;
 };
 
-template<typename World, typename Component>
-struct component_kind<World, tag<Component>>
-{
-  using category = component_kinds::tagged;
-  using component = Component;
-};
-
 template<typename World>
 struct world_traits
 {
   using ent_id = typename World::ent_id;
   using com_id = typename World::com_id;
 
-  template<typename comp>
-  using comp_kind = component_kind<World, comp>;
+  template<typename C>
+  using comp_kind = component_kind<World, C>;
 
   // primary forward decl
   template<typename HeadTag, typename... Components>
@@ -227,6 +161,17 @@ struct world_traits
     }
 
     template<typename Visitor>
+    static void dispatch(component_kinds::tagged,
+                         World& world,
+                         ent_id eid,
+                         Visitor&& visitor)
+    {
+      if (world.template has_component<component>(eid)) {
+        visitor(component{});
+      }
+    }
+
+    template<typename Visitor>
     static void dispatch(component_kinds::ent,
                          World&,
                          ent_id eid,
@@ -242,17 +187,6 @@ struct world_traits
                          Visitor&& visitor)
     {
       visitor(world);
-    }
-
-    template<typename Visitor>
-    static void dispatch(component_kinds::tagged,
-                         World& world,
-                         ent_id eid,
-                         Visitor&& visitor)
-    {
-      if (world.template has_component<component>(eid)) {
-        visitor(component{});
-      }
     }
   };
 
@@ -392,35 +326,109 @@ struct world_traits
   template<typename Visitor>
   struct visitor_traits
     : visitor_traits<decltype(&std::decay_t<Visitor>::operator())>
-  {};
+  {
+  };
   template<typename R, typename... Ts>
   struct visitor_traits<R (&)(Ts...)> : visitor_traits_impl<std::decay_t<Ts>...>
-  {};
+  {
+  };
 
   template<typename Visitor, typename R, typename... Ts>
   struct visitor_traits<R (Visitor::*)(Ts...)>
     : visitor_traits_impl<std::decay_t<Ts>...>
-  {};
+  {
+  };
 
   template<typename Visitor, typename R, typename... Ts>
   struct visitor_traits<R (Visitor::*)(Ts...) const>
     : visitor_traits_impl<std::decay_t<Ts>...>
-  {};
+  {
+  };
 
   template<typename Visitor, typename R, typename... Ts>
   struct visitor_traits<R (Visitor::*)(Ts...)&>
     : visitor_traits_impl<std::decay_t<Ts>...>
-  {};
+  {
+  };
 
   template<typename Visitor, typename R, typename... Ts>
-  struct visitor_traits<R (Visitor::*)(Ts...) const&>
+  struct visitor_traits<R (Visitor::*)(Ts...) const &>
     : visitor_traits_impl<std::decay_t<Ts>...>
-  {};
+  {
+  };
 
   template<typename Visitor, typename R, typename... Ts>
   struct visitor_traits<R (Visitor::*)(Ts...) &&>
     : visitor_traits_impl<std::decay_t<Ts>...>
-  {};
+  {
+  };
+};
+
+class component_set
+{
+public:
+  using size_type = std::size_t;
+  virtual ~component_set() = 0;
+  virtual void remove(size_type ent) = 0;
+};
+
+inline component_set::~component_set() = default;
+
+template<typename T>
+class component_set_impl : public component_set
+{
+public:
+  virtual ~component_set_impl() = default;
+
+  size_type assign(size_type entid, T com)
+  {
+    if (entid >= entid_to_comid.size()) {
+      entid_to_comid.resize(entid + 1, -1);
+    }
+
+    auto comid = comid_to_entid.size();
+
+    entid_to_comid[entid] = comid;
+    comid_to_entid.push_back(entid);
+    components.push_back(std::move(com));
+
+    return comid;
+  }
+
+  virtual void remove(size_type entid) override
+  {
+    auto last = comid_to_entid.size() - 1;
+    auto comid = entid_to_comid[entid];
+
+    entid_to_comid[entid] = -1;
+    entid_to_comid[comid_to_entid[last]] = comid;
+
+    comid_to_entid[comid] = comid_to_entid[last];
+    comid_to_entid.pop_back();
+
+    components[comid] = std::move(components[last]);
+    components.pop_back();
+  }
+  size_type get_comid(size_type entid) const { return entid_to_comid[entid]; }
+
+  T& get_com(size_type comid) { return components[comid]; }
+
+  size_type get_entid(size_type comid) const { return comid_to_entid[comid]; }
+
+  auto size() const { return components.size(); }
+
+private:
+  std::vector<size_type> entid_to_comid;
+  std::vector<size_type> comid_to_entid;
+  std::vector<T> components;
+};
+
+template<typename T>
+class component_set_impl<tag<T>> : public component_set
+{
+public:
+  virtual ~component_set_impl() = default;
+  virtual void remove(size_type) override {}
 };
 
 class World
@@ -474,6 +482,15 @@ public:
       ent_coms.set(guid);
     }
     return cid;
+  }
+
+  template<typename T>
+  void create_component(ent_id eid, tag<T>)
+  {
+    auto guid = get_type_ct<tag<T>>();
+    auto& ent_coms = m_entities[eid].components;
+    get_or_create_com_set<tag<T>>();
+    ent_coms.set(guid);
   }
 
   template<typename Com>
@@ -569,7 +586,7 @@ private:
     }
   }
 
-  template<typename Visitor, typename Component>
+  template<typename Visitor>
   void visit_helper(Visitor&& visitor, primary<void>)
   {
     using w_traits = world_traits<World>;
@@ -577,7 +594,7 @@ private:
     using key = typename traits::key;
 
     for (com_id eid = 0; eid < m_entities.size(); ++eid) {
-      if (m_entities[eid].components[eid] && key::check(*this, eid)) {
+      if (m_entities[eid].components[0] && key::check(*this, eid)) {
         traits::apply(*this, eid, {}, visitor);
       }
     }
