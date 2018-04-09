@@ -12,7 +12,6 @@
 typedef glm::tvec2<float> WVec;
 typedef glm::tvec3<float> WVec3;
 typedef glm::mat3 WTransform;
-typedef std::bitset<24> bset;
 
 inline std::ostream&
 operator<<(std::ostream& os, const WVec& v)

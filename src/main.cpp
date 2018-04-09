@@ -10,6 +10,10 @@
 #include <glm/gtx/matrix_transform_2d.hpp>
 #include "ecs.hpp"
 
+#include "comps.h"
+
+using ecs::tag;
+
 struct PosComp
 {
   WTransform tf;
@@ -19,17 +23,18 @@ struct PosComp
 struct VelComp
 {};
 
+using Tag = tag<struct SF>;
+
 void
 pos_update(PosComp& pc, ecs::World& world, ecs::World::ent_id id)
 {
   pc.tf = glm::translate(WTransform(), WInput::get_mouse_pos());
   WRenderer::set_mode(PLines);
   pc.shape.add_gfx_lines(pc.tf);
-  world.create_component(id, VelComp{});
+  // world.create_component(id, Tag{});
 }
 
-void
-vel_update(VelComp&)
+void vel_update(Tag)
 {
   assert(false);
 }

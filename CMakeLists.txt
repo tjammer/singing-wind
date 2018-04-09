@@ -7,13 +7,6 @@ set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} -fno-exceptions -Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2 -fno-exceptions -Wall -DNDEBUG -s")
 
 add_subdirectory(external)
-
-option(enable_unity_build "enable unity build for executable" OFF)
-if (enable_unity_build)
-    include(unity_build.cmake)
-    enable_unity_build(singing_wind SOURCE_FILES)
-endif(enable_unity_build)
-
 include_directories(${PROJECT_BINARY_DIR})
 
 add_executable(singing_wind "")
