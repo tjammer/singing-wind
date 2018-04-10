@@ -3,13 +3,17 @@
 
 #include "wind_defs.h"
 
+namespace ecs {
+template<typename T>
+struct tag;
+}
+
 struct Position
 {
   WVec position{ 0, 0 };
-  WVec global_position{ 0, 0 };
   float rotation{ 0.f };
+  WVec global_position{ 0, 0 };
   WTransform global_transform{ WTransform{} };
-  std::size_t parent{ 0 };
   int direction{ 1 };
 };
 
@@ -23,20 +27,30 @@ struct Movement
   WVec velocity{ 0, 0 };
   WVec accel{ 0, 0 };
   WVec additional_force{ 0, 0 };
-  float change_angle{ 0.08 };
+  float change_angle{ 0 };
 
   MoveState active_state{ MoveState::Flying };
 
   float mass{ 1 };
   float time_fac = { 1 };
   float timer{ 0 };
+  float max_change_angle{ 0.08 };
+};
+
+enum class KeyState
+{
+  JustPressed,
+  Hold,
+  Release,
 };
 
 struct Input
 {
   WVec mouse{ 0, 0 };
-  bool wings{ false };
+  KeyState wings{ KeyState::Release };
 };
+
+using CanFly = ecs::tag<struct can_fly>;
 
 struct Flying
 {

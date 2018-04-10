@@ -24,8 +24,8 @@ FrameTimer::update()
 bool
 FrameTimer::pop_fixed()
 {
-  if (m_fixed_counter >= c_fixed_timestep) {
-    m_fixed_counter -= c_fixed_timestep;
+  if (m_fixed_counter >= FIXED_TIMESTEP) {
+    m_fixed_counter -= FIXED_TIMESTEP;
     return true;
   }
   return false;

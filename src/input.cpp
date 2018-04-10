@@ -11,6 +11,7 @@ namespace WInput {
 std::unordered_map<int, int> keys;
 std::unordered_map<int, int> buttons;
 WVec mouse;
+double raw_mouse[2];
 
 float scroll_offset{ 0 };
 float scroll_accum{ 0 };
@@ -42,6 +43,13 @@ is_mouse_button_pressed(int button)
 }
 
 void
+cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+{
+  raw_mouse[0] = xpos;
+  raw_mouse[1] = ypos;
+}
+
+void
 set_mouse(const WVec& _mouse)
 {
   mouse = _mouse;
@@ -51,6 +59,12 @@ WVec
 get_mouse_pos()
 {
   return mouse;
+}
+
+double*
+get_raw_mouse()
+{
+  return raw_mouse;
 }
 
 void
@@ -78,4 +92,4 @@ fix_scroll_for_frame()
   scroll_offset = scroll_accum;
   scroll_accum = 0;
 }
-}
+} // WInput

@@ -5,7 +5,7 @@
 #ifndef SINGING_WIND_FRAMETIMER_H
 #define SINGING_WIND_FRAMETIMER_H
 
-const float c_fixed_timestep = 1.f / 60.f;
+const float FIXED_TIMESTEP = 1.f / 60.f;
 
 class FrameTimer
 {

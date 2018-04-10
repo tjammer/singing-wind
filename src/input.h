@@ -21,9 +21,14 @@ bool
 is_mouse_button_pressed(int button);
 
 void
+cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
+
+void
 set_mouse(const WVec& mouse);
 WVec
 get_mouse_pos();
+double*
+get_raw_mouse();
 
 void
 scroll_callback(GLFWwindow*, double dx, double dy);
@@ -34,5 +39,5 @@ fix_scroll_for_frame();
 
 void
 char_callback(GLFWwindow* window, unsigned int);
-}
+} // WInput
 #endif // SINGING_WIND_WINPUT_H
