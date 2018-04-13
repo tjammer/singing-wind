@@ -4,6 +4,7 @@
 #include "input_system.h"
 #include "flying.h"
 #include "renderer.h"
+#include "move.h"
 #include "draw.h"
 
 Game::Game(const WVec& viewport)
@@ -14,6 +15,7 @@ Game::Game(const WVec& viewport)
   auto player = m_world.create_entity();
   m_world.create_component<Input>(player, Input{});
   m_world.create_component<Position>(player, Position{});
+  m_world.create_component(player, Movement{});
 
   WRenderer::set_camera(m_camera.get_camera());
 }
@@ -26,7 +28,11 @@ Game::update()
   m_frame_timer.update();
   while (m_frame_timer.pop_fixed()) {
     m_world.visit(input_update);
+    // accel systems
     m_world.visit(dummy_flying);
+    // now integrate
+    m_world.visit(
+      [](Movement& mc, Position& pc) { move_update(mc, pc, FIXED_TIMESTEP); });
   }
   m_world.visit(draw_update);
 }

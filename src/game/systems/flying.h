@@ -3,6 +3,7 @@
 
 struct Position;
 struct Input;
+struct Movement;
 
 // void
 // flying(CanFly,
@@ -12,6 +13,6 @@ struct Input;
 //       const Input& ic);
 
 void
-dummy_flying(Position& pc, const Input& ic);
+dummy_flying(const Position& pc, Movement& mc, const Input& ic);
 
 #endif /* FLYING_H */

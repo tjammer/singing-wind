@@ -12,22 +12,19 @@
 inline float
 w_magnitude(const WVec& v)
 {
-  return sqrtf(v.x * v.x + v.y * v.y);
+  return glm::length(v);
 }
 
 inline WVec
 w_normalize(const WVec& v)
 {
-  if ((v.x * v.x + v.y * v.y) != 0) {
-    return v / w_magnitude(v);
-  }
-  return v;
+  return glm::normalize(v);
 }
 
 inline float
 w_dot(const WVec& a, const WVec& b)
 {
-  return a.x * b.x + a.y * b.y;
+  return glm::dot(a, b);
 }
 
 inline float

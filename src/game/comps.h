@@ -26,7 +26,8 @@ struct Movement
 {
   WVec velocity{ 0, 0 };
   WVec accel{ 0, 0 };
-  WVec additional_force{ 0, 0 };
+  WVec next_accel{ 0, 0 };
+  float transition_time{ 5 };
   float change_angle{ 0 };
 
   MoveState active_state{ MoveState::Flying };
