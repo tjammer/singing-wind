@@ -7,6 +7,6 @@ void
 draw_update(const Position& pc)
 {
   WRenderer::set_mode(PLines);
-  auto circle = ColCircle{ 10 };
+  auto circle = ColCapsule{ 10, 20 };
   circle.add_gfx_lines(pc.global_transform);
 }
