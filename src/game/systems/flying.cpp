@@ -22,6 +22,17 @@ flying(CanFly,
 void
 dummy_flying(const Position& pc, Movement& mc, const Input& ic)
 {
+  mc.next_accel.y -= 5;
+
+  // rotations
+  mc.change_angle = angle_to_mouse(ic.mouse, pc.global_transform);
+
+  ImGui::Text("%f", pc.rotation);
+}
+
+void
+hover(const Position& pc, Movement& mc, const Input& ic)
+{
   mc.next_accel = w_normalize(ic.mouse - pc.position) * 80.0f;
   if (abs(ic.mouse.y - pc.position.y) > 10) {
     mc.next_accel -= mc.velocity * 2.0f;
@@ -29,9 +40,4 @@ dummy_flying(const Position& pc, Movement& mc, const Input& ic)
     mc.next_accel.x -= mc.velocity.x * 4.0f;
   }
   mc.next_accel.y -= 5;
-
-  // rotations
-  mc.change_angle = angle_to_mouse(ic.mouse, pc.global_transform);
-
-  ImGui::Text("%f", pc.rotation);
 }
