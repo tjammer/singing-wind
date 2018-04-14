@@ -15,6 +15,8 @@ Game::Game(const WVec& viewport)
   auto player = m_world.create_entity();
   m_world.create_component<Input>(player, Input{});
   m_world.create_component<Position>(player, Position{});
+  auto& pc = m_world.get_component<Position>(player);
+  pc.position.y = 300;
   m_world.create_component(player, Movement{});
 
   WRenderer::set_camera(m_camera.get_camera());

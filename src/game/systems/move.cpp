@@ -27,6 +27,7 @@ move_update(Movement& mc, Position& pc, float dt)
   mc.velocity += mc.next_accel * dt / 2.0f;
 
   mc.accel = mc.next_accel;
+  mc.next_accel = { 0, 0 };
   rotate_angle(mc.change_angle, mc.max_change_angle, pc);
   pc.global_transform =
     rotate(scale(translate(WTransform(), pc.position), WVec(pc.direction, 1)),
