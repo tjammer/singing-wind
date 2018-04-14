@@ -18,7 +18,11 @@ w_magnitude(const WVec& v)
 inline WVec
 w_normalize(const WVec& v)
 {
-  return glm::normalize(v);
+  auto mag = w_magnitude(v);
+  if (mag != 0) {
+    return v / mag;
+  }
+  return v;
 }
 
 inline float
