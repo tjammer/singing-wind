@@ -17,7 +17,7 @@ if (WIN32)
     add_executable(singing_wind WIN32 ${SOURCE_FILES} ${protosrc} ${protohdr})
 endif()
 #add_dependencies(singing_wind schemas)
-target_link_libraries(singing_wind imgui glfw glm glad stb_image json)
+target_link_libraries(singing_wind imgui glfw glm glad stb_image)
 
 # for ycm
 set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
