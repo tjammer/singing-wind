@@ -6,6 +6,7 @@
 #include "renderer.h"
 #include "move.h"
 #include "draw.h"
+#include "nlohmann/json.hpp"
 
 Game::Game(const WVec& viewport)
   : m_world(ecs::World{})

@@ -11,10 +11,11 @@ Camera::Camera(const WVec& viewport)
   : m_viewport(viewport)
 {
 
-  m_projection = glm::ortho(-viewport.x / 2.f,
-                            viewport.x / 2.f,
-                            viewport.y / 2.f,
-                            -viewport.y / 2.f,
+  float fac = 1.0 / 2.0;
+  m_projection = glm::ortho(-viewport.x * fac,
+                            viewport.x * fac,
+                            viewport.y * fac,
+                            -viewport.y * fac,
                             .1f,
                             1.f);
   m_view =
