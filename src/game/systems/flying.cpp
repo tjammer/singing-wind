@@ -46,13 +46,12 @@ flying(CanFly,
        Movement& mc,
        const Position& pc,
        const Input& ic)
-{
-}
+{}
 
 void
 dummy_flying(const Position& pc, Movement& mc, const Input& ic)
 {
-  mc.next_accel.y -= 98.0;
+  mc.next_accel.y -= 120.0;
 
   WVec air_dir = w_normalize(mc.velocity);
   float vel_squ = w_dot(mc.velocity, mc.velocity);
@@ -60,8 +59,8 @@ dummy_flying(const Position& pc, Movement& mc, const Input& ic)
   auto angle = w_angle_to_vec(mc.velocity, glide_dir);
 
   mc.next_accel -= air_dir * vel_squ * drag(angle) * 0.0067f;
-  mc.next_accel -= w_tangent(air_dir) * vel_squ * lift(angle, 0.26) * 0.0061f;
-  mc.next_accel += 25.0f * glide_dir;
+  mc.next_accel -= w_tangent(air_dir) * vel_squ * lift(angle, 0.26) * 0.0062f;
+  mc.next_accel += 27.0f * glide_dir;
   assert(!isnan(vel_squ));
 
   // rotations
