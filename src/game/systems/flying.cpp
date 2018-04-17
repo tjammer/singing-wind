@@ -53,7 +53,7 @@ flying(CanFly,
 void
 dummy_flying(const Position& pc, Movement& mc, const Input& ic)
 {
-  mc.next_accel.y -= 170.0;
+  mc.next_accel.y -= 100.0;
 
   WVec air_dir = w_normalize(mc.velocity);
   float vel_squ = w_dot(mc.velocity, mc.velocity);

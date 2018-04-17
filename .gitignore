@@ -4,7 +4,7 @@ videos
 compile_commands.json
 build
 *.swp
-assets
+assets/raw
 imgui.ini
 scenes
 external/tool/

@@ -16,7 +16,11 @@ if (WIN32)
     set(CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc -static-libstdc++ -Wl,-Bstatic -lstdc++ -lpthread")
     add_executable(singing_wind WIN32 ${SOURCE_FILES} ${protosrc} ${protohdr})
 endif()
-add_dependencies(singing_wind schemas)
+
+
+include(assets/assets.cmake)
+add_dependencies(assets schemas)
+add_dependencies(singing_wind schemas assets)
 target_link_libraries(singing_wind imgui glfw glm glad stb_image flatbuffers)
 
 # for ycm
