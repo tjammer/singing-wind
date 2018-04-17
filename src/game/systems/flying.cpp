@@ -14,15 +14,16 @@ angle_to_mouse(const WVec& mouse, const WTransform& global_transform)
 }
 
 float
-drag(float angle)
+drag(float angle, float vel)
 {
   if (angle < 0) {
-    return drag(-angle);
+    return drag(-angle, vel);
   }
+  float fac = fmax(1, exp(vel / 700));
   if (angle < HALF_PI) {
-    return expf(-powf(angle - HALF_PI, 2.0f) * 1.4f);
+    return fac * expf(-powf(angle - HALF_PI, 2.0f) * 1.4f);
   }
-  return expf(-powf(angle - HALF_PI, 2.0f) * 0.1f);
+  return fac * expf(powf(angle - HALF_PI, 2.0f) * 0.1f);
 }
 
 float
@@ -46,27 +47,31 @@ flying(CanFly,
        Movement& mc,
        const Position& pc,
        const Input& ic)
-{}
+{
+}
 
 void
 dummy_flying(const Position& pc, Movement& mc, const Input& ic)
 {
-  mc.next_accel.y -= 120.0;
+  mc.next_accel.y -= 170.0;
 
   WVec air_dir = w_normalize(mc.velocity);
   float vel_squ = w_dot(mc.velocity, mc.velocity);
   auto glide_dir = w_rotated({ 0, 1 }, pc.rotation * pc.direction);
   auto angle = w_angle_to_vec(mc.velocity, glide_dir);
+  float vel = w_magnitude(mc.velocity);
 
-  mc.next_accel -= air_dir * vel_squ * drag(angle) * 0.0067f;
-  mc.next_accel -= w_tangent(air_dir) * vel_squ * lift(angle, 0.26) * 0.0062f;
-  mc.next_accel += 27.0f * glide_dir;
-  assert(!isnan(vel_squ));
+  mc.next_accel -= air_dir * vel_squ * drag(angle, vel) * 0.0017f;
+
+  float influence = cos(pc.rotation - HALF_PI);
+  mc.next_accel -= w_tangent(air_dir) * vel_squ * lift(angle, 0.26) * 0.0047f;
+  mc.next_accel += influence * 27.0f * glide_dir;
 
   // rotations
   mc.change_angle = angle_to_mouse(ic.mouse, pc.global_transform);
 
   ImGui::Text("%f", w_magnitude(mc.velocity));
+  ImGui::Text("%f", influence);
 }
 
 void

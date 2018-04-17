@@ -35,7 +35,7 @@ struct Movement
   float mass{ 1 };
   float time_fac = { 1 };
   float timer{ 0 };
-  float max_change_angle{ 0.08 };
+  float max_change_angle{ 0.065 };
 };
 
 enum class KeyState

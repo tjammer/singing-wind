@@ -7,6 +7,8 @@ target_include_directories(singing_wind PRIVATE
   ${CMAKE_CURRENT_LIST_DIR}/game/systems
   )
 
+include(${CMAKE_CURRENT_LIST_DIR}/schemas/schemas.cmake)
+
 target_sources(singing_wind
   PRIVATE
   ${CMAKE_CURRENT_LIST_DIR}/main.cpp

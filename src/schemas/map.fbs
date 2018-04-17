@@ -1,0 +1,19 @@
+namespace Level;
+
+table Level {
+    verts:[Vertex];
+    faces:[Face];
+}
+
+struct Vertex {
+    x:float;
+    y:float;
+}
+
+table Face {
+  a:int;
+  b:int;
+  c:int;
+}
+
+root_type Level;
