@@ -47,41 +47,32 @@ flying(CanFly,
        Movement& mc,
        const Position& pc,
        const Input& ic)
-{
-}
-
-void
-dummy_flying(const Position& pc, Movement& mc, const Input& ic)
-{
-  mc.next_accel.y -= 100.0;
-
-  WVec air_dir = w_normalize(mc.velocity);
-  float vel_squ = w_dot(mc.velocity, mc.velocity);
-  auto glide_dir = w_rotated({ 0, 1 }, pc.rotation * pc.direction);
-  auto angle = w_angle_to_vec(mc.velocity, glide_dir);
-  float vel = w_magnitude(mc.velocity);
-
-  mc.next_accel -= air_dir * vel_squ * drag(angle, vel) * 0.0017f;
-
-  float influence = cos(pc.rotation - HALF_PI);
-  mc.next_accel -= w_tangent(air_dir) * vel_squ * lift(angle, 0.26) * 0.0047f;
-  mc.next_accel += influence * 27.0f * glide_dir;
-
-  // rotations
-  mc.change_angle = angle_to_mouse(ic.mouse, pc.global_transform);
-
-  ImGui::Text("%f", w_magnitude(mc.velocity));
-  ImGui::Text("%f", influence);
-}
+{}
 
 void
 hover(const Position& pc, Movement& mc, const Input& ic)
 {
-  mc.next_accel = w_normalize(ic.mouse - pc.position) * 80.0f;
+  mc.next_accel.y = copysignf(1, ic.mouse.y - pc.position.y) * 80.0f;
   if (abs(ic.mouse.y - pc.position.y) > 10) {
     mc.next_accel -= mc.velocity * 2.0f;
   } else {
     mc.next_accel.x -= mc.velocity.x * 4.0f;
   }
-  mc.next_accel.y -= 5;
+  mc.next_accel.y -= 5.0;
+}
+
+void
+dummy_flying(const Position& pc, Movement& mc, const Input& ic)
+{
+  mc.next_accel.y -= 500.;
+
+  WVec air_dir = w_normalize(mc.velocity);
+  float vel = w_magnitude(mc.velocity);
+
+  mc.next_accel -= air_dir * vel * 5.f;
+
+  // rotations
+  mc.change_angle = angle_to_mouse(ic.mouse, pc.global_transform);
+
+  ImGui::Text("%f", w_magnitude(mc.velocity));
 }

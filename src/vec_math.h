@@ -6,7 +6,7 @@
 #define SINGING_WIND_WVECMATH_H
 
 #include "wind_defs.h"
-#include <math.h>
+#include <cmath>
 #include <deque>
 
 inline float

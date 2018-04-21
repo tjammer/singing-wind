@@ -2,6 +2,8 @@
 #define COMPS_H
 
 #include "wind_defs.h"
+#include "col_shape.h"
+#include <memory>
 
 namespace ecs {
 template<typename T>
@@ -61,6 +63,11 @@ struct Flying
   float c_accel_time{ 0.7f };
   float c_drag{ 0.0026 };
   float c_push_vel{ 500.f };
+};
+
+struct Collision
+{
+  std::shared_ptr<ColShape> shape;
 };
 
 #endif /* COMPS_H */

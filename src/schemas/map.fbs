@@ -1,4 +1,4 @@
-namespace Level;
+namespace Map;
 
 table Level {
     verts:[Vertex];
@@ -10,7 +10,7 @@ struct Vertex {
     y:float;
 }
 
-table Face {
+struct Face {
   a:int;
   b:int;
   c:int;

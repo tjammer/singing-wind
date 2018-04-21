@@ -4,6 +4,9 @@
 #include "ecs.hpp"
 #include "frame_timer.h"
 #include "camera.h"
+#include "col_shape.h"
+
+class ColTriangle;
 
 class Game
 {
@@ -17,6 +20,7 @@ private:
   ecs::World m_world;
   FrameTimer m_frame_timer;
   Camera m_camera;
+  std::vector<ColTriangle> m_tris;
 };
 
 #endif /* GAME_H */

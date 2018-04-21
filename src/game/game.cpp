@@ -6,6 +6,10 @@
 #include "renderer.h"
 #include "move.h"
 #include "draw.h"
+#include "flatbuffers/flatbuffers.h"
+#include "map_generated.h"
+#include <fstream>
+#include <iostream>
 
 Game::Game(const WVec& viewport)
   : m_world(ecs::World{})
@@ -13,13 +17,31 @@ Game::Game(const WVec& viewport)
   , m_camera(Camera{ viewport })
 {
   auto player = m_world.create_entity();
-  m_world.create_component<Input>(player, Input{});
-  m_world.create_component<Position>(player, Position{});
+  m_world.create_component(player, Input{});
+  m_world.create_component(player, Position{});
+  m_world.create_component(player,
+                           Collision{ std::make_shared<ColCapsule>(10, 20) });
   auto& pc = m_world.get_component<Position>(player);
   pc.position.y = 300;
   m_world.create_component(player, Movement{});
 
   WRenderer::set_camera(m_camera.get_camera());
+
+  // test read flatbuffers file
+  std::ifstream in("build/test.swmap");
+  std::string contents((std::istreambuf_iterator<char>(in)),
+                       std::istreambuf_iterator<char>());
+
+  auto level = Map::GetLevel(contents.c_str());
+  std::vector<WVec> vertices;
+  float fac{ 15 };
+  for (auto&& vert : *level->verts()) {
+    vertices.emplace_back(vert->x() * fac, vert->y() * fac);
+  }
+  for (auto&& face : *level->faces()) {
+    m_tris.emplace_back(
+      vertices[face->a()], vertices[face->b()], vertices[face->c()]);
+  }
 }
 
 void
@@ -36,7 +58,7 @@ Game::update()
     m_world.visit(
       [](Movement& mc, Position& pc) { move_update(mc, pc, FIXED_TIMESTEP); });
   }
-  m_world.visit(draw_update);
+  m_world.visit([&](const Position& pc) { draw_update(pc, m_tris); });
 }
 
 void
