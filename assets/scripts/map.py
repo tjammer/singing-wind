@@ -1,4 +1,3 @@
-import os
 import bpy
 import sys
 sys.path.append('.')
@@ -7,7 +6,6 @@ import flatbuffers
 from Map import Level, Face, Vertex
 
 if __name__ == "__main__":
-    print(os.getcwd())
     bpy.ops.wm.open_mainfile(filepath="../assets/raw/test.blend")
     builder = flatbuffers.Builder(1)
     for obj in bpy.data.objects:
