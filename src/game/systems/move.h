@@ -7,4 +7,7 @@ struct Position;
 void
 move_update(Movement& mc, Position& pc, float dt);
 
+void
+build_global_transform(Position& pc);
+
 #endif /* MOVE_H */

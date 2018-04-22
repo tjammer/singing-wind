@@ -15,11 +15,11 @@ struct DynamicEntity;
 
 struct ColResult
 {
-  bool collides = false;
-  WVec normal = { 0, 0 };
-  float depth = 0.f;
-  int gjk_it = 0;
-  int epa_it = 0;
+  bool collides{ false };
+  WVec normal{ 0, 0 };
+  float depth{ 0.f };
+  int gjk_it{ 0 };
+  int epa_it{ 0 };
 };
 
 struct RayCastResult

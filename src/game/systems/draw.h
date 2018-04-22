@@ -4,9 +4,11 @@
 #include <vector>
 
 struct Position;
-class ColTriangle;
+template<typename T>
+class StaticGrid;
+struct StaticTriangle;
 
 void
-draw_update(const Position& pc, std::vector<ColTriangle>& tris);
+draw_update(const Position& pc, StaticGrid<StaticTriangle>& grid);
 
 #endif /* DRAW_H */

@@ -44,6 +44,7 @@ public:
   WVec get_support(const WVec& dir) const override;
   float get_radius() const override { return m_radius; }
   virtual void add_gfx_lines(const WTransform& tf) override;
+  void add_gfx_lines(const WTransform& tf) const;
   virtual void transform(const WTransform& transform) override;
   virtual void reset() override;
   // for editor

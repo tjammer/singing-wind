@@ -4,9 +4,7 @@
 #include "ecs.hpp"
 #include "frame_timer.h"
 #include "camera.h"
-#include "col_shape.h"
-
-class ColTriangle;
+#include "static_grid.h"
 
 class Game
 {
@@ -20,7 +18,7 @@ private:
   ecs::World m_world;
   FrameTimer m_frame_timer;
   Camera m_camera;
-  std::vector<ColTriangle> m_tris;
+  std::unique_ptr<StaticGrid<StaticTriangle>> m_grid;
 };
 
 #endif /* GAME_H */

@@ -32,8 +32,7 @@ ColTriangle::ColTriangle(const ColTriangle& tri, const WVec& v)
   : ColTriangle(tri.m_vertices[0] + v,
                 tri.m_vertices[1] + v,
                 tri.m_vertices[2] + v)
-{
-}
+{}
 
 void
 ColTriangle::add_gfx_lines(const WTransform& tf)
@@ -49,6 +48,19 @@ ColTriangle::add_gfx_lines(const WTransform& tf)
         { 1, 1, 1 } });
   }
   this->reset();
+}
+
+void
+ColTriangle::add_gfx_lines(const WTransform& tf) const
+{
+  WRenderer::set_mode(PLines);
+  for (unsigned int i = 0; i < m_vertices.size(); ++i) {
+    auto vert = WVec(tf * WVec3(m_vertices[i], 1));
+    auto next_vert = WVec(tf * WVec3(m_vertices[(i + 1) % 3], 1));
+    WRenderer::add_primitive_vertex({ { vert.x, vert.y }, { 1, 1, 1 } });
+    WRenderer::add_primitive_vertex(
+      { { next_vert.x, next_vert.y }, { 1, 1, 1 } });
+  }
 }
 
 WVec
@@ -126,12 +138,12 @@ ColCircle::add_gfx_lines(const WTransform& tf)
   float angle = 4 * acos(0.f) / 32.f;
   for (unsigned int i = 0; i < 32; ++i) {
     WRenderer::add_primitive_vertex(
-      { { m_center.x + sin(i * angle) * m_radius,
-          m_center.y + cos(i * angle) * m_radius },
+      { { m_center.x + (float)sin(i * angle) * m_radius,
+          m_center.y + (float)cos(i * angle) * m_radius },
         { 0, 1, 0 } });
     WRenderer::add_primitive_vertex(
-      { { m_center.x + sin((i + 1) * angle) * m_radius,
-          m_center.y + cos((i + 1) * angle) * m_radius },
+      { { m_center.x + (float)sin((i + 1) * angle) * m_radius,
+          m_center.y + (float)cos((i + 1) * angle) * m_radius },
         { 0, 1, 0 } });
   }
   this->reset();

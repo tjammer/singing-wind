@@ -4,6 +4,14 @@
 #include <glm/gtx/matrix_transform_2d.hpp>
 
 void
+build_global_transform(Position& pc)
+{
+  pc.global_transform =
+    rotate(scale(translate(WTransform(), pc.position), WVec(pc.direction, 1)),
+           pc.rotation);
+}
+
+void
 rotate_angle(float angle, float max_change_angle, Position& pc)
 {
   pc.rotation += copysignf(fmin(max_change_angle, abs(angle)), angle);
@@ -29,7 +37,5 @@ move_update(Movement& mc, Position& pc, float dt)
   mc.accel = mc.next_accel;
   mc.next_accel = { 0, 0 };
   rotate_angle(mc.change_angle, mc.max_change_angle, pc);
-  pc.global_transform =
-    rotate(scale(translate(WTransform(), pc.position), WVec(pc.direction, 1)),
-           pc.rotation);
+  build_global_transform(pc);
 }

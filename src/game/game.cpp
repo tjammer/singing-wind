@@ -15,12 +15,13 @@ Game::Game(const WVec& viewport)
   : m_world(ecs::World{})
   , m_frame_timer(FrameTimer{})
   , m_camera(Camera{ viewport })
+  , m_grid(std::make_unique<StaticGrid<StaticTriangle>>())
 {
   auto player = m_world.create_entity();
   m_world.create_component(player, Input{});
   m_world.create_component(player, Position{});
-  m_world.create_component(player,
-                           Collision{ std::make_shared<ColCapsule>(10, 20) });
+  m_world.create_component(
+    player, Collision{ {}, std::make_shared<ColCapsule>(10, 20) });
   auto& pc = m_world.get_component<Position>(player);
   pc.position.y = 300;
   m_world.create_component(player, Movement{});
@@ -33,15 +34,21 @@ Game::Game(const WVec& viewport)
                        std::istreambuf_iterator<char>());
 
   auto level = Map::GetLevel(contents.c_str());
+
+  m_grid->clear();
   std::vector<WVec> vertices;
   float fac{ 15 };
   for (auto&& vert : *level->verts()) {
     vertices.emplace_back(vert->x() * fac, vert->y() * fac);
   }
   for (auto&& face : *level->faces()) {
-    m_tris.emplace_back(
-      vertices[face->a()], vertices[face->b()], vertices[face->c()]);
+    ColTriangle tri{ vertices[face->a()],
+                     vertices[face->b()],
+                     vertices[face->c()] };
+
+    m_grid->lazy_add({ tri.m_center, tri.get_radius(), std::move(tri) });
   }
+  m_grid->finish();
 }
 
 void
@@ -58,7 +65,7 @@ Game::update()
     m_world.visit(
       [](Movement& mc, Position& pc) { move_update(mc, pc, FIXED_TIMESTEP); });
   }
-  m_world.visit([&](const Position& pc) { draw_update(pc, m_tris); });
+  m_world.visit([&](const Position& pc) { draw_update(pc, *m_grid); });
 }
 
 void
