@@ -13,6 +13,8 @@ class ColTriangle;
 struct StaticTriangle;
 struct DynamicEntity;
 
+const int MAX_COL_IT{ 5 };
+
 struct ColResult
 {
   bool collides{ false };

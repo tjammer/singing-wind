@@ -6,10 +6,8 @@
 #include "col_shape.h"
 #include <vec_math.h>
 #include <assert.h>
-#include <set>
 
-const float c_epsilon = 0.01f;
-const int c_max_it = 20;
+const float EPSILON = 0.01f;
 
 ColResult
 static_collide(const ColShape& a, const ColShape& b)
@@ -19,7 +17,7 @@ static_collide(const ColShape& a, const ColShape& b)
   Simplex s;
   WVec w = a.get_support(-v) - b.get_support(v);
   int it = 0;
-  while ((w_dot(v, v) - w_dot(v, w)) > c_epsilon && it < c_max_it) {
+  while ((w_dot(v, v) - w_dot(v, w)) > EPSILON && it < MAX_COL_IT) {
     s.add(w);
     /*	if (dot(v, w) > 0)
             break;*/
@@ -59,7 +57,7 @@ cast_ray_vs_shape(const WVec& a, const ColShape& b, const WVec& dir)
   Simplex W;
 
   WVec p;
-  while (w_dot(v, v) > c_epsilon && it < c_max_it) {
+  while (w_dot(v, v) > EPSILON && it < MAX_COL_IT) {
     p = a - b.get_support(v);
 
     float dvp = w_dot(v, p);
@@ -112,7 +110,7 @@ find_normal_epa(const ColShape& a,
     auto p = a.get_support(e.normal) - b.get_support(-e.normal);
     float d = w_dot(p, e.normal);
     float test = d - e.distance;
-    if (test < c_epsilon || test == dist || it > c_max_it) {
+    if (test < EPSILON || test == dist || it > MAX_COL_IT) {
       normal = e.normal;
       epa_it = it;
       return d;
@@ -367,7 +365,7 @@ find_directed_overlap(const ColResult& result, const WVec& direction)
 {
   auto dir = w_normalize(direction);
   auto projection = w_dot(-dir, result.normal);
-  /*if (abs(projection) < c_epsilon * 0.1f) {
+  /*if (abs(projection) < EPSILON * 0.1f) {
       return result.normal * result.depth;
   }*/
   return dir * (result.depth / projection - .1f); // - result.normal * .001f;

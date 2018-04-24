@@ -19,6 +19,6 @@ void
 input_update(Input& ic)
 {
   ic.mouse = WInput::get_mouse_pos();
-  ic.wings = next_state(
-    ic.wings, WInput::is_mouse_button_pressed(GLFW_MOUSE_BUTTON_RIGHT));
+  ic.left = next_state(ic.left, WInput::is_key_pressed(GLFW_KEY_A));
+  ic.right = next_state(ic.right, WInput::is_key_pressed(GLFW_KEY_D));
 }

@@ -22,8 +22,17 @@ struct Position
 
 enum class MoveState
 {
-  Flying,
+  Fall,
+  Walk
 };
+
+struct MoveStateChange
+{
+  MoveState next;
+};
+
+using IsFalling = ecs::tag<struct is_falling>;
+using IsWalking = ecs::tag<struct is_walking>;
 
 struct Movement
 {
@@ -33,7 +42,7 @@ struct Movement
   float transition_time{ 5 };
   float change_angle{ 0 };
 
-  MoveState active_state{ MoveState::Flying };
+  MoveState active_state{ MoveState::Fall };
 
   float mass{ 1 };
   float time_fac = { 1 };
@@ -51,7 +60,8 @@ enum class KeyState
 struct Input
 {
   WVec mouse{ 0, 0 };
-  KeyState wings{ KeyState::Release };
+  KeyState left{ KeyState::Release };
+  KeyState right{ KeyState::Release };
 };
 
 using CanFly = ecs::tag<struct can_fly>;
@@ -71,5 +81,7 @@ struct Collision
   ColResult result;
   std::shared_ptr<ColShape> shape;
 };
+
+using HasCollided = ecs::tag<struct has_collided>;
 
 #endif /* COMPS_H */
