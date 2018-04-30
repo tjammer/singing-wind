@@ -4,7 +4,11 @@
 #include "ecs.hpp"
 #include "frame_timer.h"
 #include "camera.h"
-#include "static_grid.h"
+
+struct Triangle
+{
+  WVec verts[3];
+};
 
 class Game
 {
@@ -18,7 +22,7 @@ private:
   ecs::World m_world;
   FrameTimer m_frame_timer;
   Camera m_camera;
-  std::unique_ptr<StaticGrid<StaticTriangle>> m_grid;
+  // std::vector<Triangle> m_tris;
 };
 
 #endif /* GAME_H */

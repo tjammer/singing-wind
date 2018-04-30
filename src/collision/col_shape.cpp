@@ -3,7 +3,6 @@
 //
 
 #include "col_shape.h"
-#include "collision.h"
 #include "renderer.h"
 #include <vec_math.h>
 #include <iostream>
@@ -181,7 +180,7 @@ ColCircle::reset()
 ColResult
 ColShape::collides(const ColShape& other) const
 {
-  return static_collide(*this, other);
+  return ColResult{};
 }
 
 ColCapsule::ColCapsule(float radius, float length)
