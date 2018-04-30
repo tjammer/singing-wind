@@ -47,7 +47,8 @@ flying(CanFly,
        Movement& mc,
        const Position& pc,
        const Input& ic)
-{}
+{
+}
 
 void
 hover(const Position& pc, Movement& mc, const Input& ic)

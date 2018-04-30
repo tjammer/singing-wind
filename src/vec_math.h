@@ -65,7 +65,13 @@ w_rotated(const WVec& v, float angle)
 inline WVec
 w_tangent(const WVec& v)
 {
-  return WVec(v.y, -v.x);
+  return WVec{ -v.y, v.x };
+}
+
+inline WVec
+w_perp(const WVec v)
+{
+  return WVec{ -v.y, v.x };
 }
 
 inline WVec

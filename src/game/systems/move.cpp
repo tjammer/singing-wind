@@ -2,6 +2,7 @@
 #include "comps.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
+#include "imgui.h"
 
 void
 build_global_transform(Position& pc)
@@ -38,4 +39,7 @@ move_update(Movement& mc, Position& pc, float dt)
   mc.next_accel = { 0, 0 };
   rotate_angle(mc.change_angle, mc.max_change_angle, pc);
   build_global_transform(pc);
+
+  ImGui::Text("vel: %f, %f", mc.velocity.x, mc.velocity.y);
+  ImGui::Text("accel: %f, %f", mc.accel.x, mc.accel.y);
 }

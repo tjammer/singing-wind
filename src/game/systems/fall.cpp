@@ -20,5 +20,5 @@ fall_update(IsFalling, Movement& mc, const Input& ic, const Position& pc)
   }
 
   // rotations
-  mc.change_angle = copysignf(fmin(pc.rotation, 0.02), -pc.rotation);
+  mc.change_angle = copysignf(fmin(abs(pc.rotation), 0.02), -pc.rotation);
 }

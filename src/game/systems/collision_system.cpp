@@ -30,13 +30,13 @@ collision_update(Collision& cc,
     pc.position += move_back;
 
     // player can stand on slopes
-    // if (w_dot(WVec(0, -1), cc.result.normal) > MAX_FLOOR_ANGLE) {
-    //  WVec correction = w_slide(WVec(move_back.x, 0), cc.result.normal);
-    //  if (correction.x != 0) {
-    //    correction *= move_back.x / correction.x;
-    //  }
-    //  pc.position -= correction;
-    //}
+    if (w_dot(WVec(0, -1), cc.result.normal) > MAX_FLOOR_ANGLE) {
+      WVec correction = w_slide(WVec(move_back.x, 0), cc.result.normal);
+      if (correction.x != 0) {
+        correction *= move_back.x / correction.x;
+      }
+      pc.position -= correction;
+    }
 
     // slide movement and collide again
     // circle to world
