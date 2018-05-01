@@ -21,7 +21,7 @@ endif()
 include(assets/assets.cmake)
 add_dependencies(assets schemas)
 add_dependencies(singing_wind schemas assets)
-target_link_libraries(singing_wind imgui glfw glm glad stb_image flatbuffers)
+target_link_libraries(singing_wind imgui glfw glm glad stb_image flatbuffers tinyheaders)
 
 # for ycm
 set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
