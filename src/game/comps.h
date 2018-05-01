@@ -2,6 +2,8 @@
 #define COMPS_H
 
 #include "wind_defs.h"
+#include "col_shape.h"
+#include "collision.h"
 #include <memory>
 
 namespace ecs {
@@ -75,7 +77,10 @@ struct Flying
 };
 
 struct Collision
-{};
+{
+  ColResult result;
+  std::shared_ptr<ColShape> shape;
+};
 
 using HasCollided = ecs::tag<struct has_collided>;
 

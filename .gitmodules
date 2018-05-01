@@ -19,6 +19,3 @@
 [submodule "external/stb"]
 	path = external/stb
 	url = https://github.com/nothings/stb
-[submodule "external/tinyheaders"]
-	path = external/tinyheaders
-	url = https://github.com/RandyGaul/tinyheaders

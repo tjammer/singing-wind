@@ -1,6 +1,7 @@
 #ifndef STATICGRID_H
 #define STATICGRID_H
 
+#include "collision.h"
 #include "vec_math.h"
 #include "col_shape.h"
 #include <vector>
@@ -20,20 +21,6 @@ struct Cell
 {
   size_t first_object{ 0 };
   size_t num_objects{ 0 };
-};
-struct ColResult
-{
-  bool collides{ false };
-  WVec normal{ 0, 0 };
-  float depth{ 0.f };
-};
-
-struct RayCastResult
-{
-  bool hits = false;
-  float hit_parameter = std::numeric_limits<float>::max();
-  WVec hit_spot;
-  WVec hit_normal;
 };
 
 template<typename grid_object>
