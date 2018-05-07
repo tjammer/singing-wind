@@ -19,9 +19,9 @@ static_collide(const ColShape& a, const ColShape& b)
   int it = 0;
   while ((w_dot(v, v) - w_dot(v, w)) > EPSILON && it < MAX_COL_IT) {
     s.add(w);
-    if (dot(v, w) > 0) {
-      break;
-    }
+    // if (dot(v, w) > 0) {
+    //   break;
+    // }
     s.solve(WVec(0, 0));
     v = s.get_closest();
     if (w_dot(v, v) == 0.f) {
@@ -111,7 +111,7 @@ find_normal_epa(const ColShape& a,
     auto p = a.get_support(e.normal) - b.get_support(-e.normal);
     float d = w_dot(p, e.normal);
     float test = d - e.distance;
-    if (test < EPSILON || it > MAX_COL_IT) {
+    if (test < EPSILON || it > 5) {
       normal = e.normal;
       epa_it = it;
       return d;
@@ -133,10 +133,10 @@ find_closest_edge(const Simplex& s)
     auto b = s.verts[j];
 
     auto e = b - a;
-    auto n = w_normalize(w_triple_prod(e, a, e));
+    auto n = w_triple_prod(e, a, e);
     // normalize
     // n /= sqrt(dot(n, n));
-    // n /= sqrtf(pow(n.x, 2.f) + powf(n.y, 2.f));
+    n /= sqrtf(pow(n.x, 2.f) + powf(n.y, 2.f));
 
     auto d = w_dot(n, a);
     if (d < edge.distance) {

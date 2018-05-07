@@ -13,7 +13,7 @@ class ColTriangle;
 struct StaticTriangle;
 struct DynamicEntity;
 
-const int MAX_COL_IT{ 5 };
+const int MAX_COL_IT{ 15 };
 
 struct ColResult
 {

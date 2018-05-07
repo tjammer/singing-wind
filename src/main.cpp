@@ -42,7 +42,7 @@ main()
     glClearColor(0.16f, 0.19f, 0.23f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    WRenderer::reset();
+    // WRenderer::reset();
     game.update();
     game.draw();
 

@@ -6,6 +6,7 @@
 void
 draw_update(const Position& pc, StaticGrid<StaticTriangle>& grid)
 {
+  WRenderer::reset();
   WRenderer::set_mode(PLines);
   auto zero = WTransform();
   for (auto& obj : grid.get_objects()) {

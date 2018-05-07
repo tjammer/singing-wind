@@ -5,7 +5,6 @@
 #include "move.h"
 #include "static_grid.h"
 #include "ecs.hpp"
-#include <iostream>
 
 const float MAX_FLOOR_ANGLE{ 0.7f };
 
@@ -24,9 +23,8 @@ collision_update(Collision& cc,
 
   cc.shape->reset();
 
-  if (cc.result.collides && cc.result.epa_it <= MAX_COL_IT) {
+  if (cc.result.collides) {
     auto move_back = cc.result.normal * -cc.result.depth;
-    std::cout << cc.result.depth << ",   " << cc.result << std::endl;
     pc.position += move_back;
 
     // player can stand on slopes
@@ -57,7 +55,7 @@ collision_update(Collision& cc,
     //}
 
     // call back
-    world.create_component(id, HasCollided{});
+    // world.create_component(id, HasCollided{});
     // world.get<StaticColComponent>(entity).col_response(world, entity);
   }
 }
