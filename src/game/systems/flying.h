@@ -1,7 +1,7 @@
 #ifndef FLYING_H
 #define FLYING_H
 
-struct Position;
+struct Transform;
 struct Input;
 struct Movement;
 
@@ -13,6 +13,6 @@ struct Movement;
 //       const Input& ic);
 
 void
-dummy_flying(const Position& pc, Movement& mc, const Input& ic);
+dummy_flying(const Transform& pc, Movement& mc, const Input& ic);
 
 #endif /* FLYING_H */

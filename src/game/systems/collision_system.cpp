@@ -1,5 +1,4 @@
 #include "collision_system.h"
-#include "col_shape.h"
 #include "comps.h"
 #include "vec_math.h"
 #include "move.h"
@@ -10,18 +9,14 @@ const float MAX_FLOOR_ANGLE{ 0.7f };
 
 void
 collision_update(Collision& cc,
-                 Position& pc,
+                 Transform& pc,
                  ecs::World& world,
                  std::size_t id,
-                 StaticGrid<StaticTriangle>& grid)
+                 StaticGrid& grid)
 {
-  // circle to world
-  cc.shape->transform(pc.global_transform);
 
   // overwrite result
-  cc.result = grid.test_against_grid(cc.shape);
-
-  cc.shape->reset();
+  cc.result = grid.test_against_grid(cc.shape, pc);
 
   if (cc.result.collides) {
     auto move_back = cc.result.normal * -cc.result.depth;
@@ -38,7 +33,6 @@ collision_update(Collision& cc,
 
     // slide movement and collide again
     // circle to world
-    build_global_transform(pc);
 
     // cc.shape->transform(pc.global_transform);
 
@@ -55,7 +49,7 @@ collision_update(Collision& cc,
     //}
 
     // call back
-    // world.create_component(id, HasCollided{});
+    world.create_component(id, HasCollided{});
     // world.get<StaticColComponent>(entity).col_response(world, entity);
   }
 }
@@ -70,8 +64,8 @@ on_collision(HasCollided,
   world.destroy_component<HasCollided>(id);
   if (w_dot(WVec(0, -1), cc.result.normal) > MAX_FLOOR_ANGLE) {
     mc.timer = 0;
-    mc.velocity.y = w_slide(mc.velocity, cc.result.normal).y * 0.5f;
-    world.create_component(id, IsWalking{});
+    mc.velocity.y = w_slide(mc.velocity, cc.result.normal).y * 0.0f;
+    // world.create_component(id, IsWalking{});
   } else {
     mc.velocity = w_slide(mc.velocity, cc.result.normal);
   }

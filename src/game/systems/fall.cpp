@@ -4,7 +4,7 @@
 #include "ecs.hpp"
 
 void
-fall_update(IsFalling, Movement& mc, const Input& ic, const Position& pc)
+fall_update(IsFalling, Movement& mc, const Input& ic, const Transform& pc)
 {
   mc.next_accel.y -= 750.;
   WVec air_dir = w_normalize(mc.velocity);

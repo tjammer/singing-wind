@@ -7,7 +7,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "wind_defs.h"
+#include "w_vec.h"
 
 namespace WInput {
 void

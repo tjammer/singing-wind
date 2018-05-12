@@ -5,7 +5,8 @@
 #ifndef SINGING_WIND_WVECMATH_H
 #define SINGING_WIND_WVECMATH_H
 
-#include "wind_defs.h"
+#include "w_vec.h"
+#include "glm/geometric.hpp"
 #include <cmath>
 #include <deque>
 
@@ -40,7 +41,7 @@ w_cross(const WVec& a, const WVec& b)
 inline WVec
 w_triple_prod(const WVec& a, const WVec& b, const WVec& c)
 {
-  return b * w_dot(a, c) - c * w_dot(a, b);
+  return b * w_dot(a, c) - a * w_dot(b, c);
 }
 
 inline WVec

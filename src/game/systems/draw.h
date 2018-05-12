@@ -3,12 +3,10 @@
 
 #include <vector>
 
-struct Position;
-template<typename T>
+struct Transform;
 class StaticGrid;
-struct StaticTriangle;
 
 void
-draw_update(const Position& pc, StaticGrid<StaticTriangle>& grid);
+draw_update(const Transform& pc, const StaticGrid& grid);
 
 #endif /* DRAW_H */

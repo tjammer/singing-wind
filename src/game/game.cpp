@@ -9,24 +9,24 @@
 #include "collision_system.h"
 #include "flatbuffers/flatbuffers.h"
 #include "map_generated.h"
+#include "glm/glm.hpp"
 #include <fstream>
-#include <iostream>
 
 Game::Game(const WVec& viewport)
   : m_world(ecs::World{})
   , m_frame_timer(FrameTimer{})
-  , m_camera(Camera{ viewport })
-  , m_grid(std::make_unique<StaticGrid<StaticTriangle>>())
+  , m_camera(viewport)
+  , m_grid(std::make_unique<StaticGrid>())
 {
   auto player = m_world.create_entity();
   m_world.create_component(player, Input{});
-  m_world.create_component(player, Position{});
-  m_world.create_component(
-    player, Collision{ {}, std::make_shared<ColCapsule>(10, 20) });
+  m_world.create_component(player, Transform{});
+  m_world.create_component(player,
+                           Collision{ {}, std::make_unique<Capsule>(20, 10) });
   m_world.create_component(player, Movement{});
   m_world.create_component(player, IsFalling{});
 
-  auto& pc = m_world.get_component<Position>(player);
+  auto& pc = m_world.get_component<Transform>(player);
   pc.rotation = 0.5;
 
   WRenderer::set_camera(m_camera.get_camera());
@@ -45,11 +45,11 @@ Game::Game(const WVec& viewport)
     vertices.emplace_back(vert->x() * fac, vert->y() * fac);
   }
   for (auto&& face : *level->faces()) {
-    ColTriangle tri{ vertices[face->a()],
-                     vertices[face->b()],
-                     vertices[face->c()] };
+    Polygon shape{ vertices[face->a()],
+                   vertices[face->b()],
+                   vertices[face->c()] };
 
-    m_grid->lazy_add({ tri.m_center, tri.get_radius(), std::move(tri) });
+    m_grid->lazy_add({ shape.center(), shape.radius(), std::move(shape) });
   }
   m_grid->finish();
   m_frame_timer.reset();
@@ -58,6 +58,7 @@ Game::Game(const WVec& viewport)
 void
 Game::update()
 {
+  WRenderer::reset();
   WInput::set_mouse(m_camera.unproject_mouse(WInput::get_raw_mouse()));
 
   m_frame_timer.update();
@@ -67,15 +68,15 @@ Game::update()
     m_world.visit(fall_update);
     // now integrate
     m_world.visit(
-      [](Movement& mc, Position& pc) { move_update(mc, pc, FIXED_TIMESTEP); });
+      [](Movement& mc, Transform& pc) { move_update(mc, pc, FIXED_TIMESTEP); });
 
     // collision
-    m_world.visit([&](Collision& cc, Position& pc, ecs::World::ent_id id) {
+    m_world.visit([&](Collision& cc, Transform& pc, ecs::World::ent_id id) {
       collision_update(cc, pc, m_world, id, *m_grid);
     });
     m_world.visit(on_collision);
   }
-  m_world.visit([&](const Position& pc) { draw_update(pc, *m_grid); });
+  m_world.visit([&](const Transform& pc) { draw_update(pc, *m_grid); });
 }
 
 void

@@ -2,12 +2,12 @@
 #define MOVE_H
 
 struct Movement;
-struct Position;
+struct Transform;
 
 void
-move_update(Movement& mc, Position& pc, float dt);
+move_update(Movement& mc, Transform& pc, float dt);
 
 void
-build_global_transform(Position& pc);
+build_global_transform(Transform& pc);
 
 #endif /* MOVE_H */

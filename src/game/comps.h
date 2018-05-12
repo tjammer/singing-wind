@@ -1,24 +1,15 @@
 #ifndef COMPS_H
 #define COMPS_H
 
-#include "wind_defs.h"
-#include "col_shape.h"
-#include "collision.h"
+#include "w_vec.h"
+#include "transform.h"
+#include "gjk.h"
 #include <memory>
 
 namespace ecs {
 template<typename T>
 struct tag;
 }
-
-struct Position
-{
-  WVec position{ 0, 0 };
-  float rotation{ 0.f };
-  WVec global_position{ 0, 0 };
-  WTransform global_transform{ WTransform{} };
-  int direction{ 1 };
-};
 
 enum class MoveState
 {
@@ -79,7 +70,7 @@ struct Flying
 struct Collision
 {
   ColResult result;
-  std::shared_ptr<ColShape> shape;
+  std::unique_ptr<ConvexShape> shape;
 };
 
 using HasCollided = ecs::tag<struct has_collided>;

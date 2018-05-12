@@ -9,8 +9,9 @@ const float HALF_PI = (float)(M_PI / 2.0);
 float
 angle_to_mouse(const WVec& mouse, const WTransform& global_transform)
 {
-  auto local_to = WVec(glm::inverse(global_transform) * WVec3(mouse, 1));
-  return atan2f(-local_to.x, local_to.y);
+  // auto local_to = WVec(glm::inverse(global_transform) * WVec3(mouse, 1));
+  // return atan2f(-local_to.x, local_to.y);
+  return 0;
 }
 
 float
@@ -45,13 +46,12 @@ void
 flying(CanFly,
        const Flying& fc,
        Movement& mc,
-       const Position& pc,
+       const Transform& pc,
        const Input& ic)
-{
-}
+{}
 
 void
-hover(const Position& pc, Movement& mc, const Input& ic)
+hover(const Transform& pc, Movement& mc, const Input& ic)
 {
   mc.next_accel.y = copysignf(1, ic.mouse.y - pc.position.y) * 80.0f;
   if (abs(ic.mouse.y - pc.position.y) > 10) {
@@ -63,7 +63,7 @@ hover(const Position& pc, Movement& mc, const Input& ic)
 }
 
 void
-dummy_flying(const Position& pc, Movement& mc, const Input& ic)
+dummy_flying(const Transform& pc, Movement& mc, const Input& ic)
 {
   mc.next_accel.y -= 500.;
 
@@ -73,7 +73,7 @@ dummy_flying(const Position& pc, Movement& mc, const Input& ic)
   mc.next_accel -= air_dir * vel * 5.f;
 
   // rotations
-  mc.change_angle = angle_to_mouse(ic.mouse, pc.global_transform);
+  // mc.change_angle = angle_to_mouse(ic.mouse, pc.global_transform);
 
   ImGui::Text("%f", w_magnitude(mc.velocity));
 }

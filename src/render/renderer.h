@@ -7,7 +7,8 @@
 
 #include <vector>
 #include <glad/glad.h>
-#include <glm/glm.hpp>
+// get rid of this later
+#include <glm/fwd.hpp>
 #include <GLFW/glfw3.h>
 
 struct PrimitiveVertex
@@ -38,7 +39,7 @@ get_vao();
 void
 set_mode(int mode);
 void
-set_camera(const glm::tmat4x4<float>& transform);
+set_camera(const glm::tmat4x4<float, glm::precision::defaultp>& transform);
 }
 
 #endif // GLFW33_WRENDERER_H

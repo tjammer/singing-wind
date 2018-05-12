@@ -4,11 +4,9 @@
 #include <vector>
 
 struct Collision;
-struct Position;
+struct Transform;
 struct Movement;
-template<typename T>
 class StaticGrid;
-struct StaticTriangle;
 
 namespace ecs {
 class World;
@@ -20,10 +18,10 @@ using HasCollided = ecs::tag<struct has_collided>;
 
 void
 collision_update(Collision& cc,
-                 Position& pc,
+                 Transform& pc,
                  ecs::World& world,
                  std::size_t id,
-                 StaticGrid<StaticTriangle>& grid);
+                 StaticGrid& grid);
 
 void
 on_collision(HasCollided,

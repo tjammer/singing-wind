@@ -5,13 +5,11 @@
 #ifndef SINGING_WIND_WINDDEFS_H
 #define SINGING_WIND_WINDDEFS_H
 
-#include <glm/glm.hpp>
+#include <glm/vec2.hpp>
 #include <ostream>
 #include <bitset>
 
-typedef glm::tvec2<float> WVec;
-typedef glm::tvec3<float> WVec3;
-typedef glm::mat3 WTransform;
+using WVec = glm::tvec2<float>;
 
 inline std::ostream&
 operator<<(std::ostream& os, const WVec& v)

@@ -5,6 +5,7 @@
 #include "frame_timer.h"
 #include "camera.h"
 #include "static_grid.h"
+// maybe try to fwd-decl
 
 class Game
 {
@@ -18,7 +19,7 @@ private:
   ecs::World m_world;
   FrameTimer m_frame_timer;
   Camera m_camera;
-  std::unique_ptr<StaticGrid<StaticTriangle>> m_grid;
+  std::unique_ptr<StaticGrid> m_grid;
 };
 
 #endif /* GAME_H */

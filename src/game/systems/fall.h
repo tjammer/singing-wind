@@ -3,7 +3,7 @@
 
 struct Movement;
 struct Input;
-struct Position;
+struct Transform;
 
 namespace ecs {
 class World;
@@ -13,6 +13,6 @@ struct tag;
 using IsFalling = ecs::tag<struct is_falling>;
 
 void
-fall_update(IsFalling, Movement& mc, const Input& ic, const Position& pc);
+fall_update(IsFalling, Movement& mc, const Input& ic, const Transform& pc);
 
 #endif /* FALL_H */
