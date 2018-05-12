@@ -29,6 +29,17 @@ private:
   const Transform& m_t2;
 };
 
+class TransformedMinkowskiDiff
+{
+public:
+  TransformedMinkowskiDiff(const ConvexShape& c1, const ConvexShape& c2);
+  WVec support(const WVec& v) const;
+
+private:
+  const ConvexShape& m_c1;
+  const ConvexShape& m_c2;
+};
+
 ColResult
 gjk_collide(const ConvexShape& c1,
             const Transform& t1,

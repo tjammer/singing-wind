@@ -23,6 +23,18 @@ MinkowskiDiff::support(const WVec& v) const
   return m_c1.support(v, m_t1) - m_c2.support(-v, m_t2);
 }
 
+TransformedMinkowskiDiff::TransformedMinkowskiDiff(const ConvexShape& c1,
+                                                   const ConvexShape& c2)
+  : m_c1(c1)
+  , m_c2(c2)
+{}
+
+WVec
+TransformedMinkowskiDiff::support(const WVec& v) const
+{
+  return m_c1.support(v) - m_c2.support(-v);
+}
+
 WVec
 initial_direction(const ConvexShape& c1,
                   const Transform& t1,
@@ -112,7 +124,9 @@ check_simplex(std::vector<WVec>& simplex, WVec& dir)
 }
 
 bool
-gjk_detect(const MinkowskiDiff& mdiff, std::vector<WVec>& simplex, WVec& dir)
+gjk_detect(const TransformedMinkowskiDiff& mdiff,
+           std::vector<WVec>& simplex,
+           WVec& dir)
 {
   if (w_magnitude(dir) == 0) {
     dir = WVec{ 1, 0 };
@@ -148,7 +162,7 @@ gjk_collide(const ConvexShape& c1,
 {
   ColResult result;
   std::vector<WVec> simplex;
-  auto mdiff = MinkowskiDiff{ c1, t1, c2, t2 };
+  auto mdiff = TransformedMinkowskiDiff{ c1, c2 };
   auto dir = initial_direction(c1, t1, c2, t2);
 
   if (gjk_detect(mdiff, simplex, dir)) {

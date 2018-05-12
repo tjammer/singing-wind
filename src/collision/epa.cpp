@@ -8,7 +8,7 @@ const float EPSILON = std::numeric_limits<float>::epsilon() * 1000;
 
 void
 epa_solve(const std::vector<WVec>& simplex,
-          const MinkowskiDiff& mdiff,
+          const TransformedMinkowskiDiff& mdiff,
           ColResult& result)
 {
   Simplex epa_simplex(simplex);

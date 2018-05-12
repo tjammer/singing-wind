@@ -33,8 +33,10 @@ weighted_center(const std::vector<WVec>& vecs)
 Polygon::Polygon(std::initializer_list<WVec> vecs)
 {
   m_vecs.insert(m_vecs.end(), vecs);
+  m_tvecs.insert(m_tvecs.end(), vecs);
 
   m_center = weighted_center(m_vecs);
+  m_tcenter = m_center;
 
   m_radius = -std::numeric_limits<float>::max();
   WVec xext{ 0, 0 };
@@ -62,6 +64,15 @@ Polygon::Polygon(std::initializer_list<WVec> vecs)
   m_yext = yext;
 }
 
+void
+Polygon::transform(const Transform& t)
+{
+  m_tcenter = transformed(t, m_center);
+  for (unsigned int i = 0; i < m_vecs.size(); ++i) {
+    m_tvecs[i] = transformed(t, m_vecs[i]);
+  }
+}
+
 WVec
 Polygon::support(const WVec& dir, const Transform& t) const
 {
@@ -77,6 +88,21 @@ Polygon::support(const WVec& dir, const Transform& t) const
     }
   }
   return transformed(t, out);
+}
+
+WVec
+Polygon::support(const WVec& dir) const
+{
+  auto proj = -std::numeric_limits<float>::max();
+  WVec out;
+  for (auto& v : m_tvecs) {
+    float dot = w_dot(dir, v);
+    if (dot > proj) {
+      proj = dot;
+      out = v;
+    }
+  }
+  return out;
 }
 
 std::vector<WVec>
@@ -95,7 +121,18 @@ Capsule::Capsule(float length, float radius)
   , m_b(WVec{ 0, -length / 2.f })
   , m_radius(length / 2.f + radius)
   , m_capsule_radius(radius)
+  , m_ta(m_a)
+  , m_tb(m_b)
+  , m_tcenter(WVec{ 0, 0 })
 {}
+
+void
+Capsule::transform(const Transform& t)
+{
+  m_ta = transformed(t, m_a);
+  m_tb = transformed(t, m_b);
+  m_tcenter = transformed(t, WVec{ 0, 0 });
+}
 
 WVec
 Capsule::support(const WVec& dir, const Transform& t) const
@@ -112,6 +149,21 @@ Capsule::support(const WVec& dir, const Transform& t) const
     }
   }
   return transformed(t, out) + w_normalize(dir) * m_capsule_radius;
+}
+
+WVec
+Capsule::support(const WVec& dir) const
+{
+  auto proj = -std::numeric_limits<float>::max();
+  WVec out;
+  for (auto& v : { m_ta, m_tb }) {
+    float dot = w_dot(dir, v);
+    if (dot > proj) {
+      proj = dot;
+      out = v;
+    }
+  }
+  return out + w_normalize(dir) * m_capsule_radius;
 }
 
 std::vector<WVec>

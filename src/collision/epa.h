@@ -5,11 +5,11 @@
 #include <vector>
 
 struct ColResult;
-class MinkowskiDiff;
+class TransformedMinkowskiDiff;
 
 void
 epa_solve(const std::vector<WVec>& simplex,
-          const MinkowskiDiff& mdiff,
+          const TransformedMinkowskiDiff& mdiff,
           ColResult& result);
 
 #endif /* EPA_H */

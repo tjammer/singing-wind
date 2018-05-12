@@ -14,6 +14,7 @@ collision_update(Collision& cc,
                  std::size_t id,
                  StaticGrid& grid)
 {
+  cc.shape->transform(pc);
 
   // overwrite result
   cc.result = grid.test_against_grid(cc.shape, pc);

@@ -22,11 +22,10 @@ StaticGrid::test_against_grid(std::unique_ptr<ConvexShape>& a_shape,
   const Transform zerotf;
   m_tag++;
 
-  auto center = transformed(t, a_shape->center());
-  size_t x1 = get_coord(center.x - a_shape->radius());
-  size_t x2 = get_coord(center.x + a_shape->radius());
-  size_t y1 = get_coord(center.y - a_shape->radius());
-  size_t y2 = get_coord(center.y + a_shape->radius());
+  size_t x1 = get_coord(a_shape->center().x - a_shape->radius());
+  size_t x2 = get_coord(a_shape->center().x + a_shape->radius());
+  size_t y1 = get_coord(a_shape->center().y - a_shape->radius());
+  size_t y2 = get_coord(a_shape->center().y + a_shape->radius());
   assert(x1 >= 0 && y1 >= 0 && x2 < GRID_SIZE && y2 < GRID_SIZE);
 
   for (size_t y = y1; y <= y2; y++) {
@@ -36,8 +35,7 @@ StaticGrid::test_against_grid(std::unique_ptr<ConvexShape>& a_shape,
         auto& object = m_objects[m_indices[cell.first_object + i]];
         if (object.tag != m_tag) {
           object.tag = m_tag;
-          if (!overlaps(
-                transformed(t, a_shape->center()), a_shape->radius(), object)) {
+          if (!overlaps(a_shape->center(), a_shape->radius(), object)) {
             continue;
           }
           ColResult cr = gjk_collide(*a_shape, t, object.shape, zerotf);
