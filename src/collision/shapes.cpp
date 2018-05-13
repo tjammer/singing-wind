@@ -30,10 +30,10 @@ weighted_center(const std::vector<WVec>& vecs)
   return WVec{ x, y };
 }
 
-Polygon::Polygon(std::initializer_list<WVec> vecs)
+Polygon::Polygon(const std::vector<WVec>& vecs)
 {
-  m_vecs.insert(m_vecs.end(), vecs);
-  m_tvecs.insert(m_tvecs.end(), vecs);
+  m_vecs.insert(m_vecs.end(), vecs.begin(), vecs.end());
+  m_tvecs.insert(m_tvecs.end(), vecs.begin(), vecs.end());
 
   m_center = weighted_center(m_vecs);
   m_tcenter = m_center;

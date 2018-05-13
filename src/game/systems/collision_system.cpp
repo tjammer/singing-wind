@@ -65,7 +65,7 @@ on_collision(HasCollided,
   world.destroy_component<HasCollided>(id);
   if (w_dot(WVec(0, -1), cc.result.normal) > MAX_FLOOR_ANGLE) {
     mc.timer = 0;
-    mc.velocity.y = w_slide(mc.velocity, cc.result.normal).y * 0.0f;
+    mc.velocity.y = w_slide(mc.velocity, cc.result.normal).y * 0.5f;
     // world.create_component(id, IsWalking{});
   } else {
     mc.velocity = w_slide(mc.velocity, cc.result.normal);

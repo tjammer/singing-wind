@@ -7,7 +7,7 @@
 class Polygon : public ConvexShape
 {
 public:
-  Polygon(std::initializer_list<WVec> vecs);
+  Polygon(const std::vector<WVec>& vecs);
   void transform(const Transform& t) override;
   WVec support(const WVec& dir, const Transform& t) const override;
   WVec support(const WVec& dir) const override;

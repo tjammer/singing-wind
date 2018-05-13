@@ -12,7 +12,7 @@ if __name__ == "__main__":
         if obj.name != "Collision":
             continue
         bpy.context.scene.objects.active = obj
-        bpy.ops.object.modifier_apply(modifier="Triangulate")
+        # bpy.ops.object.modifier_apply(modifier="Triangulate")
         obdata = obj.data
 
         vertices = [(v.co.x, v.co.y) for v in obdata.vertices]
@@ -23,10 +23,22 @@ if __name__ == "__main__":
             Vertex.CreateVertex(builder, *v)
         verts = builder.EndVector(len(vertices))
 
-        Level.LevelStartFacesVector(builder, len(faces))
+        fbs_faces = []
         for f in reversed(faces):
-            Face.CreateFace(builder, *f)
-        facs = builder.EndVector(len(faces))
+            Face.FaceStartIndicesVector(builder, len(f))
+            for i in reversed(f):
+                builder.PrependInt32(i)
+            fvec = builder.EndVector(len(f))
+            Face.FaceStart(builder)
+            Face.FaceAddIndices(builder, fvec)
+            fbs_faces.append(Face.FaceEnd(builder))
+
+        assert(len(faces) == len(fbs_faces))
+
+        Level.LevelStartFacesVector(builder, len(fbs_faces))
+        for f in reversed(fbs_faces):
+            builder.PrependUOffsetTRelative(f)
+        facs = builder.EndVector(len(fbs_faces))
 
         Level.LevelStart(builder)
         Level.LevelAddVerts(builder, verts)

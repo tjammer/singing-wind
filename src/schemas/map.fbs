@@ -10,10 +10,8 @@ struct Vertex {
     y:float;
 }
 
-struct Face {
-  a:int;
-  b:int;
-  c:int;
+table Face {
+  indices:[int];
 }
 
 root_type Level;

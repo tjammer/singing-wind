@@ -45,9 +45,11 @@ Game::Game(const WVec& viewport)
     vertices.emplace_back(vert->x() * fac, vert->y() * fac);
   }
   for (auto&& face : *level->faces()) {
-    Polygon shape{ vertices[face->a()],
-                   vertices[face->b()],
-                   vertices[face->c()] };
+    std::vector<WVec> faceverts;
+    for (auto fv : *face->indices()) {
+      faceverts.push_back(vertices[fv]);
+    }
+    Polygon shape{ faceverts };
 
     m_grid->lazy_add({ shape.center(), shape.radius(), std::move(shape) });
   }
