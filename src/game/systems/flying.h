@@ -15,4 +15,7 @@ struct Movement;
 void
 dummy_flying(const Transform& pc, Movement& mc, const Input& ic);
 
+void
+hover(const Transform&, Movement&, const Input&);
+
 #endif /* FLYING_H */

@@ -59,8 +59,8 @@ w_angle_to_vec(const WVec& v, const WVec& to)
 inline WVec
 w_rotated(const WVec& v, float angle)
 {
-  float v_angle = atan2(v.y, v.x);
-  return WVec(cos(v_angle + angle), sin(v_angle + angle)) * w_magnitude(v);
+  float v_angle = -atan2(v.y, v.x);
+  return WVec(cos(v_angle + angle), -sin(v_angle + angle)) * w_magnitude(v);
 }
 
 inline WVec

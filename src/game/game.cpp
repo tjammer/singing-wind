@@ -3,6 +3,7 @@
 #include "input.h"
 #include "input_system.h"
 #include "fall.h"
+#include "flying.h"
 #include "renderer.h"
 #include "move.h"
 #include "draw.h"
@@ -67,7 +68,7 @@ Game::update()
   while (m_frame_timer.pop_fixed()) {
     m_world.visit(input_update);
     // accel systems
-    m_world.visit(fall_update);
+    m_world.visit(dummy_flying);
     // now integrate
     m_world.visit(
       [](Movement& mc, Transform& pc) { move_update(mc, pc, FIXED_TIMESTEP); });

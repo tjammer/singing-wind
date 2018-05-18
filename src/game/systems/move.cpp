@@ -2,7 +2,6 @@
 #include "comps.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
-#include "imgui.h"
 
 void
 rotate_angle(float angle, float max_change_angle, Transform& pc)
@@ -12,7 +11,8 @@ rotate_angle(float angle, float max_change_angle, Transform& pc)
   if (pc.rotation < 0) {
     pc.rotation *= -1;
     pc.direction *= -1;
-  } else if (pc.rotation > (float)M_PI) {
+  }
+  if (pc.rotation > (float)M_PI) {
     pc.rotation = 2 * (float)M_PI - pc.rotation;
     pc.direction *= -1;
   }
@@ -37,7 +37,4 @@ move_update(Movement& mc, Transform& pc, float dt)
   mc.accel = mc.next_accel;
   mc.next_accel = { 0, 0 };
   rotate_angle(mc.change_angle, mc.max_change_angle, pc);
-
-  ImGui::Text("vel: %f, %f", mc.velocity.x, mc.velocity.y);
-  ImGui::Text("accel: %f, %f", mc.accel.x, mc.accel.y);
 }
