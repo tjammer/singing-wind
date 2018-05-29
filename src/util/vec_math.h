@@ -81,4 +81,10 @@ w_reflect(const WVec& v, const WVec& n)
   return v - 2.0f * w_dot(v, n) * n;
 }
 
+inline float
+w_lerp(float a, float b, float t)
+{
+  return a + t * (b - a);
+}
+
 #endif // SINGING_WIND_WVECMATH_H

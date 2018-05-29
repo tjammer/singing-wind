@@ -15,16 +15,15 @@ angle_to_mouse(const WVec& mouse, const Transform& t)
 }
 
 float
-drag(float angle, float vel)
+drag(float angle)
 {
   if (angle < 0) {
-    return drag(-angle, vel);
+    return drag(-angle);
   }
-  float fac = fmax(1, exp(vel / 700));
   if (angle < HALF_PI) {
-    return fac * expf(-powf(angle - HALF_PI, 2.0f) * 1.4f);
+    return expf(-powf(angle - HALF_PI, 2.0f) * 1.4f);
   }
-  return fac * expf(powf(angle - HALF_PI, 2.0f) * 0.1f);
+  return expf(-powf(angle - HALF_PI, 2.0f) * 0.1f);
 }
 
 float
@@ -39,7 +38,7 @@ lift(float angle, float stall)
   } else if (angle < HALF_PI) {
     return cos((angle - stall) * HALF_PI / (HALF_PI - stall));
   }
-  return -0.3 * lift((float)M_PI - angle, stall);
+  return -0.1f * lift((float)M_PI - angle, stall);
 }
 
 void
@@ -65,22 +64,39 @@ hover(const Transform& pc, Movement& mc, const Input& ic)
 void
 dummy_flying(const Transform& pc, Movement& mc, const Input& ic)
 {
-  mc.next_accel.y -= 60.;
+  float terminal_vel = 700;
+  float a = 327;
+  mc.next_accel.y -= a;
 
   WVec air_dir = w_normalize(mc.velocity);
-  float vel = w_magnitude(mc.velocity);
 
   float vel_squ = w_dot(mc.velocity, mc.velocity);
   auto glide_dir = w_rotated({ 0, 1 }, pc.rotation * pc.direction);
   auto angle = w_angle_to_vec(mc.velocity, glide_dir);
-  ImGui::Text("%f", angle);
 
-  mc.next_accel -= air_dir * vel_squ * drag(angle, vel) * 0.0067f;
-  mc.next_accel += w_tangent(air_dir) * vel_squ * lift(angle, 0.26) * 0.007f;
-  mc.next_accel += 120.0f * glide_dir;
+  float min_drag = drag(0);
+  float c_lift = 0.0095;
+
+  if (ic.wings != KeyState::Release) {
+    if (ic.wings == KeyState::JustPressed) {
+      // mc.velocity = fmaxf(vel, 300) * glide_dir;
+      mc.next_accel += 10000.f * glide_dir;
+    }
+    float ac = 600;
+    // slightly changed direction
+    auto dir = w_rotated(glide_dir, pc.direction * -0.46);
+    mc.next_accel += ac * dir;
+    a += ac;
+  }
+  float c_drag = 1.f / pow(terminal_vel, 2) * a / min_drag;
+  ImGui::Text("%f", c_drag);
+  ImGui::Text("%f", (lift(angle, 0.26) * c_lift) / (c_drag * drag(angle)));
+  ImGui::Text("%f", sqrtf(w_dot(mc.velocity, mc.velocity)));
+
+  mc.next_accel -= air_dir * vel_squ * drag(angle) * c_drag;
+  mc.next_accel += w_tangent(air_dir) * vel_squ * lift(angle, 0.26) * c_lift;
+
   //
   // rotations
   mc.change_angle = angle_to_mouse(ic.mouse, pc);
-
-  ImGui::Text("%f, %f", glide_dir.x, glide_dir.y);
 }

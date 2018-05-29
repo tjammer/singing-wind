@@ -53,6 +53,7 @@ struct Input
   WVec mouse{ 0, 0 };
   KeyState left{ KeyState::Release };
   KeyState right{ KeyState::Release };
+  KeyState wings{ KeyState::Release };
 };
 
 using CanFly = ecs::tag<struct can_fly>;
