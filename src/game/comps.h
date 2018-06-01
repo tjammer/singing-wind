@@ -53,6 +53,8 @@ struct Input
   WVec mouse{ 0, 0 };
   KeyState left{ KeyState::Release };
   KeyState right{ KeyState::Release };
+  KeyState up{ KeyState::Release };
+  KeyState down{ KeyState::Release };
   KeyState wings{ KeyState::Release };
 };
 

@@ -2,7 +2,6 @@
 #include "comps.h"
 #include "ecs.hpp"
 #include "vec_math.h"
-#include "imgui.h"
 
 const float HALF_PI = (float)(M_PI / 2.0);
 
@@ -33,9 +32,9 @@ lift(float angle, float stall)
   if (angle < 0) {
     return -lift(-angle, stall);
   }
-  if (angle < stall) {
+  if (angle <= stall) {
     return sin(angle * HALF_PI / stall);
-  } else if (angle < HALF_PI) {
+  } else if (angle <= HALF_PI) {
     return cos((angle - stall) * HALF_PI / (HALF_PI - stall));
   }
   return -0.1f * lift((float)M_PI - angle, stall);
@@ -89,14 +88,31 @@ dummy_flying(const Transform& pc, Movement& mc, const Input& ic)
     a += ac;
   }
   float c_drag = 1.f / pow(terminal_vel, 2) * a / min_drag;
-  ImGui::Text("%f", c_drag);
-  ImGui::Text("%f", (lift(angle, 0.26) * c_lift) / (c_drag * drag(angle)));
-  ImGui::Text("%f", sqrtf(w_dot(mc.velocity, mc.velocity)));
 
   mc.next_accel -= air_dir * vel_squ * drag(angle) * c_drag;
   mc.next_accel += w_tangent(air_dir) * vel_squ * lift(angle, 0.26) * c_lift;
 
-  //
+  WVec dir{ 0, 0 };
+  if (ic.left != KeyState::Release) {
+    dir.x -= 1;
+  }
+  if (ic.right != KeyState::Release) {
+    dir.x += 1;
+  }
+  if (ic.down != KeyState::Release) {
+    dir.y -= 1;
+  }
+  if (ic.up != KeyState::Release) {
+    dir.y += 1;
+  }
+  auto mag = fminf(w_magnitude(dir), 1);
+  dir = w_normalize(dir);
+
   // rotations
-  mc.change_angle = angle_to_mouse(ic.mouse, pc);
+  // mc.change_angle = angle_to_mouse(ic.mouse, next);
+  auto local_to = inversed(pc, mag * dir);
+  mc.change_angle = -pc.direction * fmod(atan2f(-local_to.x, local_to.y), M_PI);
+  if (abs(mc.change_angle) == M_PI) {
+    mc.change_angle = 0;
+  }
 }
