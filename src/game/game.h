@@ -3,14 +3,13 @@
 
 #include "ecs.hpp"
 #include "frame_timer.h"
-#include "camera.h"
 #include "static_grid.h"
 // maybe try to fwd-decl
 
 class Game
 {
 public:
-  Game(const WVec& viewport);
+  Game();
 
   void update();
   void draw();
@@ -18,7 +17,6 @@ public:
 private:
   ecs::World m_world;
   FrameTimer m_frame_timer;
-  Camera m_camera;
   std::unique_ptr<StaticGrid> m_grid;
 };
 

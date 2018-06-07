@@ -23,7 +23,13 @@ Camera::~Camera() = default;
 Camera::Camera(const WVec& viewport)
   : m_pimpl(std::make_unique<impl>(viewport))
 {
+  init();
+}
 
+void
+Camera::init()
+{
+  auto& viewport = m_pimpl->viewport;
   float fac = 1.0 / 2.0;
   m_pimpl->projection = glm::ortho(-viewport.x * fac,
                                    viewport.x * fac,
@@ -50,4 +56,11 @@ glm::tmat4x4<float>
 Camera::get_camera() const
 {
   return m_pimpl->projection * m_pimpl->view;
+}
+
+void
+Camera::reset(const WVec& viewport)
+{
+  m_pimpl = std::make_unique<impl>(viewport);
+  init();
 }

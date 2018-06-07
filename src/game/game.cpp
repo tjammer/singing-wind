@@ -4,6 +4,7 @@
 #include "input_system.h"
 #include "jumprun.h"
 #include "renderer.h"
+#include "camera.h"
 #include "move.h"
 #include "draw.h"
 #include "collision_system.h"
@@ -12,10 +13,9 @@
 #include "glm/glm.hpp"
 #include <fstream>
 
-Game::Game(const WVec& viewport)
+Game::Game()
   : m_world(ecs::World{})
   , m_frame_timer(FrameTimer{})
-  , m_camera(viewport)
   , m_grid(std::make_unique<StaticGrid>())
 {
   auto player = m_world.create_entity();
@@ -30,7 +30,7 @@ Game::Game(const WVec& viewport)
   auto& pc = m_world.get_component<Transform>(player);
   pc.position.y = 300;
 
-  WRenderer::set_camera(m_camera.get_camera());
+  WRenderer::set_camera(Camera{ WVec{ 0, 0 }, 1 });
 
   // test read flatbuffers file
   std::ifstream in("build/test.swmap");
@@ -62,7 +62,7 @@ void
 Game::update()
 {
   WRenderer::reset();
-  WInput::set_mouse(m_camera.unproject_mouse(WInput::get_raw_mouse()));
+  WInput::set_mouse(WRenderer::unproject_mouse(WInput::get_raw_mouse()));
 
   m_frame_timer.update();
   while (m_frame_timer.pop_fixed()) {

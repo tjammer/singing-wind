@@ -28,6 +28,22 @@ public:
     return false;
   }
 
+  bool double_tabbed(const T& val) const
+  {
+    if (m_buf[m_index] != val) {
+      return false;
+    }
+    bool released = false;
+    for (unsigned int i = 1; i < size; ++i) {
+      if (m_buf[(m_index - i + size) % size] != val) {
+        released = true;
+      } else if (released) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   bool is(const T& val) const { return m_buf[m_index] == val; }
   const T& current() const { return m_buf[m_index]; }
   void fill(const T& val) { m_buf.fill(val); }

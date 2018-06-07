@@ -28,13 +28,14 @@ main()
 
   WRenderer::init(window);
 
-  Game game{ viewport };
+  Game game{};
 
   glfwSetKeyCallback(window, WInput::key_callback);
   glfwSetMouseButtonCallback(window, WInput::mouse_button_callback);
   glfwSetScrollCallback(window, WInput::scroll_callback);
   glfwSetCharCallback(window, WInput::char_callback);
   glfwSetCursorPosCallback(window, WInput::cursor_position_callback);
+  glfwSetWindowSizeCallback(window, WRenderer::resize);
 
   while (glfwWindowShouldClose(window) == 0) {
     glfwPollEvents();

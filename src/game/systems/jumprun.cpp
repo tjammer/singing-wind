@@ -3,9 +3,10 @@
 #include "ecs.hpp"
 #include "vec_math.h"
 #include "imgui.h"
+#include <iostream>
 
 void
-jump_run_update(Movement& mc, Transform& t, const Input& ic)
+jump_run_update(JumpRun& jr, Movement& mc, Transform& t, const Input& ic)
 {
   // https://stackoverflow.com/questions/667034/simple-physics-based-movement
   // stokes
@@ -21,7 +22,7 @@ jump_run_update(Movement& mc, Transform& t, const Input& ic)
   const float TURN_MUL = 2;
 
   // velocities
-  const float JUMP_SPEED = 800;
+  const float JUMP_SPEED = 900;
   const float MAX_WALK_VEL = 224;
   const float MAX_RUN_VEL = 520;
   const float MAX_AIR_VEL = 320;
@@ -44,11 +45,21 @@ jump_run_update(Movement& mc, Transform& t, const Input& ic)
   }
   bool jump = ic.jump.just_added(KeyState::Press);
 
+  if (ic.left_click.double_tabbed(KeyState::Press)) {
+    jr.running = true;
+  }
+  // check for running
+  if (mc.active_state != MoveState::Run) {
+    jr.running = false;
+  } else if (dir == 0 || dir * mc.velocity.x < 0) {
+    jr.running = false;
+  }
+
   // horizontal movement
   if (dir != 0) {
     float accel;
     if (mc.active_state == MoveState::Run) {
-      accel = dir * WALK_ACCEL;
+      accel = jr.running ? dir * RUN_ACCEL : dir * WALK_ACCEL;
       if (dir * mc.velocity.x < 0) {
         accel *= TURN_MUL;
       }
@@ -80,8 +91,6 @@ jump_run_update(Movement& mc, Transform& t, const Input& ic)
   }
 
   mc.next_accel = force;
-
-  // TODO: work on mouse jump
 
   ImGui::Text("%f, %f", mc.velocity.x, mc.velocity.y);
 }

@@ -55,7 +55,7 @@ struct Flying
 {
   float c_lift{ 0.0055 };
   float c_stall_angle{ 0.26 };
-  float c_accel_force{ 1000 };
+  float c_accel_force{ 100 };
   float c_accel_time{ 0.7f };
   float c_drag{ 0.0026 };
   float c_push_vel{ 500.f };
@@ -63,7 +63,7 @@ struct Flying
 
 struct JumpRun
 {
-  float accel{ 0 };
+  bool running{ false };
 };
 
 struct Collision

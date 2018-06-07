@@ -6,20 +6,16 @@
 #define SINGING_WIND_CAMERA_H
 
 #include "w_vec.h"
-#include "glm/fwd.hpp"
-#include <memory>
 
-class Camera
+struct Camera
 {
-public:
-  WVec unproject_mouse(double pos[2]) const;
-  glm::tmat4x4<float, glm::precision::defaultp> get_camera() const;
-  Camera(const WVec& viewport);
-  ~Camera();
+  WVec pos;
+  float zoom;
 
-private:
-  class impl;
-  std::unique_ptr<impl> m_pimpl;
+  inline bool operator==(const Camera& other)
+  {
+    return pos == other.pos && zoom == other.zoom;
+  }
 };
 
 #endif // SINGING_WIND_CAMERA_H

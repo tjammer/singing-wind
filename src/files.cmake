@@ -27,7 +27,6 @@ target_sources(singing_wind
   ${CMAKE_CURRENT_LIST_DIR}/render/imgui_impl_glfw_gl3.cpp
   ${CMAKE_CURRENT_LIST_DIR}/render/renderer.cpp
   ${CMAKE_CURRENT_LIST_DIR}/render/texture.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/render/camera.cpp
   ${CMAKE_CURRENT_LIST_DIR}/render/shader.cpp
   ${CMAKE_CURRENT_LIST_DIR}/ecs/ecs.hpp
   ${CMAKE_CURRENT_LIST_DIR}/collision/static_grid.cpp

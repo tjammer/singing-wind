@@ -1,13 +1,15 @@
 //
 // Created by jammer on 16/05/17.
 //
-
 #include "renderer.h"
+#include "camera.h"
 #include <GLFW/glfw3.h>
 #include <shader.h>
 #include <assert.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/transform.hpp>
 #include <imgui.h>
 #include <iostream>
 
@@ -15,6 +17,10 @@ using namespace WRenderer;
 
 namespace WRenderer {
 // vp, models are already transformed
+Camera camera;
+WVec viewport;
+glm::tmat4x4<float> view;
+glm::tmat4x4<float> projection;
 glm::tmat4x4<float> camera_transform;
 
 int m_mode = -1;
@@ -29,8 +35,6 @@ WShader primitive_shader;
 
 void ::WRenderer::init(GLFWwindow* window)
 {
-  int width, height;
-  glfwGetFramebufferSize(window, &width, &height);
 
   glGenBuffers(1, &prim_vbo);
   glGenBuffers(1, &prim_ebo);
@@ -52,6 +56,11 @@ void ::WRenderer::init(GLFWwindow* window)
   glBindVertexArray(0);
 
   primitive_shader = { "shaders/triangle.vs.glsl", "shaders/triangle.fs.glsl" };
+
+  // camera
+  int width, height;
+  glfwGetFramebufferSize(window, &width, &height);
+  viewport = { width, height };
 }
 
 void
@@ -107,27 +116,63 @@ WRenderer::render_array()
 
 void
 WRenderer::shutdown()
-{
-}
+{}
 
 unsigned int ::WRenderer::get_vao()
 {
   return prim_vao;
 }
 
-void ::WRenderer::reset()
+void
+WRenderer::reset()
 {
   m_prim_line_verts.clear();
   m_prim_quad_verts.clear();
   m_prim_quad_inds.clear();
 }
 
-void ::WRenderer::set_mode(int mode)
+void
+WRenderer::set_mode(int mode)
 {
   m_mode = mode;
 }
 
-void ::WRenderer::set_camera(const glm::tmat4x4<float>& transform)
+void
+WRenderer::set_camera(const Camera& a_camera, bool force)
 {
-  camera_transform = transform;
+  if (camera == a_camera && !force) {
+    return;
+  }
+  camera = a_camera;
+  auto half_vp = viewport / 2.f;
+  projection = glm::ortho(-half_vp.x * camera.zoom,
+                          half_vp.x * camera.zoom,
+                          half_vp.y * camera.zoom,
+                          -half_vp.y * camera.zoom,
+                          .1f,
+                          1.f);
+  view = glm::lookAt(glm::vec3(camera.pos.x, camera.pos.y, -1),
+                     glm::vec3(camera.pos.x, camera.pos.y, 0),
+                     glm::vec3(0, -1, 0));
+  camera_transform = projection * view;
+}
+
+WVec
+WRenderer::unproject_mouse(double* pos)
+{
+  WVec mouse = glm::unProject(
+    glm::vec3(pos[0], pos[1], 0),
+    glm::translate(glm::tvec3<float>(camera.pos.x, camera.pos.y, 0)),
+    projection,
+    glm::vec4(0, 0, viewport.x, viewport.y));
+  return mouse;
+}
+
+void
+WRenderer::resize(GLFWwindow* window, int width, int height)
+{
+  glViewport(0, 0, width, height);
+  float fac = viewport.x / (float)width;
+  viewport = { width, height };
+  set_camera(Camera{ camera.pos, camera.zoom * fac }, true);
 }

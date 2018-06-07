@@ -10,6 +10,9 @@
 // get rid of this later
 #include <glm/fwd.hpp>
 #include <GLFW/glfw3.h>
+#include "w_vec.h"
+
+struct Camera;
 
 struct PrimitiveVertex
 {
@@ -39,7 +42,11 @@ get_vao();
 void
 set_mode(int mode);
 void
-set_camera(const glm::tmat4x4<float, glm::precision::defaultp>& transform);
+set_camera(const Camera& camera, bool force = false);
+void
+resize(GLFWwindow*, int width, int height);
+WVec
+unproject_mouse(double pos[2]);
 }
 
 #endif // GLFW33_WRENDERER_H
