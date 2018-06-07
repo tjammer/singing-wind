@@ -4,6 +4,7 @@
 #include "w_vec.h"
 #include "transform.h"
 #include "gjk.h"
+#include "input_buffer.h"
 #include <memory>
 
 namespace ecs {
@@ -14,12 +15,8 @@ struct tag;
 enum class MoveState
 {
   Fall,
-  Walk
-};
-
-struct MoveStateChange
-{
-  MoveState next;
+  Run,
+  Jump
 };
 
 using IsFalling = ecs::tag<struct is_falling>;
@@ -30,32 +27,26 @@ struct Movement
   WVec velocity{ 0, 0 };
   WVec accel{ 0, 0 };
   WVec next_accel{ 0, 0 };
-  float transition_time{ 5 };
+  float timer{ 0 };
   float change_angle{ 0 };
 
   MoveState active_state{ MoveState::Fall };
-
-  float mass{ 1 };
-  float time_fac = { 1 };
-  float timer{ 0 };
   float max_change_angle{ 0.065 };
 };
 
 enum class KeyState
 {
-  JustPressed,
-  Hold,
   Release,
+  Press
 };
 
 struct Input
 {
   WVec mouse{ 0, 0 };
-  KeyState left{ KeyState::Release };
-  KeyState right{ KeyState::Release };
-  KeyState up{ KeyState::Release };
-  KeyState down{ KeyState::Release };
-  KeyState wings{ KeyState::Release };
+  InputBuffer<KeyState> left_click{};
+  InputBuffer<KeyState> left{};
+  InputBuffer<KeyState> right{};
+  InputBuffer<KeyState> jump{};
 };
 
 using CanFly = ecs::tag<struct can_fly>;
@@ -68,6 +59,11 @@ struct Flying
   float c_accel_time{ 0.7f };
   float c_drag{ 0.0026 };
   float c_push_vel{ 500.f };
+};
+
+struct JumpRun
+{
+  float accel{ 0 };
 };
 
 struct Collision

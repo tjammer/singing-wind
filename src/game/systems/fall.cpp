@@ -12,10 +12,10 @@ fall_update(IsFalling, Movement& mc, const Input& ic, const Transform& pc)
 
   mc.next_accel -= air_dir * vel * 5.f;
 
-  if (ic.right != KeyState::Release) {
+  if (ic.right.is(KeyState::Press)) {
     mc.next_accel.x += 750;
   }
-  if (ic.left != KeyState::Release) {
+  if (ic.left.is(KeyState::Press)) {
     mc.next_accel.x -= 750;
   }
 

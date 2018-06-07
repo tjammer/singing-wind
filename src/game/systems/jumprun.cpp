@@ -36,14 +36,13 @@ jump_run_update(Movement& mc, Transform& t, const Input& ic)
   WVec force{ 0, -GRAVITY };
 
   // inputs
-  float dir = 0;
-  if (ic.right != KeyState::Release) {
-    dir += 1;
+  float dir;
+  if (ic.left_click.is(KeyState::Press)) {
+    dir = copysignf(1, ic.mouse.x - t.position.x);
+  } else {
+    dir = 0;
   }
-  if (ic.left != KeyState::Release) {
-    dir -= 1;
-  }
-  bool jump = ic.jump == KeyState::JustPressed;
+  bool jump = ic.jump.just_added(KeyState::Press);
 
   // horizontal movement
   if (dir != 0) {

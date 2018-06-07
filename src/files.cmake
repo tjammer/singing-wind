@@ -23,7 +23,7 @@ target_sources(singing_wind
   ${CMAKE_CURRENT_LIST_DIR}/game/systems/draw.cpp
   ${CMAKE_CURRENT_LIST_DIR}/game/systems/collision_system.cpp
   ${CMAKE_CURRENT_LIST_DIR}/game/systems/fall.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/game/systems/flying.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/game/systems/jumprun.cpp
   ${CMAKE_CURRENT_LIST_DIR}/render/imgui_impl_glfw_gl3.cpp
   ${CMAKE_CURRENT_LIST_DIR}/render/renderer.cpp
   ${CMAKE_CURRENT_LIST_DIR}/render/texture.cpp

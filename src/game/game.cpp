@@ -2,8 +2,7 @@
 #include "comps.h"
 #include "input.h"
 #include "input_system.h"
-#include "fall.h"
-#include "flying.h"
+#include "jumprun.h"
 #include "renderer.h"
 #include "move.h"
 #include "draw.h"
@@ -25,10 +24,11 @@ Game::Game(const WVec& viewport)
   m_world.create_component(player,
                            Collision{ {}, std::make_unique<Capsule>(20, 10) });
   m_world.create_component(player, Movement{});
-  m_world.create_component(player, IsFalling{});
+  // m_world.create_component(player, IsFalling{});
+  m_world.create_component(player, JumpRun{});
 
   auto& pc = m_world.get_component<Transform>(player);
-  pc.rotation = 0.5;
+  pc.position.y = 300;
 
   WRenderer::set_camera(m_camera.get_camera());
 
@@ -68,7 +68,7 @@ Game::update()
   while (m_frame_timer.pop_fixed()) {
     m_world.visit(input_update);
     // accel systems
-    m_world.visit(dummy_flying);
+    m_world.visit(jump_run_update);
     // now integrate
     m_world.visit(
       [](Movement& mc, Transform& pc) { move_update(mc, pc, FIXED_TIMESTEP); });

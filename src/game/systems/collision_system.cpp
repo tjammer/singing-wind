@@ -66,7 +66,7 @@ on_collision(HasCollided,
   if (w_dot(WVec(0, -1), cc.result.normal) > MAX_FLOOR_ANGLE) {
     mc.timer = 0;
     mc.velocity.y = w_slide(mc.velocity, cc.result.normal).y * 0.5f;
-    // world.create_component(id, IsWalking{});
+    mc.active_state = MoveState::Run;
   } else {
     mc.velocity = w_slide(mc.velocity, cc.result.normal);
   }
