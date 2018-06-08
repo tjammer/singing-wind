@@ -16,7 +16,8 @@ enum class MoveState
 {
   Fall,
   Run,
-  Jump
+  Jump,
+  Wall
 };
 
 using IsFalling = ecs::tag<struct is_falling>;
@@ -64,6 +65,7 @@ struct Flying
 struct JumpRun
 {
   bool running{ false };
+  bool can_wall_jump{ true };
 };
 
 struct Collision

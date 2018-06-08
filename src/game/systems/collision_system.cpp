@@ -4,6 +4,7 @@
 #include "move.h"
 #include "static_grid.h"
 #include "ecs.hpp"
+#include "imgui.h"
 
 const float MAX_FLOOR_ANGLE{ 0.7f };
 
@@ -63,10 +64,19 @@ on_collision(HasCollided,
              std::size_t id)
 {
   world.destroy_component<HasCollided>(id);
+  auto angle = w_dot(WVec{ 0, -1 }, cc.result.normal);
+  ImGui::Text("%f", angle);
   if (w_dot(WVec(0, -1), cc.result.normal) > MAX_FLOOR_ANGLE) {
     mc.timer = 0;
     mc.velocity.y = w_slide(mc.velocity, cc.result.normal).y * 0.5f;
     mc.active_state = MoveState::Run;
+  } else if (angle >= 0) {
+    const auto& jr = world.get_component<JumpRun>(id);
+    if (jr.can_wall_jump) {
+      mc.timer = 0;
+    }
+    mc.active_state = MoveState::Wall;
+    mc.velocity = w_slide(mc.velocity, cc.result.normal);
   } else {
     mc.velocity = w_slide(mc.velocity, cc.result.normal);
   }

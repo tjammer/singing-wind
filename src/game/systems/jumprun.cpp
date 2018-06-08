@@ -22,7 +22,7 @@ jump_run_update(JumpRun& jr, Movement& mc, Transform& t, const Input& ic)
   const float TURN_MUL = 2;
 
   // velocities
-  const float JUMP_SPEED = 900;
+  const float JUMP_SPEED = 1200;
   const float MAX_WALK_VEL = 224;
   const float MAX_RUN_VEL = 520;
   const float MAX_AIR_VEL = 320;
@@ -33,11 +33,18 @@ jump_run_update(JumpRun& jr, Movement& mc, Transform& t, const Input& ic)
   const float AIR_ACCEL = MAX_AIR_VEL * MAX_AIR_VEL * AIR_DRAG;
   constexpr float FALL_DRAG = GRAVITY / (FALL_VEL * FALL_VEL);
   static_assert(FALL_DRAG > 0, "fall drag <= 0");
+  const float AIR_TIME = 0.2; // jump time also
+
+  // wall
+  const float WALL_TIME = 1.2;
 
   WVec force{ 0, -GRAVITY };
 
+  // TODO: use switch case to handle each state cleanly separately
+  // second switch for transitions
+
   // inputs
-  float dir;
+  int dir;
   if (ic.left_click.is(KeyState::Press)) {
     dir = copysignf(1, ic.mouse.x - t.position.x);
   } else {
@@ -45,52 +52,71 @@ jump_run_update(JumpRun& jr, Movement& mc, Transform& t, const Input& ic)
   }
   bool jump = ic.jump.just_added(KeyState::Press);
 
-  if (ic.left_click.double_tabbed(KeyState::Press)) {
-    jr.running = true;
-  }
-  // check for running
-  if (mc.active_state != MoveState::Run) {
-    jr.running = false;
-  } else if (dir == 0 || dir * mc.velocity.x < 0) {
-    jr.running = false;
-  }
+  // states
+  switch (mc.active_state) {
+    case MoveState::Fall: {
+      force.x += dir * AIR_ACCEL;
+      force.x -= AIR_DRAG * mc.velocity.x * fabsf(mc.velocity.x);
+      force.y -= FALL_DRAG * mc.velocity.x * fabsf(mc.velocity.x);
+      break;
+    }
+    case MoveState::Run: {
+      if (ic.left_click.double_tabbed(KeyState::Press)) {
+        jr.running = true;
+      } else if (dir == 0 || dir * mc.velocity.x < 0) {
+        jr.running = false;
+      }
 
-  // horizontal movement
-  if (dir != 0) {
-    float accel;
-    if (mc.active_state == MoveState::Run) {
-      accel = jr.running ? dir * RUN_ACCEL : dir * WALK_ACCEL;
+      float accel = dir * (jr.running ? RUN_ACCEL : WALK_ACCEL);
+
       if (dir * mc.velocity.x < 0) {
         accel *= TURN_MUL;
       }
-    } else {
-      accel = dir * AIR_ACCEL;
+
+      force.x += accel;
+      force.x -= GROUND_DRAG * mc.velocity.x * fabsf(mc.velocity.x);
+      if (dir == 0) {
+        force.x -= STOP_FRICTION * mc.velocity.x;
+      }
+      break;
     }
-    force.x += accel;
-  } else if (mc.active_state == MoveState::Run) {
-    force.x -= STOP_FRICTION * mc.velocity.x;
+    case MoveState::Jump: {
+      force.x += dir * AIR_ACCEL;
+      force.x -= AIR_DRAG * mc.velocity.x * fabsf(mc.velocity.x);
+      break;
+    }
+    case MoveState::Wall: {
+      break;
+    }
   }
 
-  // drags
-  if (mc.active_state == MoveState::Run) {
-    force.x -= GROUND_DRAG * mc.velocity.x * fabsf(mc.velocity.x);
-  } else {
-    force.x -= AIR_DRAG * mc.velocity.x * fabsf(mc.velocity.x);
-    if (mc.velocity.y < 0) {
-      mc.active_state = MoveState::Fall;
+  // transitions
+  switch (mc.active_state) {
+    case MoveState::Fall: {
+      break;
+    }
+    case MoveState::Run: {
+      if (jump && mc.timer < AIR_TIME) {
+        mc.velocity.y = JUMP_SPEED;
+        mc.active_state = MoveState::Jump;
+      }
+      break;
+    }
+    case MoveState::Jump: {
+      break;
+    }
+    case MoveState::Wall: {
+      break;
     }
   }
-  if (mc.active_state == MoveState::Fall) {
-    force.y -= FALL_DRAG * mc.velocity.y * fabsf(mc.velocity.y);
+  if (mc.active_state != MoveState::Run) {
+    jr.running = false;
   }
-
-  // jump
-  if (jump && mc.active_state == MoveState::Run) {
-    mc.velocity.y = JUMP_SPEED;
-    mc.active_state = MoveState::Jump;
+  if (mc.velocity.y < 0 && mc.timer > AIR_TIME) {
+    mc.active_state = MoveState::Fall;
   }
 
   mc.next_accel = force;
 
-  ImGui::Text("%f, %f", mc.velocity.x, mc.velocity.y);
+  ImGui::Text("%f", mc.timer);
 }
