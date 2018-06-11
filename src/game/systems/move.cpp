@@ -38,4 +38,5 @@ move_update(Movement& mc, Transform& pc, float dt)
   mc.next_accel = { 0, 0 };
   mc.timer += dt;
   rotate_angle(mc.change_angle, mc.max_change_angle, pc);
+  mc.change_angle = 0;
 }

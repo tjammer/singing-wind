@@ -22,7 +22,7 @@ Game::Game()
   m_world.create_component(player, Input{});
   m_world.create_component(player, Transform{});
   m_world.create_component(player,
-                           Collision{ {}, std::make_unique<Capsule>(20, 10) });
+                           Collision{ {}, std::make_unique<Capsule>(15, 10) });
   m_world.create_component(player, Movement{});
   // m_world.create_component(player, IsFalling{});
   m_world.create_component(player, JumpRun{});

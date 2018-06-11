@@ -32,7 +32,7 @@ struct Movement
   float change_angle{ 0 };
 
   MoveState active_state{ MoveState::Fall };
-  float max_change_angle{ 0.065 };
+  float max_change_angle{ 0.045 };
 };
 
 enum class KeyState
@@ -66,6 +66,7 @@ struct JumpRun
 {
   bool running{ false };
   bool can_wall_jump{ true };
+  bool boosting{ false };
 };
 
 struct Collision

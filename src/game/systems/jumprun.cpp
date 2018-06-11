@@ -5,6 +5,14 @@
 #include "imgui.h"
 #include <iostream>
 
+float
+angle_to_direction(const WVec& direction, const Transform& t)
+{
+
+  auto local_to = inversed(t, direction);
+  return -t.direction * atan2f(-local_to.x, local_to.y);
+}
+
 void
 jump_run_update(JumpRun& jr, Movement& mc, Transform& t, const Input& ic)
 {
@@ -25,28 +33,33 @@ jump_run_update(JumpRun& jr, Movement& mc, Transform& t, const Input& ic)
   const float JUMP_SPEED = 1200;
   const float MAX_WALK_VEL = 224;
   const float MAX_RUN_VEL = 520;
-  const float MAX_AIR_VEL = 320;
+  const float MAX_AIR_VEL = 270;
+  constexpr float WALL_VEL = 270;
   constexpr float FALL_VEL = 720;
-  constexpr float FAST_FALL_VEL = 960;
+  // constexpr float FAST_FALL_VEL = 960;
   const float WALK_ACCEL = MAX_WALK_VEL * MAX_WALK_VEL * GROUND_DRAG;
   const float RUN_ACCEL = MAX_RUN_VEL * MAX_RUN_VEL * GROUND_DRAG;
   const float AIR_ACCEL = MAX_AIR_VEL * MAX_AIR_VEL * AIR_DRAG;
   constexpr float FALL_DRAG = GRAVITY / (FALL_VEL * FALL_VEL);
   static_assert(FALL_DRAG > 0, "fall drag <= 0");
+  constexpr float WALL_DRAG = GRAVITY / (WALL_VEL * WALL_VEL);
+  static_assert(WALL_DRAG > 0, "wall drag <= 0");
+
+  // times
+  const float WALL_TIME = 1.2;
   const float AIR_TIME = 0.2; // jump time also
 
-  // wall
-  const float WALL_TIME = 1.2;
+  const float JUMP_FRAC = 4.0f / 5.0f;
+
+  // TODO: wall jump ,then onto fly again
 
   WVec force{ 0, -GRAVITY };
-
-  // TODO: use switch case to handle each state cleanly separately
-  // second switch for transitions
 
   // inputs
   int dir;
   if (ic.left_click.is(KeyState::Press)) {
     dir = copysignf(1, ic.mouse.x - t.position.x);
+    t.direction = dir;
   } else {
     dir = 0;
   }
@@ -57,7 +70,7 @@ jump_run_update(JumpRun& jr, Movement& mc, Transform& t, const Input& ic)
     case MoveState::Fall: {
       force.x += dir * AIR_ACCEL;
       force.x -= AIR_DRAG * mc.velocity.x * fabsf(mc.velocity.x);
-      force.y -= FALL_DRAG * mc.velocity.x * fabsf(mc.velocity.x);
+      force.y -= FALL_DRAG * mc.velocity.y * fabsf(mc.velocity.y);
       break;
     }
     case MoveState::Run: {
@@ -78,14 +91,29 @@ jump_run_update(JumpRun& jr, Movement& mc, Transform& t, const Input& ic)
       if (dir == 0) {
         force.x -= STOP_FRICTION * mc.velocity.x;
       }
+      if (mc.timer == 0) {
+        jr.can_wall_jump = true;
+      }
       break;
     }
     case MoveState::Jump: {
       force.x += dir * AIR_ACCEL;
       force.x -= AIR_DRAG * mc.velocity.x * fabsf(mc.velocity.x);
+      if (ic.jump.is(KeyState::Release)) {
+        jr.boosting = false;
+      } else {
+        force.y += 500;
+      }
       break;
     }
     case MoveState::Wall: {
+      if (mc.velocity.y < 0) {
+        force.y -= WALL_DRAG * mc.velocity.y * fabsf(mc.velocity.y);
+      }
+      if (mc.timer >= AIR_TIME) {
+        force.x += dir * AIR_ACCEL;
+        force.x -= AIR_DRAG * mc.velocity.x * fabsf(mc.velocity.x);
+      }
       break;
     }
   }
@@ -97,8 +125,14 @@ jump_run_update(JumpRun& jr, Movement& mc, Transform& t, const Input& ic)
     }
     case MoveState::Run: {
       if (jump && mc.timer < AIR_TIME) {
-        mc.velocity.y = JUMP_SPEED;
+        // jump dir
+        auto dir = w_normalize(inversed(t, ic.mouse - t.position));
+        dir = JUMP_FRAC * WVec{ 0, 1 } + (1.f - JUMP_FRAC) * dir;
+        mc.velocity += dir * JUMP_SPEED;
         mc.active_state = MoveState::Jump;
+
+        // jump is boost
+        jr.boosting = true;
       }
       break;
     }
@@ -106,17 +140,36 @@ jump_run_update(JumpRun& jr, Movement& mc, Transform& t, const Input& ic)
       break;
     }
     case MoveState::Wall: {
+      if (jump && jr.can_wall_jump) {
+        mc.velocity.y = JUMP_SPEED;
+        mc.active_state = MoveState::Jump;
+        jr.can_wall_jump = false;
+      }
       break;
     }
   }
   if (mc.active_state != MoveState::Run) {
     jr.running = false;
   }
+  if (mc.active_state != MoveState::Jump) {
+    jr.boosting = false;
+  }
   if (mc.velocity.y < 0 && mc.timer > AIR_TIME) {
     mc.active_state = MoveState::Fall;
+    mc.timer = 0;
+  }
+  if (dir * mc.velocity.x < 0) {
+    jr.running = false;
+    jr.boosting = false;
+    t.rotation = 0;
   }
 
-  mc.next_accel = force;
+  // rotations
+  mc.change_angle = -t.rotation;
 
-  ImGui::Text("%f", mc.timer);
+  auto direc = inversed(t, ic.mouse - t.position);
+
+  ImGui::Text("%d", t.direction);
+  ImGui::Text("%f, %f", direc.x, direc.y);
+  mc.next_accel = force;
 }

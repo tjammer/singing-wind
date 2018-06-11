@@ -24,6 +24,6 @@ draw_update(const Transform& pc, const StaticGrid& grid)
     verts_to_renderer(verts);
   }
 
-  auto circle = Capsule{ 20, 10 };
+  auto circle = Capsule{ 15, 10 };
   verts_to_renderer(circle.draw_vertices(pc));
 }
