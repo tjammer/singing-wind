@@ -21,9 +21,9 @@ drag(float angle)
     return drag(-angle);
   }
   if (angle < HALF_PI) {
-    return expf(-powf(angle - HALF_PI, 2.0f) * 1.4f);
+    return expf(-powf(angle - HALF_PI, 2.0f) * 2.f) * 0.25f + 0.75f;
   }
-  return expf(-powf(angle - HALF_PI, 2.0f) * 0.1f);
+  return 1;
 }
 
 float
@@ -64,8 +64,7 @@ hover(const Transform& pc, Movement& mc, const Input& ic)
 void
 dummy_flying(const Transform& t, Movement& mc, const Input& ic)
 {
-  // TODO: little bit of directional drag
-  // angular momentum
+  // TODO: angular momentum
 
   // quadratic
   // v_max = sqrt(a/f)
@@ -91,10 +90,12 @@ dummy_flying(const Transform& t, Movement& mc, const Input& ic)
   }
   auto angle = w_angle_to_vec(mc.velocity, dir);
   float vel = w_magnitude(mc.velocity);
-  force -= AIR_DRAG * mc.velocity * vel;
+  force -= drag(angle) * AIR_DRAG * mc.velocity * vel;
   force += w_tangent(w_normalize(mc.velocity)) * vel * vel *
            lift(angle, STALL_ANGLE) * LIFT;
+
   ImGui::Text("%f", lift(angle, STALL_ANGLE));
+  ImGui::Text("%f", drag(angle));
 
   mc.next_accel += force;
 }
