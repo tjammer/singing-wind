@@ -2,6 +2,7 @@
 #include "comps.h"
 #include "ecs.hpp"
 #include "vec_math.h"
+#include "imgui.h"
 
 const float HALF_PI = (float)(M_PI / 2.0);
 
@@ -28,7 +29,7 @@ drag(float angle)
 float
 lift(float angle, float stall)
 {
-  assert(angle <= M_PI);
+  assert(angle <= (float)M_PI);
   if (angle < 0) {
     return -lift(-angle, stall);
   }
@@ -61,58 +62,39 @@ hover(const Transform& pc, Movement& mc, const Input& ic)
 }
 
 void
-dummy_flying(const Transform& pc, Movement& mc, const Input& ic)
+dummy_flying(const Transform& t, Movement& mc, const Input& ic)
 {
-  float terminal_vel = 700;
-  float a = 327;
-  mc.next_accel.y -= a;
+  // TODO: little bit of directional drag
+  // angular momentum
 
-  WVec air_dir = w_normalize(mc.velocity);
+  // quadratic
+  // v_max = sqrt(a/f)
+  constexpr float GRAVITY = 196;
+  constexpr float AIR_DRAG = 0.003;
+  constexpr float MAX_AIR_VEL = 650;
+  constexpr float LIFT_TO_DRAG_PEAK = 0.7;
+  const float LIFT = LIFT_TO_DRAG_PEAK * AIR_DRAG;
+  const float STALL_ANGLE = 0.26;
+  constexpr float AIR_ACCEL = MAX_AIR_VEL * MAX_AIR_VEL * AIR_DRAG;
 
-  float vel_squ = w_dot(mc.velocity, mc.velocity);
-  auto glide_dir = w_rotated({ 0, 1 }, pc.rotation * pc.direction);
-  auto angle = w_angle_to_vec(mc.velocity, glide_dir);
+  WVec force{ 0, -GRAVITY };
+  mc.change_angle = angle_to_mouse(ic.mouse, t);
+  mc.max_change_angle = 0.08;
 
-  float min_drag = drag(0);
-  float c_lift = 0.0095;
-
-  if (ic.wings != KeyState::Release) {
-    if (ic.wings == KeyState::JustPressed) {
-      // mc.velocity = fmaxf(vel, 300) * glide_dir;
-      mc.next_accel += 10000.f * glide_dir;
-    }
-    float ac = 600;
-    // slightly changed direction
-    auto dir = w_rotated(glide_dir, pc.direction * -0.46);
-    mc.next_accel += ac * dir;
-    a += ac;
+  auto dir = w_rotated({ 0, 1 }, t.direction * t.rotation);
+  if (ic.left_click.is(KeyState::Press)) {
+    // auto dir = ic.mouse - t.position;
+    force += dir * AIR_ACCEL;
+    mc.max_change_angle = 0.07;
+  } else {
+    force.y -= GRAVITY;
   }
-  float c_drag = 1.f / pow(terminal_vel, 2) * a / min_drag;
+  auto angle = w_angle_to_vec(mc.velocity, dir);
+  float vel = w_magnitude(mc.velocity);
+  force -= AIR_DRAG * mc.velocity * vel;
+  force += w_tangent(w_normalize(mc.velocity)) * vel * vel *
+           lift(angle, STALL_ANGLE) * LIFT;
+  ImGui::Text("%f", lift(angle, STALL_ANGLE));
 
-  mc.next_accel -= air_dir * vel_squ * drag(angle) * c_drag;
-  mc.next_accel += w_tangent(air_dir) * vel_squ * lift(angle, 0.26) * c_lift;
-
-  WVec dir{ 0, 0 };
-  if (ic.left != KeyState::Release) {
-    dir.x -= 1;
-  }
-  if (ic.right != KeyState::Release) {
-    dir.x += 1;
-  }
-  if (ic.down != KeyState::Release) {
-    dir.y -= 1;
-  }
-  if (ic.up != KeyState::Release) {
-    dir.y += 1;
-  }
-  auto mag = fminf(w_magnitude(dir), 1);
-  dir = w_normalize(dir);
-
-  // rotations
-  // mc.change_angle = angle_to_mouse(ic.mouse, next);
-  auto local_to = inversed(pc, mag * dir);
-  mc.change_angle = -pc.direction * fmod(atan2f(-local_to.x, local_to.y), M_PI);
-  if (abs(mc.change_angle) == M_PI) {
-    mc.change_angle = 0;
-  }
+  mc.next_accel += force;
 }

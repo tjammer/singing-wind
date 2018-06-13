@@ -32,7 +32,7 @@ struct Movement
   float change_angle{ 0 };
 
   MoveState active_state{ MoveState::Fall };
-  float max_change_angle{ 0.045 };
+  float max_change_angle{ 0.065 };
 };
 
 enum class KeyState

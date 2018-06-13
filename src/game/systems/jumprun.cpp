@@ -5,14 +5,6 @@
 #include "imgui.h"
 #include <iostream>
 
-float
-angle_to_direction(const WVec& direction, const Transform& t)
-{
-
-  auto local_to = inversed(t, direction);
-  return -t.direction * atan2f(-local_to.x, local_to.y);
-}
-
 void
 jump_run_update(JumpRun& jr, Movement& mc, Transform& t, const Input& ic)
 {
