@@ -2,19 +2,23 @@
 #include "comps.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_transform_2d.hpp>
+#include "imgui.h"
 
 void
-rotate_angle(float angle, float max_change_angle, Transform& pc)
+rotate_angle(float& angle, Transform& pc)
 {
-  pc.rotation += copysignf(fmin(max_change_angle, abs(angle)), angle);
+  // pc.rotation += copysignf(fmin(max_change_angle, abs(angle)), angle);
+  pc.rotation += angle;
 
   if (pc.rotation < 0) {
     pc.rotation *= -1;
     pc.direction *= -1;
+    angle *= -1;
   }
   if (pc.rotation > (float)M_PI) {
     pc.rotation = 2 * (float)M_PI - pc.rotation;
     pc.direction *= -1;
+    angle *= -1;
   }
 }
 
@@ -37,6 +41,7 @@ move_update(Movement& mc, Transform& pc, float dt)
   mc.accel = mc.next_accel;
   mc.next_accel = { 0, 0 };
   mc.timer += dt;
-  rotate_angle(mc.change_angle, mc.max_change_angle, pc);
-  mc.change_angle = 0;
+  mc.angular_velocity += mc.angular_accel * dt;
+  rotate_angle(mc.angular_velocity, pc);
+  mc.angular_accel = 0;
 }

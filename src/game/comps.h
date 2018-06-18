@@ -29,10 +29,10 @@ struct Movement
   WVec accel{ 0, 0 };
   WVec next_accel{ 0, 0 };
   float timer{ 0 };
-  float change_angle{ 0 };
+  float angular_accel{ 0 };
+  float angular_velocity{ 0 };
 
   MoveState active_state{ MoveState::Fall };
-  float max_change_angle{ 0.065 };
 };
 
 enum class KeyState

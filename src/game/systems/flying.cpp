@@ -77,25 +77,24 @@ dummy_flying(const Transform& t, Movement& mc, const Input& ic)
   constexpr float AIR_ACCEL = MAX_AIR_VEL * MAX_AIR_VEL * AIR_DRAG;
 
   WVec force{ 0, -GRAVITY };
-  mc.change_angle = angle_to_mouse(ic.mouse, t);
-  mc.max_change_angle = 0.08;
+  float mouse_angle = angle_to_mouse(ic.mouse, t);
+  if (abs(mouse_angle) > 0.1f) {
+    mc.angular_accel += copysignf(1, mouse_angle);
+  }
 
   auto dir = w_rotated({ 0, 1 }, t.direction * t.rotation);
   if (ic.left_click.is(KeyState::Press)) {
-    // auto dir = ic.mouse - t.position;
     force += dir * AIR_ACCEL;
-    mc.max_change_angle = 0.07;
+    mc.angular_accel -= mc.angular_velocity * 14.2f;
   } else {
     force.y -= GRAVITY;
+    mc.angular_accel -= mc.angular_velocity * 12.5f;
   }
   auto angle = w_angle_to_vec(mc.velocity, dir);
   float vel = w_magnitude(mc.velocity);
   force -= drag(angle) * AIR_DRAG * mc.velocity * vel;
   force += w_tangent(w_normalize(mc.velocity)) * vel * vel *
            lift(angle, STALL_ANGLE) * LIFT;
-
-  ImGui::Text("%f", lift(angle, STALL_ANGLE));
-  ImGui::Text("%f", drag(angle));
 
   mc.next_accel += force;
 }

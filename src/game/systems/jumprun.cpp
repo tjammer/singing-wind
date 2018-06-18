@@ -157,7 +157,7 @@ jump_run_update(JumpRun& jr, Movement& mc, Transform& t, const Input& ic)
   }
 
   // rotations
-  mc.change_angle = -t.rotation;
+  // mc.change_angle = -t.rotation;
 
   auto direc = inversed(t, ic.mouse - t.position);
 
