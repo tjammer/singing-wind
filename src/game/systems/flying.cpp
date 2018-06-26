@@ -21,6 +21,7 @@ drag(float angle)
     return drag(-angle);
   }
   if (angle < HALF_PI) {
+    // finite stall at 0
     return expf(-powf(angle - HALF_PI, 2.0f) * 2.f) * 0.25f + 0.75f;
   }
   return 1;
@@ -64,7 +65,7 @@ hover(const Transform& pc, Movement& mc, const Input& ic)
 void
 dummy_flying(const Transform& t, Movement& mc, const Input& ic)
 {
-  // TODO: angular momentum
+  // TODO: sanitize values
 
   // quadratic
   // v_max = sqrt(a/f)
