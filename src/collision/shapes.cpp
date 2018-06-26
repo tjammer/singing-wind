@@ -30,7 +30,7 @@ weighted_center(const std::vector<WVec>& vecs)
   return WVec{ x, y };
 }
 
-Polygon::Polygon(const std::vector<WVec>& vecs)
+PolygonShape::PolygonShape(const std::vector<WVec>& vecs)
 {
   m_vecs.insert(m_vecs.end(), vecs.begin(), vecs.end());
   m_tvecs.insert(m_tvecs.end(), vecs.begin(), vecs.end());
@@ -65,7 +65,7 @@ Polygon::Polygon(const std::vector<WVec>& vecs)
 }
 
 void
-Polygon::transform(const Transform& t)
+PolygonShape::transform(const Transform& t)
 {
   m_tcenter = transformed(t, m_center);
   for (unsigned int i = 0; i < m_vecs.size(); ++i) {
@@ -74,7 +74,7 @@ Polygon::transform(const Transform& t)
 }
 
 WVec
-Polygon::support(const WVec& dir, const Transform& t) const
+PolygonShape::support(const WVec& dir, const Transform& t) const
 {
   auto local_dir = inversed(t, dir);
 
@@ -91,7 +91,7 @@ Polygon::support(const WVec& dir, const Transform& t) const
 }
 
 WVec
-Polygon::support(const WVec& dir) const
+PolygonShape::support(const WVec& dir) const
 {
   auto proj = -std::numeric_limits<float>::max();
   WVec out;
@@ -106,7 +106,7 @@ Polygon::support(const WVec& dir) const
 }
 
 std::vector<WVec>
-Polygon::draw_vertices(const Transform& t) const
+PolygonShape::draw_vertices(const Transform& t) const
 {
   std::vector<WVec> out;
 

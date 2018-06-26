@@ -51,7 +51,7 @@ Game::Game()
     for (auto fv : *face->indices()) {
       faceverts.push_back(vertices[fv]);
     }
-    Polygon shape{ faceverts };
+    PolygonShape shape{ faceverts };
 
     m_grid->lazy_add({ shape.center(), shape.radius(), std::move(shape) });
   }

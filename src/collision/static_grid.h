@@ -14,7 +14,7 @@ struct StaticPolygon
 {
   WVec center;
   float radius;
-  Polygon shape;
+  PolygonShape shape;
   mutable int tag;
 };
 

@@ -4,10 +4,10 @@
 #include "convex_shape.h"
 #include <vector>
 
-class Polygon : public ConvexShape
+class PolygonShape : public ConvexShape
 {
 public:
-  Polygon(const std::vector<WVec>& vecs);
+  PolygonShape(const std::vector<WVec>& vecs);
   void transform(const Transform& t) override;
   WVec support(const WVec& dir, const Transform& t) const override;
   WVec support(const WVec& dir) const override;
