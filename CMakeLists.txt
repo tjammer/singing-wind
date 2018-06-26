@@ -9,14 +9,12 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2 -fno-exceptions -Wal
 add_subdirectory(external)
 include_directories(${PROJECT_BINARY_DIR})
 
-add_executable(singing_wind "")
-include(src/files.cmake)
-
 if (WIN32)
     set(CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc -static-libstdc++ -Wl,-Bstatic -lstdc++ -lpthread")
-    add_executable(singing_wind WIN32 ${SOURCE_FILES} ${protosrc} ${protohdr})
 endif()
 
+add_executable(singing_wind "")
+include(src/files.cmake)
 
 include(assets/assets.cmake)
 add_dependencies(assets schemas)
