@@ -27,6 +27,8 @@ Game::Game()
   m_world.create_component(player, Movement{});
   // m_world.create_component(player, IsFalling{});
   m_world.create_component(player, JumpRun{});
+  m_world.create_component(
+    player, Appearance{ WTexture{ "assets/1stpass.png" }, { 100.f, 100.f } });
 
   auto& pc = m_world.get_component<Transform>(player);
   pc.position.y = 300;

@@ -7,6 +7,12 @@
 
 const float MAX_FLOOR_ANGLE{ 0.7f };
 
+inline bool
+is_on_floor(const WVec& normal)
+{
+  return w_dot(WVec{ 0, -1 }, normal) > MAX_FLOOR_ANGLE;
+}
+
 void
 collision_update(Collision& cc,
                  Transform& pc,
@@ -24,7 +30,7 @@ collision_update(Collision& cc,
     pc.position += move_back;
 
     // player can stand on slopes
-    if (w_dot(WVec(0, -1), cc.result.normal) > MAX_FLOOR_ANGLE) {
+    if (is_on_floor(cc.result.normal)) {
       WVec correction = w_slide(WVec(move_back.x, 0), cc.result.normal);
       if (correction.x != 0) {
         correction *= move_back.x / correction.x;
@@ -32,26 +38,8 @@ collision_update(Collision& cc,
       pc.position -= correction;
     }
 
-    // slide movement and collide again
-    // circle to world
-
-    // cc.shape->transform(pc.global_transform);
-
-    // auto second_result = grid.test_against_grid(cc.shape);
-
-    // cc.shape->reset();
-
-    // if (second_result.collides) {
-    //  WVec correction =
-    //    find_directed_overlap(second_result, WVec(-move_back.y, move_back.x));
-    //  pc.position += correction;
-
-    //  build_global_transform(pc);
-    //}
-
-    // call back
+    // response
     world.create_component(id, HasCollided{});
-    // world.get<StaticColComponent>(entity).col_response(world, entity);
   }
 }
 
@@ -64,7 +52,8 @@ on_collision(HasCollided,
 {
   world.destroy_component<HasCollided>(id);
   auto angle = w_dot(WVec{ 0, -1 }, cc.result.normal);
-  if (w_dot(WVec(0, -1), cc.result.normal) > MAX_FLOOR_ANGLE) {
+
+  if (is_on_floor(cc.result.normal)) {
     mc.timer = 0;
     mc.velocity.y = w_slide(mc.velocity, cc.result.normal).y * 0.5f;
     mc.active_state = MoveState::Run;

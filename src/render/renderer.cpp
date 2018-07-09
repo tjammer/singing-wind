@@ -30,7 +30,11 @@ std::vector<PrimitiveVertex> m_prim_line_verts;
 std::vector<PrimitiveVertex> m_prim_quad_verts;
 std::vector<unsigned short> m_prim_quad_inds;
 
+std::vector<TexturedVertex> m_tri_quad_verts;
+std::vector<unsigned short> m_tri_quad_inds;
+
 WShader primitive_shader;
+WShader textured_shader;
 }
 
 void ::WRenderer::init(GLFWwindow* window)
@@ -43,6 +47,7 @@ void ::WRenderer::init(GLFWwindow* window)
   glBindBuffer(GL_ARRAY_BUFFER, prim_vbo);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, prim_ebo);
 
+  // primitives
   glVertexAttribPointer(
     0, 2, GL_FLOAT, GL_FALSE, sizeof(PrimitiveVertex), (GLvoid*)0);
   glEnableVertexAttribArray(0);
@@ -56,6 +61,7 @@ void ::WRenderer::init(GLFWwindow* window)
   glBindVertexArray(0);
 
   primitive_shader = { "shaders/triangle.vs.glsl", "shaders/triangle.fs.glsl" };
+  textured_shader = { "shaders/textured.vs.glsl", "shaders/textured.fs.glsl" };
 
   // camera
   int width, height;

@@ -20,10 +20,17 @@ struct PrimitiveVertex
   float color[3];
 };
 
+struct TexturedVertex
+{
+  float position[2];
+  float tex_coord[2];
+};
+
 enum PrimitiveStyle
 {
   PLines,
-  PQuads
+  PQuads,
+  PTextured
 };
 
 namespace WRenderer {

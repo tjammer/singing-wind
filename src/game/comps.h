@@ -5,6 +5,7 @@
 #include "transform.h"
 #include "gjk.h"
 #include "input_buffer.h"
+#include "texture.h"
 #include <memory>
 
 namespace ecs {
@@ -76,5 +77,11 @@ struct Collision
 };
 
 using HasCollided = ecs::tag<struct has_collided>;
+
+struct Appearance
+{
+  WTexture tex;
+  WVec size;
+};
 
 #endif /* COMPS_H */
