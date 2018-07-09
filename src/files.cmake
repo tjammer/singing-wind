@@ -29,6 +29,7 @@ target_sources(singing_wind
   ${CMAKE_CURRENT_LIST_DIR}/render/renderer.cpp
   ${CMAKE_CURRENT_LIST_DIR}/render/texture.cpp
   ${CMAKE_CURRENT_LIST_DIR}/render/shader.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/render/vertex_array.cpp
   ${CMAKE_CURRENT_LIST_DIR}/ecs/ecs.hpp
   ${CMAKE_CURRENT_LIST_DIR}/collision/static_grid.cpp
   ${CMAKE_CURRENT_LIST_DIR}/collision/gjk.cpp
