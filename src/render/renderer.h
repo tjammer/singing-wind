@@ -43,9 +43,9 @@ reset();
 void
 add_primitive_vertex(const PrimitiveVertex& vert);
 void
+add_primitive_vertex(const PrimitiveVertex& vert);
+void
 render_array();
-unsigned int
-get_vao();
 void
 set_mode(int mode);
 void

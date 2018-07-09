@@ -124,11 +124,6 @@ void
 WRenderer::shutdown()
 {}
 
-unsigned int ::WRenderer::get_vao()
-{
-  return prim_vao;
-}
-
 void
 WRenderer::reset()
 {
