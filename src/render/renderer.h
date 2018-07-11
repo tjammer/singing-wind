@@ -13,6 +13,7 @@
 #include "w_vec.h"
 
 struct Camera;
+struct Transform;
 
 struct PrimitiveVertex
 {
@@ -43,7 +44,7 @@ reset();
 void
 add_primitive_vertex(const PrimitiveVertex& vert);
 void
-add_sprite(const WVec& position, const WVec& size, unsigned int tex);
+add_sprite(const Transform& t, const WVec& size, unsigned int tex);
 void
 render_array();
 void

@@ -31,5 +31,5 @@ debug_draw_update(const Transform& pc, const StaticGrid& grid)
 void
 draw_update(const Appearance& ac, const Transform& t)
 {
-  WRenderer::add_sprite(t.position, ac.size, ac.tex.get());
+  WRenderer::add_sprite(t, ac.size, ac.tex.get());
 }

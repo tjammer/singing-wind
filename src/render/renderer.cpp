@@ -4,6 +4,7 @@
 #include "renderer.h"
 #include "camera.h"
 #include "vertex_array.h"
+#include "transform.h"
 #include <GLFW/glfw3.h>
 #include <shader.h>
 #include <assert.h>
@@ -62,17 +63,17 @@ WRenderer::add_primitive_vertex(const PrimitiveVertex& vert)
 }
 
 void
-WRenderer::add_sprite(const WVec& center, const WVec& size, unsigned int tex)
+WRenderer::add_sprite(const Transform& t, const WVec& size, unsigned int tex)
 {
   active_texture = tex;
-  m_tex_va.vertices.push_back(
-    { { center.x - size.x, center.y - size.y }, { 0.0f, 0.0f } });
-  m_tex_va.vertices.push_back(
-    { { center.x - size.x, center.y + size.y }, { 0.0f, 1.0f } });
-  m_tex_va.vertices.push_back(
-    { { center.x + size.x, center.y + size.y }, { 1.0f, 1.0f } });
-  m_tex_va.vertices.push_back(
-    { { center.x + size.x, center.y - size.y }, { 1.0f, 0.0f } });
+  auto p1 = transformed(t, { -size.x * (float)t.direction, -size.y });
+  m_tex_va.vertices.push_back({ { p1.x, p1.y }, { 0.0f, 0.0f } });
+  auto p2 = transformed(t, { -size.x * (float)t.direction, +size.y });
+  m_tex_va.vertices.push_back({ { p2.x, p2.y }, { 0.0f, 1.0f } });
+  auto p3 = transformed(t, { size.x * (float)t.direction, size.y });
+  m_tex_va.vertices.push_back({ { p3.x, p3.y }, { 1.0f, 1.0f } });
+  auto p4 = transformed(t, { size.x * (float)t.direction, -size.y });
+  m_tex_va.vertices.push_back({ { p4.x, p4.y }, { 1.0f, 0.0f } });
 
   m_tex_va.indices.push_back(0);
   m_tex_va.indices.push_back(1);
