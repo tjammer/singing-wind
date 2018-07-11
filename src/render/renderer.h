@@ -43,7 +43,7 @@ reset();
 void
 add_primitive_vertex(const PrimitiveVertex& vert);
 void
-add_primitive_vertex(const PrimitiveVertex& vert);
+add_sprite(const WVec& position, const WVec& size, unsigned int tex);
 void
 render_array();
 void

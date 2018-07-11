@@ -41,6 +41,12 @@ struct VertexArray
     glDrawElements(mode, indices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
   }
+
+  void clear()
+  {
+    vertices.clear();
+    indices.clear();
+  }
 };
 
 #endif /* VERTEX_ARRAY_H */

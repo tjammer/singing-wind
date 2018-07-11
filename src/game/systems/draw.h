@@ -5,8 +5,12 @@
 
 struct Transform;
 class StaticGrid;
+struct Appearance;
 
 void
-draw_update(const Transform& pc, const StaticGrid& grid);
+debug_draw_update(const Transform& pc, const StaticGrid& grid);
+
+void
+draw_update(const Appearance& ac, const Transform& t);
 
 #endif /* DRAW_H */

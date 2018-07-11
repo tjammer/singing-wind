@@ -15,7 +15,7 @@ verts_to_renderer(const std::vector<WVec>& verts)
 }
 
 void
-draw_update(const Transform& pc, const StaticGrid& grid)
+debug_draw_update(const Transform& pc, const StaticGrid& grid)
 {
   WRenderer::set_mode(PLines);
   Transform zerotf;
@@ -26,4 +26,10 @@ draw_update(const Transform& pc, const StaticGrid& grid)
 
   auto circle = Capsule{ 15, 10 };
   verts_to_renderer(circle.draw_vertices(pc));
+}
+
+void
+draw_update(const Appearance& ac, const Transform& t)
+{
+  WRenderer::add_sprite(t.position, ac.size, ac.tex.get());
 }

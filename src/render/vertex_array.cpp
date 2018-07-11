@@ -52,9 +52,9 @@ VertexArray<PrimitiveVertex>::draw() const
 
 template<>
 void
-VertexArray<TexturedVertex>::init(unsigned int mode)
+VertexArray<TexturedVertex>::init(unsigned int a_mode)
 {
-
+  mode = a_mode;
   glGenBuffers(1, &vbo);
   glGenBuffers(1, &ebo);
   glGenVertexArrays(1, &vao);
