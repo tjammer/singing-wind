@@ -3,6 +3,7 @@
 //
 #include "renderer.h"
 #include "camera.h"
+#include "vertex_array.h"
 #include <GLFW/glfw3.h>
 #include <shader.h>
 #include <assert.h>
@@ -24,42 +25,17 @@ glm::tmat4x4<float> projection;
 glm::tmat4x4<float> camera_transform;
 
 int m_mode = -1;
-GLuint prim_vao, prim_vbo, prim_ebo;
 
-std::vector<PrimitiveVertex> m_prim_line_verts;
-std::vector<PrimitiveVertex> m_prim_quad_verts;
-std::vector<unsigned short> m_prim_quad_inds;
-
-std::vector<TexturedVertex> m_tri_quad_verts;
-std::vector<unsigned short> m_tri_quad_inds;
+VertexArray<PrimitiveVertex> m_prim_va;
 
 WShader primitive_shader;
 WShader textured_shader;
 }
 
-void ::WRenderer::init(GLFWwindow* window)
+void
+WRenderer::init(GLFWwindow* window)
 {
-
-  glGenBuffers(1, &prim_vbo);
-  glGenBuffers(1, &prim_ebo);
-  glGenVertexArrays(1, &prim_vao);
-  glBindVertexArray(prim_vao);
-  glBindBuffer(GL_ARRAY_BUFFER, prim_vbo);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, prim_ebo);
-
-  // primitives
-  glVertexAttribPointer(
-    0, 2, GL_FLOAT, GL_FALSE, sizeof(PrimitiveVertex), (GLvoid*)0);
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(1,
-                        3,
-                        GL_FLOAT,
-                        GL_FALSE,
-                        sizeof(PrimitiveVertex),
-                        (GLvoid*)(2 * sizeof(GLfloat)));
-  glEnableVertexAttribArray(1);
-  glBindVertexArray(0);
-
+  m_prim_va.init(GL_LINES);
   primitive_shader = { "shaders/triangle.vs.glsl", "shaders/triangle.fs.glsl" };
   textured_shader = { "shaders/textured.vs.glsl", "shaders/textured.fs.glsl" };
 
@@ -72,20 +48,10 @@ void ::WRenderer::init(GLFWwindow* window)
 void
 WRenderer::add_primitive_vertex(const PrimitiveVertex& vert)
 {
-  if (m_mode == PLines) {
-    m_prim_line_verts.push_back(vert);
-  } else if (m_mode == PQuads) {
-    m_prim_quad_verts.push_back(vert);
-    if (m_prim_quad_verts.size() % 4 == 0) {
-      // setup indices
-      auto offset = static_cast<unsigned short>(m_prim_quad_verts.size()) - 4;
-      for (unsigned short i : { 0, 1, 2, 0, 2, 3 }) {
-        m_prim_quad_inds.push_back(offset + i);
-      }
-    }
-  } else {
+  if (m_mode != PLines) {
     assert(false);
   }
+  m_prim_va.vertices.push_back(vert);
 }
 
 void
@@ -96,28 +62,9 @@ WRenderer::render_array()
   glUniformMatrix4fv(
     transformLoc, 1, GL_FALSE, glm::value_ptr(camera_transform));
   primitive_shader.use();
-  glBindVertexArray(prim_vao);
-  glBindBuffer(GL_ARRAY_BUFFER, prim_vbo);
-  glBufferData(GL_ARRAY_BUFFER,
-               m_prim_line_verts.size() * sizeof(PrimitiveVertex),
-               m_prim_line_verts.data(),
-               GL_DYNAMIC_DRAW);
 
-  glDrawArrays(GL_LINES, 0, m_prim_line_verts.size());
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, prim_ebo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-               m_prim_quad_inds.size() * sizeof(unsigned short),
-               m_prim_quad_inds.data(),
-               GL_DYNAMIC_DRAW);
-
-  glBufferData(GL_ARRAY_BUFFER,
-               m_prim_quad_verts.size() * sizeof(PrimitiveVertex),
-               m_prim_quad_verts.data(),
-               GL_DYNAMIC_DRAW);
-  glDrawElements(GL_TRIANGLES, m_prim_quad_inds.size(), GL_UNSIGNED_SHORT, 0);
-
-  glBindVertexArray(0);
+  m_prim_va.to_gpu();
+  m_prim_va.draw();
 }
 
 void
@@ -127,9 +74,7 @@ WRenderer::shutdown()
 void
 WRenderer::reset()
 {
-  m_prim_line_verts.clear();
-  m_prim_quad_verts.clear();
-  m_prim_quad_inds.clear();
+  m_prim_va.vertices.clear();
 }
 
 void
